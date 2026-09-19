@@ -1,0 +1,23 @@
+.DS_Store
+.env
+.venv/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+*.py[cod]
+
+# Dados e artefatos de ML nao devem ir para o Git.
+data/raw/*
+data/interim/*
+data/processed/*
+models/*
+!data/**/.gitkeep
+!data/README.md
+!models/.gitkeep
+
+# Artefatos locais
+.streamlit/secrets.toml
+coverage.xml
+htmlcov/
+tmp/
+

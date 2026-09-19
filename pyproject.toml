@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "curtamap"
+version = "0.1.0"
+description = "Previsao, diagnostico e recomendacao para curtailment eolico e solar"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = "MIT"
+dependencies = [
+  "duckdb>=1.4",
+  "joblib>=1.5",
+  "plotly>=6.3",
+  "polars>=1.35",
+  "pyarrow>=21",
+  "pydantic-settings>=2.10",
+  "scikit-learn>=1.7",
+  "streamlit>=1.49",
+]
+
+[project.optional-dependencies]
+aws = ["boto3>=1.40"]
+data = ["gdown>=6.4"]
+llm = ["openai>=2.0"]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.4",
+  "pytest-cov>=6.2",
+  "ruff>=0.13",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/curtamap"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
