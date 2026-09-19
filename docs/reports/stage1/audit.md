@@ -1,6 +1,6 @@
 # Auditoria dos cinco Parquet
 
-Execução: 2026-09-19T19:47:07.562917+00:00.
+Execução: 2026-09-19T20:41:22.851358+00:00.
 
 Fonte: ONS, snapshot tratado fornecido pelo hackathon. SHA-256 e schemas no JSON.
 Nulos condicionais usam limite não nulo. Detail não possui limite (N/A).
@@ -64,7 +64,9 @@ não regras automáticas de remoção. Fuso horário não consta nos Parquet.
       "matched_ids": 11
     },
     "individual_values": {
+      "join_rows": 562848,
       "matched_intervals": 562848,
+      "duplicated_join_rows": 0,
       "generation_different": 0,
       "generation_missing": 0,
       "max_abs_difference_mw": 0.0
@@ -86,7 +88,9 @@ não regras automáticas de remoção. Fuso horário não consta nos Parquet.
       "matched_ids": 4
     },
     "individual_values": {
+      "join_rows": 169536,
       "matched_intervals": 169536,
+      "duplicated_join_rows": 0,
       "generation_different": 0,
       "generation_missing": 0,
       "max_abs_difference_mw": 0.0

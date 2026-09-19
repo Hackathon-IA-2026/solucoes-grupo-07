@@ -125,3 +125,43 @@ def test_detail_flag_and_missing_weather(tmp_path):
     assert r["domains"]["flg_dadoventoinvalido"]["invalid_rows"] == 1
     assert r["nulls"]["val_ventoverificado"]["nulls"] == 1
     assert r["nulls"]["val_ventoverificado"]["limited_nulls"] is None
+
+
+def test_identity_drift_counts_change_between_null_and_value(tmp_path):
+    p = write_main(tmp_path / "null_drift.parquet", [{"ceg": None}, {"ceg": "EOL.X"}])
+    r = audit_file(p, SPECS["eolica"])
+    assert r["identity_drift"][0]["cegs"] == 2
+
+
+def test_detail_comparison_reports_join_multiplicity(tmp_path):
+    from curtamap.audit import compare_detail
+
+    t = datetime(2024, 1, 1)
+    main = write_main(
+        tmp_path / "main.parquet",
+        [
+            {"id_ons": "IND", "ceg": "EOL.1", "val_geracao": 5.0},
+            {"id_ons": "IND", "ceg": "EOL.1", "din_instante": t + timedelta(minutes=30)},
+            {"id_ons": "CONJ", "ceg": "-"},
+        ],
+    )
+    spec = SPECS["eolica_detail"]
+    rows = []
+    for minutes, value in [(0, 5.0), (0, 5.0), (30, 3.0)]:
+        row = {name: None for name in spec.schema.names}
+        row.update(
+            fonte="eolica",
+            id_ons="IND",
+            din_instante=t + timedelta(minutes=minutes),
+            val_geracaoverificada=value,
+        )
+        rows.append(row)
+    detail = tmp_path / "detail.parquet"
+    pq.write_table(pa.Table.from_pylist(rows, schema=spec.schema), detail)
+    r = compare_detail(main, detail)
+    assert r["individual_overlap"] == {"main_individual_ids": 1, "matched_ids": 1}
+    v = r["individual_values"]
+    assert v["join_rows"] == 3
+    assert v["matched_intervals"] == 2
+    assert v["duplicated_join_rows"] == 1
+    assert v["generation_different"] == 1

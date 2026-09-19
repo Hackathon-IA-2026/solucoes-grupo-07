@@ -15,6 +15,8 @@ import pyarrow.parquet as pq
 from curtamap.data_contract import SPECS, DatasetSpec, schema_issues
 from curtamap.download_data import DATASET_FOLDER_URL
 
+NULL_TOKEN = "'<NULL>'"
+
 
 def connect() -> duckdb.DuckDBPyConnection:
     con = duckdb.connect(config={"memory_limit": "4GB", "threads": 4})
@@ -190,9 +192,12 @@ def audit_file(path: Path, spec: DatasetSpec) -> dict:
         )
         r["identity_drift"] = records(
             con,
-            """SELECT fonte,id_ons,
-            count(DISTINCT nom_usina) AS names,count(DISTINCT id_estado) states,
-            count(DISTINCT id_subsistema) subsystems,count(DISTINCT ceg) cegs
+            # coalesce: troca entre NULL e valor também é mudança de identidade.
+            f"""SELECT fonte,id_ons,
+            count(DISTINCT coalesce(nom_usina,{NULL_TOKEN})) AS names,
+            count(DISTINCT coalesce(id_estado,{NULL_TOKEN})) AS states,
+            count(DISTINCT coalesce(id_subsistema,{NULL_TOKEN})) AS subsystems,
+            count(DISTINCT coalesce(ceg,{NULL_TOKEN})) AS cegs
             FROM d GROUP BY ALL HAVING names>1 OR states>1 OR subsystems>1 OR cegs>1
             ORDER BY 1,2""",
         )
@@ -285,9 +290,12 @@ def compare_detail(main: Path, detail: Path) -> dict:
         )[0]
         result["individual_values"] = records(
             con,
-            """SELECT count(*) matched_intervals,
+            # Duplicatas do detail multiplicam o join; a contagem distinta expõe isso.
+            """SELECT count(*) AS join_rows,
+            count(DISTINCT (fonte,id_ons,din_instante)) AS matched_intervals,
+            count(*)-count(DISTINCT (fonte,id_ons,din_instante)) AS duplicated_join_rows,
             count(*) FILTER(WHERE abs(m.val_geracao-d.val_geracaoverificada)>0.001)
-                generation_different,
+                AS generation_different,
             count(*) FILTER(WHERE m.val_geracao IS NULL OR d.val_geracaoverificada IS NULL)
                 generation_missing,
             max(abs(m.val_geracao-d.val_geracaoverificada)) max_abs_difference_mw
