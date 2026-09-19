@@ -191,3 +191,283 @@ fornece evidência de credibilidade e limites, não melhoria de previsão.
 
 Formalizar o alvo, medir o impacto das anomalias e confrontar a fórmula com a GNR
 publicada diretamente pelo ONS, antes de interpretar tendências no notebook.
+
+## 2026-09-19 - Etapa 1.2: alvo e confronto com GNRa publicada
+
+### Contexto e pergunta
+
+A fórmula proposta mede geração não realizada e corresponde aos campos oficiais?
+
+### Fatos e evidências observados
+
+Os dicionários ONS atuais incluem GNRa com a diferença referência menos geração,
+clipping zero e condicionamento à limitação. Foram baixados 64 arquivos oficiais dos
+mesmos períodos, separados em `data/interim/official`. A fórmula reproduziu os
+3.127.621 valores publicados não nulos, sem divergência acima de 0,001 MW. Há 129.615
+GNRa nulas em intervalos solares limitados de 2024: soma parcial não é total comparável.
+O snapshot local de 2025 soma 37,21075 TWh; publicação atual difere −0,0160% na eólica
+e −0,0212% na solar. Fontes/checksums/comparações estão nos relatórios `official-*`.
+
+### Interpretação, decisão e alternativas
+
+Separar comando de limitação e volume positivo. Usar referência comum, não referência
+final REL para todas as causas. Preservar negativos e sinalizar 21 volumes eólicos
+indeterminados; manter variante bruta de sensibilidade, 3.732,3295 MWh nesses casos.
+Descartamos imputaçao silenciosa e substituição dos originais por dados revisados.
+A revisão do Opus foi avaliada criticamente e preservada em `docs/reviews/`.
+
+### Implementação e validação
+
+Função pura Polars e projeção DuckDB têm testes de paridade, nulos, zero, clipping,
+negativos, NaN/infinito, causas/origens, fonte e conversão de unidade. O comparador
+público tem testes de cobertura, diferenças e integração das cinco dimensões.
+TDD confirmou módulo ausente e depois rejeitou comparação de totais incompletos;
+a implementação mantém esses deltas nulos. Consulte `docs/target-definition.md`.
+
+### Limitações e incertezas
+
+Comparar totais não reconcilia revisões linha a linha. O JSON detail eólico contém
+campos do principal; preservamos a resposta e conferimos o PDF. Fuso/início/fim de
+janela e latência de publicação seguem pendentes. Totais são estimativas provisórias.
+
+### Valor para o usuário e apresentação
+
+Podemos explicar de onde vem cada MWh analítico, sem prometer compensação, recuperação
+ou equivalência com estatísticas comerciais. Nenhum LLM produziu as métricas.
+
+### Próximos passos
+
+Concluir a interpretação da EDA no notebook, inventário contra vazamento, notas do
+pitch, revisão de código pelo Opus e fechamento documental da Etapa 1.
+
+## 2026-09-19 - Etapa 1.3: revisão independente do trabalho anterior e revisões do ONS
+
+### Contexto e pergunta
+
+Um segundo agente recebeu a tarefa de revisar criticamente tudo o que a Etapa 1 já havia
+produzido (auditoria, alvo, validação pública) antes de concluí-la. A pergunta era: as
+conclusões registradas nas entradas 1.1 e 1.2 resistem a uma leitura adversarial?
+
+### Fatos e evidências observados
+
+- **Correção da entrada 1.2.** A entrada anterior citava só os deltas de 2025 (−0,0160% e
+  −0,0212%). Os outros anos têm deltas maiores: eólica −0,238% (2023), **−0,850%
+  (2024)**; solar −0,482% (2026). Além disso, `formula_validation` compara a GNRa publicada
+  com a fórmula aplicada **ao próprio arquivo oficial**. Ela valida a definição, mas não
+  diz se o snapshot é igual à publicação.
+- Foi criada uma junção linha a linha snapshot × publicação atual (`revision_check`), pela chave
+  `fonte + id_ons + din_instante`. Resultados: 10.806.096 linhas casam; 132.290 têm geração,
+  limite ou referência diferentes; 173 têm rótulo diferente; 52.310 intervalos mudam de
+  energia (soma −298.040 MWh); **47 de 64 meses** diferem. Os arquivos oficiais foram
+  modificados entre 13/02/2025 e 19/09/2026; meses de 2023 foram regravados em 14/09/2026.
+- A primeira versão da junção indicava cerca de 584 mil “revisões” solares em 2024. A
+  investigação mostrou que eram só representação: `NULL` no snapshot e `''` na publicação atual.
+  Com a normalização, sobram 173 diferenças reais de rótulo.
+- 624 linhas de nov/2024 trocaram de código: `BA4ECLA` virou `CJU_BA4ECLA`.
+- Bug de SQL: o alias `matched` sem `AS` é palavra reservada no DuckDB e quebrou a consulta
+  nova. Todos os aliases da função passaram a usar `AS`. Também foi corrigida a precedência
+  de `AND`/`OR` no contador `changed_energy`.
+- Auditoria: `identity_drift` ignorava trocas entre `NULL` e valor, e o join detail × principal
+  não media multiplicação por duplicatas. Após a correção e a reexecução (48 s): nenhuma
+  mudança de UF, subsistema ou CEG, e `duplicated_join_rows = 0`. As conclusões de 1.1 se
+  mantêm.
+- O detail eólico começa em 01/01/2023, nove meses antes da principal. Isso não estava
+  documentado.
+
+### Interpretação e decisão
+
+- As diferenças entre o snapshot e a publicação vêm de **revisões pós-operação do ONS**, não da
+  fórmula. Todos os totais passam a ser tratados como provisórios. O JSON agora carrega
+  `status: provisional` e o escopo explícito (não é reconciliação financeira, comercial nem CCEE).
+- O snapshot continua sendo a fonte do alvo, porque é a base oficial do desafio. A publicação
+  atual serve só como validação. Não substituímos os dados.
+- Revisões são um risco de vazamento temporal: um backtest com dados revisados usa
+  informação inexistente em `t0`. Isso foi registrado no inventário.
+- `rotulo_sem_limite` passou a ignorar texto vazio, e foi criada a flag `origem_desconhecida`,
+  simétrica a `razao_desconhecida`.
+
+### Alternativas consideradas
+
+- Comparar só totais: rejeitado, porque não separa revisão de erro de fórmula.
+- Tratar `''` como rótulo: rejeitado, porque inflaria contradições artificiais em dados futuros.
+- Reconciliar entidades renomeadas por nome: adiado, pois nome não é chave validada.
+
+### Implementação e validação
+
+Ciclo TDD: testes novos falharam primeiro (`ImportError` de `revision_check`, `KeyError` de
+`origem_desconhecida`, contagem de `cegs` com `NULL`, ausência de `join_rows`) e depois
+passaram. Os casos cobertos são: linha só em um lado, valor revisado, `''` × `NULL`,
+referência igual à geração, conversão 100 MWmed → 50 MWh, grade incompleta preservada e
+paridade Polars × DuckDB. Os relatórios `audit.json` e `official-comparison.json` foram
+regenerados.
+
+### Revisão metodológica externa
+
+A revisão da entrada 1.1 foi feita com o modelo `claude-opus-5`, esforço `high`, somente
+leitura, sem edição automática. O metadado local confirma o modelo. Cada uma das 15 sugestões
+foi triada em `docs/reviews/opus-stage1-methodology.md`:
+
+- **Aceitas:** 2, 5, 6, 8, 9, 10, 11, 12, 13 e 15.
+- **Aceita como limitação:** 4, sobre fuso e convenção de início/fim.
+- **Adaptadas:** 1 (dois alvos, sem forçar a troca) e 7 (igualdade exata em vez de tolerância).
+- **Parcialmente aceita:** 14 (temp_directory no padrão).
+- **Parcialmente rejeitada:** 3. A fórmula não é “só hipótese”, pois reproduz 3.127.621 valores
+  publicados; os totais continuam provisórios.
+
+### Limitações e incertezas
+
+Não temos o histórico de versões (vintages) do ONS: não dá para reconstruir o que era
+conhecido em cada data. A latência de publicação continua desconhecida.
+
+### Valor para o usuário e para a apresentação
+
+Mostra rigor: sabemos exatamente o que foi validado (a fórmula) e o que não foi (a igualdade com
+a publicação atual). Também mostra uma característica real dos dados que o gerador precisa
+conhecer: o ONS revisa o passado.
+
+### Próximos passos
+
+Refazer a EDA em notebook e concluir o inventário de vazamento (entrada 1.4).
+
+## 2026-09-19 - Etapa 1.4: EDA em notebook, inventário contra vazamento e fechamento da Etapa 1
+
+### Contexto e pergunta
+
+O usuário pediu a EDA contida em um único notebook executável, com narrativa, consultas,
+tabelas e gráficos. A EDA existia só como agregações em `eda.py` e um JSON temporário não
+versionado. Pergunta: o problema é grande, crescente, concentrado e recorrente o suficiente para
+justificar antecipação por entidade?
+
+### Fatos e evidências observados
+
+Todos os fatos abaixo vêm de `notebooks/01_eda_fundamentos_dados.ipynb` e são conferidos por
+`assert` na seção 13.
+
+- **Crescimento.** Na mesma janela abr–ago, a eólica foi de 4,40 para 9,54 e 12,24 TWh
+  (2024–2026), e a solar de 1,38 para 4,72 e 6,03 TWh.
+- **Painel fixo.** Na eólica, 135 entidades vão de 3,18 para 7,61 e 10,27 TWh. Na solar,
+  50 entidades vão de 1,20 para 3,39 e **3,36** TWh. O crescimento solar recente vem de
+  entidades novas.
+- **Causa.** CNF dominava a eólica em 2024 (61%). ENE domina em 2025 (51% eólica, 61% solar)
+  e em 2026 (61% e 84%). ENE eólico, em abr–ago, foi de 0,75 para 7,96 TWh; CNF ficou em cerca
+  de 3 TWh. Em fev/2025 houve um pico isolado de REL eólico, com 2,01 TWh.
+- **Geografia (2025).** Total de 37,21 TWh, 70% eólico. RN 32%, BA 29%, MG 13%; NE 84%.
+- **Concentração.** 36, 85 e 112 de 180 entidades eólicas e 13, 34 e 49 de 87 solares concentram
+  50, 80 e 90% da energia.
+- **Tempo.** O pico de incidência é às 10 h, como publicado. A eólica tem incidência noturna de
+  9–14%.
+- **Episódios.** Mediana de 9 e 10 intervalos, ou seja, 4,5–5 h. Só 15–16% duram 30 min, e
+  87–89% dos intervalos com corte estão em episódios de 4 h ou mais.
+- **Persistência.** P(corte | corte 24 h antes) = 0,70 e 0,71, contra bases de 0,26 e 0,19.
+  P(corte | corte 30 min antes) = 0,92 e 0,90.
+- **Comando × corte.** 18% das limitações eólicas e 22% das solares têm volume zero.
+- **Rótulos.** 0 limitações eólicas e 42 solares sem causa ou origem válida. PAR está ausente.
+  A origem é SIS em 75% dos intervalos limitados eólicos e em 90% dos solares.
+
+### Interpretação e decisão
+
+- A narrativa do “por que agora” se sustenta com dados próprios: crescimento em painel fixo
+  (eólica) e mudança de regime de CNF/local para ENE/sistêmico. Para o gerador, isso significa
+  perdas mais longas e simultâneas em muitas usinas.
+- A persistência alta indica que os baselines serão fortes. O valor do modelo precisa ser medido
+  contra “mesmo horário do dia anterior”, com latência declarada.
+- O critério descritivo de persistência (≥ 500 cortes e P(t+30 min) ≥ 0,8), fixado antes da
+  contagem, aprovou 175 de 180 e 80 de 87 entidades. Ele **não discrimina**. A conclusão
+  registrada é que a persistência é disseminada, não que exista um subconjunto especial.
+- Decisão para a Etapa 2: dois alvos de ocorrência, volume condicionado ao corte positivo e
+  avaliação por fonte, causa e painel.
+
+### Alternativas consideradas
+
+- Ler o `tmp/eda-tables.json` antigo: rejeitado, porque não é versionado nem reproduzível. O
+  notebook recalcula a partir de `data/raw/` em cerca de 8 s, após conferir o SHA-256.
+- Plotly: rejeitado para as saídas versionadas, porque embutir o plotly.js incharia o `.ipynb`.
+  Usamos matplotlib com paleta categórica validada para daltonismo.
+- Comparar totais anuais brutos: rejeitado, porque os anos das bordas são incompletos. Usamos a
+  janela abr–ago e 2025 como ano completo.
+- Texto com números digitados à mão sem verificação: rejeitado. A seção 13 falha se algum número
+  mudar.
+
+### Implementação e validação
+
+- `eda.py` ganhou `episode_durations` e `daily_persistence`, com testes escritos antes. Os
+  testes cobrem quebras por lacuna e por valor desconhecido e a exigência de par observado em
+  t−24 h.
+- O notebook foi gerado, formatado pelo Ruff e executado com `nbclient`. `tests/test_notebook.py`
+  verifica as saídas versionadas e reexecuta o notebook quando os Parquet existem (cerca de 10 s).
+- `docs/feature-inventory.md` classifica todos os campos do snapshot, os extras da publicação
+  atual e as colunas do alvo. `tests/test_feature_inventory.py` falha se algum campo ficar sem
+  classe. O documento registra: horizonte de 48 janelas; valores verificados futuros são
+  pós-evento; vento e irradiância do detail são verificados, não previsão; meteorologia futura só
+  com timestamp as-of; histórico próprio só como defasagem; latência ONS e revisões como
+  incerteza.
+- `pitch-notes.md` foi reescrito separando o que foi reproduzido, o que foi validado contra a
+  publicação atual, as referências externas e as hipóteses.
+- Os 20%, os 4.021 MWmed e os R$ 6,5 bi continuam **externos** e não reproduzidos.
+
+### Limitações e incertezas
+
+- Sem fuso e sem convenção de início/fim.
+- Anos incompletos.
+- Totais provisórios por causa das revisões.
+- 21 volumes eólicos indeterminados.
+- Persistência descritiva não é desempenho de modelo.
+- O detail não foi usado.
+- O notebook (0,95 MB) e o `audit.json` (1 MB) excedem o ideal de artefatos pequenos. É uma
+  exceção consciente, documentada no contrato de dados.
+
+### Valor para o usuário e para a apresentação
+
+Sustenta os blocos do pitch:
+
+- **Problema:** 37 TWh em 2025, concentrado e em episódios longos.
+- **Por que agora:** ENE mais que dez vezes maior na mesma janela, com crescimento no painel fixo.
+- **Solução:** persistência que permite antecipar.
+- **Credibilidade:** fórmula validada contra o ONS e limitações assumidas.
+
+O alerta sobre o painel fixo solar evita uma afirmação forte demais no palco.
+
+### Próximos passos
+
+Etapa 2:
+
+1. Congelar cortes temporais e protocolo as-of com cenários de latência.
+2. Implementar baselines e métricas por fonte e causa.
+3. Buscar sinais sistêmicos ex-ante para ENE.
+4. Decidir o tratamento das 21 linhas negativas e das entidades renomeadas.
+
+## 2026-09-19 - Etapa 1.5: verificação adversarial independente
+
+### Contexto e pergunta
+
+Antes de entregar a Etapa 1, um agente verificador com contexto limpo e acesso somente leitura
+tentou quebrar o código, os números e as afirmações das entradas 1.1–1.4.
+
+### Fatos e evidências observados
+
+- Cerca de 25 números dos documentos, do notebook e dos relatórios foram recalculados de forma
+  independente com DuckDB sobre `data/raw` e `data/interim/official`. Todos conferiram.
+- **Defeito confirmado, dormente.** `strip_chars()` do Polars remove tab e quebra de linha;
+  `trim()` do DuckDB, sem argumento, não remove. Um rótulo como `"\tREL\n"` seria `REL` em
+  Polars e `DESCONHECIDA` em DuckDB. Nenhum arquivo local ou oficial contém esses caracteres,
+  então nenhum número publicado foi afetado.
+- A aparente divergência entre “29 gerações negativas” (1.1), “21 eólicas” (contrato) e “20
+  sob limitação” (alvo) foi resolvida: são recortes diferentes. São 21 eólicas (20 limitadas)
+  + 8 solares = 29.
+
+### Interpretação e decisão
+
+Corrigir a paridade com um conjunto explícito de espaços (espaço, tab, LF, CR) nos dois
+backends e também na comparação de rótulos de `revision_check`. A colisão teórica do token
+`'<NULL>'` em `identity_drift` foi aceita como risco documentado: esse literal não ocorre nos dados.
+
+### Implementação e validação
+
+Casos de tab e quebra de linha foram adicionados ao teste de paridade. Eles falharam (Red) e
+passaram após a correção. `official-comparison.json` foi regenerado: as diferenças ficaram
+abaixo de 10⁻¹¹ % e vêm da ordem de soma paralela do DuckDB, sem mudança de resultado.
+
+### Limitações, valor e próximos passos
+
+A verificação reforça a credibilidade dos números do pitch, mas não substitui revisão de
+especialista do setor elétrico. A Etapa 1 está pronta para aprovação e commit pelo responsável.

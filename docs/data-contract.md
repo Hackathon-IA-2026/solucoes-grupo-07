@@ -85,3 +85,32 @@ duplicidades, outliers e validade da meteorologia histórica. Não usar `ano`, `
 `hora` etc. sem conferir contra `din_instante` (divergências estão no JSON). Nem os
 Parquet nem grandes derivados entram no Git. Somente relatórios pequenos e artefatos
 resumidos da EDA são versionados.
+
+## Revisão independente — 19/09/2026 (segunda passagem)
+
+Reexecução completa de `python -m curtamap.audit` após as correções abaixo. Os números da
+seção anterior se mantiveram.
+
+- **Mudança de identidade com `NULL`.** Antes, `count(DISTINCT ...)` ignorava trocas
+  entre valor e `NULL`. Agora a auditoria usa um token para `NULL`. Resultado: continua
+  havendo apenas mudança de nome (18 eólicas, 14 solares, 32 na integrada, 6 e 12 no detail).
+  Nenhuma mudança de UF, subsistema ou CEG, nem com `NULL`.
+- **Cardinalidade do join detail × principal.** Duplicatas do detail poderiam inflar
+  `matched_intervals`. Agora o relatório separa `join_rows`, `matched_intervals` distintos e
+  `duplicated_join_rows`. No snapshot, `duplicated_join_rows = 0`: as 385/56 duplicatas do
+  detail não caem nas usinas individuais comparadas.
+- **Cobertura do detail eólico.** Começa em **01/01/2023**, nove meses antes da principal
+  eólica (01/10/2023). Esse período não tem alvo de limitação no snapshot.
+- **Semântica da comparação particionada.** A diferença de multiconjunto (`EXCEPT ALL`) é
+  calculada por mês. Isso preserva o resultado global porque `din_instante` é uma das colunas
+  comparadas: uma linha só pode casar com outra do mesmo mês. Linhas com instante nulo têm
+  partição própria.
+- **Identidade na publicação atual.** A validação pública encontrou `BA4ECLA` (snapshot)
+  publicado como `CJU_BA4ECLA` em nov/2024. O código de entidade pode mudar entre versões,
+  mesmo sem mudança dentro do snapshot.
+- **Tamanho dos relatórios.** `audit.json` tem cerca de 1 MB porque preserva nulos por campo e
+  mês e cobertura por entidade. É uma exceção consciente à regra de artefatos pequenos, pois é
+  a evidência completa da auditoria. O notebook da EDA tem cerca de 0,95 MB por incluir os 12
+  gráficos executados.
+- A EDA foi refeita em [`notebooks/01_eda_fundamentos_dados.ipynb`](../notebooks/01_eda_fundamentos_dados.ipynb).
+  O inventário contra vazamento está em [`feature-inventory.md`](feature-inventory.md).

@@ -28,3 +28,16 @@ uv run python -m curtamap.audit --strict
 O segundo comando retorna código 1 quando há achados. Consulte o
 [contrato e a interpretação](../docs/data-contract.md). Os relatórios pequenos ficam
 em `docs/reports/stage1/`; a auditoria nunca modifica os cinco arquivos originais.
+
+## Validação pública e EDA
+
+```bash
+# Baixa os Parquet mensais atuais do ONS em data/interim/official/ (ignorado pelo Git)
+uv run python -m curtamap.public_reference
+# Executa a EDA do início ao fim (também coberta por tests/test_notebook.py)
+uv run jupyter execute --inplace notebooks/01_eda_fundamentos_dados.ipynb
+uv run pytest tests/test_notebook.py
+```
+
+A publicação do ONS é revisada em pós-operação: os arquivos oficiais baixados podem
+diferir do snapshot (ver `docs/target-definition.md`).
