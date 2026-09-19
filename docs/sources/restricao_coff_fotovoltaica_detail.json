@@ -1,0 +1,77 @@
+{
+	"titulo": "DicionarioDados_RestricaoContrainedoff_UsiFotovoltaica_Detail",
+	"dicionario_simplificado": [
+		{
+			"descricao": "Identificador do subsistema",
+			"codigo": "id_subsistema"
+		},
+		{
+			"descricao": "Sigla do Estado",
+			"codigo": "id_estado"
+		},
+		{
+			"descricao": "Modalidade de operação da usina",
+			"codigo": "nom_modalidadeoperacao"
+		},
+		{
+			"descricao": "Nome do Conjunto de Usinas (apenas para usinas com modalidade de operação Tipo II-C)",
+			"codigo": "nom_conjuntousina"
+		},
+		{
+			"descricao": "Nome da Usina",
+			"codigo": "nom_usina"
+		},
+		{
+			"descricao": "Identificador da usina ou conjunto no ONS",
+			"codigo": "id_ons"
+		},
+		{
+			"descricao": "Código Único do Empreendimento de Geração (CEG), estabelecido pela ANEEL",
+			"codigo": "ceg"
+		},
+		{
+			"descricao": "Data/Hora",
+			"codigo": "din_instante"
+		},
+		{
+			"descricao": "Irradiância verificada, em W/m2",
+			"codigo": "val_irradianciaverificado"
+		},
+		{
+			"descricao": "Indicativo do dado de irradiância inválido. O dado é considerado inválido (flag = 1) quando há falha na medida recebida pelo Sistema de Supervisão e Controle do ONS por mais de 6 minutos dentro da semi-hora correspondente.",
+			"codigo": "flg_dadoirradianciainvalido"
+		},
+		{
+			"descricao": "Valor da geração estimada da usina, em MWmed, obtida a partir do dado de irradiância verificado e da curva irradiância x potência ou, na indisponibilidade da curva, a partir do histórico de geração verificada.",
+			"codigo": "val_geracaoestimada"
+		},
+		{
+			"descricao": "Geração verificada da usina, em MWmed.",
+			"codigo": "val_geracaoverificada"
+		},
+		{
+			"descricao": "Identificador do Conjunto de Usinas no ONS (apenas para usinas com modalidade de operação Tipo II-C)",
+			"codigo": "id_ons_conjuntousina"
+		},
+		{
+			"descricao": "Origem do dado de irradiância, podendo ser do Sistema de Supervisão de Controle ou fornecido pelo Agente em Pós-Operação.",
+			"codigo": "nom_origemirradiancia"
+		},
+		{
+			"descricao": "Indicativo do dado de irradiância encaminhado pelo agente pelo Sistema de Supervisão e Controle como inválido. O dado é considerado inválido (flag = 1) quando há falha na medida recebida pelo Sistema de Supervisão e Controle do ONS por mais de 6 minutos dentro da semi-hora correspondente.",
+			"codigo": "flg_dadoirradianciasupervisaoinvalido"
+		},
+		{
+			"descricao": "Origem da geração de referência, podendo ser da curva de produtividade, do histórico de geração ou da garantia física.",
+			"codigo": "nom_origemgeracaoreferencia"
+		},
+		{
+			"descricao": "Geração de Referência Final, em MWmed. Considera as regras de apuração estabelecidas na RO-AO.BR.13 aplicadas na Geração de Referência do Conjunto e distribuição proporcional nas usinas. O valor é calculado apenas para os patamares em que houve restrição por indisponibilidade externa (REL), sendo encaminhado pelo ONS à CCEE para fins de obtenção da geração frustrada e cálculo dos ESS por constrained-off.",
+			"codigo": "val_geracaoreferenciafinal"
+		},
+		{
+			"descricao": "Indicativo se houve limitação da geração do Conjunto na semi-hora.",
+			"codigo": "flg_geracaorestrita"
+		}
+	]
+}
