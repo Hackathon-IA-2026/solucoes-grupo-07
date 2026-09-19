@@ -1,36 +1,70 @@
-# Nome do Projeto
+# CurtaMap
 
-> Descrição curta (1-2 frases): o que o projeto faz e qual problema ele resolve.
+> O nome do produto ainda não é definitivo.
+
+Protótipo para antecipar cortes de geração eólica e solar, explicar a causa provável e recomendar como reaproveitar essa energia. O foco inicial é o gerador, com previsões por usina em intervalos de 30 minutos para as próximas 24 horas.
 
 ## Demo
 
-- **Link da demo:** (se houver, ex: Vercel, Netlify, etc.)
+- **Link da demo:** a definir
 
-## Tecnologias utilizadas
+## Estado atual
 
-- Linguagem: (ex: Python, JavaScript, Go...)
-- Framework(s): (ex: React, Flask, Node...)
-- Banco de dados: 
-- APIs / Serviços externos: (se houver)
+O repositório contém a base técnica inicial. Ainda não há dataset versionado nem modelo treinado; qualquer número mostrado no app nesta fase é identificado como demonstrativo.
 
-## Como rodar o projeto
+As decisões e perguntas em aberto estão em [docs/architecture.md](docs/architecture.md). O caminho de implementação está em [docs/roadmap.md](docs/roadmap.md).
 
-```bash
-# Clone o repositório
-git clone https://github.com/usuario/repo.git
-cd repo
+## Stack
 
-# Instale as dependências
-# (ex: npm install / pip install -r requirements.txt)
-
-# Rode o projeto
-# (ex: npm run dev / python app.py)
-```
+- Python 3.12 e `uv`
+- Polars, DuckDB e Parquet para processamento
+- scikit-learn e modelos tabulares candidatos para experimentação
+- Streamlit como protótipo atual; React/Vite + FastAPI em avaliação para a interface final
+- AWS com infraestrutura como código para build, execução, dados, modelos e observabilidade
+- Bedrock ou NVIDIA NIM como camada opcional de explicação em linguagem natural
 
 ## Pré-requisitos
 
-Liste aqui o que precisa estar instalado antes de rodar o projeto (ex: Node 18+, Python 3.10+, Docker, etc.)
+- Git
+- [`uv`](https://docs.astral.sh/uv/) 0.12 ou superior
+- Acesso à internet para instalar dependências e baixar as bases
+- Espaço em disco compatível com os Parquet escolhidos
+- Python 3.12, instalado automaticamente pelo `uv` quando necessário
+
+Docker e AWS CLI não são necessários para o desenvolvimento local inicial. Eles serão documentados quando a infraestrutura AWS for implementada.
+
+## Como executar
+
+```bash
+uv sync --dev
+cp .env.example .env
+uv run streamlit run src/curtamap/app.py
+```
+
+As integrações opcionais podem ser instaladas com `uv sync --extra data --extra llm --extra aws --dev`.
+
+Validações:
+
+```bash
+uv run pytest
+uv run ruff check .
+uv run ruff format --check .
+```
+
+## Dados
+
+As bases oficiais podem ser listadas e baixadas automaticamente da pasta pública indicada no Caderno:
+
+```bash
+uv sync --extra data --dev
+uv run python -m curtamap.download_data --list
+uv run python -m curtamap.download_data
+```
+
+Por padrão, o script baixa somente os cinco Parquet do ONS para `data/raw/`. Use `--include-tutorials` para incluir também o material ERA5. Downloads existentes são preservados; use `--force` apenas quando quiser substituí-los.
+
+O diretório é ignorado pelo Git. Consulte [data/README.md](data/README.md) para as convenções de dados.
 
 ## Licença
 
-Este projeto está sob a licença MIT — veja o arquivo [LICENSE](./LICENSE) para mais detalhes.
+MIT. Consulte [LICENSE](LICENSE).
