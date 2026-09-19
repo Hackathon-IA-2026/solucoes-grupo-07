@@ -69,8 +69,34 @@ uv run ruff format --check .
 
 - Siga TDD no ciclo Red-Green-Refactor: escreva primeiro um teste que expresse o comportamento, confirme a falha esperada, implemente o mínimo necessário e refatore mantendo a suíte verde.
 - Toda transformação de dados deve ter testes de contrato, unidade, limites, nulos e casos anômalos. Não transforme uma hipótese sobre os dados em regra sem evidência mensurável.
+- Mantenha uma narrativa cronológica em `docs/implementation-journal.md`. Antes de concluir qualquer tarefa material, acrescente uma entrada seguindo o fluxo definido abaixo.
 - Registre decisões relevantes, evidências, limitações e resultados em `docs/`. Preserve especialmente o material que possa sustentar o storytelling de negócio e a apresentação final.
 - Mantenha frontend, backend, modelagem e infraestrutura no mesmo repositório. Integrações devem respeitar essa estrutura de monorepo.
+
+## Diário de implementação
+
+O diário é uma fonte de estudo para o responsável pelo projeto e a memória factual da apresentação. Ele deve permitir reconstruir não apenas o que foi feito, mas por que foi feito e o que foi aprendido.
+
+- Adicione uma entrada para toda tarefa que produza código relevante, análise de dados, resultado experimental, decisão de produto ou arquitetura, alteração metodológica ou descoberta sobre o problema.
+- Não crie entrada para formatação ou manutenção trivial sem consequência técnica ou narrativa.
+- Escreva em português do Brasil, de forma didática para uma pessoa que não acompanhou a execução detalhada.
+- Mantenha as entradas em ordem cronológica e em formato append-only. Não reescreva silenciosamente uma conclusão antiga; registre uma correção ou evolução posterior.
+- Diferencie explicitamente fatos observados, interpretações, hipóteses e decisões. Nunca apresente inferência como evidência confirmada.
+- Inclua números, consultas, fontes e artefatos que sustentem conclusões. Resultados provisórios devem ser identificados como tal.
+- Relacione a descoberta ao usuário final e indique se ela pode sustentar problema, “por que agora?”, solução, impacto, limitação ou demonstração no pitch.
+- Registre alternativas consideradas e explique por que foram aceitas, adiadas ou descartadas.
+- Termine com limitações e próximos passos, para que a sessão seguinte consiga continuar sem reconstruir o raciocínio.
+
+Cada entrada deve usar, quando aplicável, esta estrutura:
+
+1. contexto e pergunta;
+2. fatos e evidências observados;
+3. interpretação e decisão;
+4. alternativas consideradas;
+5. implementação e validação;
+6. limitações e incertezas;
+7. valor para o usuário e para a apresentação;
+8. próximos passos.
 
 ## Git
 
@@ -87,4 +113,5 @@ uv run ruff format --check .
 - Sem vazamento temporal ou dependencia obrigatoria de servico externo.
 - Resultados reais claramente separados de mock, hipotese e cenario.
 - Dashboard deve revelar fonte, janela temporal, ultima atualizacao, incerteza e limitacoes.
+- Uma tarefa material só está concluída quando sua narrativa foi acrescentada ao diário de implementação.
 - Antes de concluir uma tarefa, execute testes e lint relevantes e relate qualquer verificacao que nao foi possivel fazer.
