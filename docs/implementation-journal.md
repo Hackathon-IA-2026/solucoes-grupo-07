@@ -131,3 +131,63 @@ O responsável passa a ter uma fonte única para estudar o problema, auditar o t
 ### Próximos passos
 
 Na Etapa 1, registrar separadamente a auditoria, a definição do alvo, cada descoberta relevante da EDA e qualquer mudança metodológica decorrente dos dados.
+
+## 2026-09-19 - Etapa 1.1: contrato, auditoria e escolha da base analítica
+
+### Contexto e pergunta
+
+Precisávamos saber se os cinco arquivos representavam a mesma população e se poderiam
+ser usados sem multiplicar energia. Antes de implementar, foram lidos AGENTS, roadmap,
+arquitetura, diário, notas do pitch e documentação de dados; Git estava limpo.
+
+### Fatos e evidências observados
+
+A auditoria colunar encontrou 102.739.069 linhas físicas. As principais somam
+10.806.720 observações sem chaves nulas, duplicatas ou lacunas internas. A integrada
+exclui exatamente 1.365.552 linhas eólicas de out/2023–mar/2024; não altera valores.
+O detail contém 385/56 duplicatas excedentes eólicas/solares e 358.844/2.064 janelas
+internas ausentes. Há 267 entidades principais, majoritariamente conjuntos; não são
+267 usinas individuais. A geração das 15 usinas individuais diretamente comparáveis
+coincide em 732.384 intervalos. Fontes, consultas, checksums, schemas, nulos gerais e
+condicionais mensais, domínios e extremos estão em `docs/reports/stage1/audit.json`.
+
+### Interpretação e decisão
+
+Usar a união das duas principais na EDA, sem concatenar integrada ou detail. Manter
+`fonte + id_ons` mesmo sem colisão atual entre fontes. Reter anomalias como achados:
+29 gerações negativas, um limite negativo e extremos meteorológicos/disponibilidade
+exigem tratamento explícito; nenhum percentil vira regra física automaticamente.
+
+### Alternativas consideradas
+
+Usar somente a integrada perderia seis meses eólicos. Somar detail às principais
+contaria usinas dentro de conjuntos novamente. Deduplicar sem inspecionar seria uma
+regra sem evidência. Comparar todos os meses de uma só vez gerou spill excessivo;
+a comparação exata por mês preservou a semântica e reduziu o custo operacional.
+
+### Implementação e validação
+
+Criados `data_contract.py` e `audit.py`, JSON e Markdown reproduzíveis. TDD começou
+com falha de importação do módulo ausente; fixtures cobriram schema, fonte composta,
+chaves nulas, duplicatas, lacunas, off-grid, infinitos, negativos, flags, identidade,
+nulos condicionais, arquivos vazios/ausentes e diferenças de multiconjunto.
+As sete verificações de auditoria passaram antes da execução completa do snapshot.
+O Opus 5 (`claude-opus-5`, effort high) fez revisão metodológica somente leitura;
+aceitamos investigar identidade, rótulo sem limite e distinguir comando de corte positivo.
+
+### Limitações e incertezas
+
+Fuso e convenção início/fim da janela não foram confirmados. O detail não tem chave
+formal de conjunto neste snapshot; o join individual é apenas uma validação parcial.
+Achados reais fazem `--strict` falhar deliberadamente, embora os testes passem.
+
+### Valor para o usuário e para a apresentação
+
+A unidade operacional é usina **ou conjunto**. A distinção evita apresentar uma
+promessa de precisão por usina física que a base principal não sustenta. A auditoria
+fornece evidência de credibilidade e limites, não melhoria de previsão.
+
+### Próximos passos
+
+Formalizar o alvo, medir o impacto das anomalias e confrontar a fórmula com a GNR
+publicada diretamente pelo ONS, antes de interpretar tendências no notebook.

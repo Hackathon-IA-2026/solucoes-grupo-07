@@ -17,3 +17,14 @@ uv run python -m curtamap.download_data
 ```
 
 O comando padrão baixa somente os Parquet do ONS. Arquivos existentes são preservados para evitar transferências e sobrescritas acidentais.
+
+## Auditoria do snapshot
+
+```bash
+uv run python -m curtamap.audit
+uv run python -m curtamap.audit --strict
+```
+
+O segundo comando retorna código 1 quando há achados. Consulte o
+[contrato e a interpretação](../docs/data-contract.md). Os relatórios pequenos ficam
+em `docs/reports/stage1/`; a auditoria nunca modifica os cinco arquivos originais.
