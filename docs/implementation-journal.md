@@ -471,3 +471,31 @@ abaixo de 10⁻¹¹ % e vêm da ordem de soma paralela do DuckDB, sem mudança d
 
 A verificação reforça a credibilidade dos números do pitch, mas não substitui revisão de
 especialista do setor elétrico. A Etapa 1 está pronta para aprovação e commit pelo responsável.
+
+## 2026-09-20 - Correção de interpretação no fechamento da Etapa 1
+
+### Contexto e pergunta
+
+Uma revisão final identificou que a entrada 1.4 e a síntese do notebook aproximavam duas
+dimensões distintas: causa (`CNF`/`ENE`) e origem (`LOC`/`SIS`). A mesma redação sugeria
+simultaneidade entre entidades sem que a EDA tivesse calculado coocorrência temporal.
+
+### Fatos e evidências observados
+
+O notebook mede separadamente a participação de energia por causa, a fração de intervalos por
+origem e a duração/persistência dos episódios em cada entidade. Ele não cruza causa com origem
+na conclusão citada nem mede quantas entidades sofrem corte simultaneamente em cada janela.
+
+### Interpretação e decisão
+
+A conclusão anterior "CNF/local para ENE/sistêmico" fica substituída por duas afirmações
+independentes: ENE passa a dominar a energia estimada em 2025/2026, e SIS predomina entre as
+origens registradas. Episódios longos são fato observado; simultaneidade continua hipótese.
+Persistência passa a ser descrita como sinal temporal candidato à antecipação, não como prova de
+capacidade preditiva.
+
+### Implementação, limitações e próximos passos
+
+A síntese do notebook foi corrigida sem alterar código, dados, gráficos ou resultados numéricos.
+A Etapa 2 deve medir desempenho fora da amostra e, se a simultaneidade for relevante para o
+produto, incluir uma análise explícita de coocorrência por janela e região.
