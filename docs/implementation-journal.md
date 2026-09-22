@@ -714,3 +714,102 @@ Esta branch é local e não será enviada por push nesta etapa. O computador ded
 receberá uma cópia do código da branch, executará apenas as tarefas pesadas e devolverá
 os artefatos. Commits e análise continuam no Mac. O prompt da 2B deve exigir branch,
 proibir merge antecipado e manter a `main` intacta até a decisão posterior.
+
+## 2026-09-22 - Etapa 2B: implementação experimental pronta no Mac
+
+### Contexto e pergunta
+
+A Etapa 2A foi aprovada no commit `fe71446d44aad1ec81cfb2219aadf87583c9e77c`.
+A branch de trabalho continha também a extensão documental `cf21835`, que acrescentava
+somente a regra de branch e handoff repetida pelo pedido atual. A árvore não era idêntica
+ao commit aprovado; por isso o histórico foi preservado, sem reset, e a implementação
+continuou exclusivamente em `etapa-2-experimental`.
+
+A pergunta desta sessão foi como transformar o protocolo em código executável e
+rastreável sem usar o Mac para a campanha pesada, sem conhecer informação futura e sem
+converter uma família candidata em vencedora antes dos resultados.
+
+### Fatos e evidências observados
+
+- Foram lidos integralmente AGENTS, protocolo, roadmap, arquitetura, contrato, alvos,
+  inventário, diário, pitch, as 40 células do notebook e os módulos/testes relevantes.
+- O primeiro import do LightGBM no Mac falhou porque `libomp.dylib` não estava instalado.
+  Após instalar `libomp` pelo Homebrew, as duas famílias ajustaram fixtures sintéticas.
+  Isso é requisito técnico do macOS, não evidência a favor ou contra LightGBM.
+- O `preflight` reconheceu a branch, os dois Parquet principais e caminhos externos com
+  espaços. Ele informou cerca de 138 GB livres no volume usado apenas para essa checagem;
+  esse número é do Mac e não estima o espaço do computador dedicado.
+- A suíte completa terminou com **141 testes aprovados em 13,40 s**. Também passaram
+  `ruff check`, `ruff format --check` e `git diff --check` no fechamento.
+- Não foi executado piloto com dados reais, treinamento completo, inferência externa ou
+  cálculo de métricas preditivas. Portanto, não existe resultado de modelo nesta entrada.
+
+### Interpretação e decisão
+
+A implementação foi separada em contratos temporais/baselines, candidatos/métricas/
+artefatos e orquestração da campanha. O cenário principal e o atraso +24h geram datasets
+distintos; a sensibilidade carrega os artefatos congelados do run principal e declara
+`models_retrained: false`. O teste reservado tem comando separado e exige flag mais uma
+referência não vazia à decisão 2C.
+
+O calendário conservador foi congelado em configuração versionada, com fontes e hash do
+arquivo salvos no manifesto. Dias parcialmente facultativos contam como inteiros, como
+aprovado. Essa convenção não foi reinterpretada como escala real do ONS.
+
+### Alternativas consideradas
+
+Materializar todo o snapshot ou a expansão de horizontes em pandas foi rejeitado. A
+preparação percorre meses e a geração de features percorre dias com Polars, DuckDB,
+PyArrow e Parquet. Cada estimador ainda precisa materializar sua matriz de ajuste; o
+piloto técnico existe justamente para medir essa fronteira antes da campanha completa.
+
+Instalar novas famílias, integrar meteorologia ou executar GPU foi rejeitado por fugir do
+protocolo mínimo. Origem LOC/SIS, atraso +72h, intervalos de volume e sementes adicionais
+permanecem extensões posteriores ao mínimo. Uma amostragem automática foi rejeitada: se
+os 32 GB forem insuficientes, o executor deve salvar a falha e devolver a evidência ao Mac.
+
+### Implementação e validação
+
+Os commits atômicos desta sessão foram:
+
+- `32a1ac6`: horizontes, disponibilidade, elegibilidade, agregados as-of e baselines;
+- `1bf8e0e`: pré-processamento, candidatos, calibração, métricas e artefatos;
+- `8129e6d`: calendário, features, treino crescente, piloto, campanha e CLI;
+- `1cbfcb2`: fallbacks do pipeline, diagnósticos e sensibilidade +24h congelada.
+
+Os testes cobrem primeira/última janela, 19h30, fins de semana/feriados, +24h, labels e
+features futuras, novas entidades, 28 dias/80%, ausência/zero/nulo, os 21 indeterminados,
+causas sem PAR, fallback, agregado regional as-of, ajuste só no treino, persistência,
+semente, caminhos com espaços e trava do teste. Métricas sintéticas são apenas oráculos
+de software; não foram incorporadas ao relatório como desempenho.
+
+Os comandos de transferência, preparação, piloto, V1–V4, sensibilidade, retomada e retorno
+dos artefatos estão em `docs/stage2b-execution.md`. O estado factual está em
+`docs/reports/stage2b/implementation-status.md`, e o prompt autossuficiente para Astra em
+`docs/handoffs/stage2c-prompt.md`.
+
+### Limitações e incertezas
+
+A campanha pode exceder memória, tempo ou armazenamento; não há medição real ainda. O
+snapshot revisado continua sem vintages. A compilação de calendário é uma hipótese
+conservadora versionada. O runner preserva falhas e runs incompletos, mas sua eficiência
+em centenas de milhões de unidades operacionais só será conhecida no piloto dedicado.
+
+O caminho do teste reservado valida a autorização, mas a receita congelada ainda não
+existe: ela será produto da 2C. Logo, a porta informa essa ausência e não abre o período.
+Nenhum merge para `main`, push, treino real ou execução do teste foi realizado.
+
+### Valor para o usuário e para a apresentação
+
+O pacote torna auditável o que o modelo sabia em cada emissão, qual fallback usou, a idade
+do histórico e onde uma previsão não pôde ser avaliada. Isso permite apresentar ganhos e
+fracassos contra regras simples sem esconder ordens com volume zero, casos indeterminados,
+entidades novas ou degradação por atraso.
+
+### Próximos passos
+
+Transferir o commit final por bundle/cópia local, executar preflight e piloto no computador
+dedicado e devolver os artefatos com checksums. Se o piloto for viável, executar V1–V4 e
++24h, uma rodada pesada por vez. Se não for, não amostrar no executor: registrar recursos,
+falha e projeção, voltar ao Mac e decidir a contingência. Depois, Astra executa a Etapa 2C,
+aplica os critérios por tarefa/fonte e decide se o teste reservado pode ser liberado.
