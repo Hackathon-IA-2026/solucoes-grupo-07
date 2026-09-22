@@ -20,7 +20,7 @@ CLASSES = {
 
 
 def classified_fields() -> dict[str, str]:
-    rows = re.findall(r"^\| `([a-z_]+)` \| ([^|]+) \|", INVENTORY.read_text(), re.M)
+    rows = re.findall(r"^\| `([a-z_]+)` \| ([^|]+) \|", INVENTORY.read_text(encoding="utf-8"), re.M)
     return {name: cls.strip() for name, cls in rows}
 
 
