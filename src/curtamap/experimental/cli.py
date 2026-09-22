@@ -138,6 +138,12 @@ def main() -> None:
     features.add_argument("--round", required=True)
     features.add_argument("--start", type=datetime.fromisoformat, required=True)
     features.add_argument("--end", type=datetime.fromisoformat, required=True)
+    features.add_argument(
+        "--workers",
+        type=int,
+        default=None,
+        help="processos paralelos por dia (padrão: feature_workers da configuração)",
+    )
     pilot = subparsers.add_parser("pilot")
     pilot.add_argument("--run-id", required=True)
     pilot.add_argument("--features", type=Path, required=True)
@@ -195,6 +201,7 @@ def main() -> None:
             round_id=args.round,
             start=args.start,
             end=args.end,
+            workers=args.workers or config.get("feature_workers", 1),
         )
         print(json.dumps(report, indent=2, ensure_ascii=False))
         return

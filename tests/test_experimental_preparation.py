@@ -3,7 +3,7 @@ from pathlib import Path
 
 import polars as pl
 
-from curtamap.experimental.preparation import prepare_target_partitions
+from curtamap.experimental.preparation import prepare_target_partitions, write_feature_partitions
 from curtamap.experimental.temporal import AvailabilityScenario, BusinessCalendar
 
 
@@ -54,3 +54,50 @@ def test_preparation_is_partitioned_columnar_and_does_not_modify_original(tmp_pa
     assert summary["rows"] == 2
     assert len(summary["input_sha256"]) == 64
     assert summary["partitions"] == 2
+
+
+def _write_targets(root: Path) -> Path:
+    from test_experimental_vectorized_parity import synthetic_source
+
+    targets = root / "alvos preparados"
+    frame = synthetic_source(AvailabilityScenario.main())
+    for (year, month), part in frame.group_by(
+        pl.col("din_instante").dt.year().alias("year"),
+        pl.col("din_instante").dt.month().alias("month"),
+    ):
+        destination = targets / "source=eolica" / f"year={year}" / f"month={month:02d}"
+        destination.mkdir(parents=True, exist_ok=True)
+        part.write_parquet(destination / "targets.parquet")
+    return targets
+
+
+def test_parallel_feature_partitions_match_sequential_output(tmp_path: Path) -> None:
+    root = tmp_path / "raiz externa com espaços"
+    targets = _write_targets(root)
+    arguments = dict(
+        source="eolica",
+        scenario_id="noturno_dia_util",
+        round_id="development",
+        start=datetime(2025, 2, 8),
+        end=datetime(2025, 2, 11),
+    )
+    sequential = write_feature_partitions(targets, root / "sequencial", workers=1, **arguments)
+    parallel = write_feature_partitions(targets, root / "paralelo", workers=2, **arguments)
+
+    assert sequential["workers"] == 1 and parallel["workers"] == 2
+    for key in ("feature_rows", "baseline_rows", "files", "days"):
+        assert sequential[key] == parallel[key]
+    assert sequential["days"] == 3
+    names = sorted(
+        path.relative_to(root / "sequencial").as_posix()
+        for path in (root / "sequencial").rglob("*.parquet")
+    )
+    assert names == sorted(
+        path.relative_to(root / "paralelo").as_posix()
+        for path in (root / "paralelo").rglob("*.parquet")
+    )
+    assert len(names) == 6
+    for name in names:
+        assert pl.read_parquet(root / "sequencial" / name).equals(
+            pl.read_parquet(root / "paralelo" / name)
+        )
