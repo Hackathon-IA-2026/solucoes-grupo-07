@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import platform
-import resource
 from time import perf_counter
 from typing import Any
 
@@ -10,6 +9,7 @@ import polars as pl
 
 from curtamap.experimental.artifacts import RunStore
 from curtamap.experimental.models import candidate_grid, fit_candidate
+from curtamap.experimental.resources import peak_rss_bytes
 
 NUMERIC_FEATURES = (
     "horizon",
@@ -93,9 +93,7 @@ def run_technical_pilot(
                         "family": family,
                         "examples": selected.height,
                         "duration_seconds": perf_counter() - started,
-                        "peak_rss_platform_units": resource.getrusage(
-                            resource.RUSAGE_SELF
-                        ).ru_maxrss,
+                        "peak_rss_bytes": peak_rss_bytes(),
                         "params": model.params,
                         "missing_classes": model.missing_classes,
                     }

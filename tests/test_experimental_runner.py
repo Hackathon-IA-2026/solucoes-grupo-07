@@ -67,3 +67,4 @@ def test_technical_pilot_fits_all_minimum_families_without_selection_metrics(
         "causa",
     }
     assert len(list((store.path / "models" / "pilot").glob("*.joblib"))) == 8
+    assert all(fit["peak_rss_bytes"] > 1024**2 for fit in report["fits"])

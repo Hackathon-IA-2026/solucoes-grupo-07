@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import hashlib
-import resource
 from datetime import datetime, timedelta
 from pathlib import Path
 from time import perf_counter
@@ -14,6 +13,7 @@ from curtamap.audit import literal
 from curtamap.experimental.baselines import generate_baselines
 from curtamap.experimental.data import add_release_times
 from curtamap.experimental.features import build_feature_batch
+from curtamap.experimental.resources import peak_rss_bytes
 from curtamap.experimental.temporal import AvailabilityScenario, BusinessCalendar
 from curtamap.targets import target_sql
 
@@ -142,5 +142,5 @@ def write_feature_partitions(
         "baseline_rows": baseline_rows,
         "files": files,
         "duration_seconds": perf_counter() - started,
-        "peak_rss_platform_units": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+        "peak_rss_bytes": peak_rss_bytes(),
     }
