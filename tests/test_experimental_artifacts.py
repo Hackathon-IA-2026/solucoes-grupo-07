@@ -53,10 +53,11 @@ def test_models_parquet_json_logs_failures_and_checksums_round_trip(tmp_path: Pa
     assert store.read_model("models/model.joblib") == {"coef": [1.0], "seed": 42}
     store.finalize(status="technical_pilot_complete", resume_command="uv run curtamap pilot")
 
-    index = json.loads((store.path / "checksums.json").read_text())
+    index = json.loads((store.path / "checksums.json").read_text(encoding="utf-8"))
     assert "models/model.joblib" in index["files"]
+    assert all("\\" not in relative for relative in index["files"])
     assert all(len(checksum) == 64 for checksum in index["files"].values())
-    saved_manifest = json.loads((store.path / "manifest.json").read_text())
+    saved_manifest = json.loads((store.path / "manifest.json").read_text(encoding="utf-8"))
     assert saved_manifest["status"] == "technical_pilot_complete"
     assert saved_manifest["resume_command"] == "uv run curtamap pilot"
     assert saved_manifest["bytes_consumed"] > 0

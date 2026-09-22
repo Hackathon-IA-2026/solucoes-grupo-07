@@ -136,7 +136,7 @@ class RunStore:
         )
         self.write_json("manifest.json", self.manifest)
         files = {
-            str(path.relative_to(self.path)): _sha256(path)
+            path.relative_to(self.path).as_posix(): _sha256(path)
             for path in sorted(self.path.rglob("*"))
             if path.is_file() and path.name != "checksums.json"
         }
