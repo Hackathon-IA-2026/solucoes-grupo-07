@@ -1,0 +1,3 @@
+# O diário é append-only e recebe entradas de várias branches em paralelo: o driver
+# union mantém as linhas acrescentadas dos dois lados em vez de gerar conflito.
+docs/implementation-journal.md merge=union
