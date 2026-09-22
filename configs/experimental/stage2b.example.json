@@ -1,0 +1,21 @@
+{
+  "protocol_version": "stage2a-fe71446d",
+  "calendar": "configs/experimental/calendar-2023-2026.json",
+  "raw_files": {
+    "eolica": "raw/constrained_off_eolica_tm.parquet",
+    "fotovoltaica": "raw/constrained_off_fotovoltaica_tm.parquet"
+  },
+  "sources": ["eolica", "fotovoltaica"],
+  "scenarios": ["noturno_dia_util", "noturno_mais_24h"],
+  "families": ["linear", "lightgbm"],
+  "tasks": ["corte_positivo", "restricao_registrada", "volume_condicional", "causa"],
+  "seed": 42,
+  "recommended_seeds": [17, 101],
+  "threads": 6,
+  "duckdb_memory_limit": "22GB",
+  "pilot_max_examples_per_task_source": 500000,
+  "initial_artifact_warning_gib": 50,
+  "reserved_test_enabled": false,
+  "optional_origin_enabled": false,
+  "optional_delay_72h_enabled": false
+}

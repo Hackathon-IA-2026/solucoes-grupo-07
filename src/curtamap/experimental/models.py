@@ -5,7 +5,7 @@ from typing import Any
 
 import numpy as np
 import polars as pl
-from lightgbm import LGBMClassifier, LGBMRegressor
+from lightgbm import LGBMClassifier, LGBMRegressor, early_stopping
 from scipy import sparse
 from sklearn.linear_model import GammaRegressor, LogisticRegression
 
@@ -135,13 +135,15 @@ def _estimator(task: str, family: str, params: dict[str, Any], seed: int) -> Any
         )
     if family == "linear" and task == "volume":
         return GammaRegressor(alpha=params["alpha"], tol=1e-4, max_iter=1_000)
+    tree_params = dict(params)
+    n_estimators = tree_params.pop("n_estimators", 500)
     common = dict(
-        **params,
+        **tree_params,
         learning_rate=0.05,
         min_child_samples=100,
         reg_lambda=1.0,
         max_bin=63,
-        n_estimators=500,
+        n_estimators=n_estimators,
         subsample=1.0,
         colsample_bytree=1.0,
         random_state=seed,
@@ -167,13 +169,27 @@ def fit_candidate(
     numeric: tuple[str, ...],
     categorical: tuple[str, ...],
     seed: int,
+    validation: tuple[pl.DataFrame, np.ndarray] | None = None,
 ) -> CandidateModel:
     if task == "volume" and (not np.isfinite(target).all() or np.any(target <= 0)):
         raise ValueError("Gamma requer volumes condicionais positivos e finitos")
     preprocessor = FeaturePreprocessor(numeric=numeric, categorical=categorical)
     matrix = preprocessor.fit_transform(frame)
     estimator = _estimator(task, family, params, seed)
-    estimator.fit(matrix, target)
+    fit_arguments: dict[str, Any] = {}
+    if family == "lightgbm" and validation is not None:
+        validation_frame, validation_target = validation
+        validation_matrix = preprocessor.transform(validation_frame)
+        fit_arguments = {
+            "eval_set": [(validation_matrix, validation_target)],
+            "eval_metric": {
+                "occurrence": "average_precision",
+                "volume": "l1",
+                "cause": "multi_logloss",
+            }[task],
+            "callbacks": [early_stopping(50, verbose=False)],
+        }
+    estimator.fit(matrix, target, **fit_arguments)
     classes = tuple(str(value) for value in getattr(estimator, "classes_", ()))
     missing = tuple(cause for cause in CAUSES if task == "cause" and cause not in classes)
     return CandidateModel(

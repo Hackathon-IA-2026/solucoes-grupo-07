@@ -21,6 +21,9 @@ dependencies = [
   "streamlit>=1.49",
 ]
 
+[project.scripts]
+curtamap-experiment = "curtamap.experimental.cli:main"
+
 [project.optional-dependencies]
 aws = ["boto3>=1.40"]
 data = ["gdown>=6.4"]
