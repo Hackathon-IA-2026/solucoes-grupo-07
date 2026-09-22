@@ -499,3 +499,218 @@ capacidade preditiva.
 A síntese do notebook foi corrigida sem alterar código, dados, gráficos ou resultados numéricos.
 A Etapa 2 deve medir desempenho fora da amostra e, se a simultaneidade for relevante para o
 produto, incluir uma análise explícita de coocorrência por janela e região.
+
+## 2026-09-22 - Etapa 2A: decisões metodológicas e protocolo experimental aprovado
+
+### Contexto e pergunta
+
+Partimos do commit `ce43c48fe974a5c36fba42ce1bfd3dc486f501f9`, com a Etapa 1 fechada e
+o Git limpo. O responsável pediu uma etapa exclusiva de raciocínio e discussão antes
+de implementar ou treinar modelos. A pergunta era como comparar previsões de corte
+de forma útil para o gerador, sem usar informações que não estariam disponíveis na
+emissão e sem escolher antecipadamente um algoritmo.
+
+A discussão foi conduzida em linguagem progressivamente mais acessível. Primeiro,
+esclarecemos os horários das janelas, a diferença entre data da ocorrência e data de
+publicação, e por que a validação escolhe enquanto o teste final avalia uma escolha
+já congelada. Depois, o responsável solicitou todas as decisões restantes em uma
+única lista, aprovou o conjunto e refinou o orçamento e a divisão entre máquinas.
+
+### Fatos e evidências observados
+
+Foram lidos os documentos obrigatórios, o notebook e o código/testes relevantes.
+A inspeção foi somente leitura: nenhuma feature experimental, baseline ou modelo
+foi implementado e nenhum treinamento ou métrica preditiva foi executado nesta etapa.
+
+As bases principais contêm 10.806.720 observações, de outubro/2023 a agosto/2026 para
+eólica e abril/2024 a agosto/2026 para solar. A integrada sobrepõe as principais;
+o detail não tem associação de conjuntos completamente validada. Há 21 volumes
+eólicos indeterminados, 42 restrições solares com rótulo desconhecido e ausência
+de PAR. Esses fatos vêm da auditoria e do notebook, não de novos experimentos.
+
+A pesquisa nas fontes públicas foi motivada por duas dúvidas reais do protocolo:
+
+- Os catálogos ONS informavam atualizações às 12h e 19h. A rotina RO-AO.BR.13,
+  revisão 09, usa horário de Brasília e descreve apuração do dia anterior, com
+  exceções de dias não úteis e flexibilidade às segundas/após feriados. Isso não
+  garante que cada arquivo esteja completo às 19h nem prova a regra histórica
+  para todos os anos do snapshot.
+- A inspeção somente leitura de agosto/2026 dos dados oficiais intra-semihora
+  encontrou todos os 215.685 registros eólicos e 74.886 solares com início/fim da
+  restrição dentro da meia hora iniciada em `din_instante`. Exemplos: 00h contém
+  00h00–00h29; 23h30 contém 23h30–23h59. URLs, contagens, comparação e hashes estão
+  na seção 1.2 do [protocolo](experimental-protocol.md). Não foram incorporados
+  novos dados ao snapshot nem aos resultados da Etapa 1.
+
+O Mac disponível tem 8 GiB de memória. O responsável informou um computador dedicado
+com Ryzen 5 5600X, 32 GB DDR4 a 3.200 MT/s, RTX 2060 de 6 GB e aproximadamente 580 GB
+livres em SSD. O local usual do clone tem cerca de 44 GB livres em outra unidade.
+As especificações do outro computador são informação do usuário, não uma medição
+remota feita nesta sessão. Sistema operacional e caminhos serão verificados no destino.
+
+### Interpretação e decisão
+
+O protocolo aprovado está em [experimental-protocol.md](experimental-protocol.md).
+Ele diferencia evidências, hipóteses, decisões, concretizações de implementação e
+questões necessariamente dependentes de resultados. As decisões centrais são:
+
+- Renovar previsões a cada 30 minutos, sempre cobrindo 24h. O timestamp passa a ser
+  tratado como início: emissão 10h prevê primeiro 10h–10h30 e termina às 10h do dia
+  seguinte. Isso evolui o inventário anterior, que começava em `t0 + 30 min`.
+- Simular liberação integral às 19h30 do próximo dia útil, com calendário conservador
+  explicitamente versionado. O horário é hipótese experimental, não SLA do ONS.
+  Executar sensibilidade com mais 24h de atraso. Não reconstruir chegadas parciais
+  das 12h a partir de um arquivo revisado que não registra sua disponibilidade.
+- Tratar corte positivo como alerta principal e ordem de limitação como segunda
+  tarefa. Isso evolui a preferência inicial por comando no documento de alvos.
+  Ordens sem perda continuam relevantes, sem serem confundidas com energia perdida.
+- Estimar volume condicional positivo e avaliar também o produto de probabilidade
+  e volume sobre todos os casos válidos. Manter MWmed/MWh, cauda e os 21 nulos.
+  Antecipar causa entre ordens conhecidas, preservando REL/CNF/ENE e sem inventar PAR.
+- Comparar baselines temporais/estatísticos com famílias linear regularizada e
+  boosting tabular, com LightGBM como candidato. Separar fontes e compartilhar
+  aprendizado entre suas entidades, com horizonte como feature.
+- Usar quatro validações de quatro meses, de janeiro/2025 a abril/2026, com treino
+  crescente. Reservar maio–agosto/2026 para teste após escolha congelada. Ajustes
+  internos, calibração e limiares usam exclusivamente segmentos anteriores.
+- Manter painel aberto principal, aquecimento de 28 dias/80% e fallback explícito.
+  Não selecionar retrospectivamente entidades sobreviventes, preencher ausências
+  com zero ou usar atributos posteriores à emissão.
+- Exigir probabilidades de ocorrência e avaliação de calibração. Intervalo de volume
+  é recomendado, condicionado à execução e validação de cobertura. Probabilidade
+  estimada não significa porcentagem de certeza de que uma decisão está correta.
+- Fixar antes dos resultados margens práticas: +0,02 de AP, redução de 5% no MAE
+  completo sem piorar WAPE e +0,02 de macro-F1; melhorar em três de quatro rodadas,
+  com proteções de estabilidade, Brier, suporte, incerteza, entidades e episódios.
+  Esses números são critérios aprovados para comparação, não métricas observadas.
+
+O teste final não escolhe o vencedor: consultar sucessivamente seus resultados
+também permite sobreajuste humano. Ele pode vetar adoção, mas não deve promover um
+segundo colocado e continuar sendo descrito como avaliação independente da escolha.
+Da mesma forma, prever períodos históricos é um ensaio para medir utilidade futura;
+a simulação precisa respeitar o que poderia ser conhecido em cada emissão.
+
+### Alternativas consideradas
+
+Usar também meio-dia seria tecnicamente possível em uma coleta real. O problema
+retrospectivo é desconhecer quais registros chegaram em cada publicação. A integração
+foi adiada pelo escopo do hackathon, com proposta de capturas versionadas futuras.
+Uma piora com histórico antigo não provará que essa integração resolverá o erro.
+
+Prever só uma vez por noite simplificaria a emissão, mas reduziria a cobertura futura
+ao longo do dia. A atualização de meia em meia hora foi mantida, mesmo sem novos
+dados em cada emissão. Modelos recursivos, 48 modelos distintos, fontes conjuntas,
+rolling de 12 meses, meteorologia e busca extensa ficaram adiados.
+
+O teto inicial sugerido de 500 mil exemplos de treinamento foi revisto quando o
+responsável informou a máquina dedicada. Ele significava amostragem, não lote de
+leitura. A decisão final é priorizar todos os exemplos elegíveis. Uma execução
+pequena serve para verificar funcionamento e medir recursos; não escolhe candidatos.
+Amostragem só será considerada diante de inviabilidade demonstrada e registrada.
+Processamento em lotes não garante que todo estimador treine fora da memória.
+
+O orçamento de 12h é planejamento inicial da execução inteira, não previsão de
+duração ou 12h por modelo. Os 50 GiB discutidos representam referência de armazenamento
+de artefatos, não RAM; são revisáveis por medição, sem apagar resultados negativos.
+
+Esperar pela AWS para os primeiros resultados foi rejeitado: concentraria ambiente,
+implementação e descoberta de desempenho no evento. Experimentos e ajuste final são
+planejados localmente; AWS fica para disponibilizar a solução, sem exigir retreino.
+
+### Implementação e validação
+
+Nesta etapa, foram alterados exclusivamente o protocolo e esta entrada append-only.
+Os documentos históricos da Etapa 1 foram preservados; o protocolo registra as
+evoluções de semântica e passa a especificar o experimento. Não foram alterados
+código, dependências, notebook, dados ou resultados experimentais.
+
+A Etapa 2B será implementada e testada no Mac, com caminhos genéricos/configuráveis.
+O responsável transferirá/clonará os commits para o computador dedicado, editará
+os caminhos locais e realizará ali o piloto e os treinamentos. Arquivos grandes,
+caches e temporários também precisam usar o SSD externo escolhido. Um clone do remoto
+não transfere commits que não receberam push: o handoff exige Git bundle ou cópia/clone
+local e transferência separada dos dados ignorados, conferindo hashes no destino.
+
+Verificações de fechamento documental executadas: `git diff --check`,
+`uv run --no-sync ruff check .` (sem achados) e
+`uv run --no-sync ruff format --check .` (33 arquivos já formatados). Uma checagem
+somente leitura confirmou links locais, ausência de whitespace residual, formato dos
+hashes de pesquisa, escopo restrito aos dois documentos e que o diário anterior foi
+preservado byte a byte como prefixo da nova versão. A revisão de consistência cobriu
+horários, cortes internos/externos, regras de fallback e handoff entre máquinas.
+Não foram executados testes de treinamento nem a suíte que reexecuta a EDA: não houve
+mudança de código e o escopo autorizado era exclusivamente documental.
+
+### Limitações e incertezas
+
+Não existe desempenho preditivo medido nesta etapa, nem garantia de treinamento
+completo em determinado tempo. O snapshot contém revisões e não possui vintages;
+o calendário de publicação é hipotético. O período reservado para teste já apareceu
+na EDA descritiva. As faixas de incerteza, adequação do histórico noturno e modelos
+finais dependem de experimentos e têm regras explícitas na seção 11 do protocolo.
+
+A implementação pronta no Mac não significa que a Etapa 2B experimental terminou.
+Ela só se completa depois da execução real, com falhas, cobertura, resultados
+negativos e limitações preservados. Publicar um modelo retreinado posteriormente
+não transfere automaticamente a avaliação independente de uma versão anterior.
+
+### Valor para o usuário e para a apresentação
+
+O gerador poderá distinguir risco de ordem, risco de perda energética, quantidade
+esperada e causa condicional. A apresentação terá uma história verificável: o que
+era conhecido na previsão, contra quais regras simples a IA foi comparada e onde
+ela agrega ou não valor. Não se transforma persistência descritiva em acurácia,
+porcentagem de saída em certeza ou simulação de horário em garantia de produção.
+
+### Próximos passos
+
+Implementar o protocolo com TDD no Mac, preparar configuração e handoff entre máquinas,
+executar a campanha no computador dedicado e entregar o pacote neutro para análise.
+A decisão de modelos virá depois dos resultados, seguida de ajuste/avaliação final
+com teste protegido. Não houve push, treinamento ou implantação nesta etapa.
+
+## 2026-09-22 - Correção do handoff entre o Mac e o computador dedicado
+
+### Contexto e pergunta
+
+Após a aprovação do protocolo, o responsável esclareceu que o computador dedicado
+será exclusivamente um executor das tarefas pesadas. A implementação, a análise e
+qualquer commit devem permanecer no Mac.
+
+### Decisão
+
+O código e a configuração já commitados no Mac serão levados ao computador dedicado
+por cópia local, bundle ou meio equivalente, com caminhos editáveis e sem valores
+pessoais versionados. Essa máquina não receberá desenvolvimento nem criará commits.
+Ao final, serão trazidos de volta somente os artefatos da execução: manifesto,
+métricas, previsões, modelos, logs, diagnósticos, falhas, checksums e relatório.
+Commits, correções e análise dos resultados serão feitos no Mac após a conferência
+dos artefatos.
+
+### Limitações e próximos passos
+
+O remoto não será usado como canal implícito de transferência: sem push, alterações
+locais não aparecem em um clone remoto. O procedimento de transferência do código
+e dos artefatos deve ser executado pelo responsável, preservando hashes. O prompt da
+Etapa 2B deverá repetir essa separação e exigir configuração genérica dos diretórios.
+
+## 2026-09-22 - Branch dedicada para a Etapa 2
+
+### Contexto e decisão
+
+O responsável pediu que o protocolo e a implementação da Etapa 2 não fossem mantidos
+na `main`, seguindo o padrão de branch usado na Etapa 1. Foi criada a branch local
+`etapa-2-experimental`, que contém o commit documental da Etapa 2. A `main` será
+preservada no commit anterior ao protocolo.
+
+Toda implementação da 2B deverá ocorrer nessa branch. O Sol não fará merge durante
+a implementação ou a execução. Depois que os artefatos retornarem do computador
+dedicado, a análise da 2C decidirá se a integração é apropriada; somente então um
+merge poderá ser feito na `main`.
+
+### Limitações e próximos passos
+
+Esta branch é local e não será enviada por push nesta etapa. O computador dedicado
+receberá uma cópia do código da branch, executará apenas as tarefas pesadas e devolverá
+os artefatos. Commits e análise continuam no Mac. O prompt da 2B deve exigir branch,
+proibir merge antecipado e manter a `main` intacta até a decisão posterior.
