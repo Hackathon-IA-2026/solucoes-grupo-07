@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 
 import polars as pl
 
+from curtamap.experimental.features import require_unique_observations
+
 CAUSE_ORDER = ("CNF", "ENE", "REL")
 MINIMUM_GROUP_SUPPORT = 7
 BASELINE_ORDER = (
@@ -172,8 +174,8 @@ def _direct_values(frame: pl.DataFrame, prefix: str) -> pl.DataFrame:
         .fill_null(0.5)
         .alias(f"{prefix}_prob_positive"),
         pl.col(f"{prefix}_restriction").cast(pl.Float64).alias(f"{prefix}_prob_restriction"),
-        # O original compara ``volume > 0`` em Python; volume indeterminado (nulo) vira nulo
-        # aqui em vez de TypeError.
+        # O original compara ``volume > 0`` e faz ``float(restricao)`` em Python; valores nulos
+        # (volume indeterminado ou restrição ausente) viram nulo aqui em vez de TypeError.
         pl.when(pl.col(f"{prefix}_volume") > 0)
         .then(pl.col(f"{prefix}_volume"))
         .alias(f"{prefix}_volume_positive_mean"),
@@ -289,6 +291,9 @@ def _baselines_for_t0(history: pl.DataFrame, requests: pl.DataFrame, t0: datetim
 
 def generate_baselines(history: pl.DataFrame, requests: pl.DataFrame) -> pl.DataFrame:
     """Gera os quatro comparadores sem acessar observações não liberadas em ``t0``."""
+    if requests.is_empty():
+        return pl.DataFrame()
+    require_unique_observations(history)
     # Só as colunas usadas; alvos do DuckDB chegam em ns e a grade de 30 min cabe em us.
     history = history.select(HISTORY_COLUMNS)
     if not (

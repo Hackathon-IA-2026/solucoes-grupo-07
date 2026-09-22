@@ -134,8 +134,15 @@ SOURCE_COLUMNS = (
 )
 
 
+def require_unique_observations(frame: pl.DataFrame) -> None:
+    """O contrato não admite a mesma observação repetida; lookups exatos a multiplicariam."""
+    if frame.select(pl.struct("fonte", "id_ons", "din_instante").is_duplicated().any()).item():
+        raise ValueError("observações duplicadas em (fonte, id_ons, din_instante)")
+
+
 def _project(source: pl.DataFrame) -> pl.DataFrame:
     """Mantém só as colunas usadas; alvos do DuckDB chegam em ns e a grade cabe em us."""
+    require_unique_observations(source)
     projected = source.select(SOURCE_COLUMNS)
     if projected.schema["din_instante"] == pl.Datetime("us") and projected.schema[
         "disponivel_em"

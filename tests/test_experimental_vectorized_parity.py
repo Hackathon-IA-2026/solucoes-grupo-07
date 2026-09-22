@@ -272,3 +272,64 @@ def test_feature_schema_is_stable_even_when_a_column_is_all_null() -> None:
     assert frame["hours_since_positive"].dtype == pl.Float64
     assert frame["mean_volume_24h"].dtype == pl.Float64
     assert frame["last_cause"].dtype == pl.String
+
+
+def _with_duplicate_key(frame: pl.DataFrame) -> pl.DataFrame:
+    duplicate = frame.filter(pl.col("id_ons") == "A").head(1)
+    return pl.concat([frame, duplicate.with_columns(pl.col("volume_mwmed") + 1)])
+
+
+def test_duplicate_source_keys_are_rejected_instead_of_multiplying_rows() -> None:
+    """O contrato não admite (fonte, id_ons, din_instante) repetido; o oráculo seria arbitrário."""
+    source = _with_duplicate_key(synthetic_source(AvailabilityScenario.main()))
+    t0 = datetime(2025, 2, 10, 20)
+    with pytest.raises(ValueError, match="duplicad"):
+        build_feature_batch(source, t0)
+    requests = _requests(synthetic_source(AvailabilityScenario.main()), t0)
+    with pytest.raises(ValueError, match="duplicad"):
+        generate_baselines(source, requests)
+
+
+def test_null_restriction_in_direct_row_is_null_instead_of_type_error() -> None:
+    """Divergência intencional da mesma família: o oráculo faz ``float(None)``."""
+    start = datetime(2025, 1, 6, 10)
+    history = pl.DataFrame(
+        {
+            "fonte": ["eolica"] * 8,
+            "id_ons": ["A"] * 8,
+            "id_estado": ["RJ"] * 8,
+            "din_instante": [start + timedelta(hours=i) for i in range(8)],
+            "disponivel_em": [start + timedelta(days=1)] * 8,
+            "restricao_registrada": [True] * 7 + [None],
+            "corte_positivo": [True] * 8,
+            "volume_mwmed": [5.0] * 8,
+            "volume_valido": [True] * 8,
+            "causa": ["ENE"] * 8,
+        }
+    )
+    t0 = start + timedelta(days=2)
+    requests = pl.DataFrame(
+        {
+            "fonte": ["eolica"],
+            "id_ons": ["A"],
+            "id_estado": ["RJ"],
+            "t0": [t0],
+            "tau": [t0],
+            "horizon": [1],
+        }
+    )
+    with pytest.raises(TypeError):
+        reference.generate_baselines(history, requests)
+    row = (
+        generate_baselines(history, requests)
+        .filter(pl.col("baseline_id") == "ultimo_valor")
+        .row(0, named=True)
+    )
+    assert row["prob_restriction"] is None
+
+
+def test_empty_requests_return_empty_frame_like_reference() -> None:
+    source = synthetic_source(AvailabilityScenario.main())
+    requests = _requests(source, datetime(2025, 2, 10, 20)).head(0)
+    assert generate_baselines(source, requests).is_empty()
+    assert reference.generate_baselines(source, requests).is_empty()
