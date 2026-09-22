@@ -77,12 +77,12 @@ class FeaturePreprocessor:
             mapping = {value: position for position, value in enumerate(categories)}
             missing = mapping["<MISSING>"]
             unknown = mapping["<UNKNOWN>"]
-            columns = []
-            for value in frame[name].to_list():
-                if value is None:
-                    columns.append(missing)
-                else:
-                    columns.append(mapping.get(str(value), unknown))
+            values = frame[name].cast(pl.String)
+            # ``replace_strict`` aplica o default também a nulos: ausência precisa vir antes.
+            codes = values.replace_strict(
+                list(mapping), list(mapping.values()), default=unknown, return_dtype=pl.Int64
+            ).to_numpy()
+            columns = np.where(values.is_null().to_numpy(), missing, codes)
             categorical_parts.append(
                 sparse.csr_matrix(
                     (np.ones(frame.height), (np.arange(frame.height), columns)),
@@ -223,19 +223,28 @@ def fit_sigmoid_calibrator(
 
 
 def optimize_f2_threshold(target: np.ndarray, probabilities: np.ndarray) -> float:
+    """Limiar que maximiza F2; empate prefere o maior limiar. Custo O(n log n)."""
     if np.unique(target).size < 2:
         return 0.5
-    best_score, best_threshold = -1.0, 0.5
-    for threshold in sorted(set(np.asarray(probabilities).tolist())):
-        predicted = probabilities >= threshold
-        true_positive = int(np.sum((target == 1) & predicted))
-        false_positive = int(np.sum((target == 0) & predicted))
-        false_negative = int(np.sum((target == 1) & ~predicted))
-        denominator = 5 * true_positive + 4 * false_negative + false_positive
-        score = 5 * true_positive / denominator if denominator else 0.0
-        if score > best_score or (score == best_score and threshold > best_threshold):
-            best_score, best_threshold = score, float(threshold)
-    return best_threshold
+    probabilities = np.asarray(probabilities, dtype=float)
+    positive = np.asarray(target) == 1
+    negative = np.asarray(target) == 0
+    # Para cada limiar distinto t, alerta = probabilidade >= t: acumula do maior para o menor.
+    thresholds, inverse = np.unique(probabilities, return_inverse=True)
+    positives_at = np.bincount(inverse, weights=positive, minlength=thresholds.size)
+    negatives_at = np.bincount(inverse, weights=negative, minlength=thresholds.size)
+    true_positive = np.cumsum(positives_at[::-1])[::-1].astype(np.int64)
+    false_positive = np.cumsum(negatives_at[::-1])[::-1].astype(np.int64)
+    false_negative = int(positive.sum()) - true_positive
+    denominator = 5 * true_positive + 4 * false_negative + false_positive
+    scores = np.divide(
+        5 * true_positive,
+        denominator,
+        out=np.zeros(thresholds.size, dtype=float),
+        where=denominator != 0,
+    )
+    best = np.flatnonzero(scores == scores.max())[-1]
+    return float(thresholds[best])
 
 
 def expected_volume(probability: np.ndarray, conditional_volume: np.ndarray) -> np.ndarray:
