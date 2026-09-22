@@ -1,4 +1,7 @@
-"""Preditor provisório do produto: mesmo horário mais recente disponível (protocolo §7.2).
+"""Preditor provisório do produto: mesmo horário mais recente disponível.
+
+Regra do §7.2 do protocolo experimental da Etapa 2A (`docs/experimental-protocol.md`, na
+branch `etapa-2-experimental`).
 
 Serve para que recomendação, dashboard e deploy trabalhem com números reais antes da
 decisão da Etapa 2C. Ele é marcado como `baseline` no contrato e será substituído pelo
@@ -11,6 +14,9 @@ Diferenças conscientes em relação ao baseline experimental da Etapa 2:
   nesses dias;
 - não há fallback estatístico regional: sem observação válida no horário, a previsão
   fica nula com motivo explícito, em vez de um número de baixa evidência.
+
+`instante_observacao` é o instante da observação de volume usada; comando e causa podem
+vir de dias diferentes do mesmo horário, sempre dentro da janela de 28 dias.
 """
 
 from datetime import date, datetime, timedelta
@@ -32,6 +38,7 @@ from curtamap.data_contract import SPECS
 from curtamap.targets import derive_targets
 
 HISTORY_DAYS = 28
+AVAILABILITY_SCENARIO = "noturno_fim_de_semana"
 RELEASE_TIME = timedelta(hours=19, minutes=30)
 ENTITY_ATTRIBUTES = ("nom_usina", "id_estado", "id_subsistema")
 _RAW_COLUMNS = (
@@ -163,9 +170,12 @@ class SameSlotRecentBaseline:
         volume = _latest(
             recent,
             pl.col("volume_valido") & pl.col("volume_mwmed").is_not_null(),
-            ["corte_positivo", "volume_mwmed"],
-        )
+            ["corte_positivo", "volume_mwmed", "din_instante"],
+        ).rename({"din_instante": "instante_observacao"})
         cause = _latest(recent, pl.col("causa").is_in(PREDICTABLE_CAUSES), ["causa"])
+        coverage = recent.group_by(_KEY).agg(
+            (pl.col("din_instante").n_unique() / (HISTORY_DAYS * 48)).alias("cobertura_historico")
+        )
 
         horizons = pl.DataFrame({"horizonte": pl.int_range(1, HORIZONS + 1, eager=True)})
         grid = (
@@ -181,6 +191,7 @@ class SameSlotRecentBaseline:
             .join(command, on=_SLOT_KEY, how="left")
             .join(volume, on=_SLOT_KEY, how="left")
             .join(cause, on=_SLOT_KEY, how="left")
+            .join(coverage, on=_KEY, how="left")
         )
 
         p_corte = pl.col("corte_positivo").cast(pl.Float64)
@@ -218,6 +229,9 @@ class SameSlotRecentBaseline:
             pl.lit("baseline").alias("tipo_saida"),
             pl.lit(self.model_id).alias("modelo_id"),
             pl.lit(data_cutoff).cast(pl.Datetime("us")).alias("corte_dados"),
+            pl.lit(AVAILABILITY_SCENARIO).alias("cenario_disponibilidade"),
+            pl.col("instante_observacao"),
+            pl.col("cobertura_historico").fill_null(0.0),
             pl.lit(generated_at or datetime.now()).cast(pl.Datetime("us")).alias("gerado_em"),
         )
         return validate_forecast(forecast.cast(dict(FORECAST_SCHEMA)).sort([*_KEY, "horizonte"]))

@@ -235,3 +235,14 @@ def test_load_history_reads_window_and_derives_targets(tmp_path):
 def test_load_history_refuses_reserved_period(tmp_path):
     with pytest.raises(ValueError, match="teste reservado"):
         load_history(tmp_path, datetime(2026, 4, 1), datetime(2026, 5, 2))
+
+
+def test_forecast_exposes_observation_used_and_history_coverage():
+    history = _history(
+        _row(datetime(2025, 3, 8, 10), limit=5.0, ref=30.0, gen=10.0, cause="CNF"),
+        _row(datetime(2025, 3, 9, 10), limit=5.0, ref=30.0, gen=-1.0, cause="CNF"),
+    )
+    first = _h1(_predict(history))
+    assert first["instante_observacao"] == datetime(2025, 3, 8, 10)
+    assert first["cobertura_historico"] == pytest.approx(2 / (28 * 48))
+    assert first["cenario_disponibilidade"] == "noturno_fim_de_semana"

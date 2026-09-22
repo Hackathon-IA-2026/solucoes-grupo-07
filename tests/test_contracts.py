@@ -41,6 +41,9 @@ def _forecast_row(horizonte: int = 1, **overrides) -> dict:
         "tipo_saida": "baseline",
         "modelo_id": "baseline_mesmo_horario_recente_v1",
         "corte_dados": datetime(2025, 3, 7),
+        "cenario_disponibilidade": "noturno_fim_de_semana",
+        "instante_observacao": datetime(2025, 3, 6, 10, 0),
+        "cobertura_historico": 0.95,
         "gerado_em": datetime(2026, 9, 22, 12, 0),
     }
     row.update(overrides)
@@ -209,3 +212,31 @@ def test_recommendation_requires_assumptions_version():
 def test_recommendation_window_must_be_ordered():
     with pytest.raises(ContractError, match="fim"):
         validate_recommendations(_recommendation(fim=T0))
+
+
+@pytest.mark.parametrize(
+    ("overrides", "column"),
+    [
+        ({"p_corte": None, "alerta": True, "motivo_sem_previsao": "x"}, "alerta"),
+        ({"limiar_alerta": None, "alerta": False}, "limiar_alerta"),
+        ({"tau": None}, "tau"),
+        ({"energia_esperada_mwh": None}, "energia_esperada_mwh"),
+        ({"cenario_disponibilidade": ""}, "cenario_disponibilidade"),
+        ({"cobertura_historico": 1.5}, "cobertura_historico"),
+        ({"instante_observacao": T0}, "instante_observacao"),
+        ({"causa_prevista": "REL"}, "causa_prevista"),
+    ],
+)
+def test_null_or_incoherent_fields_are_rejected(overrides, column):
+    with pytest.raises(ContractError, match=column):
+        validate_forecast(_forecast(_forecast_row(**overrides)))
+
+
+@pytest.mark.parametrize("column", ["energia_em_risco_mwh", "energia_recuperavel_mwh"])
+def test_recommendation_energy_is_required(column):
+    with pytest.raises(ContractError, match=column):
+        validate_recommendations(_recommendation(**{column: None}))
+
+
+def test_recommendation_may_state_unknown_cause():
+    assert validate_recommendations(_recommendation(causa_base=None)).height == 1

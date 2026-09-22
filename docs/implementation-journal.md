@@ -499,3 +499,86 @@ capacidade preditiva.
 A síntese do notebook foi corrigida sem alterar código, dados, gráficos ou resultados numéricos.
 A Etapa 2 deve medir desempenho fora da amostra e, se a simultaneidade for relevante para o
 produto, incluir uma análise explícita de coocorrência por janela e região.
+
+## 2026-09-22 - Contrato de saída, preditor provisório e plano de trabalho paralelo
+
+### Contexto e pergunta
+
+Terça-feira, com a Etapa 2 ainda em andamento. O presencial vai de 25 a 27/09 e a apresentação
+é no domingo, com três desenvolvedores e a maior parte do trabalho concentrada no responsável.
+Pergunta: dá para adiantar as etapas 3 a 6 sem esperar a decisão de modelo da Etapa 2C, e sem
+retrabalho quando ela sair?
+
+### Fatos e evidências observados
+
+- Recomendação, interface e deploy dependem do formato da previsão, não do algoritmo. O
+  protocolo da Etapa 2A (§2.1, §5 e §7) já define unidade, horizontes, tarefas e baselines.
+- A 2C pode declarar uma tarefa `inelegivel` (por exemplo, causa) ou preferir um baseline. O
+  handoff da 2C também prevê uma Etapa 2D, o que pode atrasar a decisão para depois de sexta.
+- Com o cenário noturno do protocolo, a observação de `tau − 24h` quase nunca está liberada no
+  instante da previsão: numa terça às 10h, o último dia liberado é domingo.
+- Execução real em 14/10/2025 às 10h (corte `nightly_cutoff` = 13/10 00h): leitura de 28 dias
+  (299.376 linhas) em 0,2 s e previsão em 0,08 s; 154 entidades eólicas e 69 solares, 10.704
+  linhas, nenhuma sem previsão. Alertas: 58,6% das janelas eólicas e 32,2% das solares. Energia
+  somada nas 48 janelas: ≈183 GWh eólica e ≈48 GWh solar.
+
+### Interpretação e decisão
+
+- O formato da saída foi fixado antes do modelo em `src/curtamap/contracts.py`
+  (`FORECAST_SCHEMA`, `RECOMMENDATION_SCHEMA` e validadores). Causa e previsão podem ser nulas,
+  sempre com motivo, para que uma inelegibilidade decidida na 2C não mude o contrato.
+- O preditor provisório é o baseline "mesmo horário mais recente disponível, até 28 dias"
+  (§7.2), e não o "mesmo horário do dia anterior". Pela latência, este último cairia quase
+  sempre no fallback.
+- O teste reservado (a partir de 01/05/2026) é recusado por padrão na leitura e na previsão.
+- Trabalho dividido em trilhas por branch (`docs/parallel-plan.md`): o responsável segue na
+  Etapa 2, o Dev 2 fica com a Etapa 3 e o Dev 3 com a Etapa 4 e a preparação local da Etapa 5.
+  Prompts autossuficientes em `docs/handoffs/stage3-prompt.md` e `stage4-prompt.md`.
+- Interface em Streamlit, decidida pelo responsável: menos código, um único container e
+  contrato só em Python. Para evitar conflitos, a interface será multipágina, com um arquivo
+  por tela.
+
+### Alternativas consideradas
+
+- **Esperar a 2C:** adiada. Custaria dias para evitar poucas horas de ajuste; o contrato já
+  absorve as decisões possíveis da 2C.
+- **Mock sintético em vez de baseline:** descartado. O baseline usa dados reais e é
+  explicitamente rotulado.
+- **React + FastAPI:** preferência inicial do responsável, trocada por Streamlit pelo prazo.
+- **Fallback regional do protocolo no preditor provisório:** adiado. Sem observação no
+  horário, a previsão fica nula com motivo, em vez de um número de baixa evidência.
+
+### Implementação e validação
+
+TDD em ambos os módulos: `tests/test_contracts.py` e `tests/test_forecasting.py` falharam na
+coleta antes da implementação e passaram depois. Os testes cobrem vazamento após o corte, janela
+de 28 dias, volume inválido, causas não aprendíveis, identidade por fonte, grade de 30 minutos e
+bloqueio do teste reservado. Suíte completa: 137 testes aprovados com `PYTHONUTF8=1`.
+`ruff check` e `ruff format --check` limpos. Sem essa variável, `test_feature_inventory` falha no
+Windows porque lê o Markdown sem `encoding="utf-8"`. É um defeito anterior e fora deste escopo.
+`.gitattributes` passou a usar `merge=union` no diário, para unir entradas de branches paralelas.
+
+### Limitações e incertezas
+
+- O corte de disponibilidade considera só fins de semana; os feriados do calendário da Etapa 2
+  ainda não estão no `main`.
+- As probabilidades do baseline são 0 ou 1, sem calibração nem intervalo de volume.
+- Como o baseline copia o último dia liberado, a energia prevista herda o perfil desse dia.
+  Nos ≈231 GWh do exemplo, o último dia liberado era um domingo, e a média diária de 2025 é
+  ≈102 GWh. **Interpretação, não medida:** fins de semana com carga baixa podem inflar a
+  previsão. Isso não foi quantificado.
+- O esquema de recomendação é uma versão inicial. A Etapa 3 pode propor extensões por PR
+  separado.
+
+### Valor para o usuário e para a apresentação
+
+Permite demonstrar o fluxo previsão → recomendação → decisão com dados reais antes da escolha do
+modelo. O baseline também é o comparador que o modelo final precisa superar, o que sustenta a
+narrativa de credibilidade: "comparamos com a regra simples que o gerador já poderia usar".
+
+### Próximos passos
+
+1. Responsável: fazer push do `main` e distribuir os prompts; seguir na 2B/2C.
+2. Dev 2 e Dev 3: abrir as branches a partir do `origin/main` e trabalhar pelos prompts.
+3. Depois da 2C: implementar o preditor escolhido atrás do `Predictor` e trocar na interface.
+4. Corrigir a leitura sem encoding de `test_feature_inventory` num commit próprio.

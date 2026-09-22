@@ -1,8 +1,10 @@
 """Contratos de saída entre previsão, recomendação e interface — versão 1.
 
-O contrato fixa o formato, não o modelo. Qualquer preditor (baseline hoje, modelo escolhido
-na Etapa 2C depois) deve produzir `FORECAST_SCHEMA`; recomendação e dashboard consomem só
-esse formato e nunca importam `curtamap.experimental`.
+O contrato fixa o formato, não o modelo. A semântica segue o protocolo experimental da
+Etapa 2A (`docs/experimental-protocol.md`, na branch `etapa-2-experimental`). Qualquer
+preditor (baseline hoje, modelo escolhido na Etapa 2C depois) deve produzir
+`FORECAST_SCHEMA`; recomendação e dashboard consomem só esse formato e nunca importam
+`curtamap.experimental`.
 
 Unidade da previsão: `fonte + id_ons + t0 + horizonte`, com `tau = t0 + (h - 1) × 30 min`
 referente ao intervalo semiaberto `[tau, tau + 30 min)`. Timestamps são ingênuos, em horário
@@ -63,6 +65,12 @@ FORECAST_SCHEMA = pl.Schema(
         "tipo_saida": pl.String,
         "modelo_id": pl.String,
         "corte_dados": _TS,
+        # Regra de liberação dos dados usada para chegar ao corte.
+        "cenario_disponibilidade": pl.String,
+        # Instante da observação efetivamente usada (baselines); nulo para modelos.
+        "instante_observacao": _TS,
+        # Fração das 1.344 meias-horas dos 28 dias antes do corte presentes para a entidade.
+        "cobertura_historico": pl.Float64,
         "gerado_em": _TS,
     }
 )
@@ -160,7 +168,19 @@ def validate_forecast(frame: pl.DataFrame) -> pl.DataFrame:
     expected_tau = col("t0") + pl.duration(minutes=30 * (col("horizonte").cast(pl.Int64) - 1))
     _require(frame, col("tau") != expected_tau, "tau ≠ t0 + (horizonte − 1) × 30 min")
     _require(frame, col("corte_dados").is_null(), "corte_dados nulo")
+    _require(frame, col("tau").is_null(), "tau nulo")
     _require(frame, col("corte_dados") > col("t0"), "corte_dados posterior a t0")
+    _require(frame, _not_blank("cenario_disponibilidade"), "cenario_disponibilidade vazio")
+    _require(
+        frame,
+        col("instante_observacao") + STEP > col("corte_dados"),
+        "instante_observacao não liberado até corte_dados",
+    )
+    _require(
+        frame,
+        _bad_number("cobertura_historico", lower=0.0, upper=1.0),
+        "cobertura_historico fora de [0, 1]",
+    )
     _require(frame, col("gerado_em").is_null(), "gerado_em nulo")
 
     for name in _PROBABILITIES:
@@ -169,6 +189,11 @@ def validate_forecast(frame: pl.DataFrame) -> pl.DataFrame:
         _require(frame, _bad_number(name, lower=0.0), f"{name} negativo ou não finito")
     energy_gap = (col("energia_esperada_mwh") - col("volume_esperado_mwmed") * 0.5).abs()
     _require(frame, energy_gap > _TOLERANCE, "energia_esperada_mwh ≠ volume_esperado × 0,5")
+    _require(
+        frame,
+        col("energia_esperada_mwh").is_null() != col("volume_esperado_mwmed").is_null(),
+        "energia_esperada_mwh e volume_esperado_mwmed com nulos diferentes",
+    )
     _require(
         frame,
         col("volume_p10_mwmed") > col("volume_p90_mwmed"),
@@ -187,6 +212,12 @@ def validate_forecast(frame: pl.DataFrame) -> pl.DataFrame:
         "alerta incoerente com p_corte ≥ limiar_alerta",
     )
     _require(frame, col("p_corte").is_not_null() & col("alerta").is_null(), "alerta nulo")
+    _require(frame, col("p_corte").is_null() & col("alerta").is_not_null(), "alerta sem p_corte")
+    _require(
+        frame,
+        col("p_corte").is_not_null() & col("limiar_alerta").is_null(),
+        "limiar_alerta nulo com p_corte preenchido",
+    )
 
     _require(
         frame,
@@ -203,12 +234,26 @@ def validate_forecast(frame: pl.DataFrame) -> pl.DataFrame:
     total = pl.sum_horizontal(_CAUSE_PROBABILITIES)
     _require(frame, partial, "p_causa_* parcialmente preenchidas")
     _require(frame, present & ((total - 1).abs() > _TOLERANCE), "p_causa_* não somam 1")
+    top = pl.max_horizontal(_CAUSE_PROBABILITIES)
+    chosen = pl.coalesce(
+        pl.when(col("causa_prevista") == code).then(col(f"p_causa_{code.lower()}"))
+        for code in PREDICTABLE_CAUSES
+    )
+    _require(
+        frame,
+        present & (chosen < top - _TOLERANCE),
+        "causa_prevista não é a de maior p_causa_*",
+    )
     _require(frame, _outside("origem_prevista", ORIGINS), f"origem_prevista fora de {ORIGINS}")
     return frame
 
 
 def validate_recommendations(frame: pl.DataFrame) -> pl.DataFrame:
-    """Valida recomendações; valores monetários e de CO2 são cenários, podendo ser nulos."""
+    """Valida recomendações.
+
+    Valor e CO2 são cenários e podem ser nulos quando falta premissa com fonte. `causa_base`
+    nula significa causa indeterminada, que a recomendação deve declarar como tal.
+    """
     _check_schema(frame, RECOMMENDATION_SCHEMA)
     _check_key(frame, ["fonte", "id_ons", "t0", "inicio", "acao_codigo"])
     col = pl.col
@@ -225,6 +270,8 @@ def validate_recommendations(frame: pl.DataFrame) -> pl.DataFrame:
     )
     _require(frame, col("fim").is_null() | (col("fim") <= col("inicio")), "fim ≤ inicio")
     _require(frame, col("inicio") < col("t0"), "inicio anterior a t0")
+    for name in ("energia_em_risco_mwh", "energia_recuperavel_mwh"):
+        _require(frame, col(name).is_null(), f"{name} nulo")
     for name in ("energia_em_risco_mwh", "energia_recuperavel_mwh", "co2_evitado_t"):
         _require(frame, _bad_number(name, lower=0.0), f"{name} negativo ou não finito")
     _require(frame, _bad_number("valor_estimado_brl"), "valor_estimado_brl não finito")
