@@ -14,7 +14,7 @@ import polars as pl
 
 from curtamap.experimental.artifacts import RunStore, configuration_digest
 from curtamap.experimental.calendar import load_calendar_manifest
-from curtamap.experimental.campaign import run_campaign_round
+from curtamap.experimental.campaign import run_campaign_round, run_sensitivity_round
 from curtamap.experimental.config import ExperimentalSettings
 from curtamap.experimental.preparation import prepare_target_partitions, write_feature_partitions
 from curtamap.experimental.runner import run_technical_pilot
@@ -147,6 +147,13 @@ def main() -> None:
     campaign.add_argument("--round", choices=["V1", "V2", "V3", "V4"], required=True)
     campaign.add_argument("--features", type=Path, required=True)
     campaign.add_argument("--baselines", type=Path, required=True)
+    sensitivity = subparsers.add_parser("sensitivity-round")
+    sensitivity.add_argument("--run-id", required=True)
+    sensitivity.add_argument("--source", choices=["eolica", "fotovoltaica"], required=True)
+    sensitivity.add_argument("--round", choices=["V1", "V2", "V3", "V4"], required=True)
+    sensitivity.add_argument("--features", type=Path, required=True)
+    sensitivity.add_argument("--baselines", type=Path, required=True)
+    sensitivity.add_argument("--frozen-run", type=Path, required=True)
     reserved = subparsers.add_parser("reserved-test")
     reserved.add_argument("--allow-reserved-test", action="store_true")
     reserved.add_argument("--decision-ref")
@@ -229,7 +236,7 @@ def main() -> None:
                 status="technical_pilot_complete",
                 resume_command=f"curtamap-experiment --config {args.config} pilot ...",
             )
-        else:
+        elif args.command == "campaign-round":
             frame = pl.scan_parquet(str(args.features)).collect(engine="streaming")
             baselines = pl.scan_parquet(str(args.baselines)).collect(engine="streaming")
             round_ = next(item for item in external_rounds() if item.round_id == args.round)
@@ -246,6 +253,24 @@ def main() -> None:
             store.finalize(
                 status=status,
                 resume_command=f"curtamap-experiment --config {args.config} campaign-round ...",
+            )
+        else:
+            frame = pl.scan_parquet(str(args.features)).collect(engine="streaming")
+            baselines = pl.scan_parquet(str(args.baselines)).collect(engine="streaming")
+            round_ = next(item for item in external_rounds() if item.round_id == args.round)
+            report = run_sensitivity_round(
+                frame,
+                baselines,
+                store,
+                frozen_run=args.frozen_run,
+                source=args.source,
+                round_=round_,
+                calendar=loaded_calendar.calendar,
+            )
+            status = "complete" if not report["failures"] else "incomplete"
+            store.finalize(
+                status=status,
+                resume_command=f"curtamap-experiment --config {args.config} sensitivity-round ...",
             )
     except Exception as error:
         store.record_failure("run.json", error, resumable=True)
