@@ -10,6 +10,7 @@ from typing import Any
 
 import joblib
 import polars as pl
+import pyarrow.parquet as pq
 
 REQUIRED_MANIFEST_FIELDS = frozenset(
     {
@@ -43,6 +44,63 @@ def configuration_digest(configuration: dict[str, Any]) -> str:
 def _sha256(path: Path) -> str:
     with path.open("rb") as handle:
         return hashlib.file_digest(handle, "sha256").hexdigest()
+
+
+class ParquetStream:
+    """Grava um único Parquet em partes, na ordem de chegada, sem reter as partes anteriores.
+
+    O conteúdo lido de volta é igual ao de ``DataFrame.write_parquet`` sobre a concatenação
+    das partes. Todas as partes precisam do mesmo esquema; uma parte vazia é válida. Em caso
+    de erro dentro do ``with`` (ou chamada explícita de ``abort``), o arquivo parcial é removido;
+    depois de ``close`` o arquivo está concluído e ``abort`` não o apaga.
+    """
+
+    def __init__(self, target: Path) -> None:
+        self.target = target
+        self.rows = 0
+        self.closed = False
+        self._writer: pq.ParquetWriter | None = None
+        self._schema: pl.Schema | None = None
+
+    def write(self, frame: pl.DataFrame) -> None:
+        if self.closed:
+            raise ValueError(f"{self.target.name} já foi concluído")
+        if self._schema is None:
+            self._schema = frame.schema
+            table = frame.to_arrow()
+            self._writer = pq.ParquetWriter(str(self.target), table.schema, compression="zstd")
+        elif frame.schema != self._schema:
+            raise ValueError(f"esquema divergente entre partes de {self.target.name}")
+        else:
+            table = frame.to_arrow()
+        assert self._writer is not None
+        self._writer.write_table(table)
+        self.rows += frame.height
+
+    def close(self) -> Path:
+        if self._writer is None:
+            raise ValueError(f"nenhuma parte gravada em {self.target.name}")
+        self._writer.close()
+        self._writer = None
+        self.closed = True
+        return self.target
+
+    def abort(self) -> None:
+        if self.closed:
+            return
+        if self._writer is not None:
+            self._writer.close()
+            self._writer = None
+        self.target.unlink(missing_ok=True)
+
+    def __enter__(self) -> ParquetStream:
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        if exc_type is None:
+            self.close()
+        else:
+            self.abort()
 
 
 @dataclass
@@ -89,6 +147,10 @@ class RunStore:
         target = self._target(relative)
         frame.write_parquet(target)
         return target
+
+    def open_parquet_stream(self, relative: str | Path) -> ParquetStream:
+        """Parquet gravado em partes (ver ``ParquetStream``), no mesmo caminho relativo."""
+        return ParquetStream(self._target(relative))
 
     def read_parquet(self, relative: str | Path) -> pl.DataFrame:
         return pl.read_parquet(self._target(relative))

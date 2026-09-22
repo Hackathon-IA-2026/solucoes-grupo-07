@@ -14,7 +14,11 @@ import polars as pl
 
 from curtamap.experimental.artifacts import RunStore, configuration_digest
 from curtamap.experimental.calendar import load_calendar_manifest
-from curtamap.experimental.campaign import run_campaign_round, run_sensitivity_round
+from curtamap.experimental.campaign import (
+    DEFAULT_CHUNK_DAYS,
+    run_campaign_round,
+    run_sensitivity_round,
+)
 from curtamap.experimental.config import ExperimentalSettings
 from curtamap.experimental.preparation import prepare_target_partitions, write_feature_partitions
 from curtamap.experimental.runner import run_technical_pilot
@@ -160,6 +164,13 @@ def main() -> None:
     sensitivity.add_argument("--features", type=Path, required=True)
     sensitivity.add_argument("--baselines", type=Path, required=True)
     sensitivity.add_argument("--frozen-run", type=Path, required=True)
+    for command in (campaign, sensitivity):
+        command.add_argument(
+            "--validation-chunk-days",
+            type=int,
+            default=DEFAULT_CHUNK_DAYS,
+            help="dias de emissões por parte da validação em memória (não altera resultados)",
+        )
     reserved = subparsers.add_parser("reserved-test")
     reserved.add_argument("--allow-reserved-test", action="store_true")
     reserved.add_argument("--decision-ref")
@@ -244,8 +255,9 @@ def main() -> None:
                 resume_command=f"curtamap-experiment --config {args.config} pilot ...",
             )
         elif args.command == "campaign-round":
-            frame = pl.scan_parquet(str(args.features)).collect(engine="streaming")
-            baselines = pl.scan_parquet(str(args.baselines)).collect(engine="streaming")
+            # Leitura preguiçosa: a campanha coleta por partes, só as colunas necessárias.
+            frame = pl.scan_parquet(str(args.features))
+            baselines = pl.scan_parquet(str(args.baselines))
             round_ = next(item for item in external_rounds() if item.round_id == args.round)
             report = run_campaign_round(
                 frame,
@@ -255,6 +267,8 @@ def main() -> None:
                 round_=round_,
                 calendar=loaded_calendar.calendar,
                 seed=config["seed"],
+                chunk_days=args.validation_chunk_days,
+                scratch_dir=settings.temp_dir,
             )
             status = "complete" if not report["failures"] else "incomplete"
             store.finalize(
@@ -262,8 +276,8 @@ def main() -> None:
                 resume_command=f"curtamap-experiment --config {args.config} campaign-round ...",
             )
         else:
-            frame = pl.scan_parquet(str(args.features)).collect(engine="streaming")
-            baselines = pl.scan_parquet(str(args.baselines)).collect(engine="streaming")
+            frame = pl.scan_parquet(str(args.features))
+            baselines = pl.scan_parquet(str(args.baselines))
             round_ = next(item for item in external_rounds() if item.round_id == args.round)
             report = run_sensitivity_round(
                 frame,
@@ -273,6 +287,8 @@ def main() -> None:
                 source=args.source,
                 round_=round_,
                 calendar=loaded_calendar.calendar,
+                chunk_days=args.validation_chunk_days,
+                scratch_dir=settings.temp_dir,
             )
             status = "complete" if not report["failures"] else "incomplete"
             store.finalize(

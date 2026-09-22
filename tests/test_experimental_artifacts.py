@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from pathlib import Path
 
 import polars as pl
@@ -74,3 +75,65 @@ def test_configuration_and_seed_have_stable_digest_independent_of_key_order() ->
     right = {"families": ["linear", "lightgbm"], "paths": {"cache": "/tmp/a b"}, "seed": 42}
     assert configuration_digest(left) == configuration_digest(right)
     assert configuration_digest(left) != configuration_digest(left | {"seed": 17})
+
+
+def _stream_frame() -> pl.DataFrame:
+    return pl.DataFrame(
+        {
+            "fonte": ["eolica", None, "eolica", "eolica"],
+            "t0": [datetime(2025, 1, 1), None, datetime(2025, 1, 2), datetime(2025, 1, 3)],
+            "flag": [True, None, False, True],
+            "prediction": [0.25, None, 0.5, 0.75],
+            "horizon": [1, 2, None, 48],
+            "cause": pl.Series([None, None, None, None], dtype=pl.String),
+        }
+    )
+
+
+def test_parquet_stream_in_parts_equals_single_write_and_preserves_order(
+    tmp_path: Path,
+) -> None:
+    store = RunStore.create(tmp_path / "raiz com espaço", manifest())
+    frame = _stream_frame()
+    store.write_parquet("predictions/unico.parquet", frame)
+    with store.open_parquet_stream("predictions/partes.parquet") as stream:
+        stream.write(frame.head(1))
+        stream.write(frame.slice(1, 2))
+        stream.write(frame.clear())
+        stream.write(frame.tail(1))
+    assert stream.rows == frame.height
+    single = store.read_parquet("predictions/unico.parquet")
+    parts = store.read_parquet("predictions/partes.parquet")
+    assert parts.schema == single.schema
+    assert parts.equals(single)
+
+
+def test_parquet_stream_aborts_on_error_and_rejects_schema_drift(tmp_path: Path) -> None:
+    store = RunStore.create(tmp_path, manifest())
+    target = store.path / "predictions" / "falha.parquet"
+    with (
+        pytest.raises(RuntimeError, match="interrompida"),
+        store.open_parquet_stream("predictions/falha.parquet") as stream,
+    ):
+        stream.write(_stream_frame())
+        raise RuntimeError("interrompida")
+    assert not target.exists()
+
+    stream = store.open_parquet_stream("predictions/deriva.parquet")
+    stream.write(_stream_frame())
+    with pytest.raises(ValueError, match="esquema"):
+        stream.write(_stream_frame().with_columns(pl.col("horizon").cast(pl.String)))
+    stream.abort()
+    assert not (store.path / "predictions" / "deriva.parquet").exists()
+
+    empty = store.open_parquet_stream("predictions/vazio.parquet")
+    empty.write(_stream_frame().clear())
+    empty.close()
+    empty.abort()  # já concluído: não descarta
+    assert store.read_parquet("predictions/vazio.parquet").schema == _stream_frame().schema
+    with pytest.raises(ValueError, match="concluído"):
+        empty.write(_stream_frame())
+    with pytest.raises(ValueError, match="nenhuma parte"):
+        store.open_parquet_stream("predictions/sem-partes.parquet").close()
+    with pytest.raises(ValueError, match="relativo"):
+        store.open_parquet_stream("../fora.parquet")
