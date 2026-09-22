@@ -553,7 +553,17 @@ retrabalho quando ela sair?
 TDD em ambos os módulos: `tests/test_contracts.py` e `tests/test_forecasting.py` falharam na
 coleta antes da implementação e passaram depois. Os testes cobrem vazamento após o corte, janela
 de 28 dias, volume inválido, causas não aprendíveis, identidade por fonte, grade de 30 minutos e
-bloqueio do teste reservado. Suíte completa: 137 testes aprovados com `PYTHONUTF8=1`.
+bloqueio do teste reservado.
+
+Uma verificação adversarial independente não encontrou vazamento temporal. Ela conferiu as
+fronteiras do corte noturno (inclusive exatamente às 19h30), a janela de 28 dias até o
+microssegundo, o bloqueio do teste reservado e a execução com Parquet real de mar–abr/2026.
+Encontrou, porém, lacunas no validador: comparações com nulo escondiam alerta sem `p_corte`,
+`tau` nulo, energia nula com volume preenchido e energia ausente em recomendações. Também
+apontou que faltavam campos de proveniência exigidos pelo protocolo. Tudo foi corrigido com
+testes antes, e o contrato ganhou `cenario_disponibilidade`, `instante_observacao` e
+`cobertura_historico`. `causa_base` nula foi mantida de propósito: significa causa
+indeterminada. Suíte completa: 149 testes aprovados com `PYTHONUTF8=1`.
 `ruff check` e `ruff format --check` limpos. Sem essa variável, `test_feature_inventory` falha no
 Windows porque lê o Markdown sem `encoding="utf-8"`. É um defeito anterior e fora deste escopo.
 `.gitattributes` passou a usar `merge=union` no diário, para unir entradas de branches paralelas.

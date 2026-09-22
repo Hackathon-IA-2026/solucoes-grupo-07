@@ -51,8 +51,10 @@ da Etapa 3.
 3. **Visão tática.** Perdas históricas observadas por semana/mês, causa, UF e usina (as
    funções de agregação podem vir da Etapa 3; até lá, use o que for mínimo e testado).
 4. **Metodologia e limites.** Obrigatório pelo `AGENTS.md`. Mostre fonte dos dados, janela
-   temporal, corte de dados, momento da geração da previsão, tipo de saída (`baseline`,
-   `modelo` ou `simulado`), incerteza e limitações. Um selo visível em todas as telas deve
+   temporal, corte de dados (`corte_dados`, `cenario_disponibilidade`), momento da geração
+   da previsão (`gerado_em`), idade da evidência (`instante_observacao`), cobertura do
+   histórico (`cobertura_historico`), tipo de saída (`baseline`, `modelo` ou `simulado`),
+   incerteza e limitações. Um selo visível em todas as telas deve
    dizer quando a previsão é do preditor provisório `baseline`.
 5. **Assistente contextual (opcional, só depois do resto).** Um resumo em texto gerado de forma
    determinística a partir das saídas estruturadas. Um provedor LLM (Bedrock ou NVIDIA NIM),
