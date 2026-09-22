@@ -813,3 +813,79 @@ dedicado e devolver os artefatos com checksums. Se o piloto for viável, executa
 +24h, uma rodada pesada por vez. Se não for, não amostrar no executor: registrar recursos,
 falha e projeção, voltar ao Mac e decidir a contingência. Depois, Astra executa a Etapa 2C,
 aplica os critérios por tarefa/fonte e decide se o teste reservado pode ser liberado.
+
+## 2026-09-22 - Etapa 2B no computador dedicado: portabilidade Windows e medição de viabilidade
+
+### Contexto e pergunta
+
+O código da 2B (commit `e389332`) chegou ao computador dedicado, que roda Windows 11 Pro
+(32 GB de RAM, 12 CPUs lógicas). As perguntas eram duas: a implementação roda nesse host
+e a campanha completa cabe no orçamento de 12 horas do protocolo (§12.2)?
+
+### Fatos e evidências observados
+
+- Branch, commit e worktree conferiam. O SHA-256 das duas bases principais bate com
+  `docs/reports/stage1/audit.json`. As cópias para a raiz externa de dados conferem.
+- No Windows, `import resource` (módulo exclusivo de Unix) em `preparation.py` e
+  `runner.py` impedia o CLI de carregar, inclusive o `preflight`. As chaves de
+  `checksums.json` saíam com `\`. Um teste lia Markdown sem UTF-8.
+- Depois das correções: `pytest` com 143 testes aprovados no Windows, `ruff check` e
+  `ruff format --check` limpos, e `preflight` aprovado com caminhos externos com espaços.
+- `prepare-targets` levou 60,5 s no cenário principal e 50,9 s no +24h, com pico de cerca
+  de 1,0 GB. As contagens foram 7.951.920 linhas eólicas e 2.854.800 solares.
+- Sonda de `build-features` para um único dia eólico (15/01/2025): nenhum dia concluído
+  em 544,7 s. Foi interrompida pelo operador.
+- Cronometragem de um único `t0` eólico (features mais 30 requisições de baseline): não
+  concluiu em mais de 20 minutos. Foi interrompida pelo operador.
+
+### Interpretação e decisão
+
+Os três problemas de portabilidade eram defeitos de software, sem efeito metodológico.
+Foram corrigidos aqui com autorização explícita do responsável. A medição de memória
+passou a ser portável e reportada em bytes (`peak_rss_bytes`), e as chaves de
+checksum usam sempre `/`.
+
+A geração de features e de baselines é inviável no desenho atual. Há três causas
+principais: laços Python linha a linha, `_regional_frequency` recalculada sobre todo o
+histórico para cada entidade e horizonte, e cada requisição de baseline percorrendo
+toda a janela de histórico. Projeção mínima: mais de 16 h por dia de emissões, ou
+milhares de horas por fonte e cenário. Há ainda um limite independente:
+`campaign-round` e `sensitivity-round` fazem `collect()` de todo o período de
+desenvolvimento. Estimativa aproximada: centenas de milhões de linhas de features e
+cerca de quatro vezes isso em baselines por fonte, o que não cabe em 32 GB.
+
+Nenhum dataset, piloto, rodada V1–V4 ou sensibilidade foi executado. Todas essas runs
+ficam em "não iniciada — bloqueio de viabilidade".
+
+### Alternativas consideradas
+
+Amostrar dias, entidades ou exemplos para caber no orçamento foi rejeitado: seria mudança
+metodológica não autorizada (§12.2). Rodar a sonda até o fim também foi rejeitado,
+porque o piso medido já excede o orçamento. A alternativa prevista no protocolo é
+reduzir materialização redundante e vetorizar preservando a semântica, usando a
+implementação atual como oráculo de igualdade. Ela depende de decisão do responsável.
+
+### Limitações e incertezas
+
+As projeções são pisos obtidos por cronometragem interrompida, não durações completas. A
+divisão do custo entre features e baselines não foi isolada. Mesmo com geração
+eficiente, o ajuste com todos os elegíveis pode exceder a memória; isso só o piloto
+mede. Observações de conformidade, sem correção aqui:
+
+- os baselines são pontuados com limiar 0,5, e não pelo procedimento F2 interno (§7.2);
+- os modelos usam 8 features numéricas e 4 categóricas, das cerca de 50 geradas;
+- a sensibilidade fixa `entity_new` e `panel_fixed` como falsos.
+
+### Valor para o usuário e para a apresentação
+
+Nenhum resultado preditivo existe ainda. A evidência mostra que o gargalo é de
+engenharia de dados, não de modelagem, e sustenta a narrativa de rigor: não se
+reduziu o protocolo nem se inventou amostragem para declarar conclusão.
+
+### Próximos passos
+
+Decidir com o responsável se a geração de features e baselines e o carregamento da
+campanha serão reescritos de forma vetorizada, com testes de igualdade contra a
+implementação atual. Depois, repetir preflight, datasets, pilotos, V1–V4 e +24h, uma run
+pesada por vez. Evidências operacionais ficam no diretório `execucao/` da raiz externa
+do computador dedicado.
