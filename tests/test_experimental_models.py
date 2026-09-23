@@ -135,3 +135,13 @@ def test_sigmoid_calibration_requires_both_classes_and_threshold_tie_prefers_hig
 def test_expected_volume_does_not_depend_on_alert_threshold() -> None:
     result = expected_volume(np.array([0.2, 0.8]), np.array([100.0, 50.0]))
     np.testing.assert_allclose(result, [20.0, 40.0])
+
+
+def test_lightgbm_uses_six_deterministic_threads() -> None:
+    from curtamap.experimental.models import _estimator
+
+    for task in ("occurrence", "volume", "cause"):
+        params = _estimator(task, "lightgbm", {"num_leaves": 15, "max_depth": 4}, 42).get_params()
+        assert params["n_jobs"] == 6
+        assert params["deterministic"] is True
+        assert params["force_row_wise"] is True

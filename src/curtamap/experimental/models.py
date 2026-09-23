@@ -125,6 +125,9 @@ class CandidateModel:
         return np.asarray(self.estimator.predict_proba(self.preprocessor.transform(frame)))
 
 
+LIGHTGBM_THREADS = 6
+
+
 def _estimator(task: str, family: str, params: dict[str, Any], seed: int) -> Any:
     if family == "linear" and task in {"occurrence", "cause"}:
         return LogisticRegression(
@@ -147,7 +150,11 @@ def _estimator(task: str, family: str, params: dict[str, Any], seed: int) -> Any
         subsample=1.0,
         colsample_bytree=1.0,
         random_state=seed,
-        n_jobs=1,
+        # Decisão de 23/09/2026: 6 threads com determinismo para repetibilidade entre execuções
+        # com o mesmo número de threads (não iguala numericamente os resultados de n_jobs=1).
+        n_jobs=LIGHTGBM_THREADS,
+        deterministic=True,
+        force_row_wise=True,
         verbosity=-1,
     )
     if family == "lightgbm" and task == "occurrence":
