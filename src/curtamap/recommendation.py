@@ -175,15 +175,27 @@ def impact_sensitivity(
     )
 
 
-def _description(row: dict[str, Any], base: str) -> str:
-    source = "parque eolico" if row["fonte"] == "eolica" else "usina fotovoltaica"
-    lead_hours = (row["inicio"] - row["t0"]).total_seconds() / 3600
-    origin = f" Origem prevista: {row['origem_base']}." if row["origem_base"] else ""
-    return (
-        f"Para o {source}, janela em {lead_hours:g} h.{origin} {base} "
+def recommendation_rule(
+    cause: str | None,
+    source: str,
+    origin: str | None,
+    *,
+    lead_hours: float,
+) -> dict[str, str]:
+    """Resolve uma regra explícita, inclusive PAR histórico e causa indeterminada."""
+    if cause not in _ACTIONS:
+        raise ValueError(f"causa sem regra: {cause}")
+    if source not in {"eolica", "fotovoltaica"}:
+        raise ValueError(f"fonte sem regra: {source}")
+    action_code, base = _ACTIONS[cause]
+    source_label = "parque eolico" if source == "eolica" else "usina fotovoltaica"
+    origin_label = f" Origem prevista: {origin}." if origin else ""
+    description = (
+        f"Para o {source_label}, janela em {lead_hours:g} h.{origin_label} {base} "
         "Impacto é um cenário: energia cortada não vira automaticamente energia recuperada "
         "nem receita; depende do ativo, contrato, comando do ONS e regulação."
     )
+    return {"acao_codigo": action_code, "acao_descricao": description}
 
 
 def build_recommendations(
@@ -193,7 +205,13 @@ def build_recommendations(
     assumptions = assumptions or load_assumptions()
     rows = []
     for episode in group_risk_windows(forecast).iter_rows(named=True):
-        action_code, action_text = _ACTIONS[episode["causa_base"]]
+        rule = recommendation_rule(
+            episode["causa_base"],
+            episode["fonte"],
+            episode["origem_base"],
+            lead_hours=(episode["inicio"] - episode["t0"]).total_seconds() / 3600,
+        )
+        action_code = rule["acao_codigo"]
         sensitivity = impact_sensitivity(
             episode["energia_em_risco_mwh"],
             episode["fim"] - episode["inicio"],
@@ -211,7 +229,7 @@ def build_recommendations(
                 "fim": episode["fim"],
                 "causa_base": episode["causa_base"],
                 "acao_codigo": action_code,
-                "acao_descricao": _description(episode, action_text),
+                "acao_descricao": rule["acao_descricao"],
                 "energia_em_risco_mwh": episode["energia_em_risco_mwh"],
                 "energia_recuperavel_mwh": impact["energia_recuperavel_mwh"],
                 "valor_estimado_brl": impact["valor_estimado_brl"],

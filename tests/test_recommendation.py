@@ -9,6 +9,7 @@ from curtamap.recommendation import (
     group_risk_windows,
     impact_sensitivity,
     load_assumptions,
+    recommendation_rule,
     summarize_history,
 )
 
@@ -148,6 +149,28 @@ def test_unknown_cause_recommendation_declares_uncertainty():
     assert recommendation["causa_base"] is None
     assert recommendation["acao_codigo"] == "VALIDAR_CAUSA"
     assert "causa indeterminada" in recommendation["acao_descricao"].lower()
+
+
+@pytest.mark.parametrize(
+    ("cause", "code"),
+    [
+        ("REL", "PRESERVAR_EVIDENCIAS_ESS"),
+        ("CNF", "COORDENAR_OPERACAO"),
+        ("ENE", "AVALIAR_ARMAZENAMENTO"),
+        ("PAR", "REVISAR_PARECER_ACESSO"),
+        (None, "VALIDAR_CAUSA"),
+    ],
+)
+def test_every_contract_cause_has_an_explicit_rule(cause, code):
+    rule = recommendation_rule(cause, "fotovoltaica", "LOC", lead_hours=2.5)
+    assert rule["acao_codigo"] == code
+    assert "usina fotovoltaica" in rule["acao_descricao"]
+    assert "2.5 h" in rule["acao_descricao"]
+
+
+def test_recommendation_rule_rejects_unknown_taxonomy():
+    with pytest.raises(ValueError, match="causa"):
+        recommendation_rule("XYZ", "eolica", None, lead_hours=1)
 
 
 def observed_rows() -> pl.DataFrame:
