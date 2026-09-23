@@ -76,3 +76,21 @@ def test_cli_reads_slots_per_source_and_requires_main_seed():
     )
     with pytest.raises(ValueError, match="semente"):
         _training_slots(config | {"seed": 17}, "eolica")
+
+
+def test_mask_is_pushed_down_into_the_parquet_scan(tmp_path):
+    """Sem pushdown a campanha materializa o refit inteiro antes de amostrar (V1 de 23/09)."""
+    path = tmp_path / "features.parquet"
+    day_frame(datetime(2025, 1, 1)).write_parquet(path)
+    # Mesma cadeia da campanha: filtro de intervalo, máscara, filtro de tarefa e projeção.
+    query = (
+        pl.scan_parquet(path)
+        .filter(pl.col("horizon") >= 1)
+        .filter(emission_mask(4, 42))
+        .filter(pl.col("id_ons").is_not_null())
+        .select("horizon")
+    )
+    plan = query.explain()
+    assert "FILTER" not in plan
+    assert "SELECTION" in plan
+    assert query.collect().height == 4 * 2 * 2

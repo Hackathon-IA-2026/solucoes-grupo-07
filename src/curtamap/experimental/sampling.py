@@ -10,7 +10,7 @@ Aplica-se apenas aos ajustes initial e refit; tuning, calibração e validação
 from __future__ import annotations
 
 import hashlib
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 import polars as pl
 
@@ -31,13 +31,29 @@ def day_offset(day: date, seed: int) -> int:
     return int(digest, 16) % SLOTS_PER_DAY
 
 
+def selected_emissions(slots: int, seed: int) -> list[datetime]:
+    """Todos os ``t0`` escolhidos no intervalo coberto, em ordem crescente."""
+    positions = sorted(selected_positions(slots))
+    chosen = []
+    for index in range((LAST_DAY - FIRST_DAY).days + 1):
+        day = FIRST_DAY + timedelta(days=index)
+        midnight = datetime.combine(day, datetime.min.time())
+        offset = day_offset(day, seed)
+        chosen.extend(
+            midnight + timedelta(minutes=30 * ((position + offset) % SLOTS_PER_DAY))
+            for position in positions
+        )
+    return sorted(chosen)
+
+
 def emission_mask(slots: int, seed: int) -> pl.Expr:
-    positions = selected_positions(slots)
+    """Pertinência a uma lista literal: desce ao scan do Parquet (predicate pushdown).
+
+    Uma expressão derivada por ``replace_strict`` ficava acima do scan e fazia a campanha
+    materializar o refit inteiro antes de amostrar (``main-eolica-v1-001``, 23/09/2026).
+    """
     if slots == SLOTS_PER_DAY:
+        selected_positions(slots)
         return pl.lit(True)
-    days = [FIRST_DAY + timedelta(days=d) for d in range((LAST_DAY - FIRST_DAY).days + 1)]
-    offsets = pl.Series([day_offset(day, seed) for day in days], dtype=pl.Int64)
-    offset = pl.col("t0").dt.date().replace_strict(pl.Series(days), offsets, default=None)
-    slot = pl.col("t0").dt.hour().cast(pl.Int64) * 2 + pl.col("t0").dt.minute().cast(pl.Int64) // 30
-    position = (slot - offset + SLOTS_PER_DAY) % SLOTS_PER_DAY
-    return position.is_in(sorted(positions)).fill_null(False)
+    values = pl.Series(selected_emissions(slots, seed), dtype=pl.Datetime("us"))
+    return pl.col("t0").is_in(values.implode())
