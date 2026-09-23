@@ -592,3 +592,104 @@ narrativa de credibilidade: "comparamos com a regra simples que o gerador já po
 2. Dev 2 e Dev 3: abrir as branches a partir do `origin/main` e trabalhar pelos prompts.
 3. Depois da 2C: implementar o preditor escolhido atrás do `Predictor` e trocar na interface.
 4. Corrigir a leitura sem encoding de `test_feature_inventory` num commit próprio.
+
+## 2026-09-23 - Etapa 3: recomendação rastreável e cenários de impacto
+
+### 1. Contexto e pergunta
+
+Com o contrato de previsão estabilizado e a escolha do modelo ainda independente, a pergunta foi:
+como transformar 48 janelas de previsão em uma decisão útil ao gerador sem prometer recuperação,
+receita, ressarcimento ou benefício climático? A implementação também precisava alimentar a visão
+tática com histórico observado e preservar integralmente o teste reservado a partir de 01/05/2026.
+
+### 2. Fatos e evidências observados
+
+- A taxonomia oficial distingue REL (indisponibilidade externa), CNF (confiabilidade), ENE
+  (impossibilidade de alocar geração na carga) e PAR (limite indicado no parecer de acesso). A
+  NT-ONS DOP 0022/2025 informa que os comandos chegam pelo SINapse, podem mudar ao longo do dia e
+  que a referência final para eventual ESS é apurada em eventos REL.
+- O MME publicou para o LRCAP Armazenamento 2026 requisitos mínimos de 30 MW, quatro horas e 85%
+  de eficiência total. O PDE 2030 da EPE usa 90% como premissa de eficiência de ciclo de bateria.
+- Para sensibilidade financeira, a CCEE publicou em 2025 piso de R$ 58,60/MWh, teto de
+  R$ 751,73/MWh e expectativa média de R$ 310,29/MWh em junho para SE/CO, NE e N. Esses números
+  não são o contrato do gerador.
+- A planilha 2025 do MCTI para a margem de operação do SIN tem mínimo mensal de 0,2146,
+  média aritmética de 0,4124667 e máximo de 0,5780 tCO₂/MWh. São fatores de cenário de emissão
+  deslocada, não créditos certificados.
+- Uma emissão reconstituída somente com dados anteriores a maio, `t0 = 29/04/2026 10h` e corte de
+  dados em 28/04 00h, leu 310.464 linhas dos 28 dias anteriores, produziu 11.088 janelas e 500
+  episódios. Para `fotovoltaica + CJU_MGARN`, o baseline indicou ENE de 12h a 14h e 148,14 MWh
+  em risco. Sob a bateria de referência, os cenários deram 51/54/54 MWh, R$ 2.988,60 /
+  R$ 16.755,66 / R$ 40.593,42 e 10,9446 / 22,2732 / 31,2120 tCO₂.
+
+### 3. Interpretação e decisão
+
+Alertas consecutivos são agrupados somente dentro de `fonte + id_ons + t0`; assim, não se somam
+emissões sobrepostas nem entidades homônimas de fontes diferentes. Se a causa variar ou faltar em
+qualquer janela, o episódio fica com causa indeterminada em vez de escolher uma causa dominante.
+
+As ações são determinísticas: preservar evidências para REL, coordenar operação para CNF, avaliar
+armazenamento para ENE, revisar o parecer para PAR e validar a causa quando ela for nula. Somente
+ENE recebe energia recuperável nesta versão, limitada por energia em risco, potência × duração,
+capacidade e eficiência. As demais ficam em zero porque não existe premissa defensável que converta
+coordenação ou estudo em MWh. Preço ou carbono ausente produz nulo.
+
+### 4. Alternativas consideradas
+
+- Dividir episódios quando a causa muda: rejeitado, pois o requisito temporal define o episódio
+  pela continuidade do alerta; a causa do episódio fica nula de modo conservador.
+- Eleger a causa com maior energia prevista: rejeitado, porque criaria uma causa que o contrato não
+  observou de forma uniforme e poderia direcionar a ação errada.
+- Aplicar uma fração genérica de recuperação a todas as causas: rejeitado por falta de fonte.
+- Usar PLD como receita ou REL como ressarcimento automático: rejeitado; ambos dependem de contrato,
+  apuração e regulação.
+- Preencher premissas faltantes com valores típicos: rejeitado. A ausência permanece nula e a
+  recuperação não quantificada fica em zero.
+
+### 5. Implementação e validação
+
+O ciclo TDD começou com falha de importação de `curtamap.recommendation`. Os testes foram escritos
+antes para episódio único, continuidade, janela sem alerta, fontes iguais com o mesmo `id_ons`,
+causa nula, energia nula, todas as causas inclusive PAR, premissas ausentes, limite da recuperação,
+proveniência e resumo tático semanal/mensal. Depois foram implementados:
+
+- `group_risk_windows`, `recommendation_rule`, `build_recommendations` e `impact_sensitivity`;
+- premissas versionadas em `configs/premissas/v1.json`;
+- `summarize_history`, que chama `derive_targets` e agrega entidade, período, causa, UF e subsistema;
+- documentação completa em `docs/recommendation-rules.md` e atualização do pitch.
+
+Todas as recomendações produzidas passam por `validate_recommendations`. A validação final executou
+`uv run pytest` (**167 testes aprovados**), `uv run ruff check .` e
+`uv run ruff format --check .`, ambos limpos. Nenhuma chamada usou `allow_reserved_test=True`; a
+função tática recusa explicitamente qualquer linha a partir de 01/05/2026.
+
+### 6. Limitações e incertezas
+
+- A bateria de 30 MW/120 MWh é referência setorial, não um ativo conhecido da entidade.
+- O preço base é uma expectativa mensal publicada para junho/2025; não é preço por submercado e
+  hora do episódio nem condição contratual do gerador.
+- O fator MCTI representa margem de operação; o resultado não é inventário nem redução certificada.
+- O baseline copia o horário recente, tem probabilidades 0/1 e ainda será substituído ou confirmado
+  pela Etapa 2C. A emissão reconstituída não é evidência de uma decisão real tomada em 29/04.
+- `id_ons` pode representar conjunto, não usina física. Estado de carga, topologia, habilitação e
+  espaço para descarga futura não estão no contrato.
+- PAR não é uma causa produzida pelo preditor atual, mas sua regra pública existe para histórico e
+  futuras entradas compatíveis, sem alterar `FORECAST_SCHEMA`.
+
+### 7. Valor para o usuário e para a apresentação
+
+O gerador recebe uma janela, uma ação compatível com a causa, a antecedência e os limites que
+precisa conferir. O pitch ganha um exemplo auditável em que 148,14 MWh em risco não viram uma
+promessa: o cenário limita a 51–54 MWh e mostra a origem de cada número. Isso materializa a tese
+do CurtaMap: IA prevê; regras e premissas visíveis transformam previsão em decisão responsável.
+
+### 8. Próximos passos
+
+1. Validar as cinco ações e o texto de antecedência com operadores de geradores e especialistas em
+   comercialização/regulação.
+2. Substituir potência, capacidade, eficiência, estado de carga e preço de referência por dados do
+   ativo/contrato, mantendo nulo quando não houver integração confiável.
+3. Decidir com o responsável se preço horário por submercado entra numa futura versão de premissas.
+4. Integrar a saída contratual na interface da Etapa 4 sem importar o módulo experimental.
+5. Após a Etapa 2C, repetir a história com o preditor escolhido e liberar o teste reservado somente
+   pelo processo metodológico aprovado.
