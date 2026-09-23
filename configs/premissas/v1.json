@@ -1,0 +1,124 @@
+{
+  "versao": "premissas_v1",
+  "consultado_em": "2026-09-23",
+  "aviso": "Cenarios de referencia, nao garantia de recuperacao, receita, compensacao ou reducao certificada de emissoes.",
+  "cenarios": {
+    "baixo": {
+      "preco_energia_brl_mwh": {
+        "valor": 58.60,
+        "unidade": "BRL/MWh",
+        "fonte": "CCEE, piso do PLD em 2025",
+        "url": "https://www.ccee.org.br/documents/80415/30094498/86%20-%20InfoBandeira%20Tarif%C3%A1ria_2025_06.pdf/d2abc6e2-fa3e-43f5-02d4-12bfde14c070",
+        "consultado_em": "2026-09-23"
+      },
+      "fator_emissao_tco2_mwh": {
+        "valor": 0.2146,
+        "unidade": "tCO2/MWh",
+        "fonte": "MCTI, menor fator mensal da margem de operacao do SIN em 2025 (marco)",
+        "url": "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Despacho_2025_jandez_corrigidacomMO.xlsx",
+        "consultado_em": "2026-09-23"
+      },
+      "armazenamento": {
+        "potencia_mw": {
+          "valor": 30.0,
+          "unidade": "MW",
+          "fonte": "MME, requisito minimo do LRCAP Armazenamento 2026",
+          "url": "https://www.gov.br/mme/pt-br/assuntos/noticias/mme-publica-diretrizes-para-leilao-inedito-de-armazenamento-de-energia-em-baterias-no-brasil",
+          "consultado_em": "2026-09-23"
+        },
+        "capacidade_mwh": {
+          "valor": 120.0,
+          "unidade": "MWh",
+          "fonte": "Derivado de 30 MW por quatro horas, requisitos minimos do LRCAP Armazenamento 2026",
+          "url": "https://www.gov.br/mme/pt-br/assuntos/noticias/mme-publica-diretrizes-para-leilao-inedito-de-armazenamento-de-energia-em-baterias-no-brasil",
+          "consultado_em": "2026-09-23"
+        },
+        "eficiencia": {
+          "valor": 0.85,
+          "unidade": "fracao",
+          "fonte": "MME, eficiencia total minima do LRCAP Armazenamento 2026",
+          "url": "https://www.gov.br/mme/pt-br/assuntos/noticias/mme-publica-diretrizes-para-leilao-inedito-de-armazenamento-de-energia-em-baterias-no-brasil",
+          "consultado_em": "2026-09-23"
+        }
+      }
+    },
+    "base": {
+      "preco_energia_brl_mwh": {
+        "valor": 310.29,
+        "unidade": "BRL/MWh",
+        "fonte": "CCEE, expectativa de PLD medio de junho de 2025 para SE/CO, NE e N",
+        "url": "https://www.ccee.org.br/documents/80415/30094498/86%20-%20InfoBandeira%20Tarif%C3%A1ria_2025_06.pdf/d2abc6e2-fa3e-43f5-02d4-12bfde14c070",
+        "consultado_em": "2026-09-23"
+      },
+      "fator_emissao_tco2_mwh": {
+        "valor": 0.4124666666666667,
+        "unidade": "tCO2/MWh",
+        "fonte": "Media aritmetica calculada dos 12 fatores mensais da margem de operacao do SIN publicados pelo MCTI para 2025",
+        "url": "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Despacho_2025_jandez_corrigidacomMO.xlsx",
+        "consultado_em": "2026-09-23"
+      },
+      "armazenamento": {
+        "potencia_mw": {
+          "valor": 30.0,
+          "unidade": "MW",
+          "fonte": "MME, requisito minimo do LRCAP Armazenamento 2026",
+          "url": "https://www.gov.br/mme/pt-br/assuntos/noticias/mme-publica-diretrizes-para-leilao-inedito-de-armazenamento-de-energia-em-baterias-no-brasil",
+          "consultado_em": "2026-09-23"
+        },
+        "capacidade_mwh": {
+          "valor": 120.0,
+          "unidade": "MWh",
+          "fonte": "Derivado de 30 MW por quatro horas, requisitos minimos do LRCAP Armazenamento 2026",
+          "url": "https://www.gov.br/mme/pt-br/assuntos/noticias/mme-publica-diretrizes-para-leilao-inedito-de-armazenamento-de-energia-em-baterias-no-brasil",
+          "consultado_em": "2026-09-23"
+        },
+        "eficiencia": {
+          "valor": 0.90,
+          "unidade": "fracao",
+          "fonte": "EPE, premissa de eficiencia de ciclo para bateria de ion-litio no PDE 2030",
+          "url": "https://www.epe.gov.br/sites-pt/publicacoes-dados-abertos/publicacoes/PublicacoesArquivos/publicacao-490/PDE%202030_RevisaoPosCP_rv2.pdf",
+          "consultado_em": "2026-09-23"
+        }
+      }
+    },
+    "alto": {
+      "preco_energia_brl_mwh": {
+        "valor": 751.73,
+        "unidade": "BRL/MWh",
+        "fonte": "CCEE, teto do PLD em 2025",
+        "url": "https://www.ccee.org.br/documents/80415/30094498/86%20-%20InfoBandeira%20Tarif%C3%A1ria_2025_06.pdf/d2abc6e2-fa3e-43f5-02d4-12bfde14c070",
+        "consultado_em": "2026-09-23"
+      },
+      "fator_emissao_tco2_mwh": {
+        "valor": 0.5780,
+        "unidade": "tCO2/MWh",
+        "fonte": "MCTI, maior fator mensal da margem de operacao do SIN em 2025 (novembro)",
+        "url": "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Despacho_2025_jandez_corrigidacomMO.xlsx",
+        "consultado_em": "2026-09-23"
+      },
+      "armazenamento": {
+        "potencia_mw": {
+          "valor": 30.0,
+          "unidade": "MW",
+          "fonte": "MME, requisito minimo do LRCAP Armazenamento 2026",
+          "url": "https://www.gov.br/mme/pt-br/assuntos/noticias/mme-publica-diretrizes-para-leilao-inedito-de-armazenamento-de-energia-em-baterias-no-brasil",
+          "consultado_em": "2026-09-23"
+        },
+        "capacidade_mwh": {
+          "valor": 120.0,
+          "unidade": "MWh",
+          "fonte": "Derivado de 30 MW por quatro horas, requisitos minimos do LRCAP Armazenamento 2026",
+          "url": "https://www.gov.br/mme/pt-br/assuntos/noticias/mme-publica-diretrizes-para-leilao-inedito-de-armazenamento-de-energia-em-baterias-no-brasil",
+          "consultado_em": "2026-09-23"
+        },
+        "eficiencia": {
+          "valor": 0.90,
+          "unidade": "fracao",
+          "fonte": "EPE, premissa de eficiencia de ciclo para bateria de ion-litio no PDE 2030",
+          "url": "https://www.epe.gov.br/sites-pt/publicacoes-dados-abertos/publicacoes/PublicacoesArquivos/publicacao-490/PDE%202030_RevisaoPosCP_rv2.pdf",
+          "consultado_em": "2026-09-23"
+        }
+      }
+    }
+  }
+}
