@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Sequence
 from datetime import timedelta
+from math import fsum, isclose, isfinite
 from pathlib import Path
 from typing import Any
 
 import polars as pl
 
+from curtamap.assumptions import SCENARIOS, nonnegative, validate_assumptions
 from curtamap.contracts import (
     RECOMMENDATION_SCHEMA,
     RESERVED_TEST_START,
@@ -18,20 +21,21 @@ from curtamap.contracts import (
 )
 from curtamap.targets import derive_targets
 
-DEFAULT_ASSUMPTIONS_PATH = Path(__file__).parents[2] / "configs" / "premissas" / "v1.json"
-SCENARIOS = ("baixo", "base", "alto")
+DEFAULT_ASSUMPTIONS_PATH = Path(__file__).parents[2] / "configs" / "premissas" / "v2.json"
 _EPISODE_KEY = ["fonte", "id_ons", "t0"]
 
 _ACTIONS = {
     "REL": (
         "PRESERVAR_EVIDENCIAS_ESS",
         "Confirmar a mensagem do ONS, preservar telemetria e dados meteorologicos e preparar "
-        "a conferencia da apuracao; somente REL pode ensejar ESS, sujeito as regras vigentes.",
+        "a conferencia da apuracao. Elegibilidade e eventual compensacao exigem validacao "
+        "regulatoria do evento, contrato e periodo; esta regra nao calcula ESS.",
     ),
     "CNF": (
         "COORDENAR_OPERACAO",
         "Coordenar com o centro de operacao e seguir o limite do ONS; avaliar manutencoes "
-        "flexiveis sem elevar injecao nem violar requisitos de confiabilidade.",
+        "flexiveis sem elevar injecao nem violar requisitos de confiabilidade. Preservar "
+        "evidencias para avaliacao regulatoria; CNF nao implica ausencia de direito financeiro.",
     ),
     "ENE": (
         "AVALIAR_ARMAZENAMENTO",
@@ -55,9 +59,7 @@ def load_assumptions(path: str | Path = DEFAULT_ASSUMPTIONS_PATH) -> dict[str, A
     """Carrega premissas versionadas; valores ausentes permanecem ausentes."""
     with Path(path).open(encoding="utf-8") as source:
         assumptions = json.load(source)
-    if not assumptions.get("versao"):
-        raise ValueError("arquivo de premissas sem versao")
-    return assumptions
+    return validate_assumptions(assumptions)
 
 
 def _all_same_or_null(column: str) -> pl.Expr:
@@ -73,6 +75,19 @@ def _all_same_or_null(column: str) -> pl.Expr:
 def group_risk_windows(forecast: pl.DataFrame) -> pl.DataFrame:
     """Agrupa alertas consecutivos por entidade e emissao, sem cruzar chaves ou `t0`."""
     validate_forecast(forecast)
+    forbidden = (
+        (pl.col("tau") + STEP > RESERVED_TEST_START)
+        | (pl.col("corte_dados") > RESERVED_TEST_START)
+        | (pl.col("instante_observacao") >= RESERVED_TEST_START)
+    )
+    if forecast.select(forbidden.any()).item():
+        raise ValueError("periodo reservado nao pode gerar recomendacao")
+    if forecast.select((pl.col("t0") != pl.col("t0").dt.truncate("30m")).any()).item():
+        raise ValueError("t0 fora da grade de 30 minutos")
+    provenance = ["tipo_saida", "modelo_id", "corte_dados", "cenario_disponibilidade", "gerado_em"]
+    mixed = forecast.group_by(_EPISODE_KEY).agg(pl.col(provenance).n_unique())
+    if mixed.select(pl.any_horizontal(pl.col(provenance) > 1).any()).item():
+        raise ValueError("emissao mistura proveniencias de previsao")
     alerts = forecast.filter(pl.col("alerta"))
     if alerts.is_empty():
         return pl.DataFrame(
@@ -87,6 +102,7 @@ def group_risk_windows(forecast: pl.DataFrame) -> pl.DataFrame:
                 "energia_em_risco_mwh": pl.Float64,
                 "tipo_saida": pl.String,
                 "modelo_id": pl.String,
+                "energia_por_janela_mwh": pl.List(pl.Float64),
             }
         )
     if alerts["energia_esperada_mwh"].null_count():
@@ -107,6 +123,7 @@ def group_risk_windows(forecast: pl.DataFrame) -> pl.DataFrame:
             _all_same_or_null("causa_prevista"),
             _all_same_or_null("origem_prevista"),
             pl.col("energia_esperada_mwh").sum().alias("energia_em_risco_mwh"),
+            pl.col("energia_esperada_mwh").alias("energia_por_janela_mwh"),
             _all_same_or_null("tipo_saida"),
             _all_same_or_null("modelo_id"),
         )
@@ -137,13 +154,27 @@ def impact_sensitivity(
     duration: timedelta,
     action_code: str,
     assumptions: dict[str, Any],
+    *,
+    energy_profile_mwh: Sequence[float] | None = None,
 ) -> pl.DataFrame:
-    """Calcula baixo/base/alto; falta de premissa financeira ou climatica vira nulo."""
+    """Cenário isolado; sem perfil semi-horário, o resultado é apenas um teto agregado."""
+    validate_assumptions(assumptions)
+    energy = nonnegative(energy_at_risk_mwh, "energia em risco")
+    if not isinstance(duration, timedelta) or duration.total_seconds() <= 0:
+        raise ValueError("duracao deve ser positiva")
+    if action_code not in {action[0] for action in _ACTIONS.values()}:
+        raise ValueError("acao desconhecida")
+    hours = duration.total_seconds() / 3600
+    profile = None
+    if energy_profile_mwh is not None:
+        profile = [nonnegative(e, "energia por janela") for e in energy_profile_mwh]
+        if not isclose(len(profile) * 0.5, hours) or not isclose(
+            fsum(profile), energy, rel_tol=1e-9, abs_tol=1e-6
+        ):
+            raise ValueError("perfil de energia incompativel com duracao ou total")
     rows = []
-    scenarios = assumptions.get("cenarios", {})
-    names = [name for name in SCENARIOS if name in scenarios] or list(scenarios) or ["base"]
-    for name in names:
-        scenario = scenarios.get(name, {})
+    for name in SCENARIOS:
+        scenario = assumptions["cenarios"][name]
         price = _value(scenario, "preco_energia_brl_mwh")
         emission = _value(scenario, "fator_emissao_tco2_mwh")
         recoverable = 0.0
@@ -151,17 +182,29 @@ def impact_sensitivity(
             power = _value(scenario, "armazenamento", "potencia_mw")
             capacity = _value(scenario, "armazenamento", "capacidade_mwh")
             efficiency = _value(scenario, "armazenamento", "eficiencia")
+            recoverable = None
             if power is not None and capacity is not None and efficiency is not None:
-                input_energy = min(
-                    energy_at_risk_mwh, power * duration.total_seconds() / 3600, capacity
+                input_energy = (
+                    fsum(min(e, power * 0.5) for e in profile)
+                    if profile is not None
+                    else min(energy, power * hours)
                 )
-                recoverable = min(energy_at_risk_mwh, input_energy * efficiency)
+                if assumptions.get("base_capacidade", "entrada") == "saida_util":
+                    recoverable = min(energy, input_energy * efficiency, capacity)
+                else:  # Reprodução explícita das premissas v1 arquivadas.
+                    recoverable = min(energy, min(input_energy, capacity) * efficiency)
+        money = recoverable * price if recoverable is not None and price is not None else None
+        carbon = (
+            recoverable * emission if recoverable is not None and emission is not None else None
+        )
+        if any(v is not None and not isfinite(v) for v in (recoverable, money, carbon)):
+            raise ValueError("impacto nao finito: overflow numerico")
         rows.append(
             {
                 "cenario": name,
                 "energia_recuperavel_mwh": recoverable,
-                "valor_estimado_brl": recoverable * price if price is not None else None,
-                "co2_evitado_t": recoverable * emission if emission is not None else None,
+                "valor_estimado_brl": money,
+                "co2_evitado_t": carbon,
             }
         )
     return pl.DataFrame(
@@ -187,11 +230,15 @@ def recommendation_rule(
         raise ValueError(f"causa sem regra: {cause}")
     if source not in {"eolica", "fotovoltaica"}:
         raise ValueError(f"fonte sem regra: {source}")
+    if origin not in {None, "LOC", "SIS"}:
+        raise ValueError("origem sem regra")
+    nonnegative(lead_hours, "antecedencia")
     action_code, base = _ACTIONS[cause]
-    source_label = "parque eolico" if source == "eolica" else "usina fotovoltaica"
+    source_label = "o parque eolico" if source == "eolica" else "a usina fotovoltaica"
     origin_label = f" Origem prevista: {origin}." if origin else ""
     description = (
-        f"Para o {source_label}, janela em {lead_hours:g} h.{origin_label} {base} "
+        f"Para {source_label}, inicio previsto em {lead_hours:g} h desde a emissao "
+        f"(nao e prazo garantido para agir).{origin_label} {base} "
         "Impacto é um cenário: energia cortada não vira automaticamente energia recuperada "
         "nem receita; depende do ativo, contrato, comando do ONS e regulação."
     )
@@ -202,7 +249,7 @@ def build_recommendations(
     forecast: pl.DataFrame, assumptions: dict[str, Any] | None = None
 ) -> pl.DataFrame:
     """Transforma episodios em uma recomendacao contratual por janela de risco."""
-    assumptions = assumptions or load_assumptions()
+    assumptions = load_assumptions() if assumptions is None else validate_assumptions(assumptions)
     rows = []
     for episode in group_risk_windows(forecast).iter_rows(named=True):
         rule = recommendation_rule(
@@ -217,9 +264,14 @@ def build_recommendations(
             episode["fim"] - episode["inicio"],
             action_code,
             assumptions,
+            energy_profile_mwh=episode["energia_por_janela_mwh"],
         )
         selected = sensitivity.filter(pl.col("cenario") == "base")
-        impact = (selected if selected.height else sensitivity.head(1)).row(0, named=True)
+        impact = selected.row(0, named=True)
+        if impact["energia_recuperavel_mwh"] is None:
+            raise ValueError(
+                "energia recuperavel indeterminada: contrato exige valor; nao usar zero"
+            )
         rows.append(
             {
                 "fonte": episode["fonte"],
@@ -247,6 +299,8 @@ def summarize_history(observed: pl.DataFrame, grain: str = "mes") -> pl.DataFram
     """Agrega alvos observados por entidade, periodo, causa, UF e subsistema."""
     if grain not in {"semana", "mes"}:
         raise ValueError("grain deve ser 'semana' ou 'mes'")
+    if observed["din_instante"].null_count():
+        raise ValueError("din_instante nulo impede verificar periodo reservado")
     if observed.filter(pl.col("din_instante") >= RESERVED_TEST_START).height:
         raise ValueError("periodo reservado a partir de 2026-05-01 nao pode ser usado")
     target = derive_targets(observed)
@@ -264,7 +318,17 @@ def summarize_history(observed: pl.DataFrame, grain: str = "mes") -> pl.DataFram
         .agg(
             pl.len().alias("janelas_observadas"),
             pl.col("corte_positivo").fill_null(False).sum().alias("janelas_com_corte"),
-            pl.col("energia_mwh").sum().alias("energia_observada_mwh"),
+            pl.col("energia_mwh").is_null().sum().alias("janelas_volume_nulo"),
+            pl.col("volume_valido").sum().alias("janelas_volume_valido"),
+            pl.col("corte_positivo").is_null().sum().alias("janelas_corte_indeterminado"),
+            pl.when(pl.col("energia_mwh").null_count() == 0)
+            .then(pl.col("energia_mwh").sum())
+            .otherwise(None)
+            .alias("energia_observada_mwh"),
+            pl.when(pl.col("energia_mwh").count() > 0)
+            .then(pl.col("energia_mwh").sum())
+            .otherwise(None)
+            .alias("energia_conhecida_mwh"),
         )
         .sort(["fonte", "id_ons", "periodo", "causa"], nulls_last=True)
     )

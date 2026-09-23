@@ -715,3 +715,72 @@ Usar uma variável de ambiente para contornar a proteção foi descartado. A rev
 As verificações dos outputs antigos e da execução integral do notebook ficam deliberadamente
 pendentes. O notebook não foi aberto nem reexecutado. Próximo passo: concluir a auditoria do
 backend com fixtures sintéticas e um recorte real estritamente anterior a maio/2026.
+
+## 2026-09-23 — Auditoria Etapa 3: corrija limites físicos, nulos e entradas inválidas
+
+### 1. Contexto e pergunta
+
+A auditoria adversarial da entrega `ff8461b` perguntou se os cenários respeitam potência em cada
+meia hora, se desconhecido continua desconhecido e se as fontes sustentam as afirmações.
+
+### 2. Fatos e evidências observados
+
+A primeira execução de 66 casos novos produziu **42 falhas e 24 aprovações**, antes das correções.
+Entradas negativas/não finitas, cenários incompletos, origem inválida, proveniência inconsistente,
+grade irregular e previsão no período reservado não eram integralmente recusados. O resumo tático
+convertia grupo todo nulo em zero e apresentava somas parciais como totais. A ausência de parâmetros
+de bateria também produzia zero. A fórmula agregada superestimava carga quando a energia se
+concentrava em poucas janelas.
+
+Recorte real `[26/04/2026, 28/04/2026)`: 22.176 linhas → 11.088 previsões → 500 recomendações.
+Nenhum dado reservado foi consultado. Para `fotovoltaica + CJU_MGARN`, emissão 29/04 às 10h,
+as quatro janelas de 12h–14h contêm 2,9865 / 83,5655 / 61,4625 / 0,1255 MWh. A 30 MW, a entrada
+máxima é **33,112 MWh**, não 60. Portanto, os **51/54/54 MWh anteriores ficam corrigidos para
+28,1452/29,8008/29,8008 MWh**. São cenários isolados, não despacho garantido.
+
+As fontes primárias confirmam os números de preço e fatores de emissão; R$ 310,29 foi recalculado
+como média ponderada de 720 horas (310,29297222 antes do arredondamento). Os fatores mensais MCTI
+somam 4,9496; a média simples é 0,4124666667. A Portaria MME 136/2026 define energia entregável
+no PMI, tornando necessária a distinção entre capacidade de entrada e de saída. O PDE 2030,
+p. 294, usa 90% em estudo de geração distribuída, não como garantia para BESS centralizado.
+
+A Lei 15.269/2025 e o art. 1º-B da Lei 10.848/2004 tornam incorreta a frase universal
+“somente REL pode ensejar ESS”. As descrições REL/CNF foram corrigidas sem calcular direitos.
+A análise regulatória detalhada e os links ficam no relatório da auditoria.
+
+### 3. Interpretação e decisão
+
+Premissas v2 passam a ser o padrão: capacidade útil de saída; RTE aplicada uma vez à entrada;
+potência de carga de 30 MW explicitamente hipotética. V1 fica preservada para reprodução da
+convenção anterior. A função de cenário recebe opcionalmente o perfil semi-horário; a construção
+de recomendações sempre o fornece. Sem perfil, a função isolada entrega somente um teto agregado.
+
+Premissas estruturais ausentes dão erro; valor explicitamente nulo com justificativa permanece
+nulo. Como o contrato exige energia recuperável preenchida, `build_recommendations` recusa
+recuperação indeterminada em vez de usar zero. Não se alteraram contratos, preditor ou interface.
+O resumo tático ganhou contagens de volumes nulos/válidos, cortes indeterminados e energia
+conhecida separada; seu total fica nulo se qualquer volume do grupo for desconhecido.
+
+### 4. Alternativas consideradas
+
+Clampear entradas inválidas, escolher outro cenário quando falta base e imputar zero foram
+rejeitados. Simular SOC, topologia, descarga futura, lucro líquido ou certificação climática sem
+dados do ativo também foi rejeitado. Uma proposta separada de evolução do contrato é necessária.
+
+### 5. Implementação e validação
+
+`assumptions.py`, `recommendation.py`, premissas v2 e regressões adversariais. TDD Red–Green,
+seguido de testes de fronteira, perfil, overflow, conservação, ordenação de cenários e integração
+sintética e real `load_history → SameSlotRecentBaseline → build_recommendations`.
+`uv run pytest`: **241 aprovados, 2 ignorados** (notebook protegido); Ruff, formatação de 44
+arquivos e `git diff --check` passaram. Execução real: leitura 0,584 s, previsão 0,053 s,
+recomendação 0,116 s, resumo 0,006 s. RSS máximo do processo: 722.534.400 bytes; não equivale ao
+tamanho do frame (histórico: 2.261.328 bytes). Não houve pandas nem benchmark da base integral.
+
+### 6–8. Limitações, valor e próximos passos
+
+A correção reduz uma superestimação concreta do pitch. Mesmo a energia corrigida depende de
+ativo, SOC, conexão e descarga viável; não somar cenários de episódios como plano de operação.
+Carbono continua sensibilidade histórica, não efeito causal; valor é bruto, não receita líquida
+ou compensação. Próximos passos: relatório e handoff da Etapa 4, proposta de contrato para
+indeterminação, decisão da 2C e entrevistas com operadores/comercialização/regulação/BESS.

@@ -112,18 +112,15 @@ def test_sensitivity_caps_recovery_and_keeps_scenarios_explicit():
     result = impact_sensitivity(500.0, timedelta(hours=6), "AVALIAR_ARMAZENAMENTO", assumptions)
     assert result["cenario"].to_list() == ["baixo", "base", "alto"]
     assert (result["energia_recuperavel_mwh"] <= 500.0).all()
-    assert result["energia_recuperavel_mwh"].to_list() == [102.0, 108.0, 108.0]
+    assert result["energia_recuperavel_mwh"].to_list() == [120.0, 120.0, 120.0]
     assert result["valor_estimado_brl"].null_count() == 0
     assert result["co2_evitado_t"].null_count() == 0
 
 
-def test_missing_assumptions_make_monetary_and_carbon_impacts_null():
+def test_incomplete_assumptions_are_rejected_instead_of_replaced_by_zero():
     missing = {"versao": "premissas_teste", "cenarios": {"base": {}}}
-    result = impact_sensitivity(10.0, timedelta(hours=1), "AVALIAR_ARMAZENAMENTO", missing)
-    row = result.row(0, named=True)
-    assert row["energia_recuperavel_mwh"] == 0.0
-    assert row["valor_estimado_brl"] is None
-    assert row["co2_evitado_t"] is None
+    with pytest.raises(ValueError, match="schema"):
+        impact_sensitivity(10.0, timedelta(hours=1), "AVALIAR_ARMAZENAMENTO", missing)
 
 
 def test_recommendations_pass_contract_and_propagate_provenance():
@@ -132,7 +129,7 @@ def test_recommendations_pass_contract_and_propagate_provenance():
     row = recommendations.row(0, named=True)
     assert row["tipo_saida"] == "baseline"
     assert row["modelo_id"] == "baseline_teste"
-    assert row["premissas_versao"] == "premissas_v1"
+    assert row["premissas_versao"] == "premissas_v2"
     assert "cenário" in row["acao_descricao"].lower()
 
 
