@@ -693,3 +693,25 @@ do CurtaMap: IA prevê; regras e premissas visíveis transformam previsão em de
 4. Integrar a saída contratual na interface da Etapa 4 sem importar o módulo experimental.
 5. Após a Etapa 2C, repetir a história com o preditor escolhido e liberar o teste reservado somente
    pelo processo metodológico aprovado.
+
+## 2026-09-23 — Auditoria Etapa 3: isole os testes legados do período reservado
+
+### Contexto, fatos e decisão
+
+Antes de executar a suíte da auditoria, a leitura do código encontrou dois caminhos incompatíveis
+com a proteção da Etapa 2C: `tests/test_forecasting.py` passava explicitamente a opção de liberação
+do teste; `tests/test_notebook.py` podia abrir os outputs históricos ou executar integralmente a
+EDA da Etapa 1. Esses caminhos **não foram executados nesta auditoria**.
+
+O teste de previsão passou a verificar a fronteira permitida (horizonte terminando exatamente em
+01/05/2026, limite exclusivo), sem liberação. Os dois testes do notebook ficam explicitamente
+ignorados até decisão da 2C. Isso protege a execução padrão dos testes; não cria uma barreira
+universal contra scripts antigos de EDA ou acesso direto aos arquivos.
+
+### Alternativa, validação e limitação
+
+Usar uma variável de ambiente para contornar a proteção foi descartado. A revisão relevante usa
+`uv run pytest tests/test_forecasting.py tests/test_notebook.py`, Ruff e formatação desses arquivos.
+As verificações dos outputs antigos e da execução integral do notebook ficam deliberadamente
+pendentes. O notebook não foi aberto nem reexecutado. Próximo passo: concluir a auditoria do
+backend com fixtures sintéticas e um recorte real estritamente anterior a maio/2026.
