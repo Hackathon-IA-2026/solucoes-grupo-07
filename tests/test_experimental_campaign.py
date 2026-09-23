@@ -100,3 +100,42 @@ def test_slice_generator_matches_oracle_names_order_and_frames() -> None:
     assert [name for name, _ in _slice_frames(minimal)] == [
         name for name, _ in oracle._slice_frames(minimal)
     ]
+
+
+def test_training_sample_restricts_only_initial_and_refit() -> None:
+    from datetime import datetime, timedelta
+
+    from curtamap.experimental.campaign import _training_segments
+    from curtamap.experimental.sampling import emission_mask
+    from curtamap.experimental.temporal import (
+        AvailabilityScenario,
+        BusinessCalendar,
+        external_rounds,
+    )
+    from curtamap.experimental.training import internal_boundaries
+
+    round_ = external_rounds()[0]
+    boundary = internal_boundaries(
+        round_, AvailabilityScenario.main(), BusinessCalendar(frozenset(), "synthetic")
+    )
+    first = datetime(2024, 9, 1)
+    t0 = [first + timedelta(minutes=30 * i) for i in range(int((round_.start - first).days) * 48)]
+    frame = pl.DataFrame(
+        {
+            "t0": t0,
+            "eligible_history": [True] * len(t0),
+            "target_available_at": [first] * len(t0),
+        }
+    ).lazy()
+    full = _training_segments(frame, round_, boundary, first, None)
+    sampled = _training_segments(frame, round_, boundary, first, emission_mask(4, 42))
+    height = {k: v.select(pl.len()).collect().item() for k, v in full.items()}
+    reduced = {k: v.select(pl.len()).collect().item() for k, v in sampled.items()}
+    assert set(height) == {"initial", "tuning", "refit", "calibration"}
+    assert reduced["tuning"] == height["tuning"] > 0
+    assert reduced["calibration"] == height["calibration"] > 0
+    for name in ("initial", "refit"):
+        assert 0 < reduced[name] < height[name]
+        assert abs(reduced[name] / height[name] - 4 / 48) < 0.01
+    initial_t0 = set(sampled["initial"].collect()["t0"].to_list())
+    assert initial_t0 <= set(sampled["refit"].collect()["t0"].to_list())

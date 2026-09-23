@@ -92,6 +92,19 @@ def _manifest(
     }
 
 
+def _training_slots(config: dict[str, Any], source: str) -> dict[str, int] | None:
+    """Meias-horas por dia de cada tarefa na contingência aprovada; ausente = treino completo."""
+    sampling = config.get("training_sampling")
+    if not sampling:
+        return None
+    if sampling.get("seed") != config["seed"]:
+        raise ValueError("a semente da amostragem deve ser a semente principal")
+    slots = dict(sampling["slots_per_day"][source])
+    if set(slots) != set(config["tasks"]):
+        raise ValueError("a amostragem deve definir todas as tarefas da fonte")
+    return slots
+
+
 def preflight(config: dict[str, Any], settings: ExperimentalSettings) -> dict[str, Any]:
     branch = _git("branch", "--show-current")
     if branch != "etapa-2-experimental":
@@ -269,6 +282,7 @@ def main() -> None:
                 seed=config["seed"],
                 chunk_days=args.validation_chunk_days,
                 scratch_dir=settings.temp_dir,
+                training_slots=_training_slots(config, args.source),
             )
             status = "complete" if not report["failures"] else "incomplete"
             store.finalize(

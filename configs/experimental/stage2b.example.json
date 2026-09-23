@@ -15,6 +15,15 @@
   "feature_workers": 6,
   "duckdb_memory_limit": "22GB",
   "pilot_max_examples_per_task_source": 500000,
+  "training_sampling": {
+    "method": "t0_sistematico_diario_v1",
+    "decision": "contingência aprovada pelo responsável em 23/09/2026; ver diário",
+    "seed": 42,
+    "slots_per_day": {
+      "eolica": {"corte_positivo": 4, "restricao_registrada": 4, "volume_condicional": 14, "causa": 14},
+      "fotovoltaica": {"corte_positivo": 16, "restricao_registrada": 16, "volume_condicional": 48, "causa": 48}
+    }
+  },
   "initial_artifact_warning_gib": 50,
   "reserved_test_enabled": false,
   "optional_origin_enabled": false,

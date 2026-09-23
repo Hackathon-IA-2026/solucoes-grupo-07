@@ -22,7 +22,7 @@ import reference_campaign_stage2b as oracle
 from campaign_fixtures import CALENDAR, SEED, V1, manifest, synthetic_dataset, write_partitions
 
 from curtamap.experimental.artifacts import RunStore
-from curtamap.experimental.campaign import run_campaign_round, run_sensitivity_round
+from curtamap.experimental.campaign import TASK_IDS, run_campaign_round, run_sensitivity_round
 
 CHUNK_DAYS = 10
 
@@ -66,6 +66,9 @@ def _as_json(payload: dict) -> dict:
 def _normalized_report(payload: dict) -> dict:
     payload = dict(payload)
     payload.pop("execution", None)
+    # Registros da contingência de amostragem (23/09/2026), inexistentes no oráculo.
+    payload.pop("training_sampling", None)
+    payload.pop("training_rows", None)
     payload["models"] = {
         identity: {key: value for key, value in entry.items() if key != "fit_seconds"}
         for identity, entry in payload["models"].items()
@@ -183,6 +186,8 @@ def test_campaign_round_in_parts_reproduces_oracle_artifacts(campaign_runs: dict
     assert report["execution"]["validation_chunks"] > 1
     assert report["execution"]["validation_chunk_days"] == CHUNK_DAYS
     assert report["execution"]["peak_rss_bytes"] > 0
+    assert report["training_sampling"] is None
+    assert set(report["training_rows"]) == set(TASK_IDS)
     assert _as_json(_normalized_report(report)) == _as_json(_normalized_report(oracle_report))
     assert_same_artifacts(expected_root, campaign_runs["actual"].path)
     # O arquivo temporário de validação fica fora do run e é removido ao final.

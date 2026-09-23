@@ -42,6 +42,7 @@ from curtamap.experimental.metrics import cause_metrics, occurrence_metrics, vol
 from curtamap.experimental.models import expected_volume
 from curtamap.experimental.resources import peak_rss_bytes
 from curtamap.experimental.runner import CATEGORICAL_FEATURES, NUMERIC_FEATURES, TASKS
+from curtamap.experimental.sampling import METHOD, emission_mask
 from curtamap.experimental.temporal import AvailabilityScenario, BusinessCalendar, ExternalRound
 from curtamap.experimental.training import DatasetSplit, internal_boundaries, train_family
 
@@ -162,6 +163,42 @@ def _split(segment: pl.LazyFrame, task_id: str) -> DatasetSplit:
     if selected.is_empty():
         raise ValueError(f"segmento sem exemplos para {task_id}")
     return DatasetSplit(selected, selected[target].to_numpy())
+
+
+def _training_segments(
+    features: pl.LazyFrame,
+    round_: ExternalRound,
+    boundary: Any,
+    first_t0: datetime,
+    sample: pl.Expr | None,
+) -> dict[str, pl.LazyFrame]:
+    """Segmentos internos da rodada; a amostra, se houver, restringe initial e refit."""
+    initial = _range(features, first_t0, boundary.tuning_start, label_cutoff=boundary.tuning_start)
+    refit = _range(
+        features, first_t0, boundary.calibration_start, label_cutoff=boundary.calibration_start
+    )
+    if sample is not None:
+        initial, refit = initial.filter(sample), refit.filter(sample)
+    return {
+        "initial": initial,
+        "tuning": _range(
+            features,
+            boundary.tuning_start,
+            boundary.calibration_start,
+            label_cutoff=boundary.calibration_start,
+        ),
+        "refit": refit,
+        "calibration": _range(
+            features, boundary.calibration_start, boundary.cutoff, label_cutoff=round_.start
+        ),
+    }
+
+
+def _target_mean(target: np.ndarray) -> float | None:
+    """Prevalência (ou média) do alvo numérico; ``None`` para causa categórica."""
+    if target.dtype.kind in "biuf" and target.size:
+        return float(np.mean(target.astype(float)))
+    return None
 
 
 def _validation_filter(round_: ExternalRound) -> pl.Expr:
@@ -696,8 +733,12 @@ def run_campaign_round(
     seed: int,
     chunk_days: int = DEFAULT_CHUNK_DAYS,
     scratch_dir: Path | None = None,
+    training_slots: dict[str, int] | None = None,
 ) -> dict[str, Any]:
     """Ajusta, calibra e valida as oito famílias da rodada, gravando todos os artefatos.
+
+    ``training_slots`` aplica a contingência de ``sampling`` (meias-horas por dia, por
+    tarefa) somente a initial e refit; ``None`` usa todos os exemplos elegíveis.
 
     ``chunk_days`` controla o tamanho das partes de validação em memória; ``scratch_dir``
     recebe o Parquet temporário da validação (padrão: diretório temporário do sistema).
@@ -724,20 +765,8 @@ def run_campaign_round(
         _weekend_or_holiday(calendar),
         pl.col("id_ons").is_in(fixed_ids).alias("panel_fixed"),
     ]
-    initial = _range(features, first_t0, boundary.tuning_start, label_cutoff=boundary.tuning_start)
-    tuning = _range(
-        features,
-        boundary.tuning_start,
-        boundary.calibration_start,
-        label_cutoff=boundary.calibration_start,
-    )
-    refit = _range(
-        features, first_t0, boundary.calibration_start, label_cutoff=boundary.calibration_start
-    )
-    calibration = _range(
-        features, boundary.calibration_start, boundary.cutoff, label_cutoff=round_.start
-    )
-    tail_threshold = _tail_threshold(refit)
+    segments = _training_segments(features, round_, boundary, first_t0, None)
+    tail_threshold = _tail_threshold(segments["refit"])
     validation_frame = features.filter(_validation_filter(round_))
     truth = _post_event_truth(validation_frame, tail_threshold)
     chunks = _plan_chunks(validation_frame, round_.start, chunk_days)
@@ -748,6 +777,16 @@ def run_campaign_round(
         "models": {},
         "failures": [],
         "volume_tail_p99_training": tail_threshold,
+        "training_sampling": None
+        if training_slots is None
+        else {
+            "method": METHOD,
+            "seed": seed,
+            "slots_per_day": dict(training_slots),
+            "segments": ["initial", "refit"],
+            "complete_segments": ["tuning", "calibration", "validation"],
+        },
+        "training_rows": {},
     }
 
     identities = {
@@ -759,13 +798,25 @@ def run_campaign_round(
     trained_models: dict[str, tuple[str, Any]] = {}
     for task_id in TASK_IDS:
         try:
+            sample = (
+                emission_mask(training_slots[task_id], seed) if training_slots is not None else None
+            )
+            task_segments = _training_segments(features, round_, boundary, first_t0, sample)
             splits = {
-                "initial": _split(initial, task_id),
-                "tuning": _split(tuning, task_id),
-                "refit": _split(refit, task_id),
-                "calibration": _split(calibration, task_id)
+                "initial": _split(task_segments["initial"], task_id),
+                "tuning": _split(task_segments["tuning"], task_id),
+                "refit": _split(task_segments["refit"], task_id),
+                "calibration": _split(task_segments["calibration"], task_id)
                 if task_id in OCCURRENCE_TASKS
                 else None,
+            }
+            reports["training_rows"][task_id] = {
+                name: {
+                    "rows": split.features.height,
+                    "target_mean": _target_mean(split.target),
+                }
+                for name, split in splits.items()
+                if split is not None
             }
         except Exception as error:
             for family in FAMILIES:
