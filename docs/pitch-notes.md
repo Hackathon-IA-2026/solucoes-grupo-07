@@ -97,6 +97,9 @@ Para cada decisão relevante, anote:
 
 ## Etapa 3 — recomendação e impacto (23/09/2026)
 
+> **Resultado superado pela auditoria posterior abaixo.** Não usar os 51–54 MWh ou os
+> respectivos valores financeiro/climático deste registro como cenário vigente.
+
 ### Exemplo rastreável para a demonstração
 
 | Afirmação | Estado | Evidência |
@@ -119,3 +122,29 @@ vieram preço, carbono, eficiência e limites.”**
   final/ESS nas regras citadas, e mesmo REL exige apuração.
 - Armazenar depende de ativo, estado de carga, conexão, contrato, regulação e comando operacional.
 - O fator MCTI é uma premissa de emissão deslocada; o resultado não é crédito de carbono.
+
+## Correção posterior da Etapa 3 — auditoria adversarial (23/09/2026)
+
+**A evidência mudou:** o limite de potência por meia hora reduz o exemplo divulgado acima.
+O recorte real permitido `[26/04/2026, 28/04/2026)` reproduziu os 148,14 MWh em risco para
+`fotovoltaica + CJU_MGARN` na emissão 29/04/2026 10h, episódio 12h–14h. Seu perfil é
+2,9865 / 83,5655 / 61,4625 / 0,1255 MWh. Uma carga a 30 MW absorve no máximo **33,112 MWh**
+nessas janelas; o cálculo antigo tratava o excedente como se pudesse ser deslocado dentro do episódio.
+
+| Afirmação vigente | Estado | Evidência |
+|---|---|---|
+| Recuperável de referência: 28,1452 / 29,8008 / 29,8008 MWh | Cenário corrigido por janela, não recuperação realizada | `reviews/stage3-evidence.json`; teste de regressão do perfil; `premissas_v2` |
+| Valor bruto: R$ 1.649,31 / R$ 9.246,89 / R$ 22.402,16 | Sensibilidade histórica, não receita, lucro ou ESS | Mesmas proxies CCEE verificadas; 751,73 é teto estrutural de 2025 |
+| Emissões indicativas: 6,03996 / 12,29184 / 17,22486 tCO₂ | Potencial deslocamento condicionado; sem contrafactual validado | Fatores mensais MCTI 2025 recalculados; não redução líquida/certificada |
+| 30 MW/120 MWh não dimensionam a usina | Escala inspirada em requisitos de leilão, potência de carga hipotética | Portaria MME 136/2026; v2 usa energia útil de saída e RTE uma única vez |
+| REL não é uma regra universal de exclusividade de compensação | Correção regulatória | [Lei 10.848 consolidada, art. 1 §§10–11 e art. 1º-B](https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2004/lei/l10.848.htm) |
+
+Mensagem substituta para a apresentação: **“Em um exemplo reconstituído, 148 MWh em risco viram
+um cenário de cerca de 30 MWh na saída de uma bateria hipotética. O limite por meia hora faz
+diferença. Mostramos as premissas e o que o operador ainda precisa confirmar.”**
+
+Se for exibido dinheiro ou carbono, os avisos devem aparecer junto ao número. Não somar cenários
+de episódios como operação factível. O direito financeiro do agente depende de apuração,
+contrato, período e regulação; não é produzido pelo CurtaMap. Nenhum especialista foi entrevistado
+nesta auditoria. A qualidade preditiva depende da Etapa 2C e a integração visual da Etapa 4.
+O [relatório](reviews/astra-stage3-audit.md) registra as lacunas e o roteiro de validação humana.

@@ -1,5 +1,9 @@
 # Regras de recomendação e cenários de impacto — versão 1
 
+> **Revisão posterior em 23/09/2026:** a versão 1 abaixo é histórica. A corrigenda ao final
+> substitui os números do exemplo, a convenção de capacidade e as conclusões regulatórias
+> excessivas. O padrão executável agora é `premissas_v2`.
+
 ## Escopo e linguagem de segurança
 
 Estas regras transformam uma previsão validada em uma orientação para conferência humana. Elas
@@ -121,3 +125,78 @@ causa, UF e subsistema. As saídas são `janelas_observadas`, `janelas_com_corte
 `energia_observada_mwh`; não são previsão. A função recusa qualquer linha com
 `din_instante >= 2026-05-01` enquanto o teste reservado estiver protegido.
 
+
+## Corrigenda posterior — auditoria de 23/09/2026
+
+Esta seção corrige, sem apagar, o registro v1 acima. Fundamentação, linhas de código, fonte de
+cada número, roteiro humano e handoff completo: [auditoria da Etapa 3](reviews/astra-stage3-audit.md).
+
+### Regulação e utilidade das ações
+
+A definição publicada de `val_geracaoreferenciafinal` continua específica de REL nos dicionários
+ONS consultados. Isso **não demonstra que somente REL possa ensejar ESS/compensação**.
+A [Lei 10.848/2004 consolidada](https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2004/lei/l10.848.htm),
+art. 1 §§10–11 e art. 1º-B, inclui tratamento e condições envolvendo confiabilidade.
+A [CCEE informou mudanças em regras solares em junho/2026](https://www.ccee.org.br/en/web/guest/-/co-ccee-disponibiliza-novas-versoes-de-regras-de-comercializacao-referentes-ao-constrained-off-de-usinas-solares-fotovoltaicas-ren-1.158-2026).
+O código não calcula direitos: REL/CNF devem preservar evidências e buscar avaliação específica
+do período, agente, contrato, acesso e conformidade. ENE/PAR tampouco geram promessa financeira.
+
+LOC/SIS é uma taxonomia confirmada; seu direcionamento regional é hipótese de fluxo de trabalho,
+não competência ou direito financeiro. O backend só exibe a origem quando uniforme. As diferenças
+operacionais por fonte e a sugestão de manutenção precisam das entrevistas, ainda não realizadas.
+A antecedência é `inicio−t0`, não prazo garantido de execução.
+
+### Premissas v2 e energia por intervalo
+
+O padrão passou a [`v2.json`](../configs/premissas/v2.json); v1 permanece para reprodução.
+R$ 751,73 é teto **estrutural** de 2025. A média de PLD foi reproduzida com 720 horas de junho/2025;
+os fatores MCTI foram recalculados em células corrigidas da planilha 2025. Esses números são
+referências históricas de sensibilidade, não previsões para o episódio de abril/2026.
+
+A [Portaria MME 136/2026](https://www.gov.br/mme/pt-br/acesso-a-informacao/legislacao/portarias/2026/portaria-normativa-mme-n-136-2026.pdf)
+define requisitos de leilão e compromisso de energia entregável. Na v2, 120 MWh representam
+capacidade **útil de saída disponível**; a potência de **carga** de 30 MW é hipótese adicional.
+90% está documentado no PDE 2030 p.294, em estudo de geração distribuída; não é garantia de RTE
+para bateria centralizada. Não presumir ativo, SOC ou descarga viável.
+
+```text
+entrada = Σ min(energia da meia-hora, potência de carga × 0,5 h)
+recuperável = min(energia total em risco, entrada × RTE, capacidade útil de saída)
+```
+
+`build_recommendations` sempre passa `energia_por_janela_mwh` a `impact_sensitivity` pelo argumento
+`energy_profile_mwh`. Chamar a função de impacto sem esse perfil calcula apenas um teto agregado;
+não fazer isso para mostrar a sensibilidade de uma recomendação real.
+
+Correção do exemplo: `[26/04/2026, 28/04/2026)` reproduz, na emissão 29/04 às 10h, o episódio
+`fotovoltaica + CJU_MGARN` de 12h–14h. Energias por meia hora: 2,9865 / 83,5655 / 61,4625 /
+0,1255 MWh. Total: 148,14 MWh. Entrada a 30 MW: **33,112 MWh**, não 60 MWh.
+
+| Cenário corrigido | Energia de saída | Valor bruto indicativo | Emissões potencialmente deslocadas |
+|---|---:|---:|---:|
+| Baixo | 28,1452 MWh | R$ 1.649,31 | 6,03996 tCO₂ |
+| Base | 29,8008 MWh | R$ 9.246,89 | 12,29184 tCO₂ |
+| Alto | 29,8008 MWh | R$ 22.402,16 | 17,22486 tCO₂ |
+
+O cálculo anterior de 51/54/54 MWh usava potência × duração total e superestimava a carga nas
+janelas de pouco excedente. A correção não prova recuperação. Não somar cenários de episódios
+como despacho da mesma bateria; faltam estado de carga e restrições compartilhadas.
+Preço de venda/contrato, hora de descarga e custos reais não foram estimados. Carbono é uma
+sensibilidade de deslocamento potencial, não efeito líquido: faltam contrafactual e emissões
+adicionais. Se o cartão exigir impacto causal, deve mostrar “não estimado”.
+
+### Validação e desconhecidos
+
+Schema/unidades/metadados/datas/URLs/valores/eficiência são validados. Todos os três cenários são
+obrigatórios; nulo deve ter `lacuna` explícita. Premissa de bateria nula produz energia nula em
+`impact_sensitivity`, **não zero**. O contrato compartilhado ainda exige energia numérica:
+`build_recommendations` recusa o caso indeterminado, cuja evolução foi proposta separadamente.
+Zero nas outras ações significa apenas recuperação física não quantificada pela regra; não
+significa ausência de direito financeiro. A UI precisa escrever isso e reter a orientação humana.
+
+O resumo tático agora expõe `janelas_volume_valido`, `janelas_volume_nulo`,
+`janelas_corte_indeterminado` e `energia_conhecida_mwh`. `energia_observada_mwh` é nula se
+qualquer volume do grupo for desconhecido; grupo todo nulo também tem subtotal nulo. Não preencher
+com zero na interface. Grupos táticos descrevem somente o período consultado, mesmo que a etiqueta
+seja mês ou semana. O teste reservado segue proibido e caminhos legados não protegidos não podem
+ser usados como atalho.

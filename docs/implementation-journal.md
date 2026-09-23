@@ -784,3 +784,35 @@ ativo, SOC, conexão e descarga viável; não somar cenários de episódios como
 Carbono continua sensibilidade histórica, não efeito causal; valor é bruto, não receita líquida
 ou compensação. Próximos passos: relatório e handoff da Etapa 4, proposta de contrato para
 indeterminação, decisão da 2C e entrevistas com operadores/comercialização/regulação/BESS.
+
+## 2026-09-23 — Auditoria Etapa 3: consolide evidências, corrigenda e handoff
+
+### Contexto e fatos
+
+A auditoria foi consolidada em `docs/reviews/astra-stage3-audit.md`, com as doze seções solicitadas,
+vereditos por premissa/causa, severidade e linhas de código, decisões pendentes e limites da própria
+verificação. `stage3-evidence.json` preserva metadados/checksums das fontes, células MCTI, cálculo
+ponderado CCEE e execução real de dois dias. Foram consultados diretamente ONS, MCTI, MME, EPE,
+CCEE e legislação no Planalto. Falhas de acesso a REN/RO e aos anexos da Portaria 140 foram
+registradas; snippets e fontes secundárias não serviram como confirmação.
+
+### Interpretação, decisões e alternativas
+
+A conclusão é demonstrabilidade condicionada, não aprovação de produto operacional. As regras e
+o pitch receberam correções **posteriores e identificadas**, preservando o registro anterior:
+51–54 MWh não são mais o cenário vigente do exemplo. A referência final REL publicada não implica
+exclusividade jurídica de compensação. O carbono calculado não é redução causal/líquida.
+
+O handoff da Etapa 4 lista funções, schemas, estados nulos, filtros, ordenação, avisos, exemplo e
+testes de integração. O roteiro de cinco perfis humanos permanece pendente, sem entrevistas
+inventadas. A proposta de contrato para energia indeterminada e motivos de ausência ficou
+separada, não implementada. Não houve edição da interface, contrato ou preditor.
+
+### Validação, valor e próximos passos
+
+A validação da implementação registrou 241 testes aprovados e dois ignorados por proteção do
+período reservado; lint, formato e diff limpos. A documentação foi confrontada com linhas reais,
+JSON numérico e funções públicas. A revisão final repete os quatro comandos exigidos.
+O valor para o pitch é demonstrar uma decisão rastreável e uma correção adversarial real, sem
+converter cenário em benefício comprovado. Próximos passos: integrar o handoff, realizar entrevistas,
+resolver o contrato separadamente e aguardar a Etapa 2C. Sem push ou merge nesta auditoria.
