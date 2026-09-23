@@ -889,3 +889,137 @@ campanha serão reescritos de forma vetorizada, com testes de igualdade contra a
 implementação atual. Depois, repetir preflight, datasets, pilotos, V1–V4 e +24h, uma run
 pesada por vez. Evidências operacionais ficam no diretório `execucao/` da raiz externa
 do computador dedicado.
+
+## 2026-09-22 - Etapa 2B: consolidação da sessão 01 e falha do verificador na continuação
+
+### Contexto e pergunta
+
+Retomar a execução no Windows dedicado, conferir o dataset eólico e somente então iniciar
+piloto, medir populações e submeter uma única decisão de contingência. O responsável
+passou a autorizar desenvolvimento e commits locais com TDD, sem push ou merge em main,
+e exigiu executor durável, um processo pesado por vez e nenhuma edição do worktree
+durante runs. Essa autorização prevalece sobre a separação Mac/Windows do protocolo.
+
+### Fatos e evidências da sessão 01
+
+Os fatos retrospectivos abaixo foram recuperados do handoff externo
+`execucao/HANDOFF-sessao-01.md`; não são medições repetidas nesta continuação.
+
+- Portabilidade: `07116b9` tornou a medição de pico de memória portável; `747d69c`
+  normalizou checksums com `/`; `9589843` corrigiu leitura UTF-8. O import Unix de
+  `resource` impedia inclusive o preflight no Windows.
+- Os alvos foram preparados nos dois cenários em 60,5 s e 50,9 s: 7.951.920 linhas
+  eólicas e 2.854.800 solares. Os alvos permaneceram inalterados depois desses commits.
+- O desenho original não concluiu um dia eólico em 544,7 s, nem um único t0 em mais
+  de 20 minutos. As interrupções e resultados incompletos foram preservados.
+- `0ad6be4` vetorizou features/baselines com oráculo em `tests/reference_stage2b.py`
+  e testes de paridade. `70a181d` acrescentou partições diárias paralelas. A medição
+  vetorizada reportou 0,20 s por t0, 156 entidades e 7.488 linhas por emissão;
+  uma sonda de sete dias levou 67 s com seis workers.
+- Divergências intencionais testadas: volume indeterminado/restrição nula no baseline
+  retorna nulo em vez de TypeError; schema estável mesmo com colunas inteiramente
+  nulas; timestamps de ns para us; observações duplicadas rejeitadas (`a187150`).
+  O handoff registra zero duplicatas e zero restrições nulas nos quatro caches reais.
+- `f3cca8b` vetorizou categorias e limiar F2 usando oráculo específico. `f039347`,
+  `064a064` e `f33c5b1` tornaram campanha/sensibilidade preguiçosas e particionadas,
+  com oráculo `tests/reference_campaign_stage2b.py`. Foram integrados pelo merge
+  explícito `ce73b6d`. Leitura preguiçosa reduz materialização desnecessária; não
+  elimina a necessidade de cada estimador materializar seus exemplos de ajuste.
+- Geração eólica principal em `70a181d`: 339.738.048 features, 1.358.952.192 baselines,
+  1.884 arquivos e 943 dias percorridos. O `end.json` foi reconferido nesta sessão:
+  exit 0, 8.105,6 s e pico amostrado da árvore de 4.622.155.776 bytes. Houve disputa
+  de CPU durante a geração; isso não mede a taxa sem concorrência.
+- A suíte reportada no handoff teve 187 aprovados e um skip no worktree sem Parquet.
+  Não confundir esse resultado anterior com a validação desta continuação.
+
+### Fatos e evidências da continuação
+
+O checkout inicial estava limpo em main, `48f99230da6f6919c08259c18909aec939856d6d`,
+e não no HEAD esperado. Foram lidos AGENTS e os documentos da 2B diretamente da
+referência autorizada. A referência `etapa-2-experimental` apontava exatamente para
+`ce73b6da02a009a49a71d928fc47f636687fcc38`. Não havia processos Python/uv experimentais
+ativos nem passos iniciados sem end.json. Foi selecionada essa branch, sem alterar a
+referência de main. Confirmou-se `f33c5b1` ancestral de HEAD; só então foram removidos
+o worktree travado já integrado e sua branch, conforme solicitado.
+
+O executor externo só aceitava o CLI experimental. Em ciclo Red–Green, acrescentou-se
+`UvArgumentsPrefix`, mantendo o padrão anterior, para também executar o comando exato
+`uv run python ...check_dataset.py...` com logs, PID, commit e amostras. O teste Red
+rejeitou o parâmetro ausente; o Green verificou ambiente e argumentos com espaços
+(exit 0, 1,7 s). O preflight original passou (exit 0, 4,6 s, ready=true), reconheceu
+os dois Parquet e 620.980.277.248 bytes livres. Script anterior e evidências foram
+preservados em `execucao/verificacoes/`.
+
+O passo `check-noturno_dia_util-eolica-sessao02-001` executou o verificador original,
+sem modificá-lo, com intervalo 01/10/2023 inclusivo a 01/05/2026 exclusivo. Terminou
+em 188,8 s com exit **-1073740791**, sem produzir o JSON esperado e sem diagnóstico
+em stderr. Pico de working set por processo: **29.270.798.336 bytes (27,3 GiB)**;
+pico simultâneo da árvore capturado por amostragem: 11.545.206.784 bytes. São medidas
+diferentes; a amostragem de 30 s pode perder picos. Uma inspeção intermediária registrou
+52.914.651.136 bytes privados no Python. Isso evidencia pressão de memória, mas não
+estabelece a causa da terminação nativa.
+
+### Interpretação, limites do contrato e decisão
+
+A listagem somente leitura confirmou **942 partições**, começando em 02/10/2023.
+O gerador percorre 943 dias, mas `_write_feature_day` retorna sem criar arquivos se
+não houver nenhuma feature. Pelo cenário noturno, o primeiro dia observado (domingo,
+01/10) só é liberado em 02/10 às 19h30; não há entidade conhecida em 01/10. A ausência
+da partição desse dia é coerente com o contrato de conhecimento, como já previsto no
+handoff. O verificador, entretanto, exige partição em todos os dias civis e reprovaria
+`all_partitions_present`. Não alteramos esse critério nem declaramos aprovação.
+
+As demais checagens não têm resultado recuperável: schema único, t0 no intervalo e fora
+do reservado, 48 horizontes, relação tau/t0 e grade, idade mínima do histórico, liberação
+dos alvos depois de t0, ausência de PAR, quatro baselines por requisição e valores finitos.
+O processo só grava o relatório no final. Não inferir aprovação dessas checagens das
+contagens reportadas no handoff.
+
+A contagem de linhas com `tau >= 01/05/2026` **não foi apurada**. A existência esperada
+vem dos horizontes das emissões de 30/04. A proteção de pontuação foi conferida no código:
+`_range` e `_validation_filter` exigem `t0 + 24h <= fim`, e `tau = t0 + (h - 1)*30min`.
+Em V4, o último t0 permitido é 30/04 às 00h e o maior tau é 30/04 às 23h30. Os segmentos
+internos terminam antes da validação e aplicam também disponibilidade dos rótulos. Assim,
+os horizontes que cruzam maio ficam fora desses segmentos; nenhuma pontuação foi executada
+nesta sessão. Isso é inspeção dos limites, não validação empírica do dataset completo.
+
+Por determinação explícita do responsável, a continuação **parou na etapa 1**, antes de
+piloto, projeção de memória por população, pergunta sobre amostragem e outros datasets.
+As 18 runs permanecem não iniciadas; `execucao/run-index.json` registra o bloqueio e o
+commit da geração eólica. Nenhum run recebeu falsamente um commit de execução. O índice
+anterior foi preservado antes da atualização. Não houve amostragem, escolha de vencedor,
+uso de métricas de piloto, execução do teste reservado, push ou merge em main.
+
+### Alternativas, limitações e valor para o usuário
+
+Não repetir automaticamente a varredura que falhou, nem corrigir o verificador para
+produzir um sinal verde e prosseguir sem reportar. Uma correção técnica possível é
+reduzir a memória da verificação por partições/streaming e distinguir dia sem população
+conhecida de partição perdida, com testes antes; isso permanece proposta, não implementação.
+
+Continuam registradas para a 2C as limitações do handoff: baselines com limiar fixo 0,5;
+`threshold or 0.5` substitui limiar zero; só oito numéricas e quatro categóricas usadas;
+recortes entity_new/panel_fixed falsos na sensibilidade; elegibilidade usa t0 em vez de
+c(t0); avaliação condicional de volume contra toda a validação; warnings de bibliotecas.
+Não corrigimos metodologia ou candidatos nesta continuação.
+
+A distinção entre geração concluída e contrato ainda não validado impede apresentar
+artefatos existentes como evidência de qualidade preditiva. O próximo passo é resolver
+a falha técnica do verificador e reportar as checagens e a contagem tau de fronteira antes
+de retomar a sequência solicitada. A decisão de contingência de treino continua pendente.
+
+### Validação desta entrada e fechamento local
+
+A primeira execução de `uv run pytest`, pelo executor com env.ps1 carregado, teve
+187 aprovados e uma falha em `test_default_paths_are_local`: o teste espera `data/`
+e `models/`, mas herdou os caminhos externos. Essa falha foi preservada. Sem alterar
+código ou testes, um subprocesso repetiu exatamente `uv run pytest` removendo somente
+`CURTAMAP_DATA_DIR` e `CURTAMAP_MODEL_DIR` do seu ambiente; os temporários permaneceram
+externos. Resultado: **188 aprovados, 81 warnings, 109,31 s**. Os warnings foram
+Polars is_in, LightGBM eval_set e event loop do ZMQ no Windows. `uv run ruff check .`
+e `uv run ruff format --check .` passaram (75 arquivos formatados). Logs estão nos
+passos `pytest-docs-sessao02-001`, `pytest-docs-sessao02-isolated-001`,
+`ruff-check-docs-sessao02-001` e `ruff-format-docs-sessao02-001`. Nenhuma suíte rodou
+junto com geração, treino ou verificação do dataset. O commit desta entrada é apenas
+documental; a extensão do executor reside na raiz operacional externa e foi registrada
+acima com cópia anterior e testes próprios.
