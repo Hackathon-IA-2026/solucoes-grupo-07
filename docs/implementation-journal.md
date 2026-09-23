@@ -1023,3 +1023,61 @@ passos `pytest-docs-sessao02-001`, `pytest-docs-sessao02-isolated-001`,
 junto com geração, treino ou verificação do dataset. O commit desta entrada é apenas
 documental; a extensão do executor reside na raiz operacional externa e foi registrada
 acima com cópia anterior e testes próprios.
+
+## 2026-09-23 - Etapa 2B: verificador diário com progresso durável
+
+### Contexto e decisão
+
+Após a falha nativa do verificador externo, o responsável autorizou sua correção com
+TDD e nova execução. A causa da terminação anterior continua não confirmada; a leitura
+agregada de todo o dataset tinha pico observado de 27,3 GiB. A correção limita o trabalho
+a uma partição diária e preserva a tentativa anterior, sem alterar Parquet, metodologia,
+grade, candidatos ou filtros da campanha.
+
+### Implementação e evidências
+
+O novo módulo versionado `curtamap.experimental.dataset_verification` projeta somente
+as colunas necessárias, lê um dia de cada vez e agrega contagens exatas. Cada partição
+tem eventos de início e conclusão persistidos com flush/fsync em JSONL. A deduplicação
+global de alvos indeterminados usa SQLite externo, com cache de 2 MiB, sem manter todos
+os alvos em RAM. O JSON final, o progresso e o ledger têm nomes exclusivos; nova
+tentativa não sobrescreve evidência. Erros de leitura geram resultado parcial explícito;
+terminações nativas deixam ao menos os eventos já persistidos.
+
+A liberação inicial é derivada do primeiro registro do cache e do calendário do cenário,
+e comparada com o menor timestamp de liberação do próprio cache. Somente dias completos
+anteriores a esse instante justificam ausência. Partição perdida após o primeiro
+conhecimento, arquivo ausente, schema divergente ou dia incorreto continuam reprovados.
+As 12 checagens originais foram preservadas, com a correção semântica de dia vazio; foram
+acrescentadas verificações de chave/nulos, fonte, partição, primeira liberação e fronteira.
+A checagem de 48 horizontes inclui agora limites 1–48, e quatro baselines por requisição
+é verificado por chave, não apenas pelo total. Listas completas de causas/baselines
+substituem a extração antiga de apenas uma linha, que podia dividir strings em letras.
+
+As linhas com tau no reservado são contadas, sem calcular métricas ou abrir o teste.
+O módulo usa `_validation_filter` da campanha para conferir as quatro validações reais
+e registra os limites internos calculados por `internal_boundaries`. A desigualdade
+`t0 + 24h <= fim` e o contrato de tau fundamentam também a exclusão nas faixas internas.
+
+### TDD, limites e próximos passos
+
+Red: `verifier-tdd-red-001` falhou na coleta por módulo ausente. Green: 17 testes
+passaram; após ampliar os casos de contrato, 20 passaram em 3,55 s no passo
+`verifier-tdd-refactor-001`. Há cobertura de leitura diária, calendário/feriado/+24h,
+liberação adulterada, agregação exata, deduplicação entre dias, fronteira de maio,
+horizontes duplicados/inválidos, chaves nulas, NaN/infinito, volume negativo, baseline
+faltante apesar do total correto, schema, arquivos ausentes/corrompidos, progresso e
+recusa de sobrescrita. Esses resultados são sintéticos e não aprovam o dataset real.
+
+A implementação não determina se o dataset eólico está correto: isso exige a nova
+varredura. O uso de memória passa a depender de um dia, incluindo agrupamentos e joins
+de chaves; seu pico real ainda será medido. O checker externo original permanece intacto.
+O valor desta correção é transformar uma falha opaca em evidência auditável, sem escolher
+modelos nem reduzir dados. Próximo passo: concluir a suíte/Ruff, commitar a correção e
+executar o novo verificador pelo executor durável, com novos identificadores e artefatos.
+
+Validação antes do commit: **208 testes aprovados, 81 warnings, 109,13 s** no passo
+`verifier-pytest-full-001`. Foi usado o mesmo isolamento documentado de Settings:
+`uv run pytest` em subprocesso sem CURTAMAP_DATA_DIR/MODEL_DIR, mantendo temporários
+externos. `uv run ruff check .`, `uv run ruff format --check .` (77 arquivos) e
+`git diff --check` passaram. Nenhuma métrica experimental foi calculada.
