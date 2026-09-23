@@ -1081,3 +1081,93 @@ Validação antes do commit: **208 testes aprovados, 81 warnings, 109,13 s** no 
 `uv run pytest` em subprocesso sem CURTAMAP_DATA_DIR/MODEL_DIR, mantendo temporários
 externos. `uv run ruff check .`, `uv run ruff format --check .` (77 arquivos) e
 `git diff --check` passaram. Nenhuma métrica experimental foi calculada.
+
+## 2026-09-23 - Etapa 2B: contrato eólico aprovado pelo verificador diário
+
+### Execução e proveniência
+
+O módulo corrigido foi commitado em `a5b4a87c829e410ffcbf84c379bc7200709587c8`.
+O primeiro despacho `check-noturno_dia_util-eolica-v2-001` encerrou antes de criar o
+passo ou iniciar Python; o fato foi preservado em `verificacoes/check-v2-001-falha-despacho.txt`.
+Não há resultado de verificação dessa tentativa. O despacho seguinte usou um script
+PowerShell de lançamento, mantendo `run-step.ps1` como executor e preservando seus logs.
+
+O passo `check-noturno_dia_util-eolica-v2-002` concluiu com **exit 0**, em **272,2 s**,
+sem stderr. Pico por processo: **1.291.628.544 bytes (1,20 GiB)**. Pico amostrado da
+árvore: **1.209.815.040 bytes (1,13 GiB)**. A verificação anterior tinha pico por
+processo de 29.270.798.336 bytes (27,3 GiB) e terminou sem relatório; ela permanece
+preservada. A redução observada foi de cerca de 95,6% no pico por processo, sem amostrar
+os dados. São execuções de verificadores diferentes, não comparação de modelos.
+
+Artefatos na raiz externa: `execucao/verificacoes/dataset-noturno_dia_util-eolica-v2-002.json`,
+`.progress.jsonl` e `.targets.sqlite`; logs em `execucao/passos/check-noturno_dia_util-eolica-v2-002/`.
+O JSON identifica o código de verificação `a5b4a87` e o código de geração `70a181d`.
+Nenhum arquivo do dataset foi reescrito e não houve outro processo pesado concorrente.
+
+### Análise de todas as checagens
+
+As **18 checagens passaram**:
+
+- Partições: 942 presentes dos 943 dias civis; somente 01/10/2023 é vazio esperado.
+  Nenhuma partição inesperadamente ausente, nenhum arquivo faltante ou partição extra.
+- Schema: um único schema de features e um único schema de baselines.
+- Intervalo: t0 mínimo 02/10/2023 19h30, máximo 30/04/2026 23h30; zero t0 no reservado.
+- Horizontes: **7.077.876 emissões por entidade**, todas com 48 linhas e 48 horizontes
+  distintos em 1–48, somando **339.738.048 features**.
+- Contrato tau/grade: zero divergências da relação tau = t0 + (h−1)×30min, zero t0 fora
+  da grade de meia hora e zero linhas no dia de partição incorreto.
+- Histórico: zero idades abaixo de 30 minutos ou não finitas.
+- Rótulos: zero alvos observados já liberados em ou antes de t0.
+- Causas: CNF, ENE e REL; nenhuma linha PAR.
+- Baselines: **1.358.952.192 linhas**, exatamente quatro por chave e no agregado.
+  Identidades: historico, mesmo_horario_dia_anterior, mesmo_horario_recente, ultimo_valor.
+- Valores: zero probabilidades não finitas, volumes esperados negativos/não finitos,
+  chaves obrigatórias nulas ou fallback_level ausente.
+- Fonte: uma fonte eólica e 180 entidades distintas.
+- Primeiro conhecimento: primeiro registro no cache em 01/10/2023 00h; primeira liberação
+  em 02/10/2023 19h30, idêntica à derivada do calendário. Zero emissão antes disso.
+- Fronteira: zero tau no reservado depois dos filtros reais de validação V1–V4.
+
+Contagens adicionais: 325.435.632 linhas elegíveis por histórico; 2.207.736 linhas sem
+alvo observado; zero alvo observado com volume indeterminado neste dataset. Esse zero
+não revoga os 21 volumes indeterminados do snapshot completo: as populações são distintas,
+e não foi feita investigação adicional desses 21 casos ou pontuação de maio–agosto.
+
+### Primeiro dia e linhas de fronteira
+
+A ausência de 01/10 não é perda de arquivo: antes de 02/10 às 19h30 nenhuma observação
+estava liberada. A verificação usou o primeiro registro e a liberação real do cache,
+comparados com o calendário congelado; não aceitou uma exceção de data arbitrária.
+
+Foram contadas **172.584 linhas com tau >= 01/05/2026**, das últimas emissões de 30/04.
+O tau máximo do dataset é 01/05/2026 23h. Elas não são pontuadas: o filtro real exige
+`t0 + 24h <= fim`. Em V4, t0 máximo aceito é 30/04 00h e tau máximo é 30/04 23h30.
+As contagens após esse filtro foram 42.851.184 linhas em V1, 43.830.768 em V2,
+43.109.184 em V3 e 42.194.016 em V4; em todas, **zero tau no reservado**. São contagens
+de população anterior aos filtros específicos de tarefa, não métricas nem as contagens
+de treino ainda pendentes.
+
+O relatório registra U/K/C das rodadas: V1 = 04/11, 02/12, 30/12/2024;
+V2 = 05/03, 02/04, 30/04/2025; V3 = 04/07, 01/08, 29/08/2025;
+V4 = 04/11, 02/12, 30/12/2025. `_range` também exige janela inteira anterior ao fim do
+segmento e aplica liberação do rótulo; seus limites são anteriores a maio/2026. Essa
+última afirmação é prova pelos limites do código, não varredura de treino por tarefa.
+
+### Decisão, limitações e próximos passos
+
+O bloqueio de verificação do dataset eólico principal foi resolvido. `run-index.json`
+foi atualizado com aprovação, commit, tempo, memória e contagem de fronteira. As 18 runs
+experimentais continuam não iniciadas. Contrato aprovado não demonstra qualidade de
+previsão, viabilidade de treino completo nem conformidade metodológica de toda a campanha.
+As limitações registradas anteriormente permanecem para a 2C. Não houve amostragem,
+métricas de seleção, vencedor, teste reservado, push ou merge em main.
+
+Próximo marco: piloto técnico eólico, declarando o recorte head(2M) nos primeiros dias
+de outubro/2023, seguido das contagens exatas V1–V4 por segmento/tarefa e pergunta única
+sobre contingência antes de qualquer amostragem. Os demais datasets e pilotos seguem
+na ordem já definida pelo responsável.
+
+Validação do registro de resultados antes do commit documental: **208 testes aprovados,
+81 warnings, 108,32 s**, no passo `verifier-report-pytest-001`, com o isolamento de Settings
+já documentado. `uv run ruff check .`, `uv run ruff format --check .` e `git diff --check`
+aprovados. Relatório de leitura com cópia do JSON foi entregue na pasta outputs da sessão.
