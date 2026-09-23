@@ -1239,3 +1239,123 @@ Validação antes do commit documental: **208 testes aprovados, 81 warnings, 118
 no passo `pilot-report-pytest-001`, com o isolamento de Settings do launcher externo.
 `uv run ruff check .`, `uv run ruff format --check .` (77 arquivos) e `git diff --check`
 passaram. Esses warnings da suíte não são warnings do piloto, cujo stderr ficou vazio.
+
+## 2026-09-23 - Etapa 2B: populações exatas de treino e validação da eólica
+
+### Contexto e pergunta
+
+O piloto eólico validou somente contratos técnicos, com `head(2.000.000)` inelegível.
+Antes de decidir qualquer contingência de treino era preciso saber, com os filtros reais,
+quantas linhas entram em cada rodada V1–V4, segmento interno e tarefa, e distinguir a
+população usada no ajuste da população avaliada na validação externa.
+
+A retomada conferiu HEAD `7f56c88`, `main` em `48f9923`, árvore limpa, ausência de
+processos experimentais e `end.json` em todos os passos. Nada foi regenerado ou reverificado.
+
+### Implementação e validação do medidor
+
+O módulo `curtamap.experimental.population_measurement`, desenvolvido em worktree
+isolado, foi revisado: reutiliza `_range`, `_task_filter`, `_validation_filter` e
+`internal_boundaries`; os limites de initial/tuning/refit/calibration coincidem com
+`campaign.run_campaign_round`; a validação usa só o filtro de painel aberto, sem
+`eligible_history`. Não foi encontrado defeito técnico, e nenhuma correção foi feita.
+Um smoke do CLI em três partições reais (01–03/01/2025, saída no scratchpad da sessão)
+confirmou o caminho `main()`, calendário com hash e commit de medição.
+
+Verificações: no worktree, passo `medidor-populacoes-pytest-worktree-001` com **232
+aprovados, 1 skip** (`test_notebook`: Parquet ausentes em `data/raw` do worktree),
+Ruff check/format e `git diff --check` aprovados. Commit `cbb7605`, integrado por
+`git merge --no-ff` em `ea88fe7`. No resultado integrado, passo
+`medidor-populacoes-pytest-merge-001`: **233 aprovados, 81 warnings**, exit 0; Ruff aprovado.
+
+### Execução e fatos observados
+
+Passo `populacoes-noturno_dia_util-eolica-001`, commit `ea88fe7`, árvore limpa:
+exit 0, **150,9 s**, stderr vazio, pico por processo **821.321.728 bytes (0,76 GiB)**.
+Relatório: `execucao/medicoes/populacoes-noturno_dia_util-eolica-001.json` e
+`.progress.jsonl` (942 eventos `partition_completed` e evento `completed`).
+
+Conferência cruzada com a verificação aprovada: 96 de 96 checagens passaram:
+942 partições; 339.738.048 linhas; somente 01/10/2023 sem partição; primeiro t0 em
+02/10/2023 19h30; 180 entidades; 48 horizontes com 7.077.876 linhas cada; `prediction_rows`
+iguais às contagens de validação da verificação; U/K/C idênticos; t0 máximo de V4 em
+30/04/2026 00h; refit ≥ initial em todas as células; calibração de volume e causa `used=false`.
+
+Linhas de ajuste (`fonte+id_ons+t0+horizonte`, não alvos `tau` distintos). Ocorrência
+principal e secundária têm a mesma contagem em todos os segmentos:
+
+| Rodada | Segmento | Ocorrências (cada) | Volume condicional | Causa |
+|---|---|---:|---:|---:|
+| V1 | initial | 132.692.040 | 18.803.053 | 27.728.833 |
+| V1 | tuning | 8.480.256 | 1.537.899 | 2.154.617 |
+| V1 | refit | 142.386.336 | 20.818.621 | 30.533.665 |
+| V1 | calibration | 9.518.400 | não usada | não usada |
+| V2 | initial | 174.755.520 | 28.257.206 | 40.046.603 |
+| V2 | tuning | 9.066.528 | 1.077.117 | 1.310.236 |
+| V2 | refit | 185.795.136 | 30.160.873 | 42.312.202 |
+| V2 | calibration | 9.527.424 | não usada | não usada |
+| V3 | initial | 218.732.808 | 39.295.138 | 53.696.964 |
+| V3 | tuning | 9.348.816 | 3.762.084 | 4.454.373 |
+| V3 | refit | 228.613.584 | 43.239.394 | 58.360.175 |
+| V3 | calibration | 9.532.224 | não usada | não usada |
+| V4 | initial | 262.143.984 | 60.746.233 | 78.160.184 |
+| V4 | tuning | 9.406.320 | 4.256.360 | 4.725.090 |
+| V4 | refit | 272.078.832 | 65.106.121 | 83.010.440 |
+| V4 | calibration | 9.587.424 | não usada | não usada |
+
+O primeiro t0 elegível de treino é 28/10/2023 23h30 em todas as rodadas. Validação
+externa (painel aberto): linhas previstas V1 42.851.184, V2 43.830.768, V3 43.109.184,
+V4 42.194.016; suporte potencial de ocorrência e volume 42.687.648, 43.503.696, 42.945.648
+e 42.030.480 (diferença = linhas sem alvo); suporte potencial de causa 10.205.443,
+20.290.779, 22.867.317 e 13.743.836; linhas com histórico elegível para ocorrência
+42.024.336, 43.174.032, 42.825.072 e 41.473.584. A validação não é filtrada por elegibilidade:
+as inelegíveis recebem fallback e continuam avaliadas.
+
+Prevalência natural de `corte_positivo` no refit: 0,146 (V1), 0,162 (V2), 0,189 (V3),
+0,239 (V4); no tuning varia de 0,119 (V2) a 0,453 (V4) e na calibração de 0,163 a 0,475.
+Os segmentos internos curtos têm prevalências distintas do histórico longo.
+
+### Interpretação: projeção de memória
+
+Projeção com os coeficientes históricos do handoff da sessão 01 (estimativas, não
+medidas nesta execução): 84 B/linha de trecho, 148 B/linha de CSR e 556 B/linha no pico
+de `fit_transform`. Modelo: `_split` mantém initial, tuning, refit e calibração da tarefa
+juntos (84 B × soma); a esse residente soma-se o maior entre o ajuste inicial
+(556 × initial + 148 × tuning, porque o LightGBM recebe o eval) e o reajuste (556 × refit).
+Picos de ajustes diferentes não se somam. O acúmulo dos modelos finais é pequeno: os oito
+modelos do piloto somaram cerca de 3,7 MB em disco.
+
+| Rodada | Ocorrência (cada) | Volume | Causa |
+|---|---:|---:|---:|
+| V1 | ≈96,7 GiB | ≈14,0 GiB | ≈20,5 GiB |
+| V2 | ≈125,9 GiB | ≈20,3 GiB | ≈28,5 GiB |
+| V3 | ≈154,9 GiB | ≈29,1 GiB | ≈39,3 GiB |
+| V4 | ≈184,2 GiB | ≈43,9 GiB | ≈56,0 GiB |
+
+Só o residente das ocorrências de V4 é ≈43,3 GiB. Mesmo desconsiderando o pico de
+`fit_transform`, o treino completo não cabe na máquina de 32 GB nem no orçamento de
+referência de ≈22 GiB do §12.1. Isso confirma, agora com contagens exatas, a inviabilidade
+apontada pelo handoff. A decisão de contingência é metodológica e foi levada ao responsável
+em uma pergunta consolidada; nenhuma amostragem foi implementada.
+
+### Alternativas consideradas
+
+Ler os dados preguiçosamente já está implementado e não reduz o ajuste do estimador.
+Reduzir cópias (liberar initial antes do refit, não manter os quatro splits) diminui o
+residente, mas o pico de 556 B/linha do refit de V4 (≈141 GiB) continua inviável.
+Remover rodadas ou usar só períodos recentes é proibido pelo §12.2.
+
+### Limitações
+
+Os coeficientes vêm de medições anteriores do executor e podem variar por família e
+tarefa; a projeção é ordem de grandeza. A fase de métricas da validação, que relê as
+previsões de um modelo por vez, não foi medida. Contagens são linhas, não observações
+independentes. O medidor só cobre o cenário principal eólico.
+
+### Valor e próximos passos
+
+As contagens sustentam na apresentação o tamanho real do problema (centenas de milhões
+de exemplos por rodada) e a necessidade de uma contingência registrada. Próximos passos:
+resposta explícita do responsável; enquanto isso, gerar e verificar solar principal,
+eólica +24h e solar +24h, um processo pesado por vez. Teste reservado, vencedor, push e
+merge em main continuam bloqueados.
