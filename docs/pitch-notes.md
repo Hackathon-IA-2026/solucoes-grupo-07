@@ -94,3 +94,28 @@ Para cada decisão relevante, anote:
 - Exemplo de recomendação rastreável: Etapa 3.
 - Cenários de impacto e sensibilidade: Etapa 3.
 - Limitações assumidas publicamente: ver a seção de credibilidade acima; revisar a cada etapa.
+
+## Etapa 3 — recomendação e impacto (23/09/2026)
+
+### Exemplo rastreável para a demonstração
+
+| Afirmação | Estado | Evidência |
+|---|---|---|
+| Emissão reconstituída de 29/04/2026 10h para `CJU_MGARN`: episódio ENE de 12h–14h e 148,14 MWh em risco | **Saída do baseline sobre dados reais anteriores ao teste reservado**; não é decisão operacional ocorrida | `recommendation.py`; história e método em `recommendation-rules.md` |
+| Bateria de referência: 30 MW, quatro horas, 120 MWh e 85%/90% de eficiência | **Premissa externa de cenário**; não afirma que a entidade possua bateria | MME, LRCAP Armazenamento 2026; EPE, PDE 2030; `configs/premissas/v1.json` |
+| Energia recuperável: 51 MWh (baixo) e 54 MWh (base/alto) | **Cenário calculado**, limitado por potência × duas horas e eficiência; não garantia | `impact_sensitivity`; testes da Etapa 3 |
+| Valor: R$ 2.988,60 / R$ 16.755,66 / R$ 40.593,42 | **Cenário financeiro**, energia recuperável × proxies de PLD; não receita, ressarcimento ou liquidação | CCEE: R$ 58,60 / 310,29 / 751,73 por MWh; premissas v1 |
+| CO₂ indicativo: 10,9446 / 22,2732 / 31,2120 tCO₂ | **Cenário climático**, não redução certificada | MCTI: margem de operação 2025 baixa/média/alta; premissas v1 |
+
+Mensagem recomendada no palco: **“O CurtaMap não promete recuperar 148 MWh. Ele mostra que, sob
+um ativo e regras explícitas, até 51–54 MWh entram no cenário; o gerador vê exatamente de onde
+vieram preço, carbono, eficiência e limites.”**
+
+### Limites que precisam acompanhar qualquer número
+
+- O exemplo usa um conjunto `id_ons`, não necessariamente uma usina física individual.
+- O baseline repete o mesmo horário recente e ainda não é o modelo selecionado na Etapa 2C.
+- PLD é sensibilidade, não preço contratual; somente REL tem tratamento específico de referência
+  final/ESS nas regras citadas, e mesmo REL exige apuração.
+- Armazenar depende de ativo, estado de carga, conexão, contrato, regulação e comando operacional.
+- O fator MCTI é uma premissa de emissão deslocada; o resultado não é crédito de carbono.
