@@ -1171,3 +1171,71 @@ Validação do registro de resultados antes do commit documental: **208 testes a
 81 warnings, 108,32 s**, no passo `verifier-report-pytest-001`, com o isolamento de Settings
 já documentado. `uv run ruff check .`, `uv run ruff format --check .` e `git diff --check`
 aprovados. Relatório de leitura com cópia do JSON foi entregue na pasta outputs da sessão.
+
+## 2026-09-23 - Etapa 2B: piloto técnico eólico e conferência dos artefatos
+
+### Contexto e conferência da retomada
+
+O prompt de retomada foi lido integralmente. Branch `etapa-2-experimental`, HEAD
+`48bc71a39c411c2c8725a744cdf3548baf7e3b9e`, árvore limpa, somente o worktree principal,
+`main` em `48f9923`, ausência de processos experimentais e de passos sem `end.json`
+coincidiam com o handoff. As 18 runs estavam não iniciadas. O JSON aprovado continuava
+com 18 contratos satisfeitos. Não houve evidência de alteração que justificasse refazer
+a geração ou a verificação eólica; ambas foram preservadas.
+
+### Fatos observados e validação técnica
+
+O passo e run `pilot-eolica-001` executou no mesmo commit pelo executor durável, com
+ambiente e temporários externos. `end.json` registra exit 0 e **60,5 s** (inclui a
+granularidade de monitoramento de 30 s); os timestamps do manifesto delimitam cerca
+de 35,5 s entre criação e finalização do run. Pico por processo: **1.719.541.760 bytes
+(1,60 GiB)**; pico amostrado da árvore: **1.666.011.136 bytes (1,55 GiB)**.
+
+As duas famílias produziram os oito ajustes: 500.000 exemplos para cada ocorrência,
+191.505 para volume condicional e 269.514 para causa, por família. O relatório contém
+zero falhas, nenhuma classe de causa ausente e `selection_metrics_emitted=false`.
+Não há diretório de falhas nem conteúdo no stderr do piloto. As durações dos ajustes
+ficaram entre 1,60 e 10,01 s; não são estimativas do custo do treinamento completo.
+
+A auditoria externa `audit-pilot-eolica-001`, também pelo executor, verificou os dez
+hashes do inventário, recarregou os oito modelos joblib e testou 256 saídas por modelo:
+probabilidades finitas em [0,1], volume finito não negativo, causas reconhecidas e soma
+unitária das probabilidades de causa. Todas passaram; exit 0, sem stderr. A auditoria
+não recalculou os contratos do dataset nem produziu métricas preditivas. Tamanho real
+do run após finalização: **3.706.035 bytes**. Espaço livre em Y na largada: cerca de
+620,3 GB decimais.
+
+Artefatos externos: `experimentos/pilot-eolica-001/`,
+`execucao/passos/pilot-eolica-001/`, `execucao/passos/audit-pilot-eolica-001/` e
+`execucao/verificacoes/audit-pilot-eolica-001.{py,json}`. A auditoria preserva parâmetros
+efetivos e iterações dos estimadores; LightGBM efetivamente usa **n_jobs=1**, enquanto
+o manifesto/configuração declara `threads=6`. Nenhum parâmetro foi alterado.
+
+### Interpretação, alternativas e limitações
+
+O `head(2.000.000)` do CLI cobre **02/10/2023 19h30 a 08/10/2023 11h30**, com
+**zero linhas elegíveis por histórico**. O piloto filtra alvos por tarefa, mas não
+aplica a elegibilidade de histórico usada na campanha. Portanto, o resultado comprova
+apenas execução, persistência, recarga e contratos técnicos nesse passado curto.
+Não comprova capacidade para todo o treino elegível, convergência em outras populações,
+qualidade de previsão ou suficiência operacional; não permite escolher candidatos.
+O pico reportado por ajuste é o pico acumulado do processo, não uma medição independente.
+
+Repetir o piloto ou ampliar sua população agora foi descartado: não remove a necessidade
+de contar os segmentos reais. A próxima decisão deve se apoiar nas populações exatas e
+na projeção de memória, incluindo trechos simultâneos e matrizes temporárias. A divergência
+de threads será preservada e apresentada na decisão consolidada, sem correção silenciosa.
+
+### Valor para o usuário e próximos passos
+
+O piloto remove a incerteza de portabilidade e serialização para o caminho exercitado.
+Pode sustentar a demonstração de rastreabilidade técnica, nunca uma alegação de ganho
+energético. Próximos passos: medir V1–V4 por segmento/tarefa com os filtros reais;
+fundamentar uma pergunta consolidada de contingência; continuar os datasets restantes
+sequencialmente. Treino completo segue condicionado à decisão de recursos. Teste
+reservado, seleção de vencedor, push e merge em main permanecem bloqueados.
+
+Validação antes do commit documental: **208 testes aprovados, 81 warnings, 118,39 s**
+no passo `pilot-report-pytest-001`, com o isolamento de Settings do launcher externo.
+`uv run ruff check .`, `uv run ruff format --check .` (77 arquivos) e `git diff --check`
+passaram. Esses warnings da suíte não são warnings do piloto, cujo stderr ficou vazio.
