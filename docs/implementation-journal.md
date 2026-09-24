@@ -592,3 +592,51 @@ narrativa de credibilidade: "comparamos com a regra simples que o gerador já po
 2. Dev 2 e Dev 3: abrir as branches a partir do `origin/main` e trabalhar pelos prompts.
 3. Depois da 2C: implementar o preditor escolhido atrás do `Predictor` e trocar na interface.
 4. Corrigir a leitura sem encoding de `test_feature_inventory` num commit próprio.
+
+## 2026-09-23 - Etapa 4: Construção da interface multipágina em Streamlit
+
+### Contexto e pergunta
+
+Implementar a interface operacional e tática do CurtaMap em Streamlit desacoplada da escolha do algoritmo final da Etapa 2. Como permitir que o gerador eólico/solar visualize os riscos de curtailment para as próximas 24 horas, entenda os diagnósticos, veja as recomendações e consulte os limites metodológicos sem depender de um modelo de ML já treinado?
+
+### Fatos e evidências observados
+
+- O contrato de dados estrito (`FORECAST_SCHEMA` e `RECOMMENDATION_SCHEMA` em `src/curtamap/contracts.py`) fixa o formato de entrada e saída, permitindo que a UI consuma o preditor de referência (`SameSlotRecentBaseline`) sob protocolo de latência de 28 dias.
+- O Streamlit 1.35+ oferece a API `st.navigation` para estruturação multipágina limpa com funções puras de renderização em `st.Page`.
+- As recomendações operacionais utilizam fixtures rotuladas com `tipo_saida = "simulado"` com aviso transparente na tela enquanto a Etapa 3 conclui o motor definitivo.
+- O protocolo de teste reservado impede qualquer consulta $t_0 \ge \text{2026-05-01}$.
+
+### Interpretação e decisão
+
+- Separar completamente a lógica de negócios da UI: regras de filtragem, agregação de ranking, perfis de usina, formatação de motivos e estatísticas táticas foram implementados no módulo `src/curtamap/ui_logic.py` e validados via TDD em `tests/test_ui_logic.py`.
+- Estruturar a aplicação em 3 páginas acessíveis pelo menu de navegação lateral:
+  1. **Operação D+1 (`src/curtamap/ui/operacao.py`):** Resumo das 48 janelas, filtros por Fonte/Subsistema/UF, ranking de usinas em risco, gráficos temporais e recomendações.
+  2. **Visão Tática (`src/curtamap/ui/tatica.py`):** Perdas históricas agregadas por mês, causa e região.
+  3. **Metodologia e Limites (`src/curtamap/ui/metodologia.py`):** Transparência das premissas, auditoria da GNR, revisões do ONS e aviso de preditor provisório.
+- Incluir selos visuais visíveis indicando o uso do preditor provisório baseline (`SameSlotRecentBaseline`) e o aviso de fixtures simuladas.
+
+### Alternativas consideradas
+
+- **Esperar a conclusão dos modelos de ML (Etapa 2):** Descartado. O contrato estrito permite trocar o modelo por trás da interface sem alterar uma única linha de código da UI.
+- **Manter tudo em um único arquivo `app.py` monolítico:** Descartado para evitar acoplamento e facilitar manutenção.
+- **Permitir mock totalmente genérico sem dados:** Descartado. A UI consome a base real do ONS através do baseline.
+
+### Implementação e validação
+
+- Criados os módulos `src/curtamap/ui_logic.py`, `src/curtamap/ui/components.py`, `src/curtamap/ui/operacao.py`, `src/curtamap/ui/tatica.py`, `src/curtamap/ui/metodologia.py` e atualizado `src/curtamap/app.py`.
+- Criada a suíte de testes unitários em `tests/test_ui_logic.py` cobrindo filtros, rankings, tratamento de previsões nulas e fixtures conforme os contratos de dados.
+
+### Limitações e incertezas
+
+- As previsões atuais derivam do preditor baseline `SameSlotRecentBaseline`, refletindo o perfil liberado do último slot no mesmo horário.
+- As recomendações utilizam fixtures simuladas rastreáveis até a integração final do módulo da Etapa 3.
+
+### Valor para o usuário e para a apresentação
+
+- Permite demonstrar toda a experiência do produto (visão operacional, ranking de risco, perdas históricas, proveniência e recomendações) de forma 100% funcional e com dados reais do ONS antes do encerramento da etapa de treinamento dos modelos.
+
+### Próximos passos
+
+1. Integrar os modelos treinados da Etapa 2 assim que o preditor final for selecionado.
+2. Conectar a recomendação definitiva da Etapa 3 assim que a branch correspondente for integrada.
+
