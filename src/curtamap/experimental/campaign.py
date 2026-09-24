@@ -377,6 +377,8 @@ def _post_event_truth(validation: pl.LazyFrame, tail_threshold: float | None) ->
 def _metrics_for_prediction(
     frame: pl.DataFrame, task_id: str, threshold: float | None
 ) -> list[dict]:
+    columns = [name for name in SLICE_COLUMNS if name in frame.columns]
+    frame = frame.select([*columns, METRIC_TARGET[task_id], "prediction"])
     reports = []
     for slice_id, subset in _slice_frames(frame):
         if task_id in {"corte_positivo", "restricao_registrada"}:

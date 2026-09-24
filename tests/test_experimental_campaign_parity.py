@@ -19,12 +19,19 @@ import numpy as np
 import polars as pl
 import pytest
 import reference_campaign_stage2b as oracle
+import reference_metrics_stage2b as metrics_oracle
 from campaign_fixtures import CALENDAR, SEED, V1, manifest, synthetic_dataset, write_partitions
 
 from curtamap.experimental.artifacts import RunStore
 from curtamap.experimental.campaign import TASK_IDS, run_campaign_round, run_sensitivity_round
 
 CHUNK_DAYS = 10
+
+# O oráculo da campanha importa métricas do produto; fixe também essa dependência
+# para a comparação não executar a implementação otimizada dos dois lados.
+oracle.cause_metrics = metrics_oracle.cause_metrics
+oracle.occurrence_metrics = metrics_oracle.occurrence_metrics
+oracle.volume_metrics = metrics_oracle.volume_metrics
 
 
 def _files(root: Path) -> list[str]:

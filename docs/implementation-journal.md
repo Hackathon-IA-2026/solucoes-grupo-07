@@ -1359,3 +1359,70 @@ de exemplos por rodada) e a necessidade de uma contingência registrada. Próxim
 resposta explícita do responsável; enquanto isso, gerar e verificar solar principal,
 eólica +24h e solar +24h, um processo pesado por vez. Teste reservado, vencedor, push e
 merge em main continuam bloqueados.
+
+
+## 2026-09-24 - Reduza o custo das métricas da validação completa
+
+### Contexto e pergunta
+
+O responsável informou 3,8 horas para a V1 eólica e pediu uma otimização pontual para
+viabilizar as rodadas restantes e oito sensibilidades. Não foi alterada a população de
+validação, a metodologia, os modelos, os limiares ou as previsões.
+
+### Fatos e evidências observados
+
+`cause_metrics` chamava confusion_matrix uma vez, recall_score e f1_score por classe e
+f1_score novamente para a macro: até oito chamadas sobre os mesmos vetores de texto por
+recorte. Cada chamada repetia validação, identificação de classes e contagens. Baselines
+copiavam também colunas sem uso ao materializar recortes.
+
+Medição única local (seed 42, 500.000 exemplos sintéticos; igualdade exata dos dicionários):
+causa 5,589139 s antes / 0,091910 s depois; ocorrência 0,235608 s / 0,161516 s.
+Confirmação em 500.000 linhas reais válidas de
+`Y:/CurtaMap Etapa 2B/experimentos/main-eolica-v1-002/predictions/eolica-V1-causa-lightgbm.parquet`:
+6,772911 s / 0,037027 s, igualdade exata. Leitura do Parquet fora do cronômetro;
+amostra obtida por select(true_cause, prediction), filtro REL/CNF/ENE e head(500000).
+Estes são tempos das funções, não ganhos medidos na rodada completa.
+
+### Interpretação e decisão
+
+Calcular uma única tabela de contagens inteiras de causa, derivando suporte, recall e F1.
+Uma quarta posição interna preserva falsos positivos/negativos de classes externas, sem
+incluí-las na matriz pública. Entradas externas ao domínio mantêm validação pelo sklearn.
+Para ocorrência binária, contar TP/FP/FN/TN diretamente e dispensar unique do alvo;
+AP, Brier e bins continuam com o mesmo cálculo. Selecionar apenas alvo, previsão e colunas
+dos recortes antes de copiá-los. A mesma implementação serve campanhas e sensibilidades.
+
+### Alternativas consideradas
+
+Reduzir a validação ou remover recortes alteraria a avaliação e foi descartado. Reescrever
+AP, agregar somas em blocos ou alterar inferência adicionaria risco numérico e foi adiado.
+Priorizou-se remover trabalho redundante, com equivalência exata e mudança pequena.
+
+### Implementação e validação
+
+33 testes direcionados passaram (métricas, paridade de métricas, campanha e paridade de
+campanha/sensibilidade); Ruff check e format --check passaram nos cinco arquivos Python.
+Os testes estruturais falharam antes da mudança pela repetição de contagens e cópia de
+colunas desnecessárias. `tests/reference_metrics_stage2b.py` congela o código anterior;
+o oráculo da campanha usa explicitamente essas funções, evitando comparar código novo
+consigo mesmo. Paridade inclui classes ausentes, classes externas, entradas vazias,
+probabilidades empatadas e limites 0/1. Avisos de depreciação já existentes permanecem.
+
+A fila executa V2 no worktree dedicado; os dois worktrees inicialmente compartilhavam a
+branch. O workspace principal foi separado em `codex/otimize-metricas-validacao`, mantendo
+HEAD do executor intacto. `scripts/apply-queued-code.ps1` permite fast-forward solicitado
+somente antes do próximo passo, verifica repositório, HEAD esperado e árvore limpa e
+consome a solicitação. Teste em repositório temporário confirmou bloqueio de árvore suja,
+fast-forward, consumo do marcador e no-op sem solicitação. O lançador operacional receberá
+esse hook antes de gravar start.json, para registrar o commit realmente usado. A ativação
+fica pendente até a V2 terminar; não se interrompe nem se repete essa rodada.
+
+### Limitações, valor e próximos passos
+
+A aceleração remove um custo repetido em milhões de linhas e conserva os artefatos usados
+na apresentação. Não garante término até sexta: inferência, I/O, AP e geração dos datasets
+de sensibilidade continuam custando tempo. Ganhos totais precisam ser observados no próximo
+run completo. Confirmar o marcador aplicado e code_commit no próximo start.json e comparar
+sua duração, sem reexecutar uma rodada apenas para benchmark. O diário já tinha uma entrada
+não commitada de outra sessão; ela foi preservada fora deste commit.

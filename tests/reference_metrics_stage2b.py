@@ -4,7 +4,7 @@ from typing import Any
 
 import numpy as np
 import polars as pl
-from sklearn.metrics import average_precision_score, confusion_matrix
+from sklearn.metrics import average_precision_score, confusion_matrix, f1_score, recall_score
 
 CAUSES = ("REL", "CNF", "ENE")
 
@@ -25,17 +25,7 @@ def occurrence_metrics(
     if target.size != probabilities.size or not np.isfinite(probabilities).all():
         raise ValueError("alvos e probabilidades devem ter mesmo tamanho e valores finitos")
     predicted = probabilities >= threshold
-    if target.ndim == 1 and target.size and np.all((target == 0) | (target == 1)):
-        positives = np.count_nonzero(target)
-        tp = np.count_nonzero(target & predicted)
-        fp = np.count_nonzero(predicted) - tp
-        fn = positives - tp
-        tn = target.size - tp - fp - fn
-        both_classes = 0 < positives < target.size
-    else:
-        # Preserva a validação do sklearn para entradas fora do contrato binário.
-        tn, fp, fn, tp = confusion_matrix(target, predicted, labels=[0, 1]).ravel()
-        both_classes = np.unique(target).size == 2
+    tn, fp, fn, tp = confusion_matrix(target, predicted, labels=[0, 1]).ravel()
     precision = tp / (tp + fp) if tp + fp else None
     recall = tp / (tp + fn) if tp + fn else None
     f2_denominator = 5 * tp + 4 * fn + fp
@@ -54,6 +44,7 @@ def occurrence_metrics(
                 "observed_frequency": float(target[selected].mean()) if selected.any() else None,
             }
         )
+    both_classes = np.unique(target).size == 2
     return {
         "average_precision": _value(average_precision_score(target, probabilities))
         if both_classes
@@ -108,42 +99,30 @@ def volume_metrics(target: np.ndarray, prediction: np.ndarray) -> dict[str, Any]
 def cause_metrics(target: np.ndarray, prediction: np.ndarray) -> dict[str, Any]:
     target = np.asarray(target)
     prediction = np.asarray(prediction)
-    if target.ndim != 1 or prediction.ndim != 1 or target.size != prediction.size:
-        raise ValueError("alvos e previsões devem ser vetores do mesmo tamanho")
-    # Uma quarta posição retém classes externas: contam como FN/FP, mas não aparecem
-    # na matriz REL/CNF/ENE. Evita ordenar strings repetidamente a cada métrica.
-    true_codes = np.full(target.size, 3, dtype=np.int8)
-    predicted_codes = np.full(target.size, 3, dtype=np.int8)
-    for index, cause in enumerate(CAUSES):
-        true_codes[target == cause] = index
-        predicted_codes[prediction == cause] = index
-    if not target.size or np.any(true_codes == 3) or np.any(predicted_codes == 3):
-        # Mantém erros do sklearn (nulos, vazios, nenhuma classe reconhecida).
-        confusion_matrix(target, prediction, labels=CAUSES)
-    counts = np.bincount(true_codes * 4 + predicted_codes, minlength=16).reshape(4, 4)
-    matrix = counts[:3, :3]
-    true_support = counts.sum(axis=1)
-    predicted_support = counts.sum(axis=0)
+    matrix = confusion_matrix(target, prediction, labels=CAUSES)
     per_class: dict[str, dict[str, Any]] = {}
     supports = []
-    scores = []
-    for index, cause in enumerate(CAUSES):
-        support = int(true_support[index])
-        tp = int(counts[index, index])
-        denominator = support + int(predicted_support[index])
-        score = 2.0 * tp / denominator if denominator else 0.0
-        scores.append(score)
+    for cause in CAUSES:
+        support = int(np.sum(target == cause))
         supports.append(support)
         per_class[cause] = {
             "support": support,
-            "recall": tp / support if support else None,
-            "f1": score if support else None,
+            "recall": float(
+                recall_score(target, prediction, labels=[cause], average="macro", zero_division=0)
+            )
+            if support
+            else None,
+            "f1": float(
+                f1_score(target, prediction, labels=[cause], average="macro", zero_division=0)
+            )
+            if support
+            else None,
         }
     missing = [cause for cause, support in zip(CAUSES, supports, strict=True) if not support]
     return {
         "macro_f1": _missing("classe_sem_suporte:" + ",".join(missing))
         if missing
-        else _value(np.mean(scores)),
+        else _value(f1_score(target, prediction, labels=CAUSES, average="macro", zero_division=0)),
         "per_class": per_class,
         "confusion": {"labels": list(CAUSES), "matrix": matrix.tolist()},
         "support": int(target.size),
