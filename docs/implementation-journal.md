@@ -1786,3 +1786,58 @@ verificado.
 ### Próximos passos
 
 - Acompanhar o check eólico e, em seguida, as sensibilidades `delay-eolica-*`.
+
+## 24/09/2026 — Fila 2B concluída após a correção do check
+
+### Contexto e pergunta
+
+Esta entrada continua a anterior. A dúvida era se os passos restantes da fila (checks e
+sensibilidades `delay-*`) rodariam sem nova falha depois da correção de `-Arguments:<valor>`.
+
+### Fatos e evidências observados
+
+Horários de término e resultados vêm de `execucao/fila/fila.log`. As durações foram calculadas
+entre o início e o fim registrados no log.
+
+| Passo | Término | Duração | Resultado |
+|---|---|---|---|
+| `check-noturno_mais_24h-eolica-001` | 17h14 | 5 min | ok |
+| `delay-eolica-v1-001` | 17h34 | 20 min | ok |
+| `delay-eolica-v2-001` | 17h59 | 26 min | ok |
+| `delay-eolica-v3-001` | 18h24 | 25 min | ok |
+| `delay-eolica-v4-001` | 18h47 | 23 min | ok |
+| `features-noturno_mais_24h-fotovoltaica-development-001` | 19h24 | 37 min | ok |
+| `check-noturno_mais_24h-fotovoltaica-001` | 19h26 | 2 min | ok |
+| `delay-fotovoltaica-v1-001` | 19h36 | 11 min | ok |
+| `delay-fotovoltaica-v2-001` | 19h47 | 10 min | ok |
+| `delay-fotovoltaica-v3-001` | 19h59 | 12 min | ok |
+| `delay-fotovoltaica-v4-001` | 20h11 | 13 min | ok |
+
+Às 20h11min47 o log registrou `fila concluída com sucesso`.
+
+### Interpretação e decisão
+
+- A correção valeu para os dois checks.
+- As sensibilidades `sensitivity-round` rodaram pela primeira vez com o volume real e terminaram
+  sem erro.
+- Nenhuma métrica de sensibilidade foi analisada nesta entrada.
+
+### Implementação e validação
+
+Um monitor de sessão acompanhou `fila.log` e o estado da tarefa agendada. Não houve queda, parada
+por `PARAR` nem intervenção da vigia de memória.
+
+### Limitações e incertezas
+
+- `ok` significa `exit_code` 0 e, quando existe `manifest.json`, `status=complete`. Isso não valida
+  o conteúdo científico dos resultados.
+
+### Valor para o usuário e para a apresentação
+
+Os artefatos principais e de sensibilidade da Etapa 2B estão completos para as duas fontes. Com
+isso, a análise de robustez ao atraso de dados pode entrar no pitch.
+
+### Próximos passos
+
+- Analisar os relatórios `delay-*` contra os runs `main-*` congelados.
+- Comparar as durações por fase da V2-004 com as da V1.
