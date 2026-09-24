@@ -239,8 +239,13 @@ def test_sensitivity_round_in_parts_reproduces_oracle_artifacts(campaign_runs: d
     assert list(campaign_runs["scratch"].iterdir()) == []
 
 
-def test_campaign_accepts_dataframes_like_the_oracle(campaign_runs: dict) -> None:
-    """Entrada eager (``DataFrame``) segue o mesmo caminho via ``.lazy()``."""
+def test_campaign_accepts_dataframes_like_the_oracle(
+    campaign_runs: dict, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Entrada eager (``DataFrame``) segue o mesmo caminho via ``.lazy()``.
+
+    Também registra no stderr marcos de fase com horário, sem alterar artefatos.
+    """
     root = campaign_runs["root"]
     features_glob = str(
         root
@@ -263,3 +268,18 @@ def test_campaign_accepts_dataframes_like_the_oracle(campaign_runs: dict) -> Non
         scratch_dir=campaign_runs["scratch"],
     )
     assert_same_artifacts(campaign_runs["expected"].path, actual.path)
+    marks = [
+        line.split()[2]
+        for line in capsys.readouterr().err.splitlines()
+        if line.startswith("[curtamap-fase] ")
+    ]
+    assert marks == [
+        "preparacao",
+        "treino",
+        "previsao",
+        "modelos_metricas",
+        "pipelines",
+        "baselines",
+        "relatorio",
+        "fim",
+    ]

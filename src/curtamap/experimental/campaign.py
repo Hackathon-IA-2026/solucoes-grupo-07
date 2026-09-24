@@ -25,6 +25,7 @@ partes e o pico de memória residente do processo (``peak_rss_bytes``) ao final 
 
 from __future__ import annotations
 
+import sys
 import tempfile
 from collections.abc import Iterator
 from contextlib import ExitStack
@@ -724,6 +725,15 @@ def _execution(chunk_days: int, chunks: list[_Chunk], rows: int) -> dict[str, An
     }
 
 
+def _phase(name: str) -> None:
+    """Marca no stderr o início de uma fase, para medir a duração de cada etapa da rodada."""
+    print(
+        f"[curtamap-fase] {datetime.now().astimezone().isoformat()} {name}",
+        file=sys.stderr,
+        flush=True,
+    )
+
+
 def run_campaign_round(
     features: pl.LazyFrame | pl.DataFrame,
     baselines: pl.LazyFrame | pl.DataFrame,
@@ -747,6 +757,7 @@ def run_campaign_round(
     """
     if round_.reserved:
         raise ValueError("teste reservado não pode ser executado pela campanha V1–V4")
+    _phase("preparacao")
     features, baselines = features.lazy(), baselines.lazy()
     boundary = internal_boundaries(round_, AvailabilityScenario.main(), calendar)
     first_t0 = features.select(pl.col("t0").min()).collect(engine="streaming").item()
@@ -798,6 +809,7 @@ def run_campaign_round(
     }
     errors: dict[str, BaseException] = {}
     trained_models: dict[str, tuple[str, Any]] = {}
+    _phase("treino")
     for task_id in TASK_IDS:
         try:
             sample = (
@@ -861,6 +873,7 @@ def run_campaign_round(
         dir=scratch_dir, prefix="curtamap-validacao-", ignore_cleanup_errors=True
     ) as temporary:
         scratch_path = Path(temporary) / "validation.parquet"
+        _phase("previsao")
         streams = {
             identity: store.open_parquet_stream(f"predictions/{identity}.parquet")
             for identity in trained_models
@@ -877,6 +890,7 @@ def run_campaign_round(
         )
         del truth, validation
 
+        _phase("modelos_metricas")
         available: dict[tuple[str, str], Path] = {}
         for (task_id, family), identity in identities.items():
             if identity in errors:
@@ -903,6 +917,7 @@ def run_campaign_round(
                 reports["failures"].append(identity)
                 store.record_failure(f"campaign/{identity}.json", errors[identity], resumable=True)
 
+        _phase("pipelines")
         _write_pipelines(
             store,
             identity_prefix=f"{source}-{round_.round_id}",
@@ -912,6 +927,7 @@ def run_campaign_round(
             validation_columns=CAMPAIGN_PIPELINE_COLUMNS,
             diagnostics=True,
         )
+        _phase("baselines")
         _baseline_metrics(
             baselines,
             store,
@@ -923,8 +939,10 @@ def run_campaign_round(
             validation_rows=validation_rows,
             chunk_days=chunk_days,
         )
+    _phase("relatorio")
     reports["execution"] = _execution(chunk_days, chunks, validation_rows)
     store.write_json(f"reports/{source}-{round_.round_id}.json", reports)
+    _phase("fim")
     return reports
 
 
