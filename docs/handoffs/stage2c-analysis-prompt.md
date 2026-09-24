@@ -1,9 +1,18 @@
 # Etapa 2C — análise e decisão sobre os resultados da 2B (CurtaMap)
 
 Responda em português do Brasil. Repositório `hackathon-ia-coppe-2026`, branch
-`etapa-2-experimental`. O último commit da 2B está no fim da seção "Pendências" do diário
-`docs/implementation-journal.md`. Os artefatos ficam na raiz externa `Y:\CurtaMap Etapa 2B`, ou
-na cópia trazida ao Mac com os mesmos caminhos relativos.
+`etapa-2-experimental`. Os artefatos ficam na raiz externa `Y:\CurtaMap Etapa 2B`, ou na cópia
+trazida ao Mac com os mesmos caminhos relativos.
+
+Commits de referência:
+
+- código das runs V2–V4 eólica, das 4 solares, das 8 sensibilidades e dos datasets +24h:
+  `88634ed`;
+- V1 eólica: `560ae70`;
+- merge dos registros da fila: `1fba2f6`;
+- HEAD do handoff: o commit mais recente de `docs:` depois de `1fba2f6`, que registra a sessão
+  05. Confirme com `git log --oneline -5 etapa-2-experimental` e em
+  `execucao/CHECKPOINT-sessao-03.md`.
 
 ## Leia primeiro (nesta ordem)
 
@@ -19,11 +28,18 @@ na cópia trazida ao Mac com os mesmos caminhos relativos.
 
 ## Antes de analisar: confira a integridade
 
-- Confira o SHA-256 de `handoff/inventario-etapa-2b.csv` contra
-  `handoff/inventario-etapa-2b.resumo.json` (`csv_sha256`).
+- Confira `handoff/SHA256SUMS-handoff.txt` e o SHA-256 de `handoff/inventario-etapa-2b-002.csv` contra
+  `handoff/inventario-etapa-2b-002.resumo.json` (`csv_sha256`). O `-001` foi substituído.
 - Se os artefatos foram copiados de máquina, recalcule o SHA-256 das 16 runs contra o
-  `checksums.json` de cada uma. O script `execucao/verificacoes/auditar_runs_2b.py` faz isso,
-  desde que `ROOT` seja ajustado.
+  `checksums.json` de cada uma.
+  - O script `execucao/verificacoes/auditar_runs_2b.py` faz essa parte depois de ajustar `ROOT`.
+  - Fora do Windows, a checagem de congelamento desse script dá **falso negativo**: os relatórios
+    gravam `frozen_model` e `frozen_run` como caminhos absolutos `Y:\…`, e em POSIX a barra
+    invertida não separa diretórios.
+  - O congelamento já foi verificado na máquina dedicada; a evidência está em
+    `execucao/verificacoes/auditoria-runs-2b-001.json`.
+- O inventário (`inventario-2b-002`) não cobre `handoff/`, que tem hashes próprios em
+  `SHA256SUMS-handoff.txt`, nem `execucao/CHECKPOINT-*.md`, que é um log vivo.
 - Qualquer divergência interrompe a análise e deve ser relatada.
 
 ## Runs válidas (e apenas estas)

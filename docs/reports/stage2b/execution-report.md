@@ -754,8 +754,10 @@ causa (recorte global)
 
 **Recursos:** o maior pico de working set de processo foi de 24,06 GiB
 (`main-fotovoltaica-v4-001`). O maior pico da árvore, amostrado a cada 30 s, foi de 18,49 GiB.
-A vigia de memória (commit livre < 2 GB por 2 min) não disparou. Os tempos da fila completa
-estão em `execucao/fila/fila.log`.
+Os picos reais de processo **superaram a meta de 20 GiB** usada para projetar a taxa de
+amostragem: 24,06 GiB na solar V4 e 22,02 GiB na eólica V4. A projeção subestimou o consumo,
+mas não houve falha nem thrashing. A vigia de memória (commit livre < 2 GB por 2 min) não
+disparou. Os tempos da fila completa estão em `execucao/fila/fila.log`.
 
 **stderr:** nas 8 principais há 8 avisos `LGBMDeprecationWarning` (`eval_set`) e os marcadores
 de fase. Nas sensibilidades, o stderr está vazio.
@@ -794,15 +796,19 @@ de fase. Nas sensibilidades, o stderr está vazio.
     54 por principal e 26 por sensibilidade, **zero divergências, zero ausentes, zero
     arquivos fora da lista** além do próprio `checksums.json`;
   - congelamento das 8 sensibilidades confirmado (§12).
-- **Inventário `inventario-2b-001`:**
-  - arquivos: `handoff/inventario-etapa-2b.csv` (caminho relativo, bytes, SHA-256, origem do
-    hash) e `handoff/inventario-etapa-2b.resumo.json`;
-  - 8.133 arquivos, 67.348.503.974 bytes: 640 hashes reaproveitados dos checksums verificados
+- **Inventário `inventario-2b-002`** (vale este; script `execucao/verificacoes/inventariar_2b_v2.py`):
+  - arquivos: `handoff/inventario-etapa-2b-002.csv` (caminho relativo, bytes, SHA-256, origem
+    do hash) e `handoff/inventario-etapa-2b-002.resumo.json`;
+  - 8.133 arquivos, 67.348.497.296 bytes: 640 hashes reaproveitados dos checksums verificados
     e 7.493 calculados, incluindo os 6.800 arquivos de `stage2b-datasets`;
-  - excluídos: `temporarios/` e `worktrees/`;
-  - SHA-256 do CSV: `a184057dafc0e2dcaeac565d569c7e82a07109309250dca907c1d53e6c1cd90f`.
-- **Hashes do relatório e do prompt:** este relatório e o prompt da 2C foram escritos depois do
-  inventário. Os hashes deles estão em `handoff/SHA256SUMS-handoff.txt`.
+  - excluídos: `temporarios/`, `worktrees/`, `handoff/`, `execucao/CHECKPOINT-*.md` (log vivo)
+    e o diretório do próprio passo;
+  - SHA-256 do CSV: `99920bab92ba9a96f873497cabffbb4402d912c45373f9e6f2c03b561ea87fd5`.
+- **Inventário `inventario-2b-001`, substituído:** foi preservado como
+  `handoff/inventario-etapa-2b-001.*`. Ele incluía arquivos que continuaram sendo gravados
+  depois do cálculo (o checkpoint e os logs do próprio passo) e não deve ser usado para
+  conferência.
+- **Hashes de `handoff/`** (relatório, prompt e CSVs): `handoff/SHA256SUMS-handoff.txt`.
 - **Índice de runs:** `execucao/run-index.json`, atualizado na sessão 05. A versão anterior
   está em `execucao/verificacoes/run-index.pre-sessao05.json`.
 
