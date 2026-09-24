@@ -1841,3 +1841,116 @@ isso, a análise de robustez ao atraso de dados pode entrar no pitch.
 
 - Analisar os relatórios `delay-*` contra os runs `main-*` congelados.
 - Comparar as durações por fase da V2-004 com as da V1.
+
+## 24/09/2026 — Registro tardio (23/09): dataset solar, contingência de treino, V1 eólica e verificação da amostragem
+
+> Registro tardio, redigido na sessão 05 a partir do rascunho da sessão 04
+> (`execucao/rascunhos/diario-sessao04-contingencia.md`) e dos artefatos das runs. Os fatos são
+> de 23/09/2026. As entradas de 24/09 já cobrem a fila, as tentativas da V2 e o check +24h;
+> aqui elas só são citadas.
+
+### Contexto e pergunta
+
+Com as populações eólicas medidas, a pergunta consolidada
+(`execucao/PERGUNTA-contingencia-treino-sessao04.md`) pediu decisão sobre amostragem,
+aplicação à solar, threads, orçamento de 12 h e uso da V1 eólica como porta medida. O
+responsável respondeu "Siga com o que você faria (ações recomendadas)" e acrescentou que as
+sessões anteriores gastaram tempo demais com verificações redundantes, enquanto só um modelo
+havia sido treinado. A partir daí a prioridade explícita passou a ser o treino.
+
+### Fatos: dataset e populações solares
+
+- Geração `features-noturno_dia_util-fotovoltaica-development-001`, commit `2e79475`: exit 0,
+  2.424,2 s, stderr vazio, 759 partições, 1.518 arquivos, 457.531.776 linhas de baseline.
+- Verificação `check-noturno_dia_util-fotovoltaica-001`, mesmo commit: 18/18 checagens, exit 0,
+  121,1 s, pico 1,07 GB. 114.382.944 linhas de features, 82 entidades, 2.382.978 emissões de
+  48 horizontes. Só 01/04/2024 ficou sem partição (primeira liberação em 02/04/2024 19h30,
+  igual ao calendário). 87.984 linhas têm tau ≥ 01/05/2026 e nenhuma sobrevive aos filtros
+  V1–V4. Causas presentes: CNF, ENE, REL e DESCONHECIDA; nenhuma PAR.
+- Medição `populacoes-noturno_dia_util-fotovoltaica-001`: exit 0, 106,4 s, 59/59 checagens
+  cruzadas. Refit de ocorrências: V1 29.088.288, V2 46.912.152, V3 64.939.512 e V4 83.666.856
+  linhas. Validação: 17.781.648, 18.273.840, 19.344.336 e 20.417.904 linhas. Pico projetado do
+  treino completo de ocorrências: de 19,9 GiB (V1) a 56,7 GiB (V4).
+
+### Decisão aplicada (desvio registrado do §12.1, "todos os elegíveis")
+
+- **Amostragem `t0_sistematico_diario_v1`, semente 42.** Em cada dia, `k` das 48 meias-horas
+  igualmente espaçadas, deslocadas por SHA-256(`42|data`). Emissões inteiras (todas as
+  entidades e os 48 horizontes). Aplicada **só em initial e refit**; tuning, calibração e
+  validação ficam completos. A mesma seleção vale para famílias, candidatos e rodadas, com
+  initial ⊂ refit.
+- **Taxa única por fonte e tarefa em todas as rodadas:** a maior fração de 48 cujo pico
+  projetado fique ≤ 20 GiB na rodada mais pesada. Eólica: ocorrências 4/48, volume e causa
+  14/48. Solar: ocorrências 16/48, volume e causa 48/48 (completo).
+- **LightGBM:** `n_jobs=6`, `deterministic=True`, `force_row_wise=True`. É repetível com o mesmo
+  número de threads, mas não é numericamente igual ao piloto em `n_jobs=1`.
+- **Orçamento de 12 h:** revisto implicitamente; a duração real seria medida pela V1.
+- **Porta medida:** a V1 eólica mede pico e duração antes das demais runs.
+- **Piloto solar dispensado:** a primeira campanha solar exercita o mesmo caminho técnico com a
+  população real. No `run-index.json` ele consta como `dispensada`.
+
+Alternativas descartadas: hash puro por t0 (variação de ±12% por meia-hora a 8%); taxa por
+rodada (mudaria a fração entre rodadas); treino completo (até 184 GiB projetados).
+
+### Implementação e validação
+
+- Commits `40cb438` (amostragem, campanha, CLI, configuração) e `f36d5f6` (threads). TDD com
+  testes de espaçamento, SHA-256 estável, emissões inteiras, aninhamento, semente, leitura por
+  fonte, segmentos e parâmetros do LightGBM.
+- Suíte `contingencia-pytest-001`: 241 aprovados e 2 falhas de paridade, causadas apenas pelas
+  chaves novas `training_sampling`/`training_rows` do relatório. A normalização passou a
+  removê-las e a exigir `training_sampling=None` quando não há amostragem; depois disso a
+  paridade passou (3/3). Ruff e `git diff --check` aprovados.
+
+### Fato: `main-eolica-v1-001` interrompida e corrigida
+
+- Commit `f36d5f6`. Aos 458 s o agente interrompeu a run (exit −1): 41–46 GB de memória
+  comprometida, commit livre de até 1,1 GB e working set caindo a 0,1 GB, ou seja, thrashing
+  durante a montagem dos splits. Evidência em `execucao/passos/main-eolica-v1-001/INTERRUPCAO.txt`
+  e `main-eolica-v1-001-memoria-privada.csv`. O diretório da run só tem o manifest, que
+  continua `running` e não foi reescrito.
+- **Causa confirmada pelo código:** a máscara de amostragem (`replace_strict`) ficava acima do
+  scan do Parquet, e o refit inteiro era materializado antes de amostrar.
+- **Correção `560ae70`:** lista explícita dos t0 selecionados, com a mesma seleção, levada ao
+  `SELECTION` do scan. Um teste com cadeia realista verifica o pushdown.
+
+### Fato: `main-eolica-v1-002` concluída (porta medida)
+
+Commit `560ae70`, árvore limpa: exit 0, **13.835,3 s** (3h50min35s), soma de `fit_seconds` de
+1.308,9 s, pico de working set do processo de 12,61 GiB (10,61 GiB na árvore amostrada),
+`failures=[]`, 54 arquivos com checksums. A porta de memória (≤ 20 GiB) foi respeitada. A
+V1 rodou **antes** da otimização de métricas `c73302e` e sem marcadores de fase; a comparação
+de fases com as demais rodadas é, portanto, parcial.
+
+### Verificação posterior da amostragem (auditoria `auditoria-runs-2b-001`, sessão 05)
+
+Esta seção compara o `training_rows` de cada run com as populações medidas:
+
+- **Tuning e calibração:** linhas **idênticas** às medidas nas 8 runs. A amostragem ficou
+  restrita a initial e refit, como decidido.
+- **Initial e refit, eólica:** razão de 0,0833 nas ocorrências (esperado 4/48 = 0,0833) e de
+  0,2911 a 0,2916 em volume e causa (esperado 14/48 = 0,2917).
+- **Initial e refit, solar:** razão de 0,3333 a 0,3334 nas ocorrências (esperado 16/48); volume
+  e causa idênticos à população completa.
+- **Prevalência amostrada vs. completa:** diferença absoluta ≤ 0,0004 em todas as rodadas,
+  fontes e tarefas de ocorrência (por exemplo, V4 eólica `corte_positivo` 0,2320 vs. 0,2317).
+- **Validação:** `validation_rows` igual ao `prediction_rows` medido nas 8 runs, ou seja,
+  validação completa.
+
+### Limitações e incertezas
+
+- A amostragem reduz os exemplos de ajuste e pode reduzir o desempenho; toda comparação da 2C
+  deve citá-la.
+- A proximidade das prevalências vale para a média global, não para cada entidade ou mês.
+- A V1 eólica usa código de métricas anterior ao das demais rodadas. Os resultados são
+  equivalentes por teste de paridade (`c73302e`), mas os tempos não são comparáveis.
+
+### Valor para o usuário e para a apresentação
+
+A decisão tornou o treino viável em uma máquina de 32 GB, dentro do prazo, sem mudar a
+validação. É um exemplo de engenharia sob restrição com o desvio registrado e verificado por
+números, útil para a seção de limitações do pitch.
+
+### Próximos passos
+
+Levar a amostragem como desvio explícito ao handoff da 2C (feito na entrada da sessão 05).
