@@ -1603,7 +1603,7 @@ como retomar sem sobrescrever tentativas nem repetir a V1.
 
 ### Fatos e evidências observados
 
-- Às 06h20 não havia fila, `uv`, Python nem tarefa agendada ativos. Não havia risco de
+- Na checagem inicial desta sessão, não havia fila, `uv`, Python nem tarefa agendada ativos. Não havia risco de
   iniciar uma segunda fila.
 - Janela do encerramento: a amostragem de `run-step.ps1` gravou a última linha às
   02h26min36,3s. A próxima era esperada por volta de 02h27min06s e não existe.
@@ -1705,6 +1705,11 @@ script `scripts/register-queue-task.ps1`, com cópia em `execucao/`, e tem:
 - Logoff, reinício do Windows (inclusive por atualização fora das horas ativas, 11h–4h),
   falta de energia ou falta de memória ainda interrompem a fila.
 - Os marcos cobrem apenas `campaign-round`, não as sensibilidades.
+- Suspensão e hibernação estão desativadas no plano de energia atual (tempo limite 0 na tomada
+  e na bateria). O único retorno de suspensão nas últimas 48 h foi em 22/09 às 12h05, antes
+  das execuções analisadas. Pausas por suspensão não afetam as durações medidas, desde que o
+  plano não mude. Os arquivos de `execucao/verificacoes/teste-duravel/` ficam preservados como
+  evidência do teste.
 - Nenhuma duração da V2 com a otimização foi medida até aqui. Não há previsão de término.
 
 ### Valor para o usuário e para a apresentação
