@@ -1954,3 +1954,91 @@ números, útil para a seção de limitações do pitch.
 ### Próximos passos
 
 Levar a amostragem como desvio explícito ao handoff da 2C (feito na entrada da sessão 05).
+
+## 24/09/2026 — Etapa 2B: auditoria pós-fila, integração Git, inventário e handoff da 2C (sessão 05)
+
+### Contexto e pergunta
+
+A fila terminou às 20h11 com todas as 19 etapas em `ok`. A pergunta era se os 16 artefatos
+(8 principais e 8 sensibilidades) estavam íntegros e coerentes com a decisão de amostragem, e
+como fechar a 2B com rastreabilidade, sem repetir verificações já aprovadas.
+
+### Fatos e evidências observados
+
+- **Estado inicial:** o repositório principal estava na branch `codex/otimize-metricas-validacao`
+  (`089cd9b`), com 7 commits de diário e script operacional sobre `c73302e`. A branch
+  `etapa-2-experimental` estava em `88634ed`, com checkout no worktree executor. Não havia
+  processos da fila nem Python ativos.
+- **Auditoria `auditoria-runs-2b-001`:** 181,5 s, exit 0, via `run-step.ps1`, script
+  `execucao/verificacoes/auditar_runs_2b.py`.
+  - Checksums recalculados nas 16 runs: 54 arquivos por principal e 26 por sensibilidade,
+    sem divergência, ausência ou arquivo fora da lista.
+  - As 8 sensibilidades congelam a principal correta: SHA-256 dos 8 modelos igual ao da
+    principal, limiares e calibração idênticos, `models_retrained=false`, sem pasta `models/`
+    e sem `fit_seconds`.
+  - Tuning e calibração com linhas idênticas às populações medidas; `validation_rows` igual ao
+    `prediction_rows` medido nas 8 principais. As razões de amostragem e prevalências estão na
+    entrada de registro tardio acima.
+- **Duração e memória das principais:** eólica V2–V4 de 4.072 a 5.067 s; solar V1–V4 de 1.840
+  a 4.340 s. Pico máximo de processo de 24,06 GiB (solar V4), acima do alvo de 20 GiB da
+  projeção, sem acionar a vigia de memória. Nas 7 runs com marcadores, preparação e treino
+  ocupam de 58% a 82% da duração.
+- **Checks +24h:** eólica e solar com 18/18.
+- **Relatórios `delay-*`:** faltam 6 recortes, mas o recorte global está presente.
+- **Inventário `inventario-2b-001`:** 90,8 s; 8.133 arquivos e 67,3 GB; 640 hashes
+  reaproveitados dos checksums verificados e 7.493 calculados.
+- **Achados factuais para a 2C (não interpretados):**
+  - `volume_condicional-lightgbm` solar selecionou `n_estimators=1` em V3 e V4;
+  - recall de REL dos modelos de causa próximo de zero;
+  - baselines de causa `ultimo_valor` e `mesmo_horario_recente` idênticos nas 8 runs;
+  - métricas nulas sem motivo gravado em recortes de classe única.
+
+### Interpretação e decisão
+
+- **Integração:** desde `c73302e`, a branch codex não altera Python. O worktree da fila foi
+  removido (nenhuma run depende dele), a branch `execucao/fila-2b` foi apagada (sem commits
+  próprios) e o merge `--no-ff` `1fba2f6` integrou a branch em `etapa-2-experimental`.
+  `git diff 88634ed HEAD -- src tests configs` saiu vazio. Por isso **não** se reexecutou
+  pytest nem ruff: o código é o mesmo já testado, conforme a orientação de evitar
+  verificações redundantes.
+- **Pico de 24,06 GiB:** registrado como fato. A regra de 20 GiB era uma projeção para escolher
+  a taxa; a execução real não falhou nem entrou em thrashing.
+- **Relatório factual:** fica em `handoff/relatorio-etapa-2b.md`, com cópia em
+  `docs/reports/stage2b/execution-report.md`. Ele traz as tabelas globais por tarefa, família e
+  baseline, sem ranking, e não aplica o §11.
+
+### Alternativas consideradas
+
+- **Recalcular os hashes das runs no inventário:** descartado, porque a auditoria acabara de
+  verificá-los.
+- **Rodar de novo a suíte após o merge:** descartado, porque o código Python é idêntico.
+- **Calcular as médias e os estados do §11:** adiado para a 2C, porque é decisão de análise.
+
+### Implementação e validação
+
+- `execucao/run-index.json` atualizado com as 22 entradas: 16 concluídas, 4 tentativas com
+  status próprio, piloto eólico e piloto solar `dispensada`. Backup em
+  `verificacoes/run-index.pre-sessao05.json`.
+- Commits: `1fba2f6` (merge), `0452d68` (registro tardio da contingência) e `dba5fe4`
+  (relatório e prompt versionados).
+- Hashes do handoff em `handoff/SHA256SUMS-handoff.txt`.
+
+### Limitações e incertezas
+
+- A auditoria confirma a integridade e a coerência das populações, não a qualidade científica
+  dos modelos.
+- Faltam as agregações por entidade, a energia diária, a incerteza semanal e a interseção
+  principal/+24h.
+- As extensões recomendadas não foram executadas.
+- O teste reservado continua fechado.
+
+### Valor para o usuário e para a apresentação
+
+- A 2B entrega 16 runs completas e verificadas, com proveniência por commit e hash, para as
+  duas fontes e as quatro rodadas.
+- Os achados factuais (causa REL, regressor solar com uma árvore) indicam onde o pitch deve ser
+  cauteloso até a análise da 2C.
+
+### Próximos passos
+
+Executar a 2C com `handoff/PROMPT-analise-etapa-2c.md`.
