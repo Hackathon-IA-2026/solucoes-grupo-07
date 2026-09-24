@@ -1360,6 +1360,96 @@ resposta explícita do responsável; enquanto isso, gerar e verificar solar prin
 eólica +24h e solar +24h, um processo pesado por vez. Teste reservado, vencedor, push e
 merge em main continuam bloqueados.
 
+## 2026-09-24 - Etapa 2B: correção e retomada da fila sequencial
+
+### Contexto e pergunta
+
+Após `main-eolica-v1-002` terminar, a fila operacional deveria iniciar as demais rodadas
+sem supervisão, mas nenhum treino permaneceu ativo. A pergunta foi se o problema estava
+nos modelos ou no encadeamento e como retomar sem repetir a V1, que consumiu 3,8 horas.
+
+### Fatos e evidências observados
+
+O `fila.log` registrou a V1 como `ok` às 22h53 de 23/09 e tentou iniciar sete campanhas
+principais e duas gerações de features; todas terminaram em aproximadamente 20 segundos,
+sem criar diretório de passo. Os nove arquivos `*.runner.stderr.log` tinham o mesmo erro
+de binding: `run-step.ps1` recebeu `-run-id` ou `-scenario` como se fossem parâmetros
+próprios. Apesar disso, a versão anterior percorreu os demais itens e escreveu `fila
+concluída`, enquanto o status mostrava 19 passos pendentes.
+
+### Interpretação e decisão
+
+O fato observado é compatível com perda do limite do valor de `-Arguments` quando
+`Start-Process -ArgumentList` recompôs a linha de comando. A decisão foi substituir essa
+fronteira por `System.Diagnostics.ProcessStartInfo.ArgumentList`, que preserva cada
+argumento, e fazer a fila encerrar com erro no primeiro passo inválido. A V1 permanece
+fora da lista de novos passos: seu artefato é apenas validado como dependência concluída.
+
+### Alternativas consideradas
+
+Escapar mais aspas na string de `Start-Process` foi descartado por continuar dependente
+das regras de remontagem de linha de comando do Windows. Reexecutar ou renomear a V1 foi
+descartado porque seu `end.json` e manifesto já estavam completos. Também não se removeu
+nenhum artefato: as tentativas do lançador falharam antes da criação dos passos pendentes.
+
+### Implementação e validação
+
+Foram alterados os scripts operacionais `execucao/fila/fila-2b.ps1` e
+`execucao/status-fila.ps1` no volume dedicado. Além da passagem estruturada de argumentos,
+a fila agora rejeita passo existente que não esteja `ok`, interrompe ao encontrar
+dependência inválida e só registra `fila concluída com sucesso` após todos os passos. O
+status considera o evento de ciclo mais recente e não uma conclusão antiga no arquivo.
+
+Os dois scripts passaram no parser do PowerShell. Um probe isolado confirmou, byte a byte,
+a preservação de um argumento composto de 215 caracteres com espaços, aspas e glob. Na
+retomada às 01h57, a fila registrou `main-eolica-v1-002 terminou -> ok` e iniciou diretamente
+`main-eolica-v2-001`. O novo `start.json` registra commit `560ae70`, árvore limpa e o comando
+esperado; os processos `run-step`, `uv`, `curtamap-experiment` e Python permaneceram ativos,
+sem conteúdo no stderr da fila.
+
+### Limitações e incertezas
+
+A validação confirma o lançador e o início da V2, não a conclusão do treino longo nem as
+métricas do modelo. A fila continua sujeita a falhas reais de dados, modelo, disco ou
+memória; nesses casos agora deve parar no primeiro erro, preservando evidência para retomada.
+
+### Valor para o usuário e para a apresentação
+
+A correção evita repetir uma execução cara já concluída e reduz o risco de horas perdidas
+com uma fila que aparenta sucesso. O registro também separa claramente uma falha operacional
+do lançador de uma falha metodológica ou dos modelos.
+
+### Próximos passos
+
+Monitorar `main-eolica-v2-001` pelo `status-fila.ps1`; ao término, confirmar a transição
+para V3 e, ao fim da sequência, auditar manifests, métricas e uso de recursos de cada passo.
+
+### Correção subsequente da retomada
+
+A checagem posterior corrigiu a conclusão provisória acima: `main-eolica-v2-001` chegou ao
+CLI, mas o preflight encerrou antes do treino porque o worktree estava na branch
+`execucao/fila-2b`, enquanto o código exige literalmente `etapa-2-experimental`. O passo
+durou 30,4 segundos, teve exit 1 e não produziu manifesto; V3 não foi iniciada, confirmando
+o novo comportamento fail-fast.
+
+O `start.json` da V1 mostrou que ela havia sido executada no workspace principal, na branch
+exigida, e não no worktree inicialmente configurado para a fila. Como ambos apontavam para
+o mesmo commit `560ae70`, o worktree de execução foi associado à branch
+`etapa-2-experimental` com a opção explícita do Git para branch compartilhada entre
+worktrees; ele permaneceu limpo e no mesmo commit. Para preservar a tentativa falha como
+evidência, a retomada passou a usar o novo ID `main-eolica-v2-002`, e as sensibilidades de
+V2 foram atualizadas implicitamente pelo mapa de dependências para consumir esse novo run.
+
+O preflight isolado passou (`ready=true`) antes da segunda retomada. `main-eolica-v2-002`
+ultrapassou a janela da falha anterior, permaneceu com a cadeia completa de processos ativa,
+stderr vazio e amostra de aproximadamente 10,3 GB de working set da árvore às 02h00. O
+status também passou a consultar o PID gravado no evento de início, pois a inicialização
+durável por `EncodedCommand` não expõe o nome do script na linha de comando do processo.
+
+Limitação operacional: enquanto dois worktrees compartilham a mesma branch, não se deve
+alterar o HEAD por commit, merge ou switch durante os treinos. O workspace dedicado é o
+executor congelado; qualquer evolução de código deve aguardar a fila ou usar outra branch.
+
 
 ## 2026-09-24 - Reduza o custo das métricas da validação completa
 
@@ -1426,3 +1516,328 @@ de sensibilidade continuam custando tempo. Ganhos totais precisam ser observados
 run completo. Confirmar o marcador aplicado e code_commit no próximo start.json e comparar
 sua duração, sem reexecutar uma rodada apenas para benchmark. O diário já tinha uma entrada
 não commitada de outra sessão; ela foi preservada fora deste commit.
+
+
+## 2026-09-24 - Reinicie V2 com as métricas otimizadas e libere a fila
+
+### Contexto e decisão
+
+O responsável solicitou explicitamente cancelar a V2 ainda em andamento, reiniciá-la com
+a otimização c73302e e remover o marcador PARAR para seguir automaticamente até o fim da
+fila. A decisão substitui a ativação originalmente planejada apenas entre V2 e V3.
+
+### Fatos observados e implementação
+
+Às 02h22, a árvore da fila PID 5372 foi encerrada, incluindo o runner, uv e Python da
+`main-eolica-v2-002`. A tentativa foi preservada com artefatos parciais, INTERRUPCAO.txt
+e end.json com exit_code=1 e interrupted_by_user=true; não deve ser usada como run completo.
+O executor recebeu fast-forward de 560ae70 para c73302e, com árvore limpa e solicitação
+de atualização consumida. O arquivo `execucao/fila/PARAR` foi removido.
+
+O lançador passou a usar `main-eolica-v2-003`, atualizando pelo mesmo mapa a dependência
+da sensibilidade de V2. V1 permanece concluída, sem repetição. O status inclui a tentativa
+nova e identifica a anterior como CANCEL. Foram preservados backups dos scripts operacionais.
+
+Às 02h23min04s (America/Sao_Paulo), a fila foi reiniciada em segundo plano com PID 34752.
+O start.json da V2-003 confirma commit c73302e175e015c20cd6bd7e86276ff5920da344 e git_status_short
+vazio. O manifesto também confirma esse commit. Aos 30 segundos, a árvore consumia cerca
+de 10,3 GB de working set; fila e uv estavam ativos, stderr vazio e nenhum end.json existia.
+Os 19 passos incluem as campanhas restantes, geração/verificação dos datasets +24h e as
+oito sensibilidades. Não há parada programada entre V2 e V3; falhas reais ainda param a fila.
+
+### Validação, limitações e próximos passos
+
+Os scripts alterados passaram no parser do PowerShell; foram verificados início real,
+commit, manifesto, processos, amostra de recursos e ausência de PARAR. Não se repetiram
+os testes de modelos: este ajuste é operacional e o código otimizado não mudou.
+Os resultados parciais antigos não foram excluídos ou apresentados como concluídos.
+O status running do manifesto antigo não foi reescrito; seu cancelamento está documentado
+no end.json e INTERRUPCAO.txt do passo, consultados pelo status da fila.
+
+O benefício é aplicar a redução do custo das métricas já na V2 e dispensar intervenção
+entre rodadas. A aceleração do cálculo de causa não é um fator de aceleração do treino
+inteiro. Próximo passo: observar as conclusões reais e a transição automática, sem prometer
+horário de término antes de uma rodada completa com a otimização.
+
+
+## 2026-09-24 - Corrija o diagnóstico de duração da V2: execução desapareceu
+
+Às 06h09–06h10, a pedido do responsável, foram consultados logs, artefatos, processos e
+os eventos do Windows. A V2-003 NÃO estava em execução: não havia fila PID 34752, uv PID
+21600 ou processos Python/curtamap. O início foi 02h23min04,855s e a última amostra foi
+02h26min36,324s (3min31,469s depois). Não existe end.json, relatório, modelo persistido ou
+previsão; apenas manifest.json com status running, que está desatualizado. O stderr contém
+somente aviso de depreciação do LightGBM, gravado às 02h26min19s. Não é possível recuperar
+o tempo exato de treino nem o instante exato de encerramento a partir desses registros.
+
+O evento System/WindowsUpdateClient 43 registra início de instalação de uma atualização
+OpenAI.Codex às 02h26min55s; o evento 19 confirma conclusão às 02h28min29s. O último boot
+foi 15/09/2026, portanto não houve reinício do Windows nesse intervalo. Interpretação:
+a proximidade temporal é compatível com encerramento da árvore por atualização do app,
+mas não prova a causa. O desaparecimento sem end.json e a interrupção conjunta das amostras
+indicam encerramento externo, não lentidão comprovada das métricas. Não houve intervenção
+para reiniciar nesta consulta de diagnóstico.
+
+Correção da conclusão anterior: processos ativos aos 30 segundos comprovavam somente o
+início; não demonstravam sobrevivência da fila ao encerramento/atualização do lançador.
+As horas desde 02h23 não representam horas contínuas de processamento. A V2 não produziu
+evidência que permita medir o ganho das métricas. A V1 concluída registrou soma de
+fit_seconds=1308,886491 s (21min49s, incluindo seleção e calibração dentro de train_family)
+e duração total=13835,3 s (3h50min35s). A diferença de 3h28min46s inclui preparação,
+leitura, inferência, métricas e escrita; não deve ser chamada somente de tempo de métricas.
+
+Valor e próximos passos: evitar atribuir a perda de tempo à otimização sem medição.
+A retomada precisa de um lançador independente do ciclo de vida do app e de detecção
+explícita de processos ausentes no status. Preservar V2-003 como tentativa incompleta;
+registrar marcos de fase em futuras execuções para separar custos com precisão.
+
+
+## 2026-09-24 - Torne a fila independente do app e retome a V2 como V2-004
+
+### Contexto e pergunta
+
+A V2-003 desapareceu cerca de 3,5 minutos depois de iniciar, e o diagnóstico das 06h09 deixou
+a atualização do Codex como hipótese. As perguntas foram três: o que encerrou a árvore de
+processos; como executar a fila de modo que ela não dependa do aplicativo que a lançou; e
+como retomar sem sobrescrever tentativas nem repetir a V1.
+
+### Fatos e evidências observados
+
+- Na checagem inicial desta sessão, não havia fila, `uv`, Python nem tarefa agendada ativos. Não havia risco de
+  iniciar uma segunda fila.
+- Janela do encerramento: a amostragem de `run-step.ps1` gravou a última linha às
+  02h26min36,3s. A próxima era esperada por volta de 02h27min06s e não existe.
+- Não existe `end.json`. Como `run-step.ps1` o escreve sempre que o `uv` termina, a ausência
+  indica que fila, runner, `uv` e Python morreram juntos, e não só o Python.
+- `Microsoft-Windows-AppXDeploymentServer/Operational`:
+  - 02h26min55,111s: `RegisterByPackageFamilyName` do pacote `OpenAI.Codex`, com a opção
+    `ForceTargetApplicationShutdownOption`, atualizando da versão 26.917.8451.0 para a
+    26.917.9434.0. Esse horário está dentro da janela do encerramento.
+  - 02h28min28,9s: eventos `TerminateApplications`. No mesmo instante,
+    `AppModel-Runtime/Admin` registra a destruição dos contêineres Desktop AppX do pacote
+    antigo.
+- Ao consultar os processos atuais com `IsProcessInJob` e `GetPackageFullName`:
+  - `ChatGPT.exe` tem identidade de pacote e está em um Job Object.
+  - `codex.exe` e todos os filhos dele (`cmd`, `node`, `conhost`) estão em um Job Object,
+    sem identidade de pacote.
+  - `Start-Process` não pede breakaway. Por isso a fila anterior, lançada de um shell do
+    Codex, herdou esse Job.
+- Todos os `ChatGPT.exe` atuais foram criados às 06h07, ou seja, o app ficou fechado desde
+  a atualização.
+- Não há auditoria de término de processos (`Process Termination`) nem reboot pendente
+  (`RebootRequired` e `RebootPending` ausentes).
+
+### Interpretação e decisão
+
+**Causa (hipótese fortemente sustentada, não confirmada):** a atualização forçada do pacote
+Codex fechou o app, e a árvore da fila, que estava dentro do Job dos processos do app, foi
+encerrada junto. A coincidência de horário (02h26min55 dentro da janela de cerca de 30 s),
+o fato de a árvore inteira ter morrido e a herança de Job observada sustentam a hipótese.
+Sem auditoria de término, não se pode confirmar qual processo encerrou a árvore nem o
+instante exato. Também não foi possível separar "Job fechado com kill-on-close" de
+"término forçado do pacote". Isso não muda a correção, que vale para os dois casos.
+
+**Decisão:** a fila passa a rodar pelo Agendador de Tarefas do Windows, cujo pai é o
+serviço Schedule, fora de qualquer app. A tarefa `CurtaMap-Fila-2B` é registrada pelo
+script `scripts/register-queue-task.ps1`, com cópia em `execucao/`, e tem:
+
+- prioridade 4 (normal): o padrão 7 rebaixaria CPU, I/O e memória e invalidaria a
+  comparação de duração com a V1;
+- sem limite de execução (o padrão encerraria a fila em 72 h);
+- sem restrições de bateria ou ociosidade;
+- `IgnoreNew`, que impede duas instâncias simultâneas;
+- nenhum gatilho automático;
+- logon Interactive, sem senha armazenada;
+- a saída do próprio `pwsh` gravada em `fila/fila-tarefa.log`.
+
+### Alternativas consideradas
+
+- **`Start-Process` com `CREATE_BREAKAWAY_FROM_JOB`:** descartado. Depende de o Job do app
+  permitir breakaway, e o processo continuaria descendendo do app.
+- **Serviço do Windows ou tarefa com S4U/senha:** adiado. Exige privilégio ou credencial
+  armazenada; como as unidades são locais, o logon Interactive basta enquanto a sessão
+  estiver aberta.
+- **Gatilho de logon para retomada automática:** descartado. A fila recusa passo existente
+  e incompleto, então uma retomada cega pararia com erro e confundiria o log.
+
+### Implementação e validação
+
+- **Marcos de fase (commit `88634ed`, branch `etapa-2-experimental`):**
+  - `run_campaign_round` grava no stderr `[curtamap-fase] <horário> <fase>` para
+    `preparacao`, `treino`, `previsao`, `modelos_metricas`, `pipelines`, `baselines`,
+    `relatorio` e `fim`.
+  - Ciclo TDD: o teste falhou antes da implementação. Depois dela, os 8 testes de campanha
+    passaram, incluindo a paridade de artefatos com o oráculo congelado. Ruff sem apontamentos.
+  - Modelos, dados, limiares e métricas não mudaram.
+- **Scripts operacionais (cópias `.before-v2-004` preservadas):**
+  - `run-step.ps1` grava `pid_started_at`, `runner_pid` e `runner_started_at`.
+  - `fila-2b.ps1` usa `main-eolica-v2-004`; `delay-eolica-v2-001` passa a depender dela
+    pelo mapa de dependências. A fila também grava `fila.lock.json` com PID, hora de
+    criação e pai.
+  - `status-fila.ps1` só mostra RODANDO quando PID e hora de criação coincidem, com
+    tolerância de 2 s nos registros novos e 15 s nos legados. Isso impede que um PID
+    reutilizado conte como processo ativo. Passo sem `end.json` e sem processo aparece como
+    `INTERROMP`. O status também mostra o estado da tarefa agendada e deixou de procurar
+    `fila-2b.ps1` na linha de comando, busca que acertava qualquer shell que citasse o nome.
+- **V2-003:** recebeu `INTERRUPCAO.txt` com o diagnóstico. Não foi criado `end.json`
+  sintético, porque o horário de fim é desconhecido, e o `manifest.json` em `experimentos`
+  não foi alterado.
+- **Teste descartável de independência:**
+  1. Um `pwsh` lançador registrou e disparou uma tarefa de teste, que gerou um neto via
+     `ProcessStartInfo`, como faz a fila. O lançador foi encerrado à força às 06h21min52s.
+  2. O neto continuou gravando heartbeat depois disso (até 06h22min17s, na última checagem).
+  3. A ancestralidade do neto é `pwsh → pwsh → svchost (Schedule)`, sem `codex` nem `claude`.
+  4. O ambiente visto pela tarefa foi conferido: `uv`, `git`, `env.ps1` e prioridade Normal.
+  5. A tarefa de teste foi removida.
+- **Achado operacional:** `Stop-ScheduledTask` encerrou apenas o processo raiz, e o neto
+  continuou vivo. Para parar a fila, continue usando o marcador `fila/PARAR`, nunca
+  `Stop-ScheduledTask`.
+- **Retomada real às 06h22min54s:**
+  - fila no PID 34928, com pai `svchost (Schedule)`;
+  - `main-eolica-v2-004` no commit `88634ed`, com árvore limpa;
+  - marcos `preparacao` (06h22min58s) e `treino` (06h23min03s) já registrados.
+
+### Limitações e incertezas
+
+- A causa segue como hipótese fortemente sustentada.
+- O teste não reproduziu uma atualização do Codex; ele demonstrou independência pela
+  ancestralidade e pela sobrevivência ao encerramento do lançador.
+- Logoff, reinício do Windows (inclusive por atualização fora das horas ativas, 11h–4h),
+  falta de energia ou falta de memória ainda interrompem a fila.
+- Os marcos cobrem apenas `campaign-round`, não as sensibilidades.
+- Suspensão e hibernação estão desativadas no plano de energia atual (tempo limite 0 na tomada
+  e na bateria). O único retorno de suspensão nas últimas 48 h foi em 22/09 às 12h05, antes
+  das execuções analisadas. Pausas por suspensão não afetam as durações medidas, desde que o
+  plano não mude. Os arquivos de `execucao/verificacoes/teste-duravel/` ficam preservados como
+  evidência do teste.
+- Nenhuma duração da V2 com a otimização foi medida até aqui. Não há previsão de término.
+
+### Valor para o usuário e para a apresentação
+
+Uma campanha de muitas horas deixa de depender de o app de desenvolvimento continuar aberto.
+Os marcos de fase permitirão dizer, com medição, quanto do tempo vai para treino, previsão e
+métricas, em vez de atribuir toda a diferença da V1 às métricas. Isso sustenta a narrativa
+de engenharia reprodutível e rastreável.
+
+### Próximos passos
+
+- Acompanhar pelo `status-fila.ps1`.
+- Ao fim da V2-004, comparar as durações por fase com a V1: a V1 só tem o total e
+  `fit_seconds`, então a comparação por fase só estará completa a partir da V2-004.
+- Confirmar a transição automática para V3.
+- Estender os marcos às sensibilidades se o custo delas se mostrar relevante.
+
+## 24/09/2026 — Fila parada no check noturno_mais_24h eólico por erro de passagem de argumento
+
+### Contexto e pergunta
+
+A fila parou logo depois de `features-noturno_mais_24h-eolica-development-001`. O status mostrava
+essa geração como `OK`, mas com `status=-`. O log de `check-noturno_mais_24h-eolica-001` registrava
+`terminou -> ` sem resultado. As perguntas eram: a geração de features terminou? Por que a fila parou?
+
+### Fatos e evidências observados
+
+- `passos/features-noturno_mais_24h-eolica-development-001/end.json`: `exit_code` 0, de 13h26min54
+  a 15h30min22, 7.407,9 s. O stdout informa 1.882 arquivos e 1.357.293.312 linhas de baseline.
+  `status=-` só indica que passos de features não têm `manifest.json`, então não é falha.
+- `fila/check-noturno_mais_24h-eolica-001.runner.stderr.log`: `run-step.ps1: Falta um argumento
+  para o parâmetro 'Arguments'`. O diretório `passos/check-...` não foi criado, e o `end.json`
+  também não. Por isso o resultado ficou vazio e a fila parou em 15h30min44.
+- Reprodução em script descartável: sob `pwsh -File`, o valor `-m curtamap.experimental...`
+  passado como item separado depois de `-Arguments` foi lido como nome de parâmetro, e o erro se
+  repetiu. Com a forma `-Arguments:<valor>`, o valor chegou intacto.
+
+### Interpretação e decisão
+
+**Causa (confirmada por reprodução):** a troca de `Start-Process` por
+`ProcessStartInfo.ArgumentList`, feita para preservar argumentos, expôs uma regra do `pwsh -File`:
+um valor iniciado por `-` vira nome de parâmetro. Só o check usa argumentos que começam com `-m`,
+porque roda `uv run python -m ...`. Por isso os passos `campaign-round` e `build-features` não
+foram afetados.
+
+**Decisão:** `fila-2b.ps1` passa a enviar `-Arguments:<valor>` em um único item. O backup ficou em
+`fila-2b.ps1.before-check-fix`.
+
+### Alternativas consideradas
+
+Colocar `-m` no prefixo (`run python -m`) também resolveria, mas só para esse caso. A forma com
+dois-pontos vale para qualquer passo futuro.
+
+### Implementação e validação
+
+- O script alterado não tem erros de parse.
+- A tarefa `CurtaMap-Fila-2B` foi religada às 17h08min52. Os 8 passos concluídos foram pulados
+  como `ok`, e `check-noturno_mais_24h-eolica-001` foi iniciado. Desta vez o diretório do passo
+  foi criado, então o `run-step.ps1` aceitou os parâmetros.
+- O resultado do check ainda não é conhecido.
+
+### Limitações e incertezas
+
+- `check-noturno_mais_24h-fotovoltaica-001` usa a mesma forma e deve se beneficiar da correção,
+  mas ainda não rodou.
+- Perdeu-se cerca de 1h38min de fila ociosa, de 15h30 a 17h08.
+
+### Valor para o usuário e para a apresentação
+
+É um detalhe operacional sem efeito sobre modelos ou métricas. Ele reforça a prática de exigir um
+`end.json` por passo: a fila parou em vez de seguir para as sensibilidades com um dataset não
+verificado.
+
+### Próximos passos
+
+- Acompanhar o check eólico e, em seguida, as sensibilidades `delay-eolica-*`.
+
+## 24/09/2026 — Fila 2B concluída após a correção do check
+
+### Contexto e pergunta
+
+Esta entrada continua a anterior. A dúvida era se os passos restantes da fila (checks e
+sensibilidades `delay-*`) rodariam sem nova falha depois da correção de `-Arguments:<valor>`.
+
+### Fatos e evidências observados
+
+Horários de término e resultados vêm de `execucao/fila/fila.log`. As durações foram calculadas
+entre o início e o fim registrados no log.
+
+| Passo | Término | Duração | Resultado |
+|---|---|---|---|
+| `check-noturno_mais_24h-eolica-001` | 17h14 | 5 min | ok |
+| `delay-eolica-v1-001` | 17h34 | 20 min | ok |
+| `delay-eolica-v2-001` | 17h59 | 26 min | ok |
+| `delay-eolica-v3-001` | 18h24 | 25 min | ok |
+| `delay-eolica-v4-001` | 18h47 | 23 min | ok |
+| `features-noturno_mais_24h-fotovoltaica-development-001` | 19h24 | 37 min | ok |
+| `check-noturno_mais_24h-fotovoltaica-001` | 19h26 | 2 min | ok |
+| `delay-fotovoltaica-v1-001` | 19h36 | 11 min | ok |
+| `delay-fotovoltaica-v2-001` | 19h47 | 10 min | ok |
+| `delay-fotovoltaica-v3-001` | 19h59 | 12 min | ok |
+| `delay-fotovoltaica-v4-001` | 20h11 | 13 min | ok |
+
+Às 20h11min47 o log registrou `fila concluída com sucesso`.
+
+### Interpretação e decisão
+
+- A correção valeu para os dois checks.
+- As sensibilidades `sensitivity-round` rodaram pela primeira vez com o volume real e terminaram
+  sem erro.
+- Nenhuma métrica de sensibilidade foi analisada nesta entrada.
+
+### Implementação e validação
+
+Um monitor de sessão acompanhou `fila.log` e o estado da tarefa agendada. Não houve queda, parada
+por `PARAR` nem intervenção da vigia de memória.
+
+### Limitações e incertezas
+
+- `ok` significa `exit_code` 0 e, quando existe `manifest.json`, `status=complete`. Isso não valida
+  o conteúdo científico dos resultados.
+
+### Valor para o usuário e para a apresentação
+
+Os artefatos principais e de sensibilidade da Etapa 2B estão completos para as duas fontes. Com
+isso, a análise de robustez ao atraso de dados pode entrar no pitch.
+
+### Próximos passos
+
+- Analisar os relatórios `delay-*` contra os runs `main-*` congelados.
+- Comparar as durações por fase da V2-004 com as da V1.
