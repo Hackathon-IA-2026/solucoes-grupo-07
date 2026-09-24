@@ -1360,6 +1360,96 @@ resposta explícita do responsável; enquanto isso, gerar e verificar solar prin
 eólica +24h e solar +24h, um processo pesado por vez. Teste reservado, vencedor, push e
 merge em main continuam bloqueados.
 
+## 2026-09-24 - Etapa 2B: correção e retomada da fila sequencial
+
+### Contexto e pergunta
+
+Após `main-eolica-v1-002` terminar, a fila operacional deveria iniciar as demais rodadas
+sem supervisão, mas nenhum treino permaneceu ativo. A pergunta foi se o problema estava
+nos modelos ou no encadeamento e como retomar sem repetir a V1, que consumiu 3,8 horas.
+
+### Fatos e evidências observados
+
+O `fila.log` registrou a V1 como `ok` às 22h53 de 23/09 e tentou iniciar sete campanhas
+principais e duas gerações de features; todas terminaram em aproximadamente 20 segundos,
+sem criar diretório de passo. Os nove arquivos `*.runner.stderr.log` tinham o mesmo erro
+de binding: `run-step.ps1` recebeu `-run-id` ou `-scenario` como se fossem parâmetros
+próprios. Apesar disso, a versão anterior percorreu os demais itens e escreveu `fila
+concluída`, enquanto o status mostrava 19 passos pendentes.
+
+### Interpretação e decisão
+
+O fato observado é compatível com perda do limite do valor de `-Arguments` quando
+`Start-Process -ArgumentList` recompôs a linha de comando. A decisão foi substituir essa
+fronteira por `System.Diagnostics.ProcessStartInfo.ArgumentList`, que preserva cada
+argumento, e fazer a fila encerrar com erro no primeiro passo inválido. A V1 permanece
+fora da lista de novos passos: seu artefato é apenas validado como dependência concluída.
+
+### Alternativas consideradas
+
+Escapar mais aspas na string de `Start-Process` foi descartado por continuar dependente
+das regras de remontagem de linha de comando do Windows. Reexecutar ou renomear a V1 foi
+descartado porque seu `end.json` e manifesto já estavam completos. Também não se removeu
+nenhum artefato: as tentativas do lançador falharam antes da criação dos passos pendentes.
+
+### Implementação e validação
+
+Foram alterados os scripts operacionais `execucao/fila/fila-2b.ps1` e
+`execucao/status-fila.ps1` no volume dedicado. Além da passagem estruturada de argumentos,
+a fila agora rejeita passo existente que não esteja `ok`, interrompe ao encontrar
+dependência inválida e só registra `fila concluída com sucesso` após todos os passos. O
+status considera o evento de ciclo mais recente e não uma conclusão antiga no arquivo.
+
+Os dois scripts passaram no parser do PowerShell. Um probe isolado confirmou, byte a byte,
+a preservação de um argumento composto de 215 caracteres com espaços, aspas e glob. Na
+retomada às 01h57, a fila registrou `main-eolica-v1-002 terminou -> ok` e iniciou diretamente
+`main-eolica-v2-001`. O novo `start.json` registra commit `560ae70`, árvore limpa e o comando
+esperado; os processos `run-step`, `uv`, `curtamap-experiment` e Python permaneceram ativos,
+sem conteúdo no stderr da fila.
+
+### Limitações e incertezas
+
+A validação confirma o lançador e o início da V2, não a conclusão do treino longo nem as
+métricas do modelo. A fila continua sujeita a falhas reais de dados, modelo, disco ou
+memória; nesses casos agora deve parar no primeiro erro, preservando evidência para retomada.
+
+### Valor para o usuário e para a apresentação
+
+A correção evita repetir uma execução cara já concluída e reduz o risco de horas perdidas
+com uma fila que aparenta sucesso. O registro também separa claramente uma falha operacional
+do lançador de uma falha metodológica ou dos modelos.
+
+### Próximos passos
+
+Monitorar `main-eolica-v2-001` pelo `status-fila.ps1`; ao término, confirmar a transição
+para V3 e, ao fim da sequência, auditar manifests, métricas e uso de recursos de cada passo.
+
+### Correção subsequente da retomada
+
+A checagem posterior corrigiu a conclusão provisória acima: `main-eolica-v2-001` chegou ao
+CLI, mas o preflight encerrou antes do treino porque o worktree estava na branch
+`execucao/fila-2b`, enquanto o código exige literalmente `etapa-2-experimental`. O passo
+durou 30,4 segundos, teve exit 1 e não produziu manifesto; V3 não foi iniciada, confirmando
+o novo comportamento fail-fast.
+
+O `start.json` da V1 mostrou que ela havia sido executada no workspace principal, na branch
+exigida, e não no worktree inicialmente configurado para a fila. Como ambos apontavam para
+o mesmo commit `560ae70`, o worktree de execução foi associado à branch
+`etapa-2-experimental` com a opção explícita do Git para branch compartilhada entre
+worktrees; ele permaneceu limpo e no mesmo commit. Para preservar a tentativa falha como
+evidência, a retomada passou a usar o novo ID `main-eolica-v2-002`, e as sensibilidades de
+V2 foram atualizadas implicitamente pelo mapa de dependências para consumir esse novo run.
+
+O preflight isolado passou (`ready=true`) antes da segunda retomada. `main-eolica-v2-002`
+ultrapassou a janela da falha anterior, permaneceu com a cadeia completa de processos ativa,
+stderr vazio e amostra de aproximadamente 10,3 GB de working set da árvore às 02h00. O
+status também passou a consultar o PID gravado no evento de início, pois a inicialização
+durável por `EncodedCommand` não expõe o nome do script na linha de comando do processo.
+
+Limitação operacional: enquanto dois worktrees compartilham a mesma branch, não se deve
+alterar o HEAD por commit, merge ou switch durante os treinos. O workspace dedicado é o
+executor congelado; qualquer evolução de código deve aguardar a fila ou usar outra branch.
+
 
 ## 2026-09-24 - Reduza o custo das métricas da validação completa
 
@@ -1468,3 +1558,35 @@ O benefício é aplicar a redução do custo das métricas já na V2 e dispensar
 entre rodadas. A aceleração do cálculo de causa não é um fator de aceleração do treino
 inteiro. Próximo passo: observar as conclusões reais e a transição automática, sem prometer
 horário de término antes de uma rodada completa com a otimização.
+
+
+## 2026-09-24 - Corrija o diagnóstico de duração da V2: execução desapareceu
+
+Às 06h09–06h10, a pedido do responsável, foram consultados logs, artefatos, processos e
+os eventos do Windows. A V2-003 NÃO estava em execução: não havia fila PID 34752, uv PID
+21600 ou processos Python/curtamap. O início foi 02h23min04,855s e a última amostra foi
+02h26min36,324s (3min31,469s depois). Não existe end.json, relatório, modelo persistido ou
+previsão; apenas manifest.json com status running, que está desatualizado. O stderr contém
+somente aviso de depreciação do LightGBM, gravado às 02h26min19s. Não é possível recuperar
+o tempo exato de treino nem o instante exato de encerramento a partir desses registros.
+
+O evento System/WindowsUpdateClient 43 registra início de instalação de uma atualização
+OpenAI.Codex às 02h26min55s; o evento 19 confirma conclusão às 02h28min29s. O último boot
+foi 15/09/2026, portanto não houve reinício do Windows nesse intervalo. Interpretação:
+a proximidade temporal é compatível com encerramento da árvore por atualização do app,
+mas não prova a causa. O desaparecimento sem end.json e a interrupção conjunta das amostras
+indicam encerramento externo, não lentidão comprovada das métricas. Não houve intervenção
+para reiniciar nesta consulta de diagnóstico.
+
+Correção da conclusão anterior: processos ativos aos 30 segundos comprovavam somente o
+início; não demonstravam sobrevivência da fila ao encerramento/atualização do lançador.
+As horas desde 02h23 não representam horas contínuas de processamento. A V2 não produziu
+evidência que permita medir o ganho das métricas. A V1 concluída registrou soma de
+fit_seconds=1308,886491 s (21min49s, incluindo seleção e calibração dentro de train_family)
+e duração total=13835,3 s (3h50min35s). A diferença de 3h28min46s inclui preparação,
+leitura, inferência, métricas e escrita; não deve ser chamada somente de tempo de métricas.
+
+Valor e próximos passos: evitar atribuir a perda de tempo à otimização sem medição.
+A retomada precisa de um lançador independente do ciclo de vida do app e de detecção
+explícita de processos ausentes no status. Preservar V2-003 como tentativa incompleta;
+registrar marcos de fase em futuras execuções para separar custos com precisão.
