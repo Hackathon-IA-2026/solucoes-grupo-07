@@ -1590,3 +1590,134 @@ Valor e próximos passos: evitar atribuir a perda de tempo à otimização sem m
 A retomada precisa de um lançador independente do ciclo de vida do app e de detecção
 explícita de processos ausentes no status. Preservar V2-003 como tentativa incompleta;
 registrar marcos de fase em futuras execuções para separar custos com precisão.
+
+
+## 2026-09-24 - Torne a fila independente do app e retome a V2 como V2-004
+
+### Contexto e pergunta
+
+A V2-003 desapareceu cerca de 3,5 minutos depois de iniciar, e o diagnóstico das 06h09 deixou
+a atualização do Codex como hipótese. As perguntas foram três: o que encerrou a árvore de
+processos; como executar a fila de modo que ela não dependa do aplicativo que a lançou; e
+como retomar sem sobrescrever tentativas nem repetir a V1.
+
+### Fatos e evidências observados
+
+- Às 06h20 não havia fila, `uv`, Python nem tarefa agendada ativos. Não havia risco de
+  iniciar uma segunda fila.
+- Janela do encerramento: a amostragem de `run-step.ps1` gravou a última linha às
+  02h26min36,3s. A próxima era esperada por volta de 02h27min06s e não existe.
+- Não existe `end.json`. Como `run-step.ps1` o escreve sempre que o `uv` termina, a ausência
+  indica que fila, runner, `uv` e Python morreram juntos, e não só o Python.
+- `Microsoft-Windows-AppXDeploymentServer/Operational`:
+  - 02h26min55,111s: `RegisterByPackageFamilyName` do pacote `OpenAI.Codex`, com a opção
+    `ForceTargetApplicationShutdownOption`, atualizando da versão 26.917.8451.0 para a
+    26.917.9434.0. Esse horário está dentro da janela do encerramento.
+  - 02h28min28,9s: eventos `TerminateApplications`. No mesmo instante,
+    `AppModel-Runtime/Admin` registra a destruição dos contêineres Desktop AppX do pacote
+    antigo.
+- Ao consultar os processos atuais com `IsProcessInJob` e `GetPackageFullName`:
+  - `ChatGPT.exe` tem identidade de pacote e está em um Job Object.
+  - `codex.exe` e todos os filhos dele (`cmd`, `node`, `conhost`) estão em um Job Object,
+    sem identidade de pacote.
+  - `Start-Process` não pede breakaway. Por isso a fila anterior, lançada de um shell do
+    Codex, herdou esse Job.
+- Todos os `ChatGPT.exe` atuais foram criados às 06h07, ou seja, o app ficou fechado desde
+  a atualização.
+- Não há auditoria de término de processos (`Process Termination`) nem reboot pendente
+  (`RebootRequired` e `RebootPending` ausentes).
+
+### Interpretação e decisão
+
+**Causa (hipótese fortemente sustentada, não confirmada):** a atualização forçada do pacote
+Codex fechou o app, e a árvore da fila, que estava dentro do Job dos processos do app, foi
+encerrada junto. A coincidência de horário (02h26min55 dentro da janela de cerca de 30 s),
+o fato de a árvore inteira ter morrido e a herança de Job observada sustentam a hipótese.
+Sem auditoria de término, não se pode confirmar qual processo encerrou a árvore nem o
+instante exato. Também não foi possível separar "Job fechado com kill-on-close" de
+"término forçado do pacote". Isso não muda a correção, que vale para os dois casos.
+
+**Decisão:** a fila passa a rodar pelo Agendador de Tarefas do Windows, cujo pai é o
+serviço Schedule, fora de qualquer app. A tarefa `CurtaMap-Fila-2B` é registrada pelo
+script `scripts/register-queue-task.ps1`, com cópia em `execucao/`, e tem:
+
+- prioridade 4 (normal): o padrão 7 rebaixaria CPU, I/O e memória e invalidaria a
+  comparação de duração com a V1;
+- sem limite de execução (o padrão encerraria a fila em 72 h);
+- sem restrições de bateria ou ociosidade;
+- `IgnoreNew`, que impede duas instâncias simultâneas;
+- nenhum gatilho automático;
+- logon Interactive, sem senha armazenada;
+- a saída do próprio `pwsh` gravada em `fila/fila-tarefa.log`.
+
+### Alternativas consideradas
+
+- **`Start-Process` com `CREATE_BREAKAWAY_FROM_JOB`:** descartado. Depende de o Job do app
+  permitir breakaway, e o processo continuaria descendendo do app.
+- **Serviço do Windows ou tarefa com S4U/senha:** adiado. Exige privilégio ou credencial
+  armazenada; como as unidades são locais, o logon Interactive basta enquanto a sessão
+  estiver aberta.
+- **Gatilho de logon para retomada automática:** descartado. A fila recusa passo existente
+  e incompleto, então uma retomada cega pararia com erro e confundiria o log.
+
+### Implementação e validação
+
+- **Marcos de fase (commit `88634ed`, branch `etapa-2-experimental`):**
+  - `run_campaign_round` grava no stderr `[curtamap-fase] <horário> <fase>` para
+    `preparacao`, `treino`, `previsao`, `modelos_metricas`, `pipelines`, `baselines`,
+    `relatorio` e `fim`.
+  - Ciclo TDD: o teste falhou antes da implementação. Depois dela, os 8 testes de campanha
+    passaram, incluindo a paridade de artefatos com o oráculo congelado. Ruff sem apontamentos.
+  - Modelos, dados, limiares e métricas não mudaram.
+- **Scripts operacionais (cópias `.before-v2-004` preservadas):**
+  - `run-step.ps1` grava `pid_started_at`, `runner_pid` e `runner_started_at`.
+  - `fila-2b.ps1` usa `main-eolica-v2-004`; `delay-eolica-v2-001` passa a depender dela
+    pelo mapa de dependências. A fila também grava `fila.lock.json` com PID, hora de
+    criação e pai.
+  - `status-fila.ps1` só mostra RODANDO quando PID e hora de criação coincidem, com
+    tolerância de 2 s nos registros novos e 15 s nos legados. Isso impede que um PID
+    reutilizado conte como processo ativo. Passo sem `end.json` e sem processo aparece como
+    `INTERROMP`. O status também mostra o estado da tarefa agendada e deixou de procurar
+    `fila-2b.ps1` na linha de comando, busca que acertava qualquer shell que citasse o nome.
+- **V2-003:** recebeu `INTERRUPCAO.txt` com o diagnóstico. Não foi criado `end.json`
+  sintético, porque o horário de fim é desconhecido, e o `manifest.json` em `experimentos`
+  não foi alterado.
+- **Teste descartável de independência:**
+  1. Um `pwsh` lançador registrou e disparou uma tarefa de teste, que gerou um neto via
+     `ProcessStartInfo`, como faz a fila. O lançador foi encerrado à força às 06h21min52s.
+  2. O neto continuou gravando heartbeat depois disso (até 06h22min17s, na última checagem).
+  3. A ancestralidade do neto é `pwsh → pwsh → svchost (Schedule)`, sem `codex` nem `claude`.
+  4. O ambiente visto pela tarefa foi conferido: `uv`, `git`, `env.ps1` e prioridade Normal.
+  5. A tarefa de teste foi removida.
+- **Achado operacional:** `Stop-ScheduledTask` encerrou apenas o processo raiz, e o neto
+  continuou vivo. Para parar a fila, continue usando o marcador `fila/PARAR`, nunca
+  `Stop-ScheduledTask`.
+- **Retomada real às 06h22min54s:**
+  - fila no PID 34928, com pai `svchost (Schedule)`;
+  - `main-eolica-v2-004` no commit `88634ed`, com árvore limpa;
+  - marcos `preparacao` (06h22min58s) e `treino` (06h23min03s) já registrados.
+
+### Limitações e incertezas
+
+- A causa segue como hipótese fortemente sustentada.
+- O teste não reproduziu uma atualização do Codex; ele demonstrou independência pela
+  ancestralidade e pela sobrevivência ao encerramento do lançador.
+- Logoff, reinício do Windows (inclusive por atualização fora das horas ativas, 11h–4h),
+  falta de energia ou falta de memória ainda interrompem a fila.
+- Os marcos cobrem apenas `campaign-round`, não as sensibilidades.
+- Nenhuma duração da V2 com a otimização foi medida até aqui. Não há previsão de término.
+
+### Valor para o usuário e para a apresentação
+
+Uma campanha de muitas horas deixa de depender de o app de desenvolvimento continuar aberto.
+Os marcos de fase permitirão dizer, com medição, quanto do tempo vai para treino, previsão e
+métricas, em vez de atribuir toda a diferença da V1 às métricas. Isso sustenta a narrativa
+de engenharia reprodutível e rastreável.
+
+### Próximos passos
+
+- Acompanhar pelo `status-fila.ps1`.
+- Ao fim da V2-004, comparar as durações por fase com a V1: a V1 só tem o total e
+  `fit_seconds`, então a comparação por fase só estará completa a partir da V2-004.
+- Confirmar a transição automática para V3.
+- Estender os marcos às sensibilidades se o custo delas se mostrar relevante.
