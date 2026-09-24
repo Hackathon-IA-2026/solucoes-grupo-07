@@ -1426,3 +1426,45 @@ de sensibilidade continuam custando tempo. Ganhos totais precisam ser observados
 run completo. Confirmar o marcador aplicado e code_commit no próximo start.json e comparar
 sua duração, sem reexecutar uma rodada apenas para benchmark. O diário já tinha uma entrada
 não commitada de outra sessão; ela foi preservada fora deste commit.
+
+
+## 2026-09-24 - Reinicie V2 com as métricas otimizadas e libere a fila
+
+### Contexto e decisão
+
+O responsável solicitou explicitamente cancelar a V2 ainda em andamento, reiniciá-la com
+a otimização c73302e e remover o marcador PARAR para seguir automaticamente até o fim da
+fila. A decisão substitui a ativação originalmente planejada apenas entre V2 e V3.
+
+### Fatos observados e implementação
+
+Às 02h22, a árvore da fila PID 5372 foi encerrada, incluindo o runner, uv e Python da
+`main-eolica-v2-002`. A tentativa foi preservada com artefatos parciais, INTERRUPCAO.txt
+e end.json com exit_code=1 e interrupted_by_user=true; não deve ser usada como run completo.
+O executor recebeu fast-forward de 560ae70 para c73302e, com árvore limpa e solicitação
+de atualização consumida. O arquivo `execucao/fila/PARAR` foi removido.
+
+O lançador passou a usar `main-eolica-v2-003`, atualizando pelo mesmo mapa a dependência
+da sensibilidade de V2. V1 permanece concluída, sem repetição. O status inclui a tentativa
+nova e identifica a anterior como CANCEL. Foram preservados backups dos scripts operacionais.
+
+Às 02h23min04s (America/Sao_Paulo), a fila foi reiniciada em segundo plano com PID 34752.
+O start.json da V2-003 confirma commit c73302e175e015c20cd6bd7e86276ff5920da344 e git_status_short
+vazio. O manifesto também confirma esse commit. Aos 30 segundos, a árvore consumia cerca
+de 10,3 GB de working set; fila e uv estavam ativos, stderr vazio e nenhum end.json existia.
+Os 19 passos incluem as campanhas restantes, geração/verificação dos datasets +24h e as
+oito sensibilidades. Não há parada programada entre V2 e V3; falhas reais ainda param a fila.
+
+### Validação, limitações e próximos passos
+
+Os scripts alterados passaram no parser do PowerShell; foram verificados início real,
+commit, manifesto, processos, amostra de recursos e ausência de PARAR. Não se repetiram
+os testes de modelos: este ajuste é operacional e o código otimizado não mudou.
+Os resultados parciais antigos não foram excluídos ou apresentados como concluídos.
+O status running do manifesto antigo não foi reescrito; seu cancelamento está documentado
+no end.json e INTERRUPCAO.txt do passo, consultados pelo status da fila.
+
+O benefício é aplicar a redução do custo das métricas já na V2 e dispensar intervenção
+entre rodadas. A aceleração do cálculo de causa não é um fator de aceleração do treino
+inteiro. Próximo passo: observar as conclusões reais e a transição automática, sem prometer
+horário de término antes de uma rodada completa com a otimização.
