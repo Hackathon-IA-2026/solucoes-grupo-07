@@ -2042,3 +2042,22 @@ como fechar a 2B com rastreabilidade, sem repetir verificações já aprovadas.
 ### Próximos passos
 
 Executar a 2C com `handoff/PROMPT-analise-etapa-2c.md`.
+
+### Adendo (mesma sessão 05): inventário substituído
+
+- **Problema:** o `inventario-2b-001` incluiu arquivos que continuaram sendo gravados depois do
+  cálculo do hash: o checkpoint externo e os logs e o `end.json` do próprio passo. Uma
+  conferência posterior acusaria divergências falsas.
+- **Correção:** o `inventario-2b-002` (60,6 s, exit 0, script `inventariar_2b_v2.py`) exclui
+  `handoff/` (coberto por `SHA256SUMS-handoff.txt`), `execucao/CHECKPOINT-*.md` e o diretório
+  do próprio passo. Resultado: 8.133 arquivos, 67.348.497.296 bytes, SHA-256 do CSV
+  `99920bab92ba…`.
+- **O -001 fica preservado** como `handoff/inventario-etapa-2b-001.*` e não deve ser usado para
+  conferência.
+- **Relatório e prompt (commit `f193088`):**
+  - o relatório registra que os picos reais superaram a meta de 20 GiB (24,06 e 22,02 GiB);
+  - o prompt passa a citar os commits de referência e avisa que, fora do Windows, a checagem
+    de congelamento do auditor dá falso negativo, porque os caminhos gravados são absolutos
+    `Y:\…`.
+- **Hashes:** `configuration_sha256` e `data_hashes` foram conferidos nos 16 manifests (antes,
+  só nas 8 principais e em uma sensibilidade).
