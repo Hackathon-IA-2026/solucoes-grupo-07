@@ -1726,3 +1726,63 @@ de engenharia reprodutível e rastreável.
   `fit_seconds`, então a comparação por fase só estará completa a partir da V2-004.
 - Confirmar a transição automática para V3.
 - Estender os marcos às sensibilidades se o custo delas se mostrar relevante.
+
+## 24/09/2026 — Fila parada no check noturno_mais_24h eólico por erro de passagem de argumento
+
+### Contexto e pergunta
+
+A fila parou logo depois de `features-noturno_mais_24h-eolica-development-001`. O status mostrava
+essa geração como `OK`, mas com `status=-`. O log de `check-noturno_mais_24h-eolica-001` registrava
+`terminou -> ` sem resultado. As perguntas eram: a geração de features terminou? Por que a fila parou?
+
+### Fatos e evidências observados
+
+- `passos/features-noturno_mais_24h-eolica-development-001/end.json`: `exit_code` 0, de 13h26min54
+  a 15h30min22, 7.407,9 s. O stdout informa 1.882 arquivos e 1.357.293.312 linhas de baseline.
+  `status=-` só indica que passos de features não têm `manifest.json`, então não é falha.
+- `fila/check-noturno_mais_24h-eolica-001.runner.stderr.log`: `run-step.ps1: Falta um argumento
+  para o parâmetro 'Arguments'`. O diretório `passos/check-...` não foi criado, e o `end.json`
+  também não. Por isso o resultado ficou vazio e a fila parou em 15h30min44.
+- Reprodução em script descartável: sob `pwsh -File`, o valor `-m curtamap.experimental...`
+  passado como item separado depois de `-Arguments` foi lido como nome de parâmetro, e o erro se
+  repetiu. Com a forma `-Arguments:<valor>`, o valor chegou intacto.
+
+### Interpretação e decisão
+
+**Causa (confirmada por reprodução):** a troca de `Start-Process` por
+`ProcessStartInfo.ArgumentList`, feita para preservar argumentos, expôs uma regra do `pwsh -File`:
+um valor iniciado por `-` vira nome de parâmetro. Só o check usa argumentos que começam com `-m`,
+porque roda `uv run python -m ...`. Por isso os passos `campaign-round` e `build-features` não
+foram afetados.
+
+**Decisão:** `fila-2b.ps1` passa a enviar `-Arguments:<valor>` em um único item. O backup ficou em
+`fila-2b.ps1.before-check-fix`.
+
+### Alternativas consideradas
+
+Colocar `-m` no prefixo (`run python -m`) também resolveria, mas só para esse caso. A forma com
+dois-pontos vale para qualquer passo futuro.
+
+### Implementação e validação
+
+- O script alterado não tem erros de parse.
+- A tarefa `CurtaMap-Fila-2B` foi religada às 17h08min52. Os 8 passos concluídos foram pulados
+  como `ok`, e `check-noturno_mais_24h-eolica-001` foi iniciado. Desta vez o diretório do passo
+  foi criado, então o `run-step.ps1` aceitou os parâmetros.
+- O resultado do check ainda não é conhecido.
+
+### Limitações e incertezas
+
+- `check-noturno_mais_24h-fotovoltaica-001` usa a mesma forma e deve se beneficiar da correção,
+  mas ainda não rodou.
+- Perdeu-se cerca de 1h38min de fila ociosa, de 15h30 a 17h08.
+
+### Valor para o usuário e para a apresentação
+
+É um detalhe operacional sem efeito sobre modelos ou métricas. Ele reforça a prática de exigir um
+`end.json` por passo: a fila parou em vez de seguir para as sensibilidades com um dataset não
+verificado.
+
+### Próximos passos
+
+- Acompanhar o check eólico e, em seguida, as sensibilidades `delay-eolica-*`.
