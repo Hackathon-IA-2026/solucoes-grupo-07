@@ -2423,3 +2423,91 @@ completo: `docs/reports/stage2c/decision.md`.
   as tarefas. Isso reforça a proposta de recalibração periódica.
 - **Próximo passo:** decidir com o responsável a receita por célula e se o teste reservado
   será aberto uma única vez.
+
+## 25/09/2026 — Recalibração periódica simulada: resultado negativo pré-registrado
+
+### Contexto e pergunta
+
+O quadro da madrugada mostrou o mesmo padrão em todas as tarefas: as rodadas de alta do corte
+(sobretudo a V2, maio–agosto/2025) derrubam o modelo. No corte solar, o AP é bom, mas o Brier
+falha, porque o calibrador fica congelado por quatro meses. Com o dia inteiro disponível, a
+pergunta foi: reajustar semanalmente a camada de saída, com os rótulos que o ONS vai
+liberando, corrige o nível sem perder ranking?
+
+### Fatos e evidências observados
+
+- **Liberação dos rótulos:** a defasagem `target_available_at − tau` é de 20 h no mínimo e
+  36–41 h na mediana, com cerca de 20 liberações por mês. Um reajuste semanal é realista.
+- **Autoconferência:** a simulação reproduz a coluna `prediction` salva com diferença 0,0, e o
+  AP e o MAE congelados batem com os `resultado.json`.
+- **Corte solar:**
+  - o Brier da V2 cai de 0,162 para 0,093 (o `historico` tem 0,077);
+  - o AP agregado cai 0,044 na V1 e 0,011 na V2.
+- **Corte eólico:** o Brier da V2 cai de 0,213 para 0,158, e o AP cai 0,041 na V1.
+- **Volume solar:**
+  - a V2 sai da proteção de piora (+1,5% em vez de +14,1%);
+  - o MAE médio contra o `historico` piora de −4,97% para −3,60%.
+- **Volume eólico:** o MAE médio fica em +6,09%, com a V3 em +20,6%.
+- **ICs semanais do corte:** praticamente idênticos aos do congelado.
+- **Causa eólica (005), IC semanal contra o `historico`:**
+  - V1 [+0,045, +0,238] e V4 [+0,039, +0,123];
+  - V2 [−0,055, +0,041] e V3 [−0,045, +0,044].
+- **Tabelas completas:** §3.7 de `docs/reports/rapido/resultados-2026-09-25.md`.
+
+### Interpretação e decisão
+
+- **Fato:** pela regra pré-registrada no commit `b5d38bb`, a recalibração **reprova** nas duas
+  fontes, no corte e no volume.
+- **Interpretação:**
+  - a sigmoide é monótona dentro de cada semana, então o ranking semanal é preservado;
+  - o AP agregado cai porque cada semana ganha um nível diferente, o que atrapalha a
+    comparação entre semanas.
+- **Conclusão:** o calibrador congelado erra o nível num regime novo, e o recalibrado embaralha
+  a comparação entre semanas. Nenhum dos dois resolve de graça.
+- **Decisão:** a receita continua sem recalibração, e o Brier da V2 solar segue como limitação
+  declarada.
+- **Causa eólica:** passa as margens médias, mas com benefício sustentado só na V1 e na V4 e
+  `inconclusivo` nas rodadas de alta.
+- **Decisão do responsável:** congelar a receita por célula no fim do dia e abrir o teste
+  reservado uma única vez.
+
+### Alternativas consideradas
+
+- **Janelas, frequências ou limites diferentes:** descartados de propósito. Seriam variantes
+  escolhidas depois de ver o resultado, justamente o que o pré-registro proíbe.
+- **Aplicar o §11 contra o `historico` sobre as saídas recalibradas:** não usado como caminho
+  de adoção. A regra condicionava esse passo a vencer antes o modelo congelado.
+
+### Implementação e validação
+
+- **Commits:**
+  - `b5d38bb`: pré-registro;
+  - `aebfcee`: `curtamap.recalibracao`, com 8 testes, e o script de simulação;
+  - `afa9989`: resumidor;
+  - `542ac9d`: modo `--round FINAL` do treino rápido, que usa os limites internos do início
+    do teste reservado (cutoff 30/04/2026, conferidos contra V1–V4) e não lê dados do teste.
+- **Resultados:** `experimentos/rapido-recal/*.json`, fora do Git.
+- **Fila de modelos finais:** `jobs-f.txt`, com corte solar 003, causa eólica 005, volume
+  solar 004, causa solar 005 e volume eólico 004. O corte eólico final foi retirado: é o job
+  mais pesado, e o baseline é a receita dessa célula.
+
+### Limitações e incertezas
+
+- Simulação post-hoc sobre V1–V4, que já não são cegas.
+- A primeira semana de cada rodada usa o calibrador congelado.
+- O limiar F2 reajustado, previsto no pré-registro como informação, não foi calculado. Ele não
+  afeta a decisão, que depende de AP e Brier.
+
+### Valor para o usuário e para a apresentação
+
+- **Rigor:** a hipótese mais intuitiva ("recalibre toda semana") foi testada com regra fixada
+  antes e reprovada. O resultado negativo mostra disciplina metodológica.
+- **Mensagem de produto:** o ranking do modelo é estável semana a semana. O nível de
+  probabilidade em regime novo é a limitação declarada.
+
+### Próximos passos
+
+- Conferir o primeiro modelo FINAL: limites, calibração e limiar.
+- Pré-registrar e testar uma única feature de estado sistêmico recente do subsistema.
+- Rodar as sementes 17 e 101 nas células defensáveis.
+- Congelar as receitas e abrir o teste reservado uma vez.

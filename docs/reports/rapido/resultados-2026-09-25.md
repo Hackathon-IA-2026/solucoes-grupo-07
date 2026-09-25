@@ -203,6 +203,82 @@ O balanceamento ajuda, mas ainda **não supera** o `ultimo_valor` na V4.
 - **O padrão da V2** (maio–agosto de 2025, salto de corte) derruba todas as tarefas. Isso
   sustenta a proposta de recalibração periódica.
 
+## 3.7 Recalibração periódica simulada (25/09, manhã): reprovada
+
+Regra pré-registrada no commit `b5d38bb`
+([`recalibracao-regra.md`](recalibracao-regra.md)).
+
+- **Como foi feito:**
+  - post-hoc, sobre os `predictions.parquet` salvos, sem retreinar;
+  - reajuste semanal da sigmoide (corte) ou de um fator de viés limitado a [0,5; 2] (volume);
+  - janela de 28 dias, só com rótulos já liberados no instante do reajuste.
+- **Código:** `src/curtamap/recalibracao.py` (8 testes), `scripts/rapido/recalibrar.py` e
+  `scripts/rapido/resumir_recal.py`.
+- **Resultados:** em `experimentos/rapido-recal/*.json`.
+- **Autoconferência:**
+  - com o calibrador congelado, a simulação reproduz a coluna `prediction` com diferença 0,0;
+  - o AP e o MAE congelados batem com os `resultado.json`.
+- **Fato que sustenta o desenho:** a defasagem de liberação dos rótulos é de 20 h no mínimo e
+  36–41 h na mediana, com cerca de 20 liberações por mês.
+
+**Corte** (AP e Brier: congelado / recalibrado / `historico`; IC semanal recalibrado × `historico`):
+
+| Fonte | Rodada | AP | ΔAP | Brier | ΔBrier | IC semanal |
+|---|---|---|---|---|---|---|
+| Solar | V1 | 0,596 / 0,553 / 0,429 | **−0,044** | 0,077 / 0,077 / 0,087 | −0,000 | [+0,055, +0,205] |
+| Solar | V2 | 0,846 / 0,834 / 0,835 | **−0,011** | 0,162 / **0,093** / 0,077 | **−0,069** | [+0,001, +0,038] |
+| Solar | V3 | 0,857 / 0,860 / 0,851 | +0,003 | 0,078 / 0,079 / 0,078 | +0,000 | [−0,006, +0,030] |
+| Solar | V4 | 0,775 / 0,779 / 0,711 | +0,004 | 0,083 / 0,083 / 0,089 | +0,000 | [+0,042, +0,104] |
+| Eólica | V1 | 0,485 / 0,444 / 0,385 | −0,041 | 0,138 / 0,141 / 0,151 | +0,003 | [+0,060, +0,205] |
+| Eólica | V2 | 0,780 / 0,774 / 0,782 | −0,007 | 0,213 / 0,158 / 0,144 | −0,055 | [−0,015, +0,036] |
+| Eólica | V3 | 0,871 / 0,869 / 0,887 | −0,002 | 0,129 / 0,127 / 0,116 | −0,001 | [−0,033, −0,003] |
+| Eólica | V4 | 0,713 / 0,704 / 0,705 | −0,010 | 0,132 / 0,133 / 0,133 | +0,002 | [−0,011, +0,132] |
+
+- **Veredito pela regra: reprova nas duas fontes.**
+  - O Brier da V2 cai bem mais que 0,02 (solar −0,069, eólica −0,055).
+  - Mas o AP agregado perde mais de 0,005: V1 solar −0,044, V2 solar −0,011 e V1 eólica
+    −0,041.
+- **Observação (achado, não decisão):**
+  - os ICs semanais contra o `historico` ficam praticamente iguais aos do congelado (solar:
+    V1 [+0,056, +0,206], V2 [−0,000, +0,035], V3 [−0,006, +0,030], V4 [+0,043, +0,107]);
+  - a sigmoide é monótona dentro de cada semana, então o ranking semanal é preservado;
+  - a perda de AP vem do ranking **entre** semanas, quando cada semana ganha um nível
+    diferente;
+  - **o calibrador congelado erra o nível em regime novo, e o recalibrado embaralha a
+    comparação entre semanas.** Nenhum dos dois é gratuito.
+
+**Volume** (MAE: congelado / recalibrado / comparador):
+
+| Fonte | V1 | V2 | V3 | V4 | MAE médio recalibrado × comparador | §11 |
+|---|---|---|---|---|---|---|
+| Solar | 13,04 / 15,13 / 15,44 | 17,27 / 15,35 / 15,13 | 14,79 / 15,19 / 16,09 | 12,16 / 12,41 / 13,59 | −3,60% (o congelado tinha −4,97%) | **Não passa** |
+| Eólica | 11,57 / 12,47 / 13,63 | 17,23 / 17,01 / 16,72 | 22,19 / 24,23 / 20,09 | 12,51 / 13,60 / 13,00 | +6,09% | **Não passa** |
+
+- **Efeito no volume:** o fator de viés tira a V2 solar da proteção de piora (+1,5% em vez de
+  +14,1%). Mas desfaz o ganho nas rodadas estáveis, e o ganho médio cai.
+- **Decisão:** a recalibração periódica **não entra na receita**. Resultado negativo
+  registrado, sem variantes de janela, frequência ou limites para salvá-lo, conforme o
+  pré-registro.
+
+**Incerteza semanal da causa eólica (005)**, diferença semanal de macro-F1 com bootstrap de
+1.000 reamostragens:
+
+| Rodada | Contra o `historico` | Contra o `ultimo_valor` |
+|---|---|---|
+| V1 | +0,146, IC [+0,045, +0,238], 15/18 | +0,164, IC [+0,052, +0,262] |
+| V2 | −0,007, IC [−0,055, +0,041], 8/18 | +0,096, IC [+0,065, +0,128] |
+| V3 | +0,000, IC [−0,045, +0,044], 10/18 | +0,094, IC [+0,046, +0,138] |
+| V4 | +0,078, IC [+0,039, +0,123], 13/18 | +0,205, IC [+0,126, +0,276] |
+
+- **Contra o `historico`** (o comparador da causa eólica): o benefício é sustentado na V1 e
+  na V4, mas o IC contém zero na V2 e na V3.
+- **Pelo §11.2,** a célula passa as margens médias, mas fica **`inconclusivo` nas rodadas de
+  alta** do corte.
+- **Estado diagnóstico:** "passa as margens; ganho concentrado em V1/V4".
+
+**Decisão do responsável (25/09, manhã):** congelar a receita por célula no fim do dia e então
+abrir o teste reservado **uma única vez**.
+
 ## 4. Achados que valem para o produto e para o pitch
 
 1. **"A IA corrige o baseline" funciona.** O modelo recebe a regra histórica como feature, ou
