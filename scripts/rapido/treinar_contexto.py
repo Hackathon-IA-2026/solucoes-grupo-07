@@ -14,6 +14,10 @@ rodadas obrigatórias. É um desvio exploratório registrado; não aprova nada p
 Uso:
   uv run python scripts/rapido/treinar_contexto.py --source fotovoltaica --round V4 \
       --task corte_positivo --slots 8 --run-id rapido-fv-v4-corte-001
+
+`--round FINAL` treina o modelo de entrega com os limites internos calculados para o início
+do teste reservado (cutoff 30/04/2026): só dados de desenvolvimento, sem validação e sem
+abrir o teste.
 """
 
 from __future__ import annotations
@@ -56,7 +60,8 @@ from curtamap.experimental.campaign import (
 from curtamap.experimental.models import fit_sigmoid_calibrator, optimize_f2_threshold
 from curtamap.experimental.resources import peak_rss_bytes
 from curtamap.experimental.sampling import emission_mask
-from curtamap.experimental.temporal import external_rounds
+from curtamap.experimental.temporal import AvailabilityScenario, external_rounds
+from curtamap.experimental.training import internal_boundaries
 
 ROOT = Path(__file__).resolve().parents[2]
 EXP = ROOT / "experiments" / "stage2b" / "experimentos"
@@ -175,7 +180,7 @@ def _collect(lazy: pl.LazyFrame) -> pl.DataFrame:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", required=True, choices=("eolica", "fotovoltaica"))
-    parser.add_argument("--round", required=True, choices=("V1", "V2", "V3", "V4"))
+    parser.add_argument("--round", required=True, choices=("V1", "V2", "V3", "V4", "FINAL"))
     parser.add_argument("--task", required=True, choices=tuple(TARGET))
     parser.add_argument("--slots", type=int, default=8)
     parser.add_argument("--run-id", required=True)
@@ -239,8 +244,15 @@ def main() -> int:
         print(f"[{time.perf_counter() - started:8.1f}s] {name}", flush=True)
 
     calendar = load_calendar_manifest(ROOT / "configs/experimental/calendar-2023-2026.json")
-    round_ = next(r for r in external_rounds() if r.round_id == args.round)
-    boundary = _boundary(args.source, args.round)
+    final = args.round == "FINAL"
+    if final:
+        # Só a data de início do teste reservado define os limites; nenhum dado dele é lido.
+        round_ = next(r for r in external_rounds() if r.reserved)
+        internal = internal_boundaries(round_, AvailabilityScenario.main(), calendar.calendar)
+        boundary = Boundary(internal.tuning_start, internal.calibration_start, internal.cutoff)
+    else:
+        round_ = next(r for r in external_rounds() if r.round_id == args.round)
+        boundary = _boundary(args.source, args.round)
     log["boundaries"] = {k: str(v) for k, v in vars(boundary).items()}
     base = DATASETS / f"source={args.source}" / "round=development"
     features = pl.scan_parquet((base / "date=*" / "features.parquet").as_posix()).with_columns(
@@ -349,6 +361,13 @@ def main() -> int:
         {"model": model, "encoder": encoder, "calibrator": calibrator, "threshold": threshold},
         out / "model.joblib",
     )
+    if final:
+        log["peak_rss_gib"] = peak_rss_bytes() / 2**30 if peak_rss_bytes() else None
+        phase("fim")
+        (out / "resultado.json").write_text(
+            json.dumps(log, indent=1, ensure_ascii=False, default=str), "utf-8"
+        )
+        return 0
 
     phase("validacao")
     validation = features.filter(_validation_filter(round_))
