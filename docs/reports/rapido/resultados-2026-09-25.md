@@ -311,6 +311,32 @@ causa eólica, contra cerca de 87 features e 63 folhas na referência.
   - O que falha na mudança de regime é justamente o que a complexidade adiciona.
   - Pela regra fixada, porém, a complexidade se paga na média das rodadas estáveis.
 
+## 3.9 Estado sistêmico recente `sys` (25/09, início da tarde): reprovado
+
+Regra pré-registrada no commit `3555451` ([`sistemico-regra.md`](sistemico-regra.md)).
+
+- **Features:** fração de usinas do subsistema com `last_positive` e média de
+  `positive_frequency_7d`, por fonte + subsistema + `t0`.
+- **Por que 7 dias:** a informação mais nova disponível em `t0` tem cerca de 39 h, e as
+  colunas de 24 h são 87% nulas.
+
+| Célula | Rodada | AP da 003 | AP da `sys` | Diferença | Brier 003 / `sys` |
+|---|---|---|---|---|---|
+| Corte solar | V2 | 0,846 | 0,836 | −0,009 | 0,162 / 0,162 |
+| Corte solar | V4 | 0,775 | 0,775 | +0,000 | 0,083 / 0,083 |
+| Corte eólico | V2 | 0,780 | 0,763 | **−0,017** | 0,213 / 0,227 |
+| Corte eólico | V4 | 0,713 | 0,726 | +0,013 | 0,132 / 0,129 |
+
+- **Veredito: reprova nas duas fontes.**
+  - Solar: média de −0,005, contra a exigência de +0,005.
+  - Eólica: média de −0,002, com uma rodada perdendo mais de 0,01.
+- **Execução:** a primeira tentativa eólica (`rapido-eol-v{2,4}-corte-sys`) falhou por memória,
+  com o agregado global chegando a 33,5 GB. As runs válidas são as `-sys-b`, com o agregado
+  calculado partição a partição (equivalente até 3×10⁻¹⁶).
+- **Interpretação:** o estado do subsistema com cerca de 1,5 dia de defasagem não acrescenta
+  informação à regra histórica da própria usina. É mais um indício de que o limite é a
+  **idade da informação** disponível no noturno, não a engenharia de features.
+
 ## 4. Achados que valem para o produto e para o pitch
 
 1. **"A IA corrige o baseline" funciona.** O modelo recebe a regra histórica como feature, ou
