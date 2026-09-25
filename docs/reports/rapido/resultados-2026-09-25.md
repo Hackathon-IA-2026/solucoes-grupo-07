@@ -193,7 +193,7 @@ O balanceamento ajuda, mas ainda **não supera** o `ultimo_valor` na V4.
 | Solar | causa | 005 | macro-F1 +0,009 | 2/4 | **Não aprova**; baseline preferível |
 | Eólica | corte | 003 | AP +0,023 | 2/4 | **Não aprova**; baseline preferível |
 | Eólica | volume | `volume_total` 004 | MAE +0,1% | 2/4 | **Não aprova**; baseline preferível |
-| Eólica | causa | 005 | macro-F1 +0,056 | 3/4 | **Passa as margens** (falta a incerteza semanal) |
+| Eólica | causa | 005 | macro-F1 +0,056 | 3/4 | **Passa as margens** (IC semanal calculado depois: §3.7 e §3.11) |
 
 - **Onde a IA é defensável:**
   - **alerta de corte solar**, com a ressalva de calibração;
@@ -471,13 +471,27 @@ esta:
 | Corte eólico | `b_historico_prob_positive` | baseline (colunas em `baselines.parquet`) |
 | Volume solar | `b_historico_volume_expected` | baseline |
 | Volume eólico | `b_mesmo_horario_dia_anterior_volume_expected` | baseline |
-| Causa solar | `b_ultimo_valor` (causa do último valor) | baseline |
+| Causa solar | argmax de `b_ultimo_valor_cause_{CNF,ENE,REL}` (empate: CNF, ENE, REL; `_baseline_cause`) | baseline |
 
 - **Carregar os modelos:** `joblib.load(...)` devolve `{"model", "encoder", "calibrator",
   "threshold"}`. O `Encoder` é `curtamap.contexto.Encoder`, e os artefatos `-reservado` não
   precisam do contorno de `__main__`.
-- **Features:** a entrada é a de `features.parquet` + `baseline_wide(baselines)`. As colunas
-  sazonais (`SEASONAL`) foram removidas na receita.
+- **Caminho exato de inferência** (bloco de validação de `scripts/rapido/treinar_contexto.py`;
+  transcreva sem parafrasear):
+  - **Entrada:** `features.parquet` + `baseline_wide(baselines)` juntados por `KEYS`, mais a
+    coluna `tau_weekend_or_holiday`, que **não existe** no Parquet. Ela é calculada no script
+    com `_weekend_or_holiday(calendar)` a partir de
+    `configs/experimental/calendar-2023-2026.json`, e o `Encoder` a exige. As colunas
+    sazonais (`SEASONAL`) foram removidas na receita.
+  - **Corte:**
+    - `raw = probability_with_offset(model, encoder.matrix(chunk), None)`;
+    - depois `calibrator.predict(raw)`;
+    - depois `np.where(eligible_history, prob, b_historico_prob_positive)`.
+    - O limiar F2 serve só para o alerta (sim/não).
+  - **Causa:** `predict_proba` → argmax em `model.classes_`. Nas linhas sem
+    `eligible_history`, vale o argmax do `historico` (`_baseline_cause`).
+  - **O fallback `historico` para as linhas sem histórico elegível faz parte da receita** nas
+    duas células de modelo.
 - **Reprodução histórica para a demonstração:** os `predictions.parquet` das runs
   `-reservado` (maio–agosto/2026) já trazem previsão, baseline e verdade por usina e janela.
   São 90 MB a 770 MB por célula. O dashboard deve ler um recorte, sem carregar tudo em
