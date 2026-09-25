@@ -279,6 +279,38 @@ Regra pré-registrada no commit `b5d38bb`
 **Decisão do responsável (25/09, manhã):** congelar a receita por célula no fim do dia e então
 abrir o teste reservado **uma única vez**.
 
+## 3.8 Teste de simplicidade `s01` (25/09, meio-dia): reprovado pela regra, com padrão revelador
+
+Pergunta do responsável: "complicamos demais?". Regra pré-registrada no commit `9c4ee1b`
+([`simplicidade-regra.md`](simplicidade-regra.md)).
+
+**Variante:** árvores de 15 folhas e profundidade 4, com 8 features no corte solar e 14 na
+causa eólica, contra cerca de 87 features e 63 folhas na referência.
+
+| Célula | Rodada | Referência | `s01` | Diferença | Brier ref. / `s01` | `historico` |
+|---|---|---|---|---|---|---|
+| Corte solar (AP) | V2 | 0,846 (003) | **0,866** | **+0,020** | 0,162 / **0,074** | 0,835 (Brier 0,077) |
+| Corte solar (AP) | V4 | **0,775** (003) | 0,760 | −0,015 | 0,083 / 0,083 | 0,711 |
+| Causa eólica (macro-F1) | V2 | 0,564 (005) | **0,614** | **+0,050** | — | 0,577 |
+| Causa eólica (macro-F1) | V4 | **0,638** (005) | 0,578 | −0,060 | — | 0,517 |
+
+- **Veredito pela regra: reprova nas duas células**, porque a V4 perde mais de 0,01. Ficam a
+  003 e a 005, e as rodadas V1 e V3 da `s01` não foram rodadas.
+- **Fato:** o padrão é o mesmo nas duas células. A simples **ganha na rodada de mudança de
+  regime** (V2, maio–agosto/2025) e **perde na rodada estável** (V4, janeiro–abril/2026).
+- **No corte solar V2,** a simples é a única variante da campanha com Brier melhor que o
+  `historico` (0,074 contra 0,077). Isso vale também para a recalibração, o offset, o `q12` e
+  o `j6`.
+- **Interpretação (hipótese):** as features extras (identidade da usina, volumes e
+  frequências longas) ajudam quando o regime se mantém. Quando ele muda, elas carregam o nível
+  do período de treino. **A complexidade compra desempenho em regime estável ao custo de
+  robustez em mudança de regime.**
+- **Resposta à pergunta "complicamos demais?":** em parte.
+  - Um modelo com 8 variáveis já captura a maior parte do ganho sobre o `historico` (V4:
+    +0,049 da simples contra +0,064 da 003).
+  - O que falha na mudança de regime é justamente o que a complexidade adiciona.
+  - Pela regra fixada, porém, a complexidade se paga na média das rodadas estáveis.
+
 ## 4. Achados que valem para o produto e para o pitch
 
 1. **"A IA corrige o baseline" funciona.** O modelo recebe a regra histórica como feature, ou
