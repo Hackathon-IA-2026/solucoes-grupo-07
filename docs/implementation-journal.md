@@ -2324,3 +2324,88 @@ completo: `docs/reports/stage2c/decision.md`.
     Windows;
   - precondições: memória corrigida pelo erro de cerca de 20% da projeção da 2B e espaço no
     `Y:` conferido antes de cada run.
+
+## 25/09/2026 — Treino rápido exploratório: "a IA corrige o baseline"
+
+### Contexto e pergunta
+
+- **Situação:** a 2C deixou as oito células em `requer_2d`, e o evento começa no fim de
+  semana, sem tempo para a 2D completa (cerca de 13 h de máquina mais implementação).
+- **Pedido do responsável:** o hackathon é sobre IA, então é preciso um modelo de IA, não só o
+  baseline determinístico. A máquina fica liberada para treinar.
+- **Pergunta:** um LightGBM que recebe as features do §8 e as saídas dos baselines supera o
+  `historico`?
+
+### Fatos e evidências observados
+
+- **Relatório completo:** `docs/reports/rapido/resultados-2026-09-25.md`, com tabelas por
+  variante e rodada.
+- **Corte solar, variante 003** (sem mês e dia do ano, 4/48):
+  - AP médio +0,062 sobre o `historico` nas quatro rodadas, com 4/4 rodadas melhores;
+  - IC semanal da V4 de [+0,043, +0,107];
+  - Brier pior só na V2 (0,162 contra 0,077).
+- **Quantidade e janela, com regra fixada antes:**
+  - 12/48 deu +0,0007 de AP médio, com pico de 25 GiB → reprovado;
+  - janela de 6 meses piorou até 0,026 de AP → reprovada.
+- **Corte eólico V4:** +0,008 (003) e +0,005 (004, offset). Empate técnico.
+- **Volume total solar** (Tweedie + offset do `historico`): MAE −15,6% na V1 e −10,5% na V4.
+  - O pipeline Gamma `P × condicional` foi descartado (MAE 37,8 contra 13,6).
+  - As categóricas nativas falharam no volume com um erro interno do LightGBM
+    (`best_split_info.left_count > 0`); por isso `--no-categorical`.
+- **Causa solar V4:** o balanceamento levou o macro-F1 de 0,455 para 0,494, ainda abaixo do
+  `ultimo_valor` (0,502).
+- **Memória:** o Claude Code encerrou shells em segundo plano por pressão de memória durante o
+  primeiro treino eólico (pico de 21 GiB); o processo sobreviveu e terminou. Desde então, as
+  filas rodam com `nohup` (`fila.sh` e `encadear.sh`).
+- **Pasta removida:** a de `rapido-fv-v4-vol-003` da primeira tentativa, que falhou no ajuste,
+  foi apagada para relançar o mesmo `run_id`. O log da falha continua em
+  `job-jobs-a-2.log`.
+
+### Interpretação e decisão
+
+- **Interpretação:** a informação certa (hora, mesmo horário e regra histórica) é o que
+  faltava na 2B, não a quantidade de dados.
+- **Hipótese:** "mês" e "dia do ano" ensinam tendência como sazonalidade, porque a solar tem
+  menos de dois anos de dados. Removê-los melhorou todas as rodadas.
+- **Hipótese:** o Brier da V2 vem do calibrador congelado durante um salto de prevalência
+  (a taxa de corte dobrou em maio–agosto de 2025).
+- **Decisões provisórias:**
+  - corte: 003;
+  - volume: `volume_total` 004;
+  - causa: 005 ou o baseline, conforme as filas;
+  - amostragem: 4/48, com o histórico completo.
+
+### Alternativas consideradas
+
+- **Refazer o dataset inteiro:** desnecessário, porque as colunas já existem.
+- **Treinar com todos os dados:** não cabe na RAM, e o `q12` mostrou que não ajudaria.
+- **Janela recente:** piorou.
+- **Pipeline Gamma:** instável.
+- **Offset no corte:** não foi melhor que a 003 no AP. Continua opção para o Brier.
+
+### Implementação e validação
+
+- **Commits:** `07bba3a`, `52690b9`, `93a3252` (`curtamap.contexto` com 5 testes), `614b5b5`,
+  `abcb5c5`, `df39a91` e `1a33fae`.
+- **Validação:** o `historico` reproduz exatamente o AP da 2B nas mesmas linhas.
+
+### Limitações e incertezas
+
+- Fora do protocolo completo, com variantes escolhidas olhando V1–V4. Só o teste reservado,
+  ainda fechado, daria uma avaliação independente.
+- Sem medição de sensibilidade +24h, recortes e sementes.
+- Joblibs antigos dependem de `__main__` (ver o relatório, §6).
+
+### Valor para o usuário e para a apresentação
+
+- **Narrativa para o pitch:** a regra histórica é forte e explicável; a IA a corrige com
+  contexto e ganha onde importa (solar: melhor alerta e 10–16% menos erro de volume).
+- **A 2C vira argumento de rigor:** o primeiro modelo perdeu, a auditoria mostrou por quê, e a
+  correção foi medida contra o mesmo piso.
+
+### Próximos passos
+
+- Consolidar as filas Q e R.
+- Congelar a receita e decidir com o responsável sobre abrir o teste reservado uma vez.
+- Treinar os modelos finais e ligá-los ao dashboard.
+- Prompt: `docs/handoffs/rapido-quantidade-janela-prompt.md`.

@@ -1,0 +1,2 @@
+uv run python scripts/rapido/treinar_contexto.py --source fotovoltaica --round V4 --task volume_total --slots 4 --offset --no-categorical --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --run-id rapido-fv-v4-voltot-004
+uv run python scripts/rapido/treinar_contexto.py --source fotovoltaica --round V4 --task causa --slots 8 --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --params '{"class_weight":"balanced"}' --run-id rapido-fv-v4-causa-005

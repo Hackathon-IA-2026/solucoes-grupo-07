@@ -61,6 +61,25 @@ não pontue o teste reservado (maio–agosto/2026).
   - causa (`-003` e `-005` balanceada);
   - encerramento de shells por pressão de memória.
 
+## Atualização (cerca de 01h30): testes decididos e relatório escrito
+
+- **Resultados e análises:** estão em **`docs/reports/rapido/resultados-2026-09-25.md`**.
+  Leia-o primeiro.
+- **Quantidade (`q12`) e janela (`j6`):** **já executadas e reprovadas** pela regra abaixo.
+  Mantêm-se 4/48 e o histórico completo. Não repita esses testes.
+- **Pendente na fila Q:** só o volume total da solar V2 e V3.
+- **Fila R** (`jobs-r.txt`, 11 jobs), encadeada depois da Q:
+  - corte eólico V1–V3;
+  - volume total eólico V1–V4;
+  - causa balanceada da solar V1–V3 e da eólica V4.
+- **Tarefa da nova sessão:**
+  1. conferir `jobs-q.txt.status` e `jobs-r.txt.status`;
+  2. completar as tabelas das §3.3–3.5 do relatório com essas runs;
+  3. aplicar o §11 como diagnóstico;
+  4. seguir os "Próximos passos" da §7 do relatório.
+- **Diário:** a entrada do treino rápido já foi escrita. Acrescente só um adendo com os
+  resultados das filas.
+
 ## Perguntas
 
 1. **Quantidade:** treinar com mais emissões por dia (12/48, um quarto) melhora a solar em
