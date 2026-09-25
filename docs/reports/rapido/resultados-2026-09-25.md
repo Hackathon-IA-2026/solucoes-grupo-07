@@ -458,3 +458,35 @@ horário de ontem ainda não está liberado e cai no fallback. Não foi investig
    congelada. É a única evidência independente disponível para o pitch.
 4. Ligar os modelos ao dashboard (`src/curtamap/app.py`), mostrando baseline, modelo,
    incerteza e limitações lado a lado.
+
+### 7.1 Estado ao fim de 25/09 (tarde) e entrega para a integração
+
+Os itens 1 a 3 acima estão concluídos (§3.6–§3.11). A receita confirmada no teste reservado é
+esta:
+
+| Célula | O que o produto exibe | Artefato |
+|---|---|---|
+| Corte solar | probabilidade do modelo 003, calibrada, com o limiar F2 no `model.joblib` | `experimentos/rapido-fv-final-corte-003-reservado/` |
+| Causa eólica | classe prevista pelo modelo 005 (`p_REL`, `p_CNF`, `p_ENE`) | `experimentos/rapido-eol-final-causa-005-reservado/` |
+| Corte eólico | `b_historico_prob_positive` | baseline (colunas em `baselines.parquet`) |
+| Volume solar | `b_historico_volume_expected` | baseline |
+| Volume eólico | `b_mesmo_horario_dia_anterior_volume_expected` | baseline |
+| Causa solar | `b_ultimo_valor` (causa do último valor) | baseline |
+
+- **Carregar os modelos:** `joblib.load(...)` devolve `{"model", "encoder", "calibrator",
+  "threshold"}`. O `Encoder` é `curtamap.contexto.Encoder`, e os artefatos `-reservado` não
+  precisam do contorno de `__main__`.
+- **Features:** a entrada é a de `features.parquet` + `baseline_wide(baselines)`. As colunas
+  sazonais (`SEASONAL`) foram removidas na receita.
+- **Reprodução histórica para a demonstração:** os `predictions.parquet` das runs
+  `-reservado` (maio–agosto/2026) já trazem previsão, baseline e verdade por usina e janela.
+  São 90 MB a 770 MB por célula. O dashboard deve ler um recorte, sem carregar tudo em
+  memória, e indicar que se trata de reprodução histórica.
+- **Limitações a exibir:**
+  - treino fora do protocolo completo;
+  - calibração sensível a mudança de regime (V2/2025);
+  - informação com cerca de 39 h de idade no cenário noturno;
+  - não determinismo bit a bit do treino.
+- **Pendente técnico:** ordenar as linhas por `KEYS` depois de cada `collect`, para um treino
+  determinístico. Isso fica para depois da entrega, porque a ordenação duplica a memória no
+  pico eólico.
