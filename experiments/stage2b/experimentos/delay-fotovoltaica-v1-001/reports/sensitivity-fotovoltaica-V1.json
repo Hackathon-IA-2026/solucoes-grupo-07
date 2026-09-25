@@ -1,0 +1,57 @@
+{
+  "execution": {
+    "mode": "validacao_por_partes_de_t0",
+    "peak_rss_bytes": 3077804032,
+    "validation_chunk_days": 7,
+    "validation_chunks": 18,
+    "validation_rows": 17777040
+  },
+  "failures": [],
+  "frozen_run": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-fotovoltaica-v1-001",
+  "models": {
+    "fotovoltaica-V1-causa-lightgbm": {
+      "calibration_status": "nao_aplicavel",
+      "frozen_model": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-fotovoltaica-v1-001\\models\\fotovoltaica-V1-causa-lightgbm.joblib",
+      "threshold": null
+    },
+    "fotovoltaica-V1-causa-linear": {
+      "calibration_status": "nao_aplicavel",
+      "frozen_model": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-fotovoltaica-v1-001\\models\\fotovoltaica-V1-causa-linear.joblib",
+      "threshold": null
+    },
+    "fotovoltaica-V1-corte_positivo-lightgbm": {
+      "calibration_status": "sigmoide",
+      "frozen_model": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-fotovoltaica-v1-001\\models\\fotovoltaica-V1-corte_positivo-lightgbm.joblib",
+      "threshold": 0.09008579662252024
+    },
+    "fotovoltaica-V1-corte_positivo-linear": {
+      "calibration_status": "sigmoide",
+      "frozen_model": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-fotovoltaica-v1-001\\models\\fotovoltaica-V1-corte_positivo-linear.joblib",
+      "threshold": 0.10400585616736967
+    },
+    "fotovoltaica-V1-restricao_registrada-lightgbm": {
+      "calibration_status": "sigmoide",
+      "frozen_model": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-fotovoltaica-v1-001\\models\\fotovoltaica-V1-restricao_registrada-lightgbm.joblib",
+      "threshold": 0.11599845316485326
+    },
+    "fotovoltaica-V1-restricao_registrada-linear": {
+      "calibration_status": "sigmoide",
+      "frozen_model": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-fotovoltaica-v1-001\\models\\fotovoltaica-V1-restricao_registrada-linear.joblib",
+      "threshold": 0.13333615737272037
+    },
+    "fotovoltaica-V1-volume_condicional-lightgbm": {
+      "calibration_status": "nao_aplicavel",
+      "frozen_model": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-fotovoltaica-v1-001\\models\\fotovoltaica-V1-volume_condicional-lightgbm.joblib",
+      "threshold": null
+    },
+    "fotovoltaica-V1-volume_condicional-linear": {
+      "calibration_status": "nao_aplicavel",
+      "frozen_model": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-fotovoltaica-v1-001\\models\\fotovoltaica-V1-volume_condicional-linear.joblib",
+      "threshold": null
+    }
+  },
+  "models_retrained": false,
+  "round": "V1",
+  "scenario": "noturno_mais_24h",
+  "source": "fotovoltaica"
+}

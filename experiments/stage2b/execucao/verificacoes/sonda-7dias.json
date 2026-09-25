@@ -1,0 +1,105 @@
+{
+  "dataset": "Y:\\CurtaMap Etapa 2B\\sondas\\sonda-features-eolica-7dias-vetorizado-001\\stage2b-datasets\\scenario=noturno_dia_util\\source=eolica\\round=sonda",
+  "start": "2025-01-13T00:00:00",
+  "end": "2025-01-20T00:00:00",
+  "partitions": 7,
+  "expected_days": 7,
+  "partitions_missing_files": [],
+  "first_date": "2025-01-13",
+  "last_date": "2025-01-19",
+  "days_without_partition": [],
+  "features_distinct_schemas": 1,
+  "baselines_distinct_schemas": 1,
+  "features": {
+    "rows": 2515968,
+    "t0_min": "2025-01-13T00:00:00",
+    "t0_max": "2025-01-19T23:30:00",
+    "tau_max": "2025-01-20T23:00:00",
+    "entities": 156,
+    "sources": 1,
+    "horizon_below_1": 0,
+    "horizon_above_48": 0,
+    "tau_mismatch": 0,
+    "t0_off_grid": 0,
+    "history_age_below_30min": 0,
+    "labels_available_at_or_before_t0": 0,
+    "eligible_rows": 2490672,
+    "target_not_observed": 0,
+    "indeterminate_volume_rows": 0,
+    "par_rows": 0,
+    "causes": [
+      "C",
+      "N",
+      "F"
+    ],
+    "rows_tau_in_reserved": 0,
+    "rows_t0_in_reserved": 0
+  },
+  "emissions": {
+    "emissions": 52416,
+    "emissions_not_48_rows": 0,
+    "emissions_not_48_horizons": 0
+  },
+  "indeterminate_distinct_targets": 0,
+  "indeterminate_target_months": [],
+  "baselines": {
+    "rows": 10063872,
+    "baseline_ids": [
+      "h",
+      "i",
+      "s",
+      "t",
+      "o",
+      "r",
+      "i",
+      "c",
+      "o"
+    ],
+    "fallback_level_nulls": 0,
+    "prob_positive_nonfinite": 0,
+    "volume_expected_negative": 0
+  },
+  "baselines_rows_equal_4x_features": true,
+  "fallback_levels": [
+    {
+      "baseline_id": "historico",
+      "fallback_level": "entidade_mesmo_horario",
+      "len": 2515968
+    },
+    {
+      "baseline_id": "mesmo_horario_dia_anterior",
+      "fallback_level": "entidade_mesmo_horario",
+      "len": 2480868
+    },
+    {
+      "baseline_id": "mesmo_horario_dia_anterior",
+      "fallback_level": "nativo",
+      "len": 35100
+    },
+    {
+      "baseline_id": "mesmo_horario_recente",
+      "fallback_level": "nativo",
+      "len": 2515968
+    },
+    {
+      "baseline_id": "ultimo_valor",
+      "fallback_level": "nativo",
+      "len": 2515968
+    }
+  ],
+  "checks": {
+    "all_partitions_present": true,
+    "single_feature_schema": true,
+    "single_baseline_schema": true,
+    "t0_within_range": true,
+    "no_t0_in_reserved": true,
+    "exactly_48_horizons": true,
+    "tau_contract": true,
+    "no_history_after_t0": true,
+    "labels_released_after_t0": true,
+    "no_par": true,
+    "baselines_4_per_request": true,
+    "baseline_values_finite": true
+  },
+  "all_checks_pass": true
+}

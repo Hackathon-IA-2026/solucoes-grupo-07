@@ -1,0 +1,3609 @@
+{
+ "main": {
+  "main-eolica-v1-002": {
+   "source": "eolica",
+   "round": "V1",
+   "step": {
+    "exists": true,
+    "code_commit": "560ae70b736ef0a93f5282e3f069298ab2aebc86",
+    "git_status_short": "",
+    "cwd": "M:\\Bibliotecas\\Development\\workspaces\\hackathon-ia-coppe-2026",
+    "started_at": "2026-09-23T19:03:14.5197322-03:00",
+    "finished_at": "2026-09-23T22:53:49.8542611-03:00",
+    "exit_code": 0,
+    "duration_seconds": 13835.3,
+    "peak_tree_working_set_bytes_sampled": 11391410176.0,
+    "peak_process_working_set_bytes": 13539680256,
+    "interrupted": false,
+    "stderr_bytes": 2368,
+    "stderr_phase_markers": [],
+    "stderr_other_lines": 16,
+    "stderr_unique_other": [
+     {
+      "line": "M:\\Bibliotecas\\Development\\workspaces\\hackathon-ia-coppe-2026\\.venv\\Lib\\site-packages\\lightgbm\\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' ",
+      "count": 8
+     },
+     {
+      "line": "eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)",
+      "count": 8
+     }
+    ]
+   },
+   "manifest_status": "complete",
+   "manifest_code_commit": "560ae70b736ef0a93f5282e3f069298ab2aebc86",
+   "data_hashes": {
+    "eolica": "487050da7ed2470ec563b96ca88ed620654f43683927cb7b1bb8421323f0734d",
+    "fotovoltaica": "e293594146a29b5b78b4837f7618201f15b4e5a9e4ec9de5e7a7c8342db711ec"
+   },
+   "configuration_sha256": "1ed847278be8bed4dee386b246bf492ae4b3f54e63934291373c14820789a267",
+   "bytes_consumed": 3593404680,
+   "reports": [
+    "eolica-V1.json"
+   ],
+   "failures": [],
+   "execution": {
+    "mode": "validacao_por_partes_de_t0",
+    "peak_rss_bytes": 13539680256,
+    "validation_chunk_days": 7,
+    "validation_chunks": 18,
+    "validation_rows": 42851184
+   },
+   "boundaries": {
+    "calibration_start": "2024-12-02 00:00:00",
+    "cutoff": "2024-12-30 00:00:00",
+    "tuning_start": "2024-11-04 00:00:00",
+    "validation_start": "2025-01-01 00:00:00"
+   },
+   "training_sampling": {
+    "complete_segments": [
+     "tuning",
+     "calibration",
+     "validation"
+    ],
+    "method": "t0_sistematico_diario_v1",
+    "seed": 42,
+    "segments": [
+     "initial",
+     "refit"
+    ],
+    "slots_per_day": {
+     "causa": 14,
+     "corte_positivo": 4,
+     "restricao_registrada": 4,
+     "volume_condicional": 14
+    }
+   },
+   "fit_seconds_total": 1308.8864909998374,
+   "models": {
+    "eolica-V1-causa-lightgbm": {
+     "fit_seconds": 131.55334199999925,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 29,
+      "num_leaves": 31
+     }
+    },
+    "eolica-V1-causa-linear": {
+     "fit_seconds": 479.5427580999676,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "C": 0.1
+     }
+    },
+    "eolica-V1-corte_positivo-lightgbm": {
+     "fit_seconds": 153.05696539999917,
+     "calibration_status": "sigmoide",
+     "threshold": 0.17020578534501934,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 51,
+      "num_leaves": 31
+     }
+    },
+    "eolica-V1-corte_positivo-linear": {
+     "fit_seconds": 158.1109135999577,
+     "calibration_status": "sigmoide",
+     "threshold": 0.15677006964318851,
+     "selected_params": {
+      "C": 1.0
+     }
+    },
+    "eolica-V1-restricao_registrada-lightgbm": {
+     "fit_seconds": 150.85830019996502,
+     "calibration_status": "sigmoide",
+     "threshold": 0.24047996366273502,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 65,
+      "num_leaves": 31
+     }
+    },
+    "eolica-V1-restricao_registrada-linear": {
+     "fit_seconds": 132.99796129995957,
+     "calibration_status": "sigmoide",
+     "threshold": 0.21122829599894097,
+     "selected_params": {
+      "C": 1.0
+     }
+    },
+    "eolica-V1-volume_condicional-lightgbm": {
+     "fit_seconds": 40.482547299936414,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 65,
+      "num_leaves": 31
+     }
+    },
+    "eolica-V1-volume_condicional-linear": {
+     "fit_seconds": 62.28370310005266,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "alpha": 0.01
+     }
+    }
+   },
+   "training_vs_population": [
+    {
+     "task": "causa",
+     "segment": "initial",
+     "rows_run": 8076180,
+     "rows_measured": 27728833,
+     "ratio": 0.29125567599617336,
+     "expected_ratio": 0.2916666666666667,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "causa",
+     "segment": "refit",
+     "rows_run": 8891212,
+     "rows_measured": 30533665,
+     "ratio": 0.29119373648725105,
+     "expected_ratio": 0.2916666666666667,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "causa",
+     "segment": "tuning",
+     "rows_run": 2154617,
+     "rows_measured": 2154617,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "calibration",
+     "rows_run": 9518400,
+     "rows_measured": 9518400,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.23157295343755252,
+     "target_mean_measured_full": 0.23157295343755252
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "initial",
+     "rows_run": 11053700,
+     "rows_measured": 132692040,
+     "ratio": 0.08330341443239549,
+     "expected_ratio": 0.08333333333333333,
+     "target_mean_run": 0.14151388222947972,
+     "target_mean_measured_full": 0.14170445340956397
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "refit",
+     "rows_run": 11861584,
+     "rows_measured": 142386336,
+     "ratio": 0.0833056340462332,
+     "expected_ratio": 0.08333333333333333,
+     "target_mean_run": 0.14628349805557167,
+     "target_mean_measured_full": 0.1462122109806941
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "tuning",
+     "rows_run": 8480256,
+     "rows_measured": 8480256,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.18135053941767795,
+     "target_mean_measured_full": 0.18135053941767795
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "calibration",
+     "rows_run": 9518400,
+     "rows_measured": 9518400,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.3324599722642461,
+     "target_mean_measured_full": 0.3324599722642461
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "initial",
+     "rows_run": 11053700,
+     "rows_measured": 132692040,
+     "ratio": 0.08330341443239549,
+     "expected_ratio": 0.08333333333333333,
+     "target_mean_run": 0.20863728887159955,
+     "target_mean_measured_full": 0.20897133693927683
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "refit",
+     "rows_run": 11861584,
+     "rows_measured": 142386336,
+     "ratio": 0.0833056340462332,
+     "expected_ratio": 0.08333333333333333,
+     "target_mean_run": 0.21439623915321934,
+     "target_mean_measured_full": 0.21444238160605522
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "tuning",
+     "rows_run": 8480256,
+     "rows_measured": 8480256,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.25407452322194046,
+     "target_mean_measured_full": 0.25407452322194046
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "initial",
+     "rows_run": 5475286,
+     "rows_measured": 18803053,
+     "ratio": 0.2911913294080488,
+     "expected_ratio": 0.2916666666666667,
+     "target_mean_run": 43.018090367516876,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "refit",
+     "rows_run": 6060788,
+     "rows_measured": 20818621,
+     "ratio": 0.29112341302529116,
+     "expected_ratio": 0.2916666666666667,
+     "target_mean_run": 42.589251063888064,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "tuning",
+     "rows_run": 1537899,
+     "rows_measured": 1537899,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 35.57429553696309,
+     "target_mean_measured_full": null
+    }
+   ],
+   "checksums": {
+    "present": true,
+    "files_listed": 54,
+    "bytes_listed": 3593404884,
+    "mismatched": [],
+    "missing": [],
+    "unlisted_on_disk": [],
+    "ok": true
+   }
+  },
+  "main-eolica-v2-004": {
+   "source": "eolica",
+   "round": "V2",
+   "step": {
+    "exists": true,
+    "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+    "git_status_short": "",
+    "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+    "started_at": "2026-09-24T06:22:55.3420790-03:00",
+    "finished_at": "2026-09-24T07:30:47.6552177-03:00",
+    "exit_code": 0,
+    "duration_seconds": 4072.3,
+    "peak_tree_working_set_bytes_sampled": 14604324864.0,
+    "peak_process_working_set_bytes": 16914382848,
+    "interrupted": false,
+    "stderr_bytes": 2710,
+    "stderr_phase_markers": [
+     "[curtamap-fase] 2026-09-24T06:22:58.313187-03:00 preparacao",
+     "[curtamap-fase] 2026-09-24T06:23:03.179060-03:00 treino",
+     "[curtamap-fase] 2026-09-24T07:02:01.416728-03:00 previsao",
+     "[curtamap-fase] 2026-09-24T07:14:30.852919-03:00 modelos_metricas",
+     "[curtamap-fase] 2026-09-24T07:19:35.511108-03:00 pipelines",
+     "[curtamap-fase] 2026-09-24T07:22:07.076259-03:00 baselines",
+     "[curtamap-fase] 2026-09-24T07:30:30.944056-03:00 relatorio",
+     "[curtamap-fase] 2026-09-24T07:30:31.016744-03:00 fim"
+    ],
+    "stderr_other_lines": 16,
+    "stderr_unique_other": [
+     {
+      "line": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila\\.venv\\Lib\\site-packages\\lightgbm\\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, us",
+      "count": 8
+     },
+     {
+      "line": "eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)",
+      "count": 8
+     }
+    ]
+   },
+   "manifest_status": "complete",
+   "manifest_code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "data_hashes": {
+    "eolica": "487050da7ed2470ec563b96ca88ed620654f43683927cb7b1bb8421323f0734d",
+    "fotovoltaica": "e293594146a29b5b78b4837f7618201f15b4e5a9e4ec9de5e7a7c8342db711ec"
+   },
+   "configuration_sha256": "1ed847278be8bed4dee386b246bf492ae4b3f54e63934291373c14820789a267",
+   "bytes_consumed": 3914274387,
+   "reports": [
+    "eolica-V2.json"
+   ],
+   "failures": [],
+   "execution": {
+    "mode": "validacao_por_partes_de_t0",
+    "peak_rss_bytes": 16914382848,
+    "validation_chunk_days": 7,
+    "validation_chunks": 18,
+    "validation_rows": 43830768
+   },
+   "boundaries": {
+    "calibration_start": "2025-04-02 00:00:00",
+    "cutoff": "2025-04-30 00:00:00",
+    "tuning_start": "2025-03-05 00:00:00",
+    "validation_start": "2025-05-01 00:00:00"
+   },
+   "training_sampling": {
+    "complete_segments": [
+     "tuning",
+     "calibration",
+     "validation"
+    ],
+    "method": "t0_sistematico_diario_v1",
+    "seed": 42,
+    "segments": [
+     "initial",
+     "refit"
+    ],
+    "slots_per_day": {
+     "causa": 14,
+     "corte_positivo": 4,
+     "restricao_registrada": 4,
+     "volume_condicional": 14
+    }
+   },
+   "fit_seconds_total": 2329.29231380031,
+   "models": {
+    "eolica-V2-causa-lightgbm": {
+     "fit_seconds": 400.70764649997,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 246,
+      "num_leaves": 31
+     }
+    },
+    "eolica-V2-causa-linear": {
+     "fit_seconds": 683.0476943000685,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "C": 1.0
+     }
+    },
+    "eolica-V2-corte_positivo-lightgbm": {
+     "fit_seconds": 131.6081890000496,
+     "calibration_status": "sigmoide",
+     "threshold": 0.10953675274670836,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 14,
+      "num_leaves": 31
+     }
+    },
+    "eolica-V2-corte_positivo-linear": {
+     "fit_seconds": 176.28909160010517,
+     "calibration_status": "sigmoide",
+     "threshold": 0.12165302984972935,
+     "selected_params": {
+      "C": 0.1
+     }
+    },
+    "eolica-V2-restricao_registrada-lightgbm": {
+     "fit_seconds": 601.1455796000082,
+     "calibration_status": "sigmoide",
+     "threshold": 0.12831767827107307,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 294,
+      "num_leaves": 31
+     }
+    },
+    "eolica-V2-restricao_registrada-linear": {
+     "fit_seconds": 186.1203805000987,
+     "calibration_status": "sigmoide",
+     "threshold": 0.14029301291671673,
+     "selected_params": {
+      "C": 1.0
+     }
+    },
+    "eolica-V2-volume_condicional-lightgbm": {
+     "fit_seconds": 40.84482370002661,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 27,
+      "num_leaves": 31
+     }
+    },
+    "eolica-V2-volume_condicional-linear": {
+     "fit_seconds": 109.52890859998297,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "alpha": 0.0001
+     }
+    }
+   },
+   "training_vs_population": [
+    {
+     "task": "causa",
+     "segment": "initial",
+     "rows_run": 11666478,
+     "rows_measured": 40046603,
+     "ratio": 0.29132253739474484,
+     "expected_ratio": 0.2916666666666667,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "causa",
+     "segment": "refit",
+     "rows_run": 12325436,
+     "rows_measured": 42312202,
+     "ratio": 0.2912974370844609,
+     "expected_ratio": 0.2916666666666667,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "causa",
+     "segment": "tuning",
+     "rows_run": 1310236,
+     "rows_measured": 1310236,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "calibration",
+     "rows_run": 9527424,
+     "rows_measured": 9527424,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.16332001178912578,
+     "target_mean_measured_full": 0.16332001178912578
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "initial",
+     "rows_run": 14558352,
+     "rows_measured": 174755520,
+     "ratio": 0.08330696506754122,
+     "expected_ratio": 0.08333333333333333,
+     "target_mean_run": 0.16193412551090947,
+     "target_mean_measured_full": 0.1616956420031825
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "refit",
+     "rows_run": 15482776,
+     "rows_measured": 185795136,
+     "ratio": 0.08333251522795516,
+     "expected_ratio": 0.08333333333333333,
+     "target_mean_run": 0.1625787261922539,
+     "target_mean_measured_full": 0.16233402902431202
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "tuning",
+     "rows_run": 9066528,
+     "rows_measured": 9066528,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.11880148608155183,
+     "target_mean_measured_full": 0.11880148608155183
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "calibration",
+     "rows_run": 9527424,
+     "rows_measured": 9527424,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.19716609652304756,
+     "target_mean_measured_full": 0.19716609652304756
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "initial",
+     "rows_run": 14558352,
+     "rows_measured": 174755520,
+     "ratio": 0.08330696506754122,
+     "expected_ratio": 0.08333333333333333,
+     "target_mean_run": 0.2294710967285308,
+     "target_mean_measured_full": 0.22915787152245606
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "refit",
+     "rows_run": 15482776,
+     "rows_measured": 185795136,
+     "ratio": 0.08333251522795516,
+     "expected_ratio": 0.08333333333333333,
+     "target_mean_run": 0.22803940326980124,
+     "target_mean_measured_full": 0.22773578959569749
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "tuning",
+     "rows_run": 9066528,
+     "rows_measured": 9066528,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.14451353373639833,
+     "target_mean_measured_full": 0.14451353373639833
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "initial",
+     "rows_run": 8230388,
+     "rows_measured": 28257206,
+     "ratio": 0.2912668718910143,
+     "expected_ratio": 0.2916666666666667,
+     "target_mean_run": 44.3490756931508,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "refit",
+     "rows_run": 8784027,
+     "rows_measured": 30160873,
+     "ratio": 0.29123914947687357,
+     "expected_ratio": 0.2916666666666667,
+     "target_mean_run": 44.15317786545966,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "tuning",
+     "rows_run": 1077117,
+     "rows_measured": 1077117,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 36.31519216203996,
+     "target_mean_measured_full": null
+    }
+   ],
+   "checksums": {
+    "present": true,
+    "files_listed": 54,
+    "bytes_listed": 3914274591,
+    "mismatched": [],
+    "missing": [],
+    "unlisted_on_disk": [],
+    "ok": true
+   }
+  },
+  "main-eolica-v3-001": {
+   "source": "eolica",
+   "round": "V3",
+   "step": {
+    "exists": true,
+    "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+    "git_status_short": "",
+    "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+    "started_at": "2026-09-24T07:30:58.8205843-03:00",
+    "finished_at": "2026-09-24T08:55:25.6406567-03:00",
+    "exit_code": 0,
+    "duration_seconds": 5066.8,
+    "peak_tree_working_set_bytes_sampled": 15629729792.0,
+    "peak_process_working_set_bytes": 20149882880,
+    "interrupted": false,
+    "stderr_bytes": 2710,
+    "stderr_phase_markers": [
+     "[curtamap-fase] 2026-09-24T07:31:01.228307-03:00 preparacao",
+     "[curtamap-fase] 2026-09-24T07:31:05.731052-03:00 treino",
+     "[curtamap-fase] 2026-09-24T08:27:15.088275-03:00 previsao",
+     "[curtamap-fase] 2026-09-24T08:38:40.428059-03:00 modelos_metricas",
+     "[curtamap-fase] 2026-09-24T08:44:12.190142-03:00 pipelines",
+     "[curtamap-fase] 2026-09-24T08:46:45.492759-03:00 baselines",
+     "[curtamap-fase] 2026-09-24T08:55:04.320424-03:00 relatorio",
+     "[curtamap-fase] 2026-09-24T08:55:04.391572-03:00 fim"
+    ],
+    "stderr_other_lines": 16,
+    "stderr_unique_other": [
+     {
+      "line": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila\\.venv\\Lib\\site-packages\\lightgbm\\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, us",
+      "count": 8
+     },
+     {
+      "line": "eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)",
+      "count": 8
+     }
+    ]
+   },
+   "manifest_status": "complete",
+   "manifest_code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "data_hashes": {
+    "eolica": "487050da7ed2470ec563b96ca88ed620654f43683927cb7b1bb8421323f0734d",
+    "fotovoltaica": "e293594146a29b5b78b4837f7618201f15b4e5a9e4ec9de5e7a7c8342db711ec"
+   },
+   "configuration_sha256": "1ed847278be8bed4dee386b246bf492ae4b3f54e63934291373c14820789a267",
+   "bytes_consumed": 4647134587,
+   "reports": [
+    "eolica-V3.json"
+   ],
+   "failures": [],
+   "execution": {
+    "mode": "validacao_por_partes_de_t0",
+    "peak_rss_bytes": 20149882880,
+    "validation_chunk_days": 7,
+    "validation_chunks": 18,
+    "validation_rows": 43109184
+   },
+   "boundaries": {
+    "calibration_start": "2025-08-01 00:00:00",
+    "cutoff": "2025-08-29 00:00:00",
+    "tuning_start": "2025-07-04 00:00:00",
+    "validation_start": "2025-09-01 00:00:00"
+   },
+   "training_sampling": {
+    "complete_segments": [
+     "tuning",
+     "calibration",
+     "validation"
+    ],
+    "method": "t0_sistematico_diario_v1",
+    "seed": 42,
+    "segments": [
+     "initial",
+     "refit"
+    ],
+    "slots_per_day": {
+     "causa": 14,
+     "corte_positivo": 4,
+     "restricao_registrada": 4,
+     "volume_condicional": 14
+    }
+   },
+   "fit_seconds_total": 3357.998099599965,
+   "models": {
+    "eolica-V3-causa-lightgbm": {
+     "fit_seconds": 196.71684819995426,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "max_depth": 4,
+      "n_estimators": 5,
+      "num_leaves": 15
+     }
+    },
+    "eolica-V3-causa-linear": {
+     "fit_seconds": 1111.960962699959,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "C": 1.0
+     }
+    },
+    "eolica-V3-corte_positivo-lightgbm": {
+     "fit_seconds": 900.1356423000107,
+     "calibration_status": "sigmoide",
+     "threshold": 0.23386144603278775,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 498,
+      "num_leaves": 31
+     }
+    },
+    "eolica-V3-corte_positivo-linear": {
+     "fit_seconds": 217.834929500008,
+     "calibration_status": "sigmoide",
+     "threshold": 0.23213324431219648,
+     "selected_params": {
+      "C": 1.0
+     }
+    },
+    "eolica-V3-restricao_registrada-lightgbm": {
+     "fit_seconds": 494.497316999943,
+     "calibration_status": "sigmoide",
+     "threshold": 0.15105556321960503,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 307,
+      "num_leaves": 31
+     }
+    },
+    "eolica-V3-restricao_registrada-linear": {
+     "fit_seconds": 195.0470600000117,
+     "calibration_status": "sigmoide",
+     "threshold": 0.24909383813149474,
+     "selected_params": {
+      "C": 1.0
+     }
+    },
+    "eolica-V3-volume_condicional-lightgbm": {
+     "fit_seconds": 117.80564150004648,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 169,
+      "num_leaves": 31
+     }
+    },
+    "eolica-V3-volume_condicional-linear": {
+     "fit_seconds": 123.99969840003178,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "alpha": 0.0001
+     }
+    }
+   },
+   "training_vs_population": [
+    {
+     "task": "causa",
+     "segment": "initial",
+     "rows_run": 15650434,
+     "rows_measured": 53696964,
+     "ratio": 0.29145845191545655,
+     "expected_ratio": 0.2916666666666667,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "causa",
+     "segment": "refit",
+     "rows_run": 17008469,
+     "rows_measured": 58360175,
+     "ratio": 0.29143965041228886,
+     "expected_ratio": 0.2916666666666667,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "causa",
+     "segment": "tuning",
+     "rows_run": 4454373,
+     "rows_measured": 4454373,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "calibration",
+     "rows_run": 9532224,
+     "rows_measured": 9532224,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.47539231138504506,
+     "target_mean_measured_full": 0.47539231138504506
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "initial",
+     "rows_run": 18225084,
+     "rows_measured": 218732808,
+     "ratio": 0.08332121809545827,
+     "expected_ratio": 0.08333333333333333,
+     "target_mean_run": 0.1799897328319584,
+     "target_mean_measured_full": 0.1796490355484304
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "refit",
+     "rows_run": 19049136,
+     "rows_measured": 228613584,
+     "ratio": 0.08332460244357133,
+     "expected_ratio": 0.08333333333333333,
+     "target_mean_run": 0.18941667485601446,
+     "target_mean_measured_full": 0.18913746612712218
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "tuning",
+     "rows_run": 9348816,
+     "rows_measured": 9348816,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.4024128830859437,
+     "target_mean_measured_full": 0.4024128830859437
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "calibration",
+     "rows_run": 9532224,
+     "rows_measured": 9532224,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.5555144318891373,
+     "target_mean_measured_full": 0.5555144318891373
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "initial",
+     "rows_run": 18225084,
+     "rows_measured": 218732808,
+     "ratio": 0.08332121809545827,
+     "expected_ratio": 0.08333333333333333,
+     "target_mean_run": 0.24590185702299094,
+     "target_mean_measured_full": 0.2454911290673871
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "refit",
+     "rows_run": 19049136,
+     "rows_measured": 228613584,
+     "ratio": 0.08332460244357133,
+     "expected_ratio": 0.08333333333333333,
+     "target_mean_run": 0.25563847095217335,
+     "target_mean_measured_full": 0.25527868457720343
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "tuning",
+     "rows_run": 9348816,
+     "rows_measured": 9348816,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.4764638645150359,
+     "target_mean_measured_full": 0.4764638645150359
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "initial",
+     "rows_run": 11451352,
+     "rows_measured": 39295138,
+     "ratio": 0.29141905545668273,
+     "expected_ratio": 0.2916666666666667,
+     "target_mean_run": 43.93013992050894,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "refit",
+     "rows_run": 12600100,
+     "rows_measured": 43239394,
+     "ratio": 0.29140325139616896,
+     "expected_ratio": 0.2916666666666667,
+     "target_mean_run": 44.594380949119454,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "tuning",
+     "rows_run": 3762084,
+     "rows_measured": 3762084,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 50.802137553281646,
+     "target_mean_measured_full": null
+    }
+   ],
+   "checksums": {
+    "present": true,
+    "files_listed": 54,
+    "bytes_listed": 4647134791,
+    "mismatched": [],
+    "missing": [],
+    "unlisted_on_disk": [],
+    "ok": true
+   }
+  },
+  "main-eolica-v4-001": {
+   "source": "eolica",
+   "round": "V4",
+   "step": {
+    "exists": true,
+    "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+    "git_status_short": "",
+    "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+    "started_at": "2026-09-24T08:55:27.0865873-03:00",
+    "finished_at": "2026-09-24T10:19:53.7809655-03:00",
+    "exit_code": 0,
+    "duration_seconds": 5066.7,
+    "peak_tree_working_set_bytes_sampled": 18264715264.0,
+    "peak_process_working_set_bytes": 23646674944,
+    "interrupted": false,
+    "stderr_bytes": 2710,
+    "stderr_phase_markers": [
+     "[curtamap-fase] 2026-09-24T08:55:29.491097-03:00 preparacao",
+     "[curtamap-fase] 2026-09-24T08:55:34.335749-03:00 treino",
+     "[curtamap-fase] 2026-09-24T09:55:42.882348-03:00 previsao",
+     "[curtamap-fase] 2026-09-24T10:05:40.459562-03:00 modelos_metricas",
+     "[curtamap-fase] 2026-09-24T10:09:51.000397-03:00 pipelines",
+     "[curtamap-fase] 2026-09-24T10:12:15.480655-03:00 baselines",
+     "[curtamap-fase] 2026-09-24T10:19:41.832738-03:00 relatorio",
+     "[curtamap-fase] 2026-09-24T10:19:41.903771-03:00 fim"
+    ],
+    "stderr_other_lines": 16,
+    "stderr_unique_other": [
+     {
+      "line": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila\\.venv\\Lib\\site-packages\\lightgbm\\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, us",
+      "count": 8
+     },
+     {
+      "line": "eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)",
+      "count": 8
+     }
+    ]
+   },
+   "manifest_status": "complete",
+   "manifest_code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "data_hashes": {
+    "eolica": "487050da7ed2470ec563b96ca88ed620654f43683927cb7b1bb8421323f0734d",
+    "fotovoltaica": "e293594146a29b5b78b4837f7618201f15b4e5a9e4ec9de5e7a7c8342db711ec"
+   },
+   "configuration_sha256": "1ed847278be8bed4dee386b246bf492ae4b3f54e63934291373c14820789a267",
+   "bytes_consumed": 3576599443,
+   "reports": [
+    "eolica-V4.json"
+   ],
+   "failures": [],
+   "execution": {
+    "mode": "validacao_por_partes_de_t0",
+    "peak_rss_bytes": 23646674944,
+    "validation_chunk_days": 7,
+    "validation_chunks": 18,
+    "validation_rows": 42194016
+   },
+   "boundaries": {
+    "calibration_start": "2025-12-02 00:00:00",
+    "cutoff": "2025-12-30 00:00:00",
+    "tuning_start": "2025-11-04 00:00:00",
+    "validation_start": "2026-01-01 00:00:00"
+   },
+   "training_sampling": {
+    "complete_segments": [
+     "tuning",
+     "calibration",
+     "validation"
+    ],
+    "method": "t0_sistematico_diario_v1",
+    "seed": 42,
+    "segments": [
+     "initial",
+     "refit"
+    ],
+    "slots_per_day": {
+     "causa": 14,
+     "corte_positivo": 4,
+     "restricao_registrada": 4,
+     "volume_condicional": 14
+    }
+   },
+   "fit_seconds_total": 3592.526370900101,
+   "models": {
+    "eolica-V4-causa-lightgbm": {
+     "fit_seconds": 681.1929267001105,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "max_depth": 4,
+      "n_estimators": 186,
+      "num_leaves": 15
+     }
+    },
+    "eolica-V4-causa-linear": {
+     "fit_seconds": 1701.004178800038,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "C": 1.0
+     }
+    },
+    "eolica-V4-corte_positivo-lightgbm": {
+     "fit_seconds": 160.1252373000607,
+     "calibration_status": "sigmoide",
+     "threshold": 0.2042376253594249,
+     "selected_params": {
+      "max_depth": 4,
+      "n_estimators": 13,
+      "num_leaves": 15
+     }
+    },
+    "eolica-V4-corte_positivo-linear": {
+     "fit_seconds": 195.33393640001304,
+     "calibration_status": "sigmoide",
+     "threshold": 0.20654390392296768,
+     "selected_params": {
+      "C": 1.0
+     }
+    },
+    "eolica-V4-restricao_registrada-lightgbm": {
+     "fit_seconds": 162.36975730000995,
+     "calibration_status": "sigmoide",
+     "threshold": 0.1783494967993616,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 7,
+      "num_leaves": 31
+     }
+    },
+    "eolica-V4-restricao_registrada-linear": {
+     "fit_seconds": 230.86929009994492,
+     "calibration_status": "sigmoide",
+     "threshold": 0.2058627666774681,
+     "selected_params": {
+      "C": 0.1
+     }
+    },
+    "eolica-V4-volume_condicional-lightgbm": {
+     "fit_seconds": 252.6314652999863,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 302,
+      "num_leaves": 31
+     }
+    },
+    "eolica-V4-volume_condicional-linear": {
+     "fit_seconds": 208.9995789999375,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "alpha": 0.0001
+     }
+    }
+   },
+   "training_vs_population": [
+    {
+     "task": "causa",
+     "segment": "initial",
+     "rows_run": 22786135,
+     "rows_measured": 78160184,
+     "ratio": 0.29153123539217873,
+     "expected_ratio": 0.2916666666666667,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "causa",
+     "segment": "refit",
+     "rows_run": 24201916,
+     "rows_measured": 83010440,
+     "ratio": 0.29155267698858117,
+     "expected_ratio": 0.2916666666666667,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "causa",
+     "segment": "tuning",
+     "rows_run": 4725090,
+     "rows_measured": 4725090,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "calibration",
+     "rows_run": 9587424,
+     "rows_measured": 9587424,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.37246897602525975,
+     "target_mean_measured_full": 0.37246897602525975
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "initial",
+     "rows_run": 21841480,
+     "rows_measured": 262143984,
+     "ratio": 0.08331863911856928,
+     "expected_ratio": 0.08333333333333333,
+     "target_mean_run": 0.2320186177859742,
+     "target_mean_measured_full": 0.23172850306570453
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "refit",
+     "rows_run": 22670000,
+     "rows_measured": 272078832,
+     "ratio": 0.08332143972155835,
+     "expected_ratio": 0.08333333333333333,
+     "target_mean_run": 0.23959320688134098,
+     "target_mean_measured_full": 0.23929138669633807
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "tuning",
+     "rows_run": 9406320,
+     "rows_measured": 9406320,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.45250002126230027,
+     "target_mean_measured_full": 0.45250002126230027
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "calibration",
+     "rows_run": 9587424,
+     "rows_measured": 9587424,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.42854159782648604,
+     "target_mean_measured_full": 0.42854159782648604
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "initial",
+     "rows_run": 21841480,
+     "rows_measured": 262143984,
+     "ratio": 0.08331863911856928,
+     "expected_ratio": 0.08333333333333333,
+     "target_mean_run": 0.29848714464404424,
+     "target_mean_measured_full": 0.29815745838363394
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "refit",
+     "rows_run": 22670000,
+     "rows_measured": 272078832,
+     "ratio": 0.08332143972155835,
+     "expected_ratio": 0.08333333333333333,
+     "target_mean_run": 0.30544080282311425,
+     "target_mean_measured_full": 0.3050970168822248
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "tuning",
+     "rows_run": 9406320,
+     "rows_measured": 9406320,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.5023314112213916,
+     "target_mean_measured_full": 0.5023314112213916
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "initial",
+     "rows_run": 17709453,
+     "rows_measured": 60746233,
+     "ratio": 0.2915317069949012,
+     "expected_ratio": 0.2916666666666667,
+     "target_mean_run": 50.54638165650854,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "refit",
+     "rows_run": 18981737,
+     "rows_measured": 65106121,
+     "ratio": 0.2915507283869669,
+     "expected_ratio": 0.2916666666666667,
+     "target_mean_run": 50.64501585660996,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "tuning",
+     "rows_run": 4256360,
+     "rows_measured": 4256360,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 52.59950525026078,
+     "target_mean_measured_full": null
+    }
+   ],
+   "checksums": {
+    "present": true,
+    "files_listed": 54,
+    "bytes_listed": 3576599647,
+    "mismatched": [],
+    "missing": [],
+    "unlisted_on_disk": [],
+    "ok": true
+   }
+  },
+  "main-fotovoltaica-v1-001": {
+   "source": "fotovoltaica",
+   "round": "V1",
+   "step": {
+    "exists": true,
+    "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+    "git_status_short": "",
+    "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+    "started_at": "2026-09-24T10:19:55.0223479-03:00",
+    "finished_at": "2026-09-24T10:50:35.0210961-03:00",
+    "exit_code": 0,
+    "duration_seconds": 1840.0,
+    "peak_tree_working_set_bytes_sampled": 7616360448.0,
+    "peak_process_working_set_bytes": 10527682560,
+    "interrupted": false,
+    "stderr_bytes": 2710,
+    "stderr_phase_markers": [
+     "[curtamap-fase] 2026-09-24T10:19:58.830908-03:00 preparacao",
+     "[curtamap-fase] 2026-09-24T10:20:01.600962-03:00 treino",
+     "[curtamap-fase] 2026-09-24T10:39:46.151237-03:00 previsao",
+     "[curtamap-fase] 2026-09-24T10:44:28.186140-03:00 modelos_metricas",
+     "[curtamap-fase] 2026-09-24T10:46:35.945614-03:00 pipelines",
+     "[curtamap-fase] 2026-09-24T10:47:33.895241-03:00 baselines",
+     "[curtamap-fase] 2026-09-24T10:50:20.555690-03:00 relatorio",
+     "[curtamap-fase] 2026-09-24T10:50:20.627883-03:00 fim"
+    ],
+    "stderr_other_lines": 16,
+    "stderr_unique_other": [
+     {
+      "line": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila\\.venv\\Lib\\site-packages\\lightgbm\\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, us",
+      "count": 8
+     },
+     {
+      "line": "eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)",
+      "count": 8
+     }
+    ]
+   },
+   "manifest_status": "complete",
+   "manifest_code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "data_hashes": {
+    "eolica": "487050da7ed2470ec563b96ca88ed620654f43683927cb7b1bb8421323f0734d",
+    "fotovoltaica": "e293594146a29b5b78b4837f7618201f15b4e5a9e4ec9de5e7a7c8342db711ec"
+   },
+   "configuration_sha256": "1ed847278be8bed4dee386b246bf492ae4b3f54e63934291373c14820789a267",
+   "bytes_consumed": 1825599853,
+   "reports": [
+    "fotovoltaica-V1.json"
+   ],
+   "failures": [],
+   "execution": {
+    "mode": "validacao_por_partes_de_t0",
+    "peak_rss_bytes": 10527682560,
+    "validation_chunk_days": 7,
+    "validation_chunks": 18,
+    "validation_rows": 17781648
+   },
+   "boundaries": {
+    "calibration_start": "2024-12-02 00:00:00",
+    "cutoff": "2024-12-30 00:00:00",
+    "tuning_start": "2024-11-04 00:00:00",
+    "validation_start": "2025-01-01 00:00:00"
+   },
+   "training_sampling": {
+    "complete_segments": [
+     "tuning",
+     "calibration",
+     "validation"
+    ],
+    "method": "t0_sistematico_diario_v1",
+    "seed": 42,
+    "segments": [
+     "initial",
+     "refit"
+    ],
+    "slots_per_day": {
+     "causa": 48,
+     "corte_positivo": 16,
+     "restricao_registrada": 16,
+     "volume_condicional": 48
+    }
+   },
+   "fit_seconds_total": 1181.7594188997755,
+   "models": {
+    "fotovoltaica-V1-causa-lightgbm": {
+     "fit_seconds": 58.0990772000514,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "max_depth": 4,
+      "n_estimators": 27,
+      "num_leaves": 15
+     }
+    },
+    "fotovoltaica-V1-causa-linear": {
+     "fit_seconds": 163.57491689990275,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "C": 0.1
+     }
+    },
+    "fotovoltaica-V1-corte_positivo-lightgbm": {
+     "fit_seconds": 359.7463283999823,
+     "calibration_status": "sigmoide",
+     "threshold": 0.09008579662252024,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 420,
+      "num_leaves": 31
+     }
+    },
+    "fotovoltaica-V1-corte_positivo-linear": {
+     "fit_seconds": 96.25014460005332,
+     "calibration_status": "sigmoide",
+     "threshold": 0.10400585616736967,
+     "selected_params": {
+      "C": 0.1
+     }
+    },
+    "fotovoltaica-V1-restricao_registrada-lightgbm": {
+     "fit_seconds": 391.78594109998085,
+     "calibration_status": "sigmoide",
+     "threshold": 0.11599845316485326,
+     "selected_params": {
+      "max_depth": 4,
+      "n_estimators": 492,
+      "num_leaves": 15
+     }
+    },
+    "fotovoltaica-V1-restricao_registrada-linear": {
+     "fit_seconds": 57.67680529993959,
+     "calibration_status": "sigmoide",
+     "threshold": 0.13333615737272037,
+     "selected_params": {
+      "C": 0.1
+     }
+    },
+    "fotovoltaica-V1-volume_condicional-lightgbm": {
+     "fit_seconds": 18.114031599950977,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "max_depth": 4,
+      "n_estimators": 64,
+      "num_leaves": 15
+     }
+    },
+    "fotovoltaica-V1-volume_condicional-linear": {
+     "fit_seconds": 36.51217379991431,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "alpha": 0.01
+     }
+    }
+   },
+   "training_vs_population": [
+    {
+     "task": "causa",
+     "segment": "initial",
+     "rows_run": 4520501,
+     "rows_measured": 4520501,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "causa",
+     "segment": "refit",
+     "rows_run": 5117142,
+     "rows_measured": 5117142,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "causa",
+     "segment": "tuning",
+     "rows_run": 448573,
+     "rows_measured": 448573,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "calibration",
+     "rows_run": 3859872,
+     "rows_measured": 3859872,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.14933422662720422,
+     "target_mean_measured_full": 0.14933422662720422
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "initial",
+     "rows_run": 8373696,
+     "rows_measured": 25120656,
+     "ratio": 0.3333390656677119,
+     "expected_ratio": 0.3333333333333333,
+     "target_mean_run": 0.11527765039475997,
+     "target_mean_measured_full": 0.11521820926969423
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "refit",
+     "rows_run": 9696208,
+     "rows_measured": 29088288,
+     "ratio": 0.3333371836802496,
+     "expected_ratio": 0.3333333333333333,
+     "target_mean_run": 0.11321260847539574,
+     "target_mean_measured_full": 0.11307764142049198
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "tuning",
+     "rows_run": 3485232,
+     "rows_measured": 3485232,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.08682147989000445,
+     "target_mean_measured_full": 0.08682147989000445
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "calibration",
+     "rows_run": 3859872,
+     "rows_measured": 3859872,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.21335992488870098,
+     "target_mean_measured_full": 0.21335992488870098
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "initial",
+     "rows_run": 8373696,
+     "rows_measured": 25120656,
+     "ratio": 0.3333390656677119,
+     "expected_ratio": 0.3333333333333333,
+     "target_mean_run": 0.1800695893426272,
+     "target_mean_measured_full": 0.17995155062829568
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "refit",
+     "rows_run": 9696208,
+     "rows_measured": 29088288,
+     "ratio": 0.3333371836802496,
+     "expected_ratio": 0.3333333333333333,
+     "target_mean_run": 0.17613246332999458,
+     "target_mean_measured_full": 0.17591760642633902
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "tuning",
+     "rows_run": 3485232,
+     "rows_measured": 3485232,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.1287067833647803,
+     "target_mean_measured_full": 0.1287067833647803
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "initial",
+     "rows_run": 2894357,
+     "rows_measured": 2894357,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 76.63742338764708,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "refit",
+     "rows_run": 3289235,
+     "rows_measured": 3289235,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 77.30803900481419,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "tuning",
+     "rows_run": 302593,
+     "rows_measured": 302593,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 80.92066326055131,
+     "target_mean_measured_full": null
+    }
+   ],
+   "checksums": {
+    "present": true,
+    "files_listed": 54,
+    "bytes_listed": 1825600057,
+    "mismatched": [],
+    "missing": [],
+    "unlisted_on_disk": [],
+    "ok": true
+   }
+  },
+  "main-fotovoltaica-v2-001": {
+   "source": "fotovoltaica",
+   "round": "V2",
+   "step": {
+    "exists": true,
+    "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+    "git_status_short": "",
+    "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+    "started_at": "2026-09-24T10:50:46.0638313-03:00",
+    "finished_at": "2026-09-24T11:23:57.1773930-03:00",
+    "exit_code": 0,
+    "duration_seconds": 1991.1,
+    "peak_tree_working_set_bytes_sampled": 10960691200.0,
+    "peak_process_working_set_bytes": 15858909184,
+    "interrupted": false,
+    "stderr_bytes": 2710,
+    "stderr_phase_markers": [
+     "[curtamap-fase] 2026-09-24T10:50:48.464568-03:00 preparacao",
+     "[curtamap-fase] 2026-09-24T10:50:49.731938-03:00 treino",
+     "[curtamap-fase] 2026-09-24T11:13:12.023249-03:00 previsao",
+     "[curtamap-fase] 2026-09-24T11:17:21.626773-03:00 modelos_metricas",
+     "[curtamap-fase] 2026-09-24T11:19:36.412807-03:00 pipelines",
+     "[curtamap-fase] 2026-09-24T11:20:37.634119-03:00 baselines",
+     "[curtamap-fase] 2026-09-24T11:23:41.687800-03:00 relatorio",
+     "[curtamap-fase] 2026-09-24T11:23:41.757844-03:00 fim"
+    ],
+    "stderr_other_lines": 16,
+    "stderr_unique_other": [
+     {
+      "line": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila\\.venv\\Lib\\site-packages\\lightgbm\\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, us",
+      "count": 8
+     },
+     {
+      "line": "eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)",
+      "count": 8
+     }
+    ]
+   },
+   "manifest_status": "complete",
+   "manifest_code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "data_hashes": {
+    "eolica": "487050da7ed2470ec563b96ca88ed620654f43683927cb7b1bb8421323f0734d",
+    "fotovoltaica": "e293594146a29b5b78b4837f7618201f15b4e5a9e4ec9de5e7a7c8342db711ec"
+   },
+   "configuration_sha256": "1ed847278be8bed4dee386b246bf492ae4b3f54e63934291373c14820789a267",
+   "bytes_consumed": 1814141981,
+   "reports": [
+    "fotovoltaica-V2.json"
+   ],
+   "failures": [],
+   "execution": {
+    "mode": "validacao_por_partes_de_t0",
+    "peak_rss_bytes": 15858909184,
+    "validation_chunk_days": 7,
+    "validation_chunks": 18,
+    "validation_rows": 18273840
+   },
+   "boundaries": {
+    "calibration_start": "2025-04-02 00:00:00",
+    "cutoff": "2025-04-30 00:00:00",
+    "tuning_start": "2025-03-05 00:00:00",
+    "validation_start": "2025-05-01 00:00:00"
+   },
+   "training_sampling": {
+    "complete_segments": [
+     "tuning",
+     "calibration",
+     "validation"
+    ],
+    "method": "t0_sistematico_diario_v1",
+    "seed": 42,
+    "segments": [
+     "initial",
+     "refit"
+    ],
+    "slots_per_day": {
+     "causa": 48,
+     "corte_positivo": 16,
+     "restricao_registrada": 16,
+     "volume_condicional": 48
+    }
+   },
+   "fit_seconds_total": 1338.5162454998353,
+   "models": {
+    "fotovoltaica-V2-causa-lightgbm": {
+     "fit_seconds": 82.06719410000369,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 7,
+      "num_leaves": 31
+     }
+    },
+    "fotovoltaica-V2-causa-linear": {
+     "fit_seconds": 314.6464036999969,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "C": 1.0
+     }
+    },
+    "fotovoltaica-V2-corte_positivo-lightgbm": {
+     "fit_seconds": 268.9263187999604,
+     "calibration_status": "sigmoide",
+     "threshold": 0.09754668168952076,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 227,
+      "num_leaves": 31
+     }
+    },
+    "fotovoltaica-V2-corte_positivo-linear": {
+     "fit_seconds": 121.97724199993536,
+     "calibration_status": "sigmoide",
+     "threshold": 0.09605912965168406,
+     "selected_params": {
+      "C": 0.1
+     }
+    },
+    "fotovoltaica-V2-restricao_registrada-lightgbm": {
+     "fit_seconds": 349.7110599000007,
+     "calibration_status": "sigmoide",
+     "threshold": 0.08900055394667736,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 332,
+      "num_leaves": 31
+     }
+    },
+    "fotovoltaica-V2-restricao_registrada-linear": {
+     "fit_seconds": 89.34466009994503,
+     "calibration_status": "sigmoide",
+     "threshold": 0.11156856511574717,
+     "selected_params": {
+      "C": 0.1
+     }
+    },
+    "fotovoltaica-V2-volume_condicional-lightgbm": {
+     "fit_seconds": 52.79491349996533,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 172,
+      "num_leaves": 31
+     }
+    },
+    "fotovoltaica-V2-volume_condicional-linear": {
+     "fit_seconds": 59.04845340002794,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "alpha": 0.0001
+     }
+    }
+   },
+   "training_vs_population": [
+    {
+     "task": "causa",
+     "segment": "initial",
+     "rows_run": 7481457,
+     "rows_measured": 7481457,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "causa",
+     "segment": "refit",
+     "rows_run": 8123621,
+     "rows_measured": 8123621,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "causa",
+     "segment": "tuning",
+     "rows_run": 410795,
+     "rows_measured": 410795,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "calibration",
+     "rows_run": 4015440,
+     "rows_measured": 4015440,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.13285443189289342,
+     "target_mean_measured_full": 0.13285443189289342
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "initial",
+     "rows_run": 14099384,
+     "rows_measured": 42300792,
+     "ratio": 0.3333125299403378,
+     "expected_ratio": 0.3333333333333333,
+     "target_mean_run": 0.12026929687140941,
+     "target_mean_measured_full": 0.12013916902548775
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "refit",
+     "rows_run": 15637544,
+     "rows_measured": 46912152,
+     "ratio": 0.33333674396348306,
+     "expected_ratio": 0.3333333333333333,
+     "target_mean_run": 0.11975812825850402,
+     "target_mean_measured_full": 0.11965089557179129
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "tuning",
+     "rows_run": 3789240,
+     "rows_measured": 3789240,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.08931263261234443,
+     "target_mean_measured_full": 0.08931263261234443
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "calibration",
+     "rows_run": 4015440,
+     "rows_measured": 4015440,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.1692419759727452,
+     "target_mean_measured_full": 0.1692419759727452
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "initial",
+     "rows_run": 14099384,
+     "rows_measured": 42300792,
+     "ratio": 0.3333125299403378,
+     "expected_ratio": 0.3333333333333333,
+     "target_mean_run": 0.17704496877310386,
+     "target_mean_measured_full": 0.1768632842619117
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "refit",
+     "rows_run": 15637544,
+     "rows_measured": 46912152,
+     "ratio": 0.33333674396348306,
+     "expected_ratio": 0.3333333333333333,
+     "target_mean_run": 0.17331615501769332,
+     "target_mean_measured_full": 0.17316666692246394
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "tuning",
+     "rows_run": 3789240,
+     "rows_measured": 3789240,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.10841092145126727,
+     "target_mean_measured_full": 0.10841092145126727
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "initial",
+     "rows_run": 5081982,
+     "rows_measured": 5081982,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 81.9881811362181,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "refit",
+     "rows_run": 5613081,
+     "rows_measured": 5613081,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 85.84435067229565,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "tuning",
+     "rows_run": 338427,
+     "rows_measured": 338427,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 135.06715140340458,
+     "target_mean_measured_full": null
+    }
+   ],
+   "checksums": {
+    "present": true,
+    "files_listed": 54,
+    "bytes_listed": 1814142185,
+    "mismatched": [],
+    "missing": [],
+    "unlisted_on_disk": [],
+    "ok": true
+   }
+  },
+  "main-fotovoltaica-v3-001": {
+   "source": "fotovoltaica",
+   "round": "V3",
+   "step": {
+    "exists": true,
+    "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+    "git_status_short": "",
+    "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+    "started_at": "2026-09-24T11:24:17.2627299-03:00",
+    "finished_at": "2026-09-24T12:14:32.1760150-03:00",
+    "exit_code": 0,
+    "duration_seconds": 3014.9,
+    "peak_tree_working_set_bytes_sampled": 18693627904.0,
+    "peak_process_working_set_bytes": 21209780224,
+    "interrupted": false,
+    "stderr_bytes": 2710,
+    "stderr_phase_markers": [
+     "[curtamap-fase] 2026-09-24T11:24:19.590730-03:00 preparacao",
+     "[curtamap-fase] 2026-09-24T11:24:20.989203-03:00 treino",
+     "[curtamap-fase] 2026-09-24T12:01:30.011006-03:00 previsao",
+     "[curtamap-fase] 2026-09-24T12:07:01.739973-03:00 modelos_metricas",
+     "[curtamap-fase] 2026-09-24T12:09:34.749415-03:00 pipelines",
+     "[curtamap-fase] 2026-09-24T12:10:43.398558-03:00 baselines",
+     "[curtamap-fase] 2026-09-24T12:14:01.140800-03:00 relatorio",
+     "[curtamap-fase] 2026-09-24T12:14:01.217329-03:00 fim"
+    ],
+    "stderr_other_lines": 16,
+    "stderr_unique_other": [
+     {
+      "line": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila\\.venv\\Lib\\site-packages\\lightgbm\\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, us",
+      "count": 8
+     },
+     {
+      "line": "eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)",
+      "count": 8
+     }
+    ]
+   },
+   "manifest_status": "complete",
+   "manifest_code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "data_hashes": {
+    "eolica": "487050da7ed2470ec563b96ca88ed620654f43683927cb7b1bb8421323f0734d",
+    "fotovoltaica": "e293594146a29b5b78b4837f7618201f15b4e5a9e4ec9de5e7a7c8342db711ec"
+   },
+   "configuration_sha256": "1ed847278be8bed4dee386b246bf492ae4b3f54e63934291373c14820789a267",
+   "bytes_consumed": 2176760916,
+   "reports": [
+    "fotovoltaica-V3.json"
+   ],
+   "failures": [],
+   "execution": {
+    "mode": "validacao_por_partes_de_t0",
+    "peak_rss_bytes": 21209780224,
+    "validation_chunk_days": 7,
+    "validation_chunks": 18,
+    "validation_rows": 19344336
+   },
+   "boundaries": {
+    "calibration_start": "2025-08-01 00:00:00",
+    "cutoff": "2025-08-29 00:00:00",
+    "tuning_start": "2025-07-04 00:00:00",
+    "validation_start": "2025-09-01 00:00:00"
+   },
+   "training_sampling": {
+    "complete_segments": [
+     "tuning",
+     "calibration",
+     "validation"
+    ],
+    "method": "t0_sistematico_diario_v1",
+    "seed": 42,
+    "segments": [
+     "initial",
+     "refit"
+    ],
+    "slots_per_day": {
+     "causa": 48,
+     "corte_positivo": 16,
+     "restricao_registrada": 16,
+     "volume_condicional": 48
+    }
+   },
+   "fit_seconds_total": 2223.274738100008,
+   "models": {
+    "fotovoltaica-V3-causa-lightgbm": {
+     "fit_seconds": 138.4646425000392,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "max_depth": 4,
+      "n_estimators": 3,
+      "num_leaves": 15
+     }
+    },
+    "fotovoltaica-V3-causa-linear": {
+     "fit_seconds": 548.817619199981,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "C": 1.0
+     }
+    },
+    "fotovoltaica-V3-corte_positivo-lightgbm": {
+     "fit_seconds": 574.9657392000081,
+     "calibration_status": "sigmoide",
+     "threshold": 0.15606158839391193,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 497,
+      "num_leaves": 31
+     }
+    },
+    "fotovoltaica-V3-corte_positivo-linear": {
+     "fit_seconds": 131.7561131999828,
+     "calibration_status": "sigmoide",
+     "threshold": 0.20068181458284404,
+     "selected_params": {
+      "C": 0.1
+     }
+    },
+    "fotovoltaica-V3-restricao_registrada-lightgbm": {
+     "fit_seconds": 586.911850500037,
+     "calibration_status": "sigmoide",
+     "threshold": 0.1615471914571379,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 485,
+      "num_leaves": 31
+     }
+    },
+    "fotovoltaica-V3-restricao_registrada-linear": {
+     "fit_seconds": 130.91411389992572,
+     "calibration_status": "sigmoide",
+     "threshold": 0.27110431551727904,
+     "selected_params": {
+      "C": 0.1
+     }
+    },
+    "fotovoltaica-V3-volume_condicional-lightgbm": {
+     "fit_seconds": 31.710290599963628,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 1,
+      "num_leaves": 31
+     }
+    },
+    "fotovoltaica-V3-volume_condicional-linear": {
+     "fit_seconds": 79.73436900007073,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "alpha": 0.0001
+     }
+    }
+   },
+   "training_vs_population": [
+    {
+     "task": "causa",
+     "segment": "initial",
+     "rows_run": 11515909,
+     "rows_measured": 11515909,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "causa",
+     "segment": "refit",
+     "rows_run": 12887269,
+     "rows_measured": 12887269,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "causa",
+     "segment": "tuning",
+     "rows_run": 1309085,
+     "rows_measured": 1309085,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "calibration",
+     "rows_run": 4046640,
+     "rows_measured": 4046640,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.3111529565268964,
+     "target_mean_measured_full": 0.3111529565268964
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "initial",
+     "rows_run": 20250984,
+     "rows_measured": 60746232,
+     "ratio": 0.3333702080484597,
+     "expected_ratio": 0.3333333333333333,
+     "target_mean_run": 0.1363783606762022,
+     "target_mean_measured_full": 0.13626287141562954
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "refit",
+     "rows_run": 21646664,
+     "rows_measured": 64939512,
+     "ratio": 0.3333357971645983,
+     "expected_ratio": 0.3333333333333333,
+     "target_mean_run": 0.1446283362646549,
+     "target_mean_measured_full": 0.14450370369275334
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "tuning",
+     "rows_run": 3970200,
+     "rows_measured": 3970200,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.26602438164324216,
+     "target_mean_measured_full": 0.26602438164324216
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "calibration",
+     "rows_run": 4046640,
+     "rows_measured": 4046640,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.3700519443291224,
+     "target_mean_measured_full": 0.3700519443291224
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "initial",
+     "rows_run": 20250984,
+     "rows_measured": 60746232,
+     "ratio": 0.3333702080484597,
+     "expected_ratio": 0.3333333333333333,
+     "target_mean_run": 0.18975290287128763,
+     "target_mean_measured_full": 0.18960249254636896
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "refit",
+     "rows_run": 21646664,
+     "rows_measured": 64939512,
+     "ratio": 0.3333357971645983,
+     "expected_ratio": 0.3333333333333333,
+     "target_mean_run": 0.19862612548520178,
+     "target_mean_measured_full": 0.19847696114501137
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "tuning",
+     "rows_run": 3970200,
+     "rows_measured": 3970200,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.32972772152536395,
+     "target_mean_measured_full": 0.32972772152536395
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "initial",
+     "rows_run": 8277456,
+     "rows_measured": 8277456,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 85.17464955790763,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "refit",
+     "rows_run": 9384000,
+     "rows_measured": 9384000,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 85.00938409878516,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "tuning",
+     "rows_run": 1056170,
+     "rows_measured": 1056170,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 83.37236209038318,
+     "target_mean_measured_full": null
+    }
+   ],
+   "checksums": {
+    "present": true,
+    "files_listed": 54,
+    "bytes_listed": 2176761120,
+    "mismatched": [],
+    "missing": [],
+    "unlisted_on_disk": [],
+    "ok": true
+   }
+  },
+  "main-fotovoltaica-v4-001": {
+   "source": "fotovoltaica",
+   "round": "V4",
+   "step": {
+    "exists": true,
+    "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+    "git_status_short": "",
+    "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+    "started_at": "2026-09-24T12:14:33.3803980-03:00",
+    "finished_at": "2026-09-24T13:26:53.1442980-03:00",
+    "exit_code": 0,
+    "duration_seconds": 4339.8,
+    "peak_tree_working_set_bytes_sampled": 19857960960.0,
+    "peak_process_working_set_bytes": 25829818368,
+    "interrupted": false,
+    "stderr_bytes": 2710,
+    "stderr_phase_markers": [
+     "[curtamap-fase] 2026-09-24T12:14:35.659335-03:00 preparacao",
+     "[curtamap-fase] 2026-09-24T12:14:37.170161-03:00 treino",
+     "[curtamap-fase] 2026-09-24T13:13:48.737638-03:00 previsao",
+     "[curtamap-fase] 2026-09-24T13:19:46.860315-03:00 modelos_metricas",
+     "[curtamap-fase] 2026-09-24T13:22:21.213208-03:00 pipelines",
+     "[curtamap-fase] 2026-09-24T13:23:30.227578-03:00 baselines",
+     "[curtamap-fase] 2026-09-24T13:26:47.578396-03:00 relatorio",
+     "[curtamap-fase] 2026-09-24T13:26:47.649907-03:00 fim"
+    ],
+    "stderr_other_lines": 16,
+    "stderr_unique_other": [
+     {
+      "line": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila\\.venv\\Lib\\site-packages\\lightgbm\\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, us",
+      "count": 8
+     },
+     {
+      "line": "eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)",
+      "count": 8
+     }
+    ]
+   },
+   "manifest_status": "complete",
+   "manifest_code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "data_hashes": {
+    "eolica": "487050da7ed2470ec563b96ca88ed620654f43683927cb7b1bb8421323f0734d",
+    "fotovoltaica": "e293594146a29b5b78b4837f7618201f15b4e5a9e4ec9de5e7a7c8342db711ec"
+   },
+   "configuration_sha256": "1ed847278be8bed4dee386b246bf492ae4b3f54e63934291373c14820789a267",
+   "bytes_consumed": 2314494316,
+   "reports": [
+    "fotovoltaica-V4.json"
+   ],
+   "failures": [],
+   "execution": {
+    "mode": "validacao_por_partes_de_t0",
+    "peak_rss_bytes": 25829818368,
+    "validation_chunk_days": 7,
+    "validation_chunks": 18,
+    "validation_rows": 20417904
+   },
+   "boundaries": {
+    "calibration_start": "2025-12-02 00:00:00",
+    "cutoff": "2025-12-30 00:00:00",
+    "tuning_start": "2025-11-04 00:00:00",
+    "validation_start": "2026-01-01 00:00:00"
+   },
+   "training_sampling": {
+    "complete_segments": [
+     "tuning",
+     "calibration",
+     "validation"
+    ],
+    "method": "t0_sistematico_diario_v1",
+    "seed": 42,
+    "segments": [
+     "initial",
+     "refit"
+    ],
+    "slots_per_day": {
+     "causa": 48,
+     "corte_positivo": 16,
+     "restricao_registrada": 16,
+     "volume_condicional": 48
+    }
+   },
+   "fit_seconds_total": 3541.2606558001135,
+   "models": {
+    "fotovoltaica-V4-causa-lightgbm": {
+     "fit_seconds": 225.21586710005067,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "max_depth": 4,
+      "n_estimators": 18,
+      "num_leaves": 15
+     }
+    },
+    "fotovoltaica-V4-causa-linear": {
+     "fit_seconds": 1040.5881968000904,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "C": 1.0
+     }
+    },
+    "fotovoltaica-V4-corte_positivo-lightgbm": {
+     "fit_seconds": 861.8685815000208,
+     "calibration_status": "sigmoide",
+     "threshold": 0.10889379299787887,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 500,
+      "num_leaves": 31
+     }
+    },
+    "fotovoltaica-V4-corte_positivo-linear": {
+     "fit_seconds": 205.70022969995625,
+     "calibration_status": "sigmoide",
+     "threshold": 0.1395501853261097,
+     "selected_params": {
+      "C": 0.1
+     }
+    },
+    "fotovoltaica-V4-restricao_registrada-lightgbm": {
+     "fit_seconds": 822.9046187000349,
+     "calibration_status": "sigmoide",
+     "threshold": 0.1295992726982231,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 500,
+      "num_leaves": 31
+     }
+    },
+    "fotovoltaica-V4-restricao_registrada-linear": {
+     "fit_seconds": 219.77037059993017,
+     "calibration_status": "sigmoide",
+     "threshold": 0.18317720738521512,
+     "selected_params": {
+      "C": 1.0
+     }
+    },
+    "fotovoltaica-V4-volume_condicional-lightgbm": {
+     "fit_seconds": 42.665333800017834,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "max_depth": 5,
+      "n_estimators": 1,
+      "num_leaves": 31
+     }
+    },
+    "fotovoltaica-V4-volume_condicional-linear": {
+     "fit_seconds": 122.54745760001242,
+     "calibration_status": "nao_aplicavel",
+     "threshold": null,
+     "selected_params": {
+      "alpha": 0.0001
+     }
+    }
+   },
+   "training_vs_population": [
+    {
+     "task": "causa",
+     "segment": "initial",
+     "rows_run": 18137498,
+     "rows_measured": 18137498,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "causa",
+     "segment": "refit",
+     "rows_run": 19523621,
+     "rows_measured": 19523621,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "causa",
+     "segment": "tuning",
+     "rows_run": 1332937,
+     "rows_measured": 1332937,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": null,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "calibration",
+     "rows_run": 4295664,
+     "rows_measured": 4295664,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.2013539699566819,
+     "target_mean_measured_full": 0.2013539699566819
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "initial",
+     "rows_run": 26436712,
+     "rows_measured": 79309848,
+     "ratio": 0.3333345437756986,
+     "expected_ratio": 0.3333333333333333,
+     "target_mean_run": 0.17325214270216358,
+     "target_mean_measured_full": 0.173123115807762
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "refit",
+     "rows_run": 27890088,
+     "rows_measured": 83666856,
+     "ratio": 0.3333469109918508,
+     "expected_ratio": 0.3333333333333333,
+     "target_mean_run": 0.1771272288563593,
+     "target_mean_measured_full": 0.17698769510354256
+    },
+    {
+     "task": "corte_positivo",
+     "segment": "tuning",
+     "rows_run": 4127064,
+     "rows_measured": 4127064,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.2517104168968545,
+     "target_mean_measured_full": 0.2517104168968545
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "calibration",
+     "rows_run": 4295664,
+     "rows_measured": 4295664,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.25790448228725527,
+     "target_mean_measured_full": 0.25790448228725527
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "initial",
+     "rows_run": 26436712,
+     "rows_measured": 79309848,
+     "ratio": 0.3333345437756986,
+     "expected_ratio": 0.3333333333333333,
+     "target_mean_run": 0.22885731780865942,
+     "target_mean_measured_full": 0.2287134127403699
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "refit",
+     "rows_run": 27890088,
+     "rows_measured": 83666856,
+     "ratio": 0.3333469109918508,
+     "expected_ratio": 0.3333333333333333,
+     "target_mean_run": 0.23353486729765785,
+     "target_mean_measured_full": 0.23337017707465904
+    },
+    {
+     "task": "restricao_registrada",
+     "segment": "tuning",
+     "rows_run": 4127064,
+     "rows_measured": 4127064,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 0.3229746376600896,
+     "target_mean_measured_full": 0.3229746376600896
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "initial",
+     "rows_run": 13730368,
+     "rows_measured": 13730368,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 87.74057862243751,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "refit",
+     "rows_run": 14808004,
+     "rows_measured": 14808004,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 86.88586014732303,
+     "target_mean_measured_full": null
+    },
+    {
+     "task": "volume_condicional",
+     "segment": "tuning",
+     "rows_run": 1038825,
+     "rows_measured": 1038825,
+     "ratio": 1.0,
+     "expected_ratio": 1.0,
+     "target_mean_run": 77.34245630303468,
+     "target_mean_measured_full": null
+    }
+   ],
+   "checksums": {
+    "present": true,
+    "files_listed": 54,
+    "bytes_listed": 2314494520,
+    "mismatched": [],
+    "missing": [],
+    "unlisted_on_disk": [],
+    "ok": true
+   }
+  }
+ },
+ "sensitivity": {
+  "delay-eolica-v1-001": {
+   "source": "eolica",
+   "round": "V1",
+   "expected_frozen_run": "main-eolica-v1-002",
+   "frozen_run": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-eolica-v1-002",
+   "frozen_run_ok": true,
+   "step": {
+    "exists": true,
+    "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+    "git_status_short": "",
+    "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+    "started_at": "2026-09-24T17:14:15.2843906-03:00",
+    "finished_at": "2026-09-24T17:33:53.7959793-03:00",
+    "exit_code": 0,
+    "duration_seconds": 1178.5,
+    "peak_tree_working_set_bytes_sampled": 4788977664.0,
+    "peak_process_working_set_bytes": 6136086528,
+    "interrupted": false,
+    "stderr_bytes": 0,
+    "stderr_phase_markers": [],
+    "stderr_other_lines": 0,
+    "stderr_unique_other": []
+   },
+   "manifest_status": "complete",
+   "manifest_code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "reports": [
+    "sensitivity-eolica-V1.json"
+   ],
+   "failures": [],
+   "execution": {
+    "mode": "validacao_por_partes_de_t0",
+    "peak_rss_bytes": 6136086528,
+    "validation_chunk_days": 7,
+    "validation_chunks": 18,
+    "validation_rows": 42846576
+   },
+   "has_models_dir": false,
+   "frozen_models": [
+    {
+     "model": "eolica-V1-causa-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V1-causa-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V1-corte_positivo-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V1-corte_positivo-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V1-restricao_registrada-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V1-restricao_registrada-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V1-volume_condicional-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V1-volume_condicional-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    }
+   ],
+   "frozen_all_ok": true,
+   "checksums": {
+    "present": true,
+    "files_listed": 26,
+    "bytes_listed": 5477507016,
+    "mismatched": [],
+    "missing": [],
+    "unlisted_on_disk": [],
+    "ok": true
+   }
+  },
+  "delay-eolica-v2-001": {
+   "source": "eolica",
+   "round": "V2",
+   "expected_frozen_run": "main-eolica-v2-004",
+   "frozen_run": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-eolica-v2-004",
+   "frozen_run_ok": true,
+   "step": {
+    "exists": true,
+    "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+    "git_status_short": "",
+    "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+    "started_at": "2026-09-24T17:34:04.2029942-03:00",
+    "finished_at": "2026-09-24T17:59:41.1364070-03:00",
+    "exit_code": 0,
+    "duration_seconds": 1536.9,
+    "peak_tree_working_set_bytes_sampled": 5398269952.0,
+    "peak_process_working_set_bytes": 6800003072,
+    "interrupted": false,
+    "stderr_bytes": 0,
+    "stderr_phase_markers": [],
+    "stderr_other_lines": 0,
+    "stderr_unique_other": []
+   },
+   "manifest_status": "complete",
+   "manifest_code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "reports": [
+    "sensitivity-eolica-V2.json"
+   ],
+   "failures": [],
+   "execution": {
+    "mode": "validacao_por_partes_de_t0",
+    "peak_rss_bytes": 6800003072,
+    "validation_chunk_days": 7,
+    "validation_chunks": 18,
+    "validation_rows": 43823856
+   },
+   "has_models_dir": false,
+   "frozen_models": [
+    {
+     "model": "eolica-V2-causa-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V2-causa-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V2-corte_positivo-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V2-corte_positivo-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V2-restricao_registrada-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V2-restricao_registrada-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V2-volume_condicional-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V2-volume_condicional-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    }
+   ],
+   "frozen_all_ok": true,
+   "checksums": {
+    "present": true,
+    "files_listed": 26,
+    "bytes_listed": 6115708453,
+    "mismatched": [],
+    "missing": [],
+    "unlisted_on_disk": [],
+    "ok": true
+   }
+  },
+  "delay-eolica-v3-001": {
+   "source": "eolica",
+   "round": "V3",
+   "expected_frozen_run": "main-eolica-v3-001",
+   "frozen_run": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-eolica-v3-001",
+   "frozen_run_ok": true,
+   "step": {
+    "exists": true,
+    "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+    "git_status_short": "",
+    "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+    "started_at": "2026-09-24T17:59:51.8249279-03:00",
+    "finished_at": "2026-09-24T18:24:58.3219113-03:00",
+    "exit_code": 0,
+    "duration_seconds": 1506.5,
+    "peak_tree_working_set_bytes_sampled": 5137440768.0,
+    "peak_process_working_set_bytes": 7399915520,
+    "interrupted": false,
+    "stderr_bytes": 0,
+    "stderr_phase_markers": [],
+    "stderr_other_lines": 0,
+    "stderr_unique_other": []
+   },
+   "manifest_status": "complete",
+   "manifest_code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "reports": [
+    "sensitivity-eolica-V3.json"
+   ],
+   "failures": [],
+   "execution": {
+    "mode": "validacao_por_partes_de_t0",
+    "peak_rss_bytes": 7399915520,
+    "validation_chunk_days": 7,
+    "validation_chunks": 18,
+    "validation_rows": 43104576
+   },
+   "has_models_dir": false,
+   "frozen_models": [
+    {
+     "model": "eolica-V3-causa-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V3-causa-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V3-corte_positivo-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V3-corte_positivo-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V3-restricao_registrada-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V3-restricao_registrada-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V3-volume_condicional-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V3-volume_condicional-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    }
+   ],
+   "frozen_all_ok": true,
+   "checksums": {
+    "present": true,
+    "files_listed": 26,
+    "bytes_listed": 6922565340,
+    "mismatched": [],
+    "missing": [],
+    "unlisted_on_disk": [],
+    "ok": true
+   }
+  },
+  "delay-eolica-v4-001": {
+   "source": "eolica",
+   "round": "V4",
+   "expected_frozen_run": "main-eolica-v4-001",
+   "frozen_run": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-eolica-v4-001",
+   "frozen_run_ok": true,
+   "step": {
+    "exists": true,
+    "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+    "git_status_short": "",
+    "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+    "started_at": "2026-09-24T18:24:58.8824123-03:00",
+    "finished_at": "2026-09-24T18:47:34.8786410-03:00",
+    "exit_code": 0,
+    "duration_seconds": 1356.0,
+    "peak_tree_working_set_bytes_sampled": 4571865088.0,
+    "peak_process_working_set_bytes": 6124720128,
+    "interrupted": false,
+    "stderr_bytes": 0,
+    "stderr_phase_markers": [],
+    "stderr_other_lines": 0,
+    "stderr_unique_other": []
+   },
+   "manifest_status": "complete",
+   "manifest_code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "reports": [
+    "sensitivity-eolica-V4.json"
+   ],
+   "failures": [],
+   "execution": {
+    "mode": "validacao_por_partes_de_t0",
+    "peak_rss_bytes": 6124720128,
+    "validation_chunk_days": 7,
+    "validation_chunks": 18,
+    "validation_rows": 42191712
+   },
+   "has_models_dir": false,
+   "frozen_models": [
+    {
+     "model": "eolica-V4-causa-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V4-causa-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V4-corte_positivo-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V4-corte_positivo-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V4-restricao_registrada-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V4-restricao_registrada-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V4-volume_condicional-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "eolica-V4-volume_condicional-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    }
+   ],
+   "frozen_all_ok": true,
+   "checksums": {
+    "present": true,
+    "files_listed": 26,
+    "bytes_listed": 5491131719,
+    "mismatched": [],
+    "missing": [],
+    "unlisted_on_disk": [],
+    "ok": true
+   }
+  },
+  "delay-fotovoltaica-v1-001": {
+   "source": "fotovoltaica",
+   "round": "V1",
+   "expected_frozen_run": "main-fotovoltaica-v1-001",
+   "frozen_run": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-fotovoltaica-v1-001",
+   "frozen_run_ok": true,
+   "step": {
+    "exists": true,
+    "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+    "git_status_short": "",
+    "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+    "started_at": "2026-09-24T19:26:13.9986142-03:00",
+    "finished_at": "2026-09-24T19:36:47.3018243-03:00",
+    "exit_code": 0,
+    "duration_seconds": 633.3,
+    "peak_tree_working_set_bytes_sampled": 2296074240.0,
+    "peak_process_working_set_bytes": 3077804032,
+    "interrupted": false,
+    "stderr_bytes": 0,
+    "stderr_phase_markers": [],
+    "stderr_other_lines": 0,
+    "stderr_unique_other": []
+   },
+   "manifest_status": "complete",
+   "manifest_code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "reports": [
+    "sensitivity-fotovoltaica-V1.json"
+   ],
+   "failures": [],
+   "execution": {
+    "mode": "validacao_por_partes_de_t0",
+    "peak_rss_bytes": 3077804032,
+    "validation_chunk_days": 7,
+    "validation_chunks": 18,
+    "validation_rows": 17777040
+   },
+   "has_models_dir": false,
+   "frozen_models": [
+    {
+     "model": "fotovoltaica-V1-causa-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V1-causa-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V1-corte_positivo-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V1-corte_positivo-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V1-restricao_registrada-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V1-restricao_registrada-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V1-volume_condicional-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V1-volume_condicional-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    }
+   ],
+   "frozen_all_ok": true,
+   "checksums": {
+    "present": true,
+    "files_listed": 26,
+    "bytes_listed": 2431666309,
+    "mismatched": [],
+    "missing": [],
+    "unlisted_on_disk": [],
+    "ok": true
+   }
+  },
+  "delay-fotovoltaica-v2-001": {
+   "source": "fotovoltaica",
+   "round": "V2",
+   "expected_frozen_run": "main-fotovoltaica-v2-001",
+   "frozen_run": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-fotovoltaica-v2-001",
+   "frozen_run_ok": true,
+   "step": {
+    "exists": true,
+    "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+    "git_status_short": "",
+    "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+    "started_at": "2026-09-24T19:36:57.1884551-03:00",
+    "finished_at": "2026-09-24T19:47:00.4921699-03:00",
+    "exit_code": 0,
+    "duration_seconds": 603.3,
+    "peak_tree_working_set_bytes_sampled": 2292158464.0,
+    "peak_process_working_set_bytes": 3354550272,
+    "interrupted": false,
+    "stderr_bytes": 0,
+    "stderr_phase_markers": [],
+    "stderr_other_lines": 0,
+    "stderr_unique_other": []
+   },
+   "manifest_status": "complete",
+   "manifest_code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "reports": [
+    "sensitivity-fotovoltaica-V2.json"
+   ],
+   "failures": [],
+   "execution": {
+    "mode": "validacao_por_partes_de_t0",
+    "peak_rss_bytes": 3354550272,
+    "validation_chunk_days": 7,
+    "validation_chunks": 18,
+    "validation_rows": 18273840
+   },
+   "has_models_dir": false,
+   "frozen_models": [
+    {
+     "model": "fotovoltaica-V2-causa-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V2-causa-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V2-corte_positivo-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V2-corte_positivo-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V2-restricao_registrada-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V2-restricao_registrada-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V2-volume_condicional-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V2-volume_condicional-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    }
+   ],
+   "frozen_all_ok": true,
+   "checksums": {
+    "present": true,
+    "files_listed": 26,
+    "bytes_listed": 2506503760,
+    "mismatched": [],
+    "missing": [],
+    "unlisted_on_disk": [],
+    "ok": true
+   }
+  },
+  "delay-fotovoltaica-v3-001": {
+   "source": "fotovoltaica",
+   "round": "V3",
+   "expected_frozen_run": "main-fotovoltaica-v3-001",
+   "frozen_run": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-fotovoltaica-v3-001",
+   "frozen_run_ok": true,
+   "step": {
+    "exists": true,
+    "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+    "git_status_short": "",
+    "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+    "started_at": "2026-09-24T19:47:20.1223870-03:00",
+    "finished_at": "2026-09-24T19:58:53.0499539-03:00",
+    "exit_code": 0,
+    "duration_seconds": 692.9,
+    "peak_tree_working_set_bytes_sampled": 2758823936.0,
+    "peak_process_working_set_bytes": 3673354240,
+    "interrupted": false,
+    "stderr_bytes": 0,
+    "stderr_phase_markers": [],
+    "stderr_other_lines": 0,
+    "stderr_unique_other": []
+   },
+   "manifest_status": "complete",
+   "manifest_code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "reports": [
+    "sensitivity-fotovoltaica-V3.json"
+   ],
+   "failures": [],
+   "execution": {
+    "mode": "validacao_por_partes_de_t0",
+    "peak_rss_bytes": 3673354240,
+    "validation_chunk_days": 7,
+    "validation_chunks": 18,
+    "validation_rows": 19325904
+   },
+   "has_models_dir": false,
+   "frozen_models": [
+    {
+     "model": "fotovoltaica-V3-causa-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V3-causa-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V3-corte_positivo-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V3-corte_positivo-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V3-restricao_registrada-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V3-restricao_registrada-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V3-volume_condicional-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V3-volume_condicional-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    }
+   ],
+   "frozen_all_ok": true,
+   "checksums": {
+    "present": true,
+    "files_listed": 26,
+    "bytes_listed": 2901287384,
+    "mismatched": [],
+    "missing": [],
+    "unlisted_on_disk": [],
+    "ok": true
+   }
+  },
+  "delay-fotovoltaica-v4-001": {
+   "source": "fotovoltaica",
+   "round": "V4",
+   "expected_frozen_run": "main-fotovoltaica-v4-001",
+   "frozen_run": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-fotovoltaica-v4-001",
+   "frozen_run_ok": true,
+   "step": {
+    "exists": true,
+    "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+    "git_status_short": "",
+    "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+    "started_at": "2026-09-24T19:59:03.6654297-03:00",
+    "finished_at": "2026-09-24T20:11:37.3210146-03:00",
+    "exit_code": 0,
+    "duration_seconds": 753.7,
+    "peak_tree_working_set_bytes_sampled": 2669469696.0,
+    "peak_process_working_set_bytes": 3537276928,
+    "interrupted": false,
+    "stderr_bytes": 0,
+    "stderr_phase_markers": [],
+    "stderr_other_lines": 0,
+    "stderr_unique_other": []
+   },
+   "manifest_status": "complete",
+   "manifest_code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "reports": [
+    "sensitivity-fotovoltaica-V4.json"
+   ],
+   "failures": [],
+   "execution": {
+    "mode": "validacao_por_partes_de_t0",
+    "peak_rss_bytes": 3537276928,
+    "validation_chunk_days": 7,
+    "validation_chunks": 18,
+    "validation_rows": 20401776
+   },
+   "has_models_dir": false,
+   "frozen_models": [
+    {
+     "model": "fotovoltaica-V4-causa-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V4-causa-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V4-corte_positivo-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V4-corte_positivo-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V4-restricao_registrada-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V4-restricao_registrada-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V4-volume_condicional-lightgbm",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    },
+    {
+     "model": "fotovoltaica-V4-volume_condicional-linear",
+     "frozen_model_in_main_run": true,
+     "sha256_matches_main_checksums": true,
+     "threshold_equal": true,
+     "calibration_equal": true,
+     "has_fit_seconds": false
+    }
+   ],
+   "frozen_all_ok": true,
+   "checksums": {
+    "present": true,
+    "files_listed": 26,
+    "bytes_listed": 3054468946,
+    "mismatched": [],
+    "missing": [],
+    "unlisted_on_disk": [],
+    "ok": true
+   }
+  }
+ },
+ "attempts": {
+  "main-eolica-v1-001": {
+   "step": {
+    "exists": true,
+    "code_commit": "f36d5f6c8949e1b768d5d53d62adba4ba4485f37",
+    "git_status_short": "",
+    "cwd": "M:\\Bibliotecas\\Development\\workspaces\\hackathon-ia-coppe-2026",
+    "started_at": "2026-09-23T18:53:58.2302943-03:00",
+    "finished_at": "2026-09-23T19:01:36.5142570-03:00",
+    "exit_code": -1,
+    "duration_seconds": 458.3,
+    "peak_tree_working_set_bytes_sampled": 10535362560.0,
+    "peak_process_working_set_bytes": 23391793152,
+    "interrupted": true,
+    "stderr_bytes": 592,
+    "stderr_phase_markers": [],
+    "stderr_other_lines": 4,
+    "stderr_unique_other": [
+     {
+      "line": "M:\\Bibliotecas\\Development\\workspaces\\hackathon-ia-coppe-2026\\.venv\\Lib\\site-packages\\lightgbm\\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' ",
+      "count": 2
+     },
+     {
+      "line": "eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)",
+      "count": 2
+     }
+    ]
+   },
+   "run_dir_exists": true,
+   "manifest_status_as_written": "running",
+   "manifest_code_commit": "f36d5f6c8949e1b768d5d53d62adba4ba4485f37",
+   "files_in_run_dir": 1
+  },
+  "main-eolica-v2-001": {
+   "step": {
+    "exists": true,
+    "code_commit": "560ae70b736ef0a93f5282e3f069298ab2aebc86",
+    "git_status_short": "",
+    "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+    "started_at": "2026-09-24T01:57:30.5943851-03:00",
+    "finished_at": "2026-09-24T01:58:00.9787592-03:00",
+    "exit_code": 1,
+    "duration_seconds": 30.4,
+    "peak_tree_working_set_bytes_sampled": 18935808.0,
+    "peak_process_working_set_bytes": 19795968,
+    "interrupted": false,
+    "stderr_bytes": 661,
+    "stderr_phase_markers": [],
+    "stderr_other_lines": 9,
+    "stderr_unique_other": [
+     {
+      "line": "Traceback (most recent call last):",
+      "count": 1
+     },
+     {
+      "line": "File \"<frozen runpy>\", line 198, in _run_module_as_main",
+      "count": 1
+     },
+     {
+      "line": "File \"<frozen runpy>\", line 88, in _run_code",
+      "count": 1
+     },
+     {
+      "line": "File \"Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila\\.venv\\Scripts\\curtamap-experiment.exe\\__main__.py\", line 10, in <module>",
+      "count": 1
+     },
+     {
+      "line": "File \"Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila\\src\\curtamap\\experimental\\cli.py\", line 242, in main",
+      "count": 1
+     },
+     {
+      "line": "preflight(config, settings)",
+      "count": 1
+     },
+     {
+      "line": "File \"Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila\\src\\curtamap\\experimental\\cli.py\", line 111, in preflight",
+      "count": 1
+     },
+     {
+      "line": "raise RuntimeError(f\"branch obrigatória ausente: atual={branch}\")",
+      "count": 1
+     },
+     {
+      "line": "RuntimeError: branch obrigatória ausente: atual=execucao/fila-2b",
+      "count": 1
+     }
+    ]
+   },
+   "run_dir_exists": false,
+   "manifest_status_as_written": null,
+   "manifest_code_commit": null,
+   "files_in_run_dir": 0
+  },
+  "main-eolica-v2-002": {
+   "step": {
+    "exists": true,
+    "code_commit": "560ae70b736ef0a93f5282e3f069298ab2aebc86",
+    "git_status_short": "",
+    "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+    "started_at": "2026-09-24T01:59:57.9242925-03:00",
+    "finished_at": "2026-09-24T02:22:48.4671464-03:00",
+    "exit_code": 1,
+    "duration_seconds": 1370.5,
+    "peak_tree_working_set_bytes_sampled": null,
+    "peak_process_working_set_bytes": null,
+    "interrupted": true,
+    "stderr_bytes": 1674,
+    "stderr_phase_markers": [],
+    "stderr_other_lines": 12,
+    "stderr_unique_other": [
+     {
+      "line": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila\\.venv\\Lib\\site-packages\\lightgbm\\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, us",
+      "count": 6
+     },
+     {
+      "line": "eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)",
+      "count": 6
+     }
+    ]
+   },
+   "run_dir_exists": true,
+   "manifest_status_as_written": "running",
+   "manifest_code_commit": "560ae70b736ef0a93f5282e3f069298ab2aebc86",
+   "files_in_run_dir": 1
+  },
+  "main-eolica-v2-003": {
+   "step": {
+    "exists": true,
+    "code_commit": "c73302e175e015c20cd6bd7e86276ff5920da344",
+    "git_status_short": "",
+    "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+    "started_at": "2026-09-24T02:23:04.8547184-03:00",
+    "finished_at": null,
+    "exit_code": null,
+    "duration_seconds": null,
+    "peak_tree_working_set_bytes_sampled": null,
+    "peak_process_working_set_bytes": null,
+    "interrupted": true,
+    "stderr_bytes": 279,
+    "stderr_phase_markers": [],
+    "stderr_other_lines": 2,
+    "stderr_unique_other": [
+     {
+      "line": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila\\.venv\\Lib\\site-packages\\lightgbm\\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, us",
+      "count": 1
+     },
+     {
+      "line": "eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)",
+      "count": 1
+     }
+    ]
+   },
+   "run_dir_exists": true,
+   "manifest_status_as_written": "running",
+   "manifest_code_commit": "c73302e175e015c20cd6bd7e86276ff5920da344",
+   "files_in_run_dir": 1
+  }
+ },
+ "datasets": {
+  "features-noturno_mais_24h-eolica-development-001": {
+   "exists": true,
+   "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "git_status_short": "",
+   "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+   "started_at": "2026-09-24T13:26:54.5058236-03:00",
+   "finished_at": "2026-09-24T15:30:22.3970277-03:00",
+   "exit_code": 0,
+   "duration_seconds": 7407.9,
+   "peak_tree_working_set_bytes_sampled": 5368594432.0,
+   "peak_process_working_set_bytes": 1011904512,
+   "interrupted": false,
+   "stderr_bytes": 0,
+   "stderr_phase_markers": [],
+   "stderr_other_lines": 0,
+   "stderr_unique_other": []
+  },
+  "check-noturno_mais_24h-eolica-001": {
+   "exists": true,
+   "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "git_status_short": "",
+   "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+   "started_at": "2026-09-24T17:08:53.1184853-03:00",
+   "finished_at": "2026-09-24T17:13:55.4986908-03:00",
+   "exit_code": 0,
+   "duration_seconds": 302.4,
+   "peak_tree_working_set_bytes_sampled": 1230315520.0,
+   "peak_process_working_set_bytes": 1272320000,
+   "interrupted": false,
+   "stderr_bytes": 0,
+   "stderr_phase_markers": [],
+   "stderr_other_lines": 0,
+   "stderr_unique_other": []
+  },
+  "features-noturno_mais_24h-fotovoltaica-development-001": {
+   "exists": true,
+   "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "git_status_short": "",
+   "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+   "started_at": "2026-09-24T18:47:45.4751812-03:00",
+   "finished_at": "2026-09-24T19:24:15.7442363-03:00",
+   "exit_code": 0,
+   "duration_seconds": 2190.3,
+   "peak_tree_working_set_bytes_sampled": 3304239104.0,
+   "peak_process_working_set_bytes": 641716224,
+   "interrupted": false,
+   "stderr_bytes": 0,
+   "stderr_phase_markers": [],
+   "stderr_other_lines": 0,
+   "stderr_unique_other": []
+  },
+  "check-noturno_mais_24h-fotovoltaica-001": {
+   "exists": true,
+   "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+   "git_status_short": "",
+   "cwd": "Y:\\CurtaMap Etapa 2B\\worktrees\\execucao-fila",
+   "started_at": "2026-09-24T19:24:33.3875316-03:00",
+   "finished_at": "2026-09-24T19:26:04.0612646-03:00",
+   "exit_code": 0,
+   "duration_seconds": 90.7,
+   "peak_tree_working_set_bytes_sampled": 1096658944.0,
+   "peak_process_working_set_bytes": 1123606528,
+   "interrupted": false,
+   "stderr_bytes": 0,
+   "stderr_phase_markers": [],
+   "stderr_other_lines": 0,
+   "stderr_unique_other": []
+  }
+ }
+}

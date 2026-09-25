@@ -1,0 +1,38 @@
+Validação isolada de Settings: uv run pytest; sem CURTAMAP_DATA_DIR/MODEL_DIR somente neste subprocesso.
+........................................................................ [ 34%]
+........................................................................ [ 69%]
+................................................................         [100%]
+============================== warnings summary ===============================
+tests/test_experimental_campaign_parity.py::test_campaign_round_in_parts_reproduces_oracle_artifacts
+  M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\tests\reference_campaign_stage2b.py:191: DeprecationWarning: `is_in` with a collection of the same datatype is ambiguous and deprecated.
+  Please use `implode` to return to previous behavior.
+  
+  See https://github.com/pola-rs/polars/issues/22149 for more information.
+    features = features.with_columns(
+
+tests/test_experimental_campaign_parity.py::test_campaign_round_in_parts_reproduces_oracle_artifacts
+  M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\tests\reference_campaign_stage2b.py:205: DeprecationWarning: `is_in` with a collection of the same datatype is ambiguous and deprecated.
+  Please use `implode` to return to previous behavior.
+  
+  See https://github.com/pola-rs/polars/issues/22149 for more information.
+    features = features.with_columns(pl.col("id_ons").is_in(fixed_ids).alias("panel_fixed"))
+
+tests/test_experimental_campaign_parity.py: 24 warnings
+tests/test_experimental_cli.py: 8 warnings
+  M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\.venv\Lib\site-packages\lightgbm\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+    eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+
+tests/test_experimental_campaign_parity.py: 30 warnings
+tests/test_experimental_cli.py: 16 warnings
+  M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\src\curtamap\experimental\campaign.py:425: DeprecationWarning: `is_in` with a collection of the same datatype is ambiguous and deprecated.
+  Please use `implode` to return to previous behavior.
+  
+  See https://github.com/pola-rs/polars/issues/22149 for more information.
+    frame = selected.collect().with_columns(self.derived)
+
+tests/test_notebook.py::test_eda_notebook_runs_end_to_end_on_local_data
+  M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\.venv\Lib\site-packages\zmq\_future.py:718: RuntimeWarning: Proactor event loop does not implement add_reader family of methods required for zmq. Registering an additional selector thread for add_reader support via tornado. Use `asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())` to avoid this warning.
+    self._get_loop()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+208 passed, 81 warnings in 118.39s (0:01:58)

@@ -1,0 +1,2633 @@
+{
+  "status": "complete",
+  "dataset": "Y:\\CurtaMap Etapa 2B\\experimentos\\stage2b-datasets\\scenario=noturno_dia_util\\source=eolica\\round=development",
+  "start": "2025-01-01 00:00:00",
+  "end_exclusive": "2025-01-04 00:00:00",
+  "source": "eolica",
+  "dataset_commit": "70a181d",
+  "measurement_commit": "48bc71a39c411c2c8725a744cdf3548baf7e3b9e",
+  "calendar_version": "curtamap-conservador-2023-2026-v1",
+  "calendar_sha256": "8c3f500b7ca979ea868b22505d101498639f44404bbaa08db3c4f1dd810f1709",
+  "scenario": "noturno_dia_util",
+  "filters": {
+    "training_common": "t0 >= start AND t0 + 24h <= end AND eligible_history AND target_available_at <= label_cutoff",
+    "corte_positivo": "target_observed AND true_positive IS NOT NULL",
+    "restricao_registrada": "target_observed AND true_restriction IS NOT NULL",
+    "volume_condicional": "target_observed AND true_volume_valid AND true_positive AND true_volume_mwmed > 0",
+    "causa": "target_observed AND true_restriction AND true_cause IN (REL,CNF,ENE)",
+    "validation_common": "t0 >= round.start AND t0 + 24h <= round.end; painel aberto",
+    "validation_occurrence": "alvo da tarefa IS NOT NULL; probabilidades devem ser finitas",
+    "validation_cause": "true_cause IN (REL,CNF,ENE); sem filtro adicional de restrição",
+    "validation_volume": "alvo finito; suporte realizado também exige previsão finita; mae_conditional acrescenta apenas alvo > 0"
+  },
+  "projected_columns": [
+    "fonte",
+    "id_ons",
+    "t0",
+    "horizon",
+    "target_available_at",
+    "eligible_history",
+    "target_observed",
+    "true_positive",
+    "true_restriction",
+    "true_volume_valid",
+    "true_volume_mwmed",
+    "true_cause"
+  ],
+  "progress": "C:\\Users\\Angelo\\AppData\\Local\\Temp\\claude\\M--Bibliotecas-Development-workspaces-hackathon-ia-coppe-2026\\044de1f2-7be9-4f9b-8678-d448726e4d23\\scratchpad\\smoke-pop-3d.progress.jsonl",
+  "expected_partitions": null,
+  "completed_partitions": 3,
+  "dataset_rows": 1074096,
+  "boundaries": {
+    "V1": {
+      "validation_start": "2025-01-01 00:00:00",
+      "cutoff": "2024-12-30 00:00:00",
+      "tuning_start": "2024-11-04 00:00:00",
+      "calibration_start": "2024-12-02 00:00:00",
+      "validation_end": "2025-05-01 00:00:00",
+      "last_validation_emission_inclusive": "2025-04-30 00:00:00"
+    },
+    "V2": {
+      "validation_start": "2025-05-01 00:00:00",
+      "cutoff": "2025-04-30 00:00:00",
+      "tuning_start": "2025-03-05 00:00:00",
+      "calibration_start": "2025-04-02 00:00:00",
+      "validation_end": "2025-09-01 00:00:00",
+      "last_validation_emission_inclusive": "2025-08-31 00:00:00"
+    },
+    "V3": {
+      "validation_start": "2025-09-01 00:00:00",
+      "cutoff": "2025-08-29 00:00:00",
+      "tuning_start": "2025-07-04 00:00:00",
+      "calibration_start": "2025-08-01 00:00:00",
+      "validation_end": "2026-01-01 00:00:00",
+      "last_validation_emission_inclusive": "2025-12-31 00:00:00"
+    },
+    "V4": {
+      "validation_start": "2026-01-01 00:00:00",
+      "cutoff": "2025-12-30 00:00:00",
+      "tuning_start": "2025-11-04 00:00:00",
+      "calibration_start": "2025-12-02 00:00:00",
+      "validation_end": "2026-05-01 00:00:00",
+      "last_validation_emission_inclusive": "2026-04-30 00:00:00"
+    }
+  },
+  "limitations": [
+    "Contagens são linhas fonte+id_ons+t0+horizonte, não alvos tau deduplicados.",
+    "Refit sobrepõe initial/tuning; não somar segmentos como observações distintas.",
+    "Calibração de volume/causa não é usada, portanto suas contagens são nulas.",
+    "Validação rows é suporte potencial do alvo; suporte realizado exige previsões. Volume usa pares finitos; ocorrência rejeita probabilidades não finitas.",
+    "Distribuições globais cobrem o dataset lido, não cada célula de treino.",
+    "Metadados tamanho/mtime não comprovam integridade criptográfica dos dados.",
+    "Uma partição projetada pode ficar em cache; não há matriz integral de treino."
+  ],
+  "partitions": 3,
+  "requested_days": 3,
+  "days_without_partition": [],
+  "first_t0": "2025-01-01 00:00:00",
+  "populations": [
+    {
+      "round": "V1",
+      "segment": "initial",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V1",
+      "segment": "initial",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V1",
+      "segment": "initial",
+      "task": "volume_condicional",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V1",
+      "segment": "initial",
+      "task": "causa",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V1",
+      "segment": "tuning",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V1",
+      "segment": "tuning",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V1",
+      "segment": "tuning",
+      "task": "volume_condicional",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V1",
+      "segment": "tuning",
+      "task": "causa",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V1",
+      "segment": "refit",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V1",
+      "segment": "refit",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V1",
+      "segment": "refit",
+      "task": "volume_condicional",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V1",
+      "segment": "refit",
+      "task": "causa",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V1",
+      "segment": "calibration",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V1",
+      "segment": "calibration",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V1",
+      "segment": "calibration",
+      "task": "volume_condicional",
+      "used": false,
+      "rows": null,
+      "prediction_rows": null,
+      "eligible_rows": null,
+      "observed_rows": null,
+      "positive_rows": null,
+      "restriction_rows": null,
+      "positive_volume_rows": null,
+      "cause_REL": null,
+      "cause_CNF": null,
+      "cause_ENE": null,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V1",
+      "segment": "calibration",
+      "task": "causa",
+      "used": false,
+      "rows": null,
+      "prediction_rows": null,
+      "eligible_rows": null,
+      "observed_rows": null,
+      "positive_rows": null,
+      "restriction_rows": null,
+      "positive_volume_rows": null,
+      "cause_REL": null,
+      "cause_CNF": null,
+      "cause_ENE": null,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V1",
+      "segment": "validation",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 1074096,
+      "prediction_rows": 1074096,
+      "eligible_rows": 1064448,
+      "observed_rows": 1074096,
+      "positive_rows": 353326,
+      "restriction_rows": 488811,
+      "positive_volume_rows": 353326,
+      "cause_REL": 0,
+      "cause_CNF": 59789,
+      "cause_ENE": 429022,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V1",
+      "segment": "validation",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 1074096,
+      "prediction_rows": 1074096,
+      "eligible_rows": 1064448,
+      "observed_rows": 1074096,
+      "positive_rows": 353326,
+      "restriction_rows": 488811,
+      "positive_volume_rows": 353326,
+      "cause_REL": 0,
+      "cause_CNF": 59789,
+      "cause_ENE": 429022,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V1",
+      "segment": "validation",
+      "task": "volume_condicional",
+      "used": true,
+      "rows": 1074096,
+      "prediction_rows": 1074096,
+      "eligible_rows": 1064448,
+      "observed_rows": 1074096,
+      "positive_rows": 353326,
+      "restriction_rows": 488811,
+      "positive_volume_rows": 353326,
+      "cause_REL": 0,
+      "cause_CNF": 59789,
+      "cause_ENE": 429022,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V1",
+      "segment": "validation",
+      "task": "causa",
+      "used": true,
+      "rows": 488811,
+      "prediction_rows": 1074096,
+      "eligible_rows": 484850,
+      "observed_rows": 488811,
+      "positive_rows": 353326,
+      "restriction_rows": 488811,
+      "positive_volume_rows": 353326,
+      "cause_REL": 0,
+      "cause_CNF": 59789,
+      "cause_ENE": 429022,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V2",
+      "segment": "initial",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 1064448,
+      "prediction_rows": null,
+      "eligible_rows": 1064448,
+      "observed_rows": 1064448,
+      "positive_rows": 352327,
+      "restriction_rows": 484850,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 59645,
+      "cause_ENE": 425205,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V2",
+      "segment": "initial",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 1064448,
+      "prediction_rows": null,
+      "eligible_rows": 1064448,
+      "observed_rows": 1064448,
+      "positive_rows": 352327,
+      "restriction_rows": 484850,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 59645,
+      "cause_ENE": 425205,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V2",
+      "segment": "initial",
+      "task": "volume_condicional",
+      "used": true,
+      "rows": 352327,
+      "prediction_rows": null,
+      "eligible_rows": 352327,
+      "observed_rows": 352327,
+      "positive_rows": 352327,
+      "restriction_rows": 352327,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 36071,
+      "cause_ENE": 316256,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V2",
+      "segment": "initial",
+      "task": "causa",
+      "used": true,
+      "rows": 484850,
+      "prediction_rows": null,
+      "eligible_rows": 484850,
+      "observed_rows": 484850,
+      "positive_rows": 352327,
+      "restriction_rows": 484850,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 59645,
+      "cause_ENE": 425205,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V2",
+      "segment": "tuning",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V2",
+      "segment": "tuning",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V2",
+      "segment": "tuning",
+      "task": "volume_condicional",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V2",
+      "segment": "tuning",
+      "task": "causa",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V2",
+      "segment": "refit",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 1064448,
+      "prediction_rows": null,
+      "eligible_rows": 1064448,
+      "observed_rows": 1064448,
+      "positive_rows": 352327,
+      "restriction_rows": 484850,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 59645,
+      "cause_ENE": 425205,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V2",
+      "segment": "refit",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 1064448,
+      "prediction_rows": null,
+      "eligible_rows": 1064448,
+      "observed_rows": 1064448,
+      "positive_rows": 352327,
+      "restriction_rows": 484850,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 59645,
+      "cause_ENE": 425205,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V2",
+      "segment": "refit",
+      "task": "volume_condicional",
+      "used": true,
+      "rows": 352327,
+      "prediction_rows": null,
+      "eligible_rows": 352327,
+      "observed_rows": 352327,
+      "positive_rows": 352327,
+      "restriction_rows": 352327,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 36071,
+      "cause_ENE": 316256,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V2",
+      "segment": "refit",
+      "task": "causa",
+      "used": true,
+      "rows": 484850,
+      "prediction_rows": null,
+      "eligible_rows": 484850,
+      "observed_rows": 484850,
+      "positive_rows": 352327,
+      "restriction_rows": 484850,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 59645,
+      "cause_ENE": 425205,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V2",
+      "segment": "calibration",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V2",
+      "segment": "calibration",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V2",
+      "segment": "calibration",
+      "task": "volume_condicional",
+      "used": false,
+      "rows": null,
+      "prediction_rows": null,
+      "eligible_rows": null,
+      "observed_rows": null,
+      "positive_rows": null,
+      "restriction_rows": null,
+      "positive_volume_rows": null,
+      "cause_REL": null,
+      "cause_CNF": null,
+      "cause_ENE": null,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V2",
+      "segment": "calibration",
+      "task": "causa",
+      "used": false,
+      "rows": null,
+      "prediction_rows": null,
+      "eligible_rows": null,
+      "observed_rows": null,
+      "positive_rows": null,
+      "restriction_rows": null,
+      "positive_volume_rows": null,
+      "cause_REL": null,
+      "cause_CNF": null,
+      "cause_ENE": null,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V2",
+      "segment": "validation",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": 0,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V2",
+      "segment": "validation",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": 0,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V2",
+      "segment": "validation",
+      "task": "volume_condicional",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": 0,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V2",
+      "segment": "validation",
+      "task": "causa",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": 0,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V3",
+      "segment": "initial",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 1064448,
+      "prediction_rows": null,
+      "eligible_rows": 1064448,
+      "observed_rows": 1064448,
+      "positive_rows": 352327,
+      "restriction_rows": 484850,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 59645,
+      "cause_ENE": 425205,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V3",
+      "segment": "initial",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 1064448,
+      "prediction_rows": null,
+      "eligible_rows": 1064448,
+      "observed_rows": 1064448,
+      "positive_rows": 352327,
+      "restriction_rows": 484850,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 59645,
+      "cause_ENE": 425205,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V3",
+      "segment": "initial",
+      "task": "volume_condicional",
+      "used": true,
+      "rows": 352327,
+      "prediction_rows": null,
+      "eligible_rows": 352327,
+      "observed_rows": 352327,
+      "positive_rows": 352327,
+      "restriction_rows": 352327,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 36071,
+      "cause_ENE": 316256,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V3",
+      "segment": "initial",
+      "task": "causa",
+      "used": true,
+      "rows": 484850,
+      "prediction_rows": null,
+      "eligible_rows": 484850,
+      "observed_rows": 484850,
+      "positive_rows": 352327,
+      "restriction_rows": 484850,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 59645,
+      "cause_ENE": 425205,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V3",
+      "segment": "tuning",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V3",
+      "segment": "tuning",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V3",
+      "segment": "tuning",
+      "task": "volume_condicional",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V3",
+      "segment": "tuning",
+      "task": "causa",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V3",
+      "segment": "refit",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 1064448,
+      "prediction_rows": null,
+      "eligible_rows": 1064448,
+      "observed_rows": 1064448,
+      "positive_rows": 352327,
+      "restriction_rows": 484850,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 59645,
+      "cause_ENE": 425205,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V3",
+      "segment": "refit",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 1064448,
+      "prediction_rows": null,
+      "eligible_rows": 1064448,
+      "observed_rows": 1064448,
+      "positive_rows": 352327,
+      "restriction_rows": 484850,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 59645,
+      "cause_ENE": 425205,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V3",
+      "segment": "refit",
+      "task": "volume_condicional",
+      "used": true,
+      "rows": 352327,
+      "prediction_rows": null,
+      "eligible_rows": 352327,
+      "observed_rows": 352327,
+      "positive_rows": 352327,
+      "restriction_rows": 352327,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 36071,
+      "cause_ENE": 316256,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V3",
+      "segment": "refit",
+      "task": "causa",
+      "used": true,
+      "rows": 484850,
+      "prediction_rows": null,
+      "eligible_rows": 484850,
+      "observed_rows": 484850,
+      "positive_rows": 352327,
+      "restriction_rows": 484850,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 59645,
+      "cause_ENE": 425205,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V3",
+      "segment": "calibration",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V3",
+      "segment": "calibration",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V3",
+      "segment": "calibration",
+      "task": "volume_condicional",
+      "used": false,
+      "rows": null,
+      "prediction_rows": null,
+      "eligible_rows": null,
+      "observed_rows": null,
+      "positive_rows": null,
+      "restriction_rows": null,
+      "positive_volume_rows": null,
+      "cause_REL": null,
+      "cause_CNF": null,
+      "cause_ENE": null,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V3",
+      "segment": "calibration",
+      "task": "causa",
+      "used": false,
+      "rows": null,
+      "prediction_rows": null,
+      "eligible_rows": null,
+      "observed_rows": null,
+      "positive_rows": null,
+      "restriction_rows": null,
+      "positive_volume_rows": null,
+      "cause_REL": null,
+      "cause_CNF": null,
+      "cause_ENE": null,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V3",
+      "segment": "validation",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": 0,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V3",
+      "segment": "validation",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": 0,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V3",
+      "segment": "validation",
+      "task": "volume_condicional",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": 0,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V3",
+      "segment": "validation",
+      "task": "causa",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": 0,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V4",
+      "segment": "initial",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 1064448,
+      "prediction_rows": null,
+      "eligible_rows": 1064448,
+      "observed_rows": 1064448,
+      "positive_rows": 352327,
+      "restriction_rows": 484850,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 59645,
+      "cause_ENE": 425205,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V4",
+      "segment": "initial",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 1064448,
+      "prediction_rows": null,
+      "eligible_rows": 1064448,
+      "observed_rows": 1064448,
+      "positive_rows": 352327,
+      "restriction_rows": 484850,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 59645,
+      "cause_ENE": 425205,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V4",
+      "segment": "initial",
+      "task": "volume_condicional",
+      "used": true,
+      "rows": 352327,
+      "prediction_rows": null,
+      "eligible_rows": 352327,
+      "observed_rows": 352327,
+      "positive_rows": 352327,
+      "restriction_rows": 352327,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 36071,
+      "cause_ENE": 316256,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V4",
+      "segment": "initial",
+      "task": "causa",
+      "used": true,
+      "rows": 484850,
+      "prediction_rows": null,
+      "eligible_rows": 484850,
+      "observed_rows": 484850,
+      "positive_rows": 352327,
+      "restriction_rows": 484850,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 59645,
+      "cause_ENE": 425205,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V4",
+      "segment": "tuning",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V4",
+      "segment": "tuning",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V4",
+      "segment": "tuning",
+      "task": "volume_condicional",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V4",
+      "segment": "tuning",
+      "task": "causa",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V4",
+      "segment": "refit",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 1064448,
+      "prediction_rows": null,
+      "eligible_rows": 1064448,
+      "observed_rows": 1064448,
+      "positive_rows": 352327,
+      "restriction_rows": 484850,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 59645,
+      "cause_ENE": 425205,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V4",
+      "segment": "refit",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 1064448,
+      "prediction_rows": null,
+      "eligible_rows": 1064448,
+      "observed_rows": 1064448,
+      "positive_rows": 352327,
+      "restriction_rows": 484850,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 59645,
+      "cause_ENE": 425205,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V4",
+      "segment": "refit",
+      "task": "volume_condicional",
+      "used": true,
+      "rows": 352327,
+      "prediction_rows": null,
+      "eligible_rows": 352327,
+      "observed_rows": 352327,
+      "positive_rows": 352327,
+      "restriction_rows": 352327,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 36071,
+      "cause_ENE": 316256,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V4",
+      "segment": "refit",
+      "task": "causa",
+      "used": true,
+      "rows": 484850,
+      "prediction_rows": null,
+      "eligible_rows": 484850,
+      "observed_rows": 484850,
+      "positive_rows": 352327,
+      "restriction_rows": 484850,
+      "positive_volume_rows": 352327,
+      "cause_REL": 0,
+      "cause_CNF": 59645,
+      "cause_ENE": 425205,
+      "t0_min": "2025-01-01 00:00:00",
+      "t0_max": "2025-01-03 23:30:00"
+    },
+    {
+      "round": "V4",
+      "segment": "calibration",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V4",
+      "segment": "calibration",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": null,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V4",
+      "segment": "calibration",
+      "task": "volume_condicional",
+      "used": false,
+      "rows": null,
+      "prediction_rows": null,
+      "eligible_rows": null,
+      "observed_rows": null,
+      "positive_rows": null,
+      "restriction_rows": null,
+      "positive_volume_rows": null,
+      "cause_REL": null,
+      "cause_CNF": null,
+      "cause_ENE": null,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V4",
+      "segment": "calibration",
+      "task": "causa",
+      "used": false,
+      "rows": null,
+      "prediction_rows": null,
+      "eligible_rows": null,
+      "observed_rows": null,
+      "positive_rows": null,
+      "restriction_rows": null,
+      "positive_volume_rows": null,
+      "cause_REL": null,
+      "cause_CNF": null,
+      "cause_ENE": null,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V4",
+      "segment": "validation",
+      "task": "corte_positivo",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": 0,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V4",
+      "segment": "validation",
+      "task": "restricao_registrada",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": 0,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V4",
+      "segment": "validation",
+      "task": "volume_condicional",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": 0,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    },
+    {
+      "round": "V4",
+      "segment": "validation",
+      "task": "causa",
+      "used": true,
+      "rows": 0,
+      "prediction_rows": 0,
+      "eligible_rows": 0,
+      "observed_rows": 0,
+      "positive_rows": 0,
+      "restriction_rows": 0,
+      "positive_volume_rows": 0,
+      "cause_REL": 0,
+      "cause_CNF": 0,
+      "cause_ENE": 0,
+      "t0_min": null,
+      "t0_max": null
+    }
+  ],
+  "segment_limits": {
+    "V1": {
+      "initial": [
+        "2025-01-01 00:00:00",
+        "2024-11-04 00:00:00",
+        "2024-11-04 00:00:00"
+      ],
+      "tuning": [
+        "2024-11-04 00:00:00",
+        "2024-12-02 00:00:00",
+        "2024-12-02 00:00:00"
+      ],
+      "refit": [
+        "2025-01-01 00:00:00",
+        "2024-12-02 00:00:00",
+        "2024-12-02 00:00:00"
+      ],
+      "calibration": [
+        "2024-12-02 00:00:00",
+        "2024-12-30 00:00:00",
+        "2025-01-01 00:00:00"
+      ]
+    },
+    "V2": {
+      "initial": [
+        "2025-01-01 00:00:00",
+        "2025-03-05 00:00:00",
+        "2025-03-05 00:00:00"
+      ],
+      "tuning": [
+        "2025-03-05 00:00:00",
+        "2025-04-02 00:00:00",
+        "2025-04-02 00:00:00"
+      ],
+      "refit": [
+        "2025-01-01 00:00:00",
+        "2025-04-02 00:00:00",
+        "2025-04-02 00:00:00"
+      ],
+      "calibration": [
+        "2025-04-02 00:00:00",
+        "2025-04-30 00:00:00",
+        "2025-05-01 00:00:00"
+      ]
+    },
+    "V3": {
+      "initial": [
+        "2025-01-01 00:00:00",
+        "2025-07-04 00:00:00",
+        "2025-07-04 00:00:00"
+      ],
+      "tuning": [
+        "2025-07-04 00:00:00",
+        "2025-08-01 00:00:00",
+        "2025-08-01 00:00:00"
+      ],
+      "refit": [
+        "2025-01-01 00:00:00",
+        "2025-08-01 00:00:00",
+        "2025-08-01 00:00:00"
+      ],
+      "calibration": [
+        "2025-08-01 00:00:00",
+        "2025-08-29 00:00:00",
+        "2025-09-01 00:00:00"
+      ]
+    },
+    "V4": {
+      "initial": [
+        "2025-01-01 00:00:00",
+        "2025-11-04 00:00:00",
+        "2025-11-04 00:00:00"
+      ],
+      "tuning": [
+        "2025-11-04 00:00:00",
+        "2025-12-02 00:00:00",
+        "2025-12-02 00:00:00"
+      ],
+      "refit": [
+        "2025-01-01 00:00:00",
+        "2025-12-02 00:00:00",
+        "2025-12-02 00:00:00"
+      ],
+      "calibration": [
+        "2025-12-02 00:00:00",
+        "2025-12-30 00:00:00",
+        "2026-01-01 00:00:00"
+      ]
+    }
+  },
+  "distributions": {
+    "day": [
+      {
+        "day": "2025-01-01",
+        "rows": 357120,
+        "t0_min": "2025-01-01 00:00:00",
+        "t0_max": "2025-01-01 23:30:00",
+        "t0_count": 48,
+        "wrong_day": 0,
+        "wrong_source": 0
+      },
+      {
+        "day": "2025-01-02",
+        "rows": 357552,
+        "t0_min": "2025-01-02 00:00:00",
+        "t0_max": "2025-01-02 23:30:00",
+        "t0_count": 48,
+        "wrong_day": 0,
+        "wrong_source": 0
+      },
+      {
+        "day": "2025-01-03",
+        "rows": 359424,
+        "t0_min": "2025-01-03 00:00:00",
+        "t0_max": "2025-01-03 23:30:00",
+        "t0_count": 48,
+        "wrong_day": 0,
+        "wrong_source": 0
+      }
+    ],
+    "month": [
+      {
+        "month": "2025-01",
+        "rows": 1074096
+      }
+    ],
+    "entity": [
+      {
+        "fonte": "eolica",
+        "id_ons": "CEECVA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CEEMAU",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CEUCZ",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CEUFM",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BA4EPND",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BA5EIGT",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BAARA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BAARI",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BABAB",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BABBC",
+        "rows": 2736
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BABBS",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BABMC",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BABW1",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BABW2",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BACAE",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BACAN",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BACFO",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BACLA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BACLA2",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BACND",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BACRI",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BACRL",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BACTA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BACTE",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BACTN",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BACVN",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BADFN",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BAEMS2",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BAFLA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BAFLS",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BAGOI",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BAGPX",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BAIGD",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BALRA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BAMCS",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BAMOR",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BANHZ",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BAOUR",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BAPBR",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BAPEL",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BASAR",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BASAZ",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BASDB",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BASVT",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BATBD",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BATQN",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BATUC",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BAUBN",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BAVBA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_BAVSE",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_CEARD",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_CEAUD",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_CECBS",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_CECHE",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_CEESTI",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_CEFSA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_CEICR",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_CEITC",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_CEJAN",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_CEKW2W",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_CEPPG",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_CEPTM",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_CESEM",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_CESERA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_CESRO",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_CETBA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_CETRA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_MAPLN",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PBCHN",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PBCHS",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PBCHSD",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PBCSDS",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PECE2",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PECLE",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PEETAT",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PEFVD",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PEPAR",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PI4ECNP",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PIARP",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PICH1",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PICP2",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PICP3",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PILBI",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PILDV",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PIOIT",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PISBAE",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_PIVSR",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RN4EMSD",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNABR",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNACA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNAFB",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNANE",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNAVD",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNBFJ",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNBP1",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNBSL",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNCA1",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNCA2",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNCA3",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNCAJ1",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNCDV",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNCMR",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNCNB",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNCPD",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNCSER",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNCUT",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNEMVD",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNGAM",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNJDA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNJDT",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNJER",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNMAC",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNMNR",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNMNV",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNMOD",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNMSC",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNMVD",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNMVT",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNODA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNRDV",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNREN",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNREV",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNRIA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNRVE",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNSAB",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNSAG",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNSDMA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNSDMB",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNSM2A",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNSM2B",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNSMG",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNSMN",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNSS2",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNSS3",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNSTC",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNTSN",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNUMR",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RNUVT",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RSACA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RSCCH",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RSCNG",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RSLBA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RSMRO2",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RSQ138",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RSQ69",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RSSVPA",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_RSVIA3",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_SCCEAD",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "CJU_SCCEBJ",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "RNUAD",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "RNUAU",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "RNUERT",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "RNUERU",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "RNUES3",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "RSUECI",
+        "rows": 6912
+      },
+      {
+        "fonte": "eolica",
+        "id_ons": "RSUEXG",
+        "rows": 6912
+      }
+    ],
+    "horizon": [
+      {
+        "horizon": 1,
+        "rows": 22377
+      },
+      {
+        "horizon": 10,
+        "rows": 22377
+      },
+      {
+        "horizon": 11,
+        "rows": 22377
+      },
+      {
+        "horizon": 12,
+        "rows": 22377
+      },
+      {
+        "horizon": 13,
+        "rows": 22377
+      },
+      {
+        "horizon": 14,
+        "rows": 22377
+      },
+      {
+        "horizon": 15,
+        "rows": 22377
+      },
+      {
+        "horizon": 16,
+        "rows": 22377
+      },
+      {
+        "horizon": 17,
+        "rows": 22377
+      },
+      {
+        "horizon": 18,
+        "rows": 22377
+      },
+      {
+        "horizon": 19,
+        "rows": 22377
+      },
+      {
+        "horizon": 2,
+        "rows": 22377
+      },
+      {
+        "horizon": 20,
+        "rows": 22377
+      },
+      {
+        "horizon": 21,
+        "rows": 22377
+      },
+      {
+        "horizon": 22,
+        "rows": 22377
+      },
+      {
+        "horizon": 23,
+        "rows": 22377
+      },
+      {
+        "horizon": 24,
+        "rows": 22377
+      },
+      {
+        "horizon": 25,
+        "rows": 22377
+      },
+      {
+        "horizon": 26,
+        "rows": 22377
+      },
+      {
+        "horizon": 27,
+        "rows": 22377
+      },
+      {
+        "horizon": 28,
+        "rows": 22377
+      },
+      {
+        "horizon": 29,
+        "rows": 22377
+      },
+      {
+        "horizon": 3,
+        "rows": 22377
+      },
+      {
+        "horizon": 30,
+        "rows": 22377
+      },
+      {
+        "horizon": 31,
+        "rows": 22377
+      },
+      {
+        "horizon": 32,
+        "rows": 22377
+      },
+      {
+        "horizon": 33,
+        "rows": 22377
+      },
+      {
+        "horizon": 34,
+        "rows": 22377
+      },
+      {
+        "horizon": 35,
+        "rows": 22377
+      },
+      {
+        "horizon": 36,
+        "rows": 22377
+      },
+      {
+        "horizon": 37,
+        "rows": 22377
+      },
+      {
+        "horizon": 38,
+        "rows": 22377
+      },
+      {
+        "horizon": 39,
+        "rows": 22377
+      },
+      {
+        "horizon": 4,
+        "rows": 22377
+      },
+      {
+        "horizon": 40,
+        "rows": 22377
+      },
+      {
+        "horizon": 41,
+        "rows": 22377
+      },
+      {
+        "horizon": 42,
+        "rows": 22377
+      },
+      {
+        "horizon": 43,
+        "rows": 22377
+      },
+      {
+        "horizon": 44,
+        "rows": 22377
+      },
+      {
+        "horizon": 45,
+        "rows": 22377
+      },
+      {
+        "horizon": 46,
+        "rows": 22377
+      },
+      {
+        "horizon": 47,
+        "rows": 22377
+      },
+      {
+        "horizon": 48,
+        "rows": 22377
+      },
+      {
+        "horizon": 5,
+        "rows": 22377
+      },
+      {
+        "horizon": 6,
+        "rows": 22377
+      },
+      {
+        "horizon": 7,
+        "rows": 22377
+      },
+      {
+        "horizon": 8,
+        "rows": 22377
+      },
+      {
+        "horizon": 9,
+        "rows": 22377
+      }
+    ]
+  }
+}

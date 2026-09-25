@@ -1,0 +1,35 @@
+Validação isolada de Settings: uv run pytest; sem CURTAMAP_DATA_DIR/MODEL_DIR somente neste subprocesso.
+........................................................................ [ 30%]
+........................................................................ [ 61%]
+...................................s.................................... [ 92%]
+.................                                                        [100%]
+============================== warnings summary ===============================
+tests/test_experimental_campaign_parity.py::test_campaign_round_in_parts_reproduces_oracle_artifacts
+  Y:\CurtaMap Etapa 2B\worktrees\medicao-populacoes\tests\reference_campaign_stage2b.py:191: DeprecationWarning: `is_in` with a collection of the same datatype is ambiguous and deprecated.
+  Please use `implode` to return to previous behavior.
+  
+  See https://github.com/pola-rs/polars/issues/22149 for more information.
+    features = features.with_columns(
+
+tests/test_experimental_campaign_parity.py::test_campaign_round_in_parts_reproduces_oracle_artifacts
+  Y:\CurtaMap Etapa 2B\worktrees\medicao-populacoes\tests\reference_campaign_stage2b.py:205: DeprecationWarning: `is_in` with a collection of the same datatype is ambiguous and deprecated.
+  Please use `implode` to return to previous behavior.
+  
+  See https://github.com/pola-rs/polars/issues/22149 for more information.
+    features = features.with_columns(pl.col("id_ons").is_in(fixed_ids).alias("panel_fixed"))
+
+tests/test_experimental_campaign_parity.py: 24 warnings
+tests/test_experimental_cli.py: 8 warnings
+  Y:\CurtaMap Etapa 2B\worktrees\medicao-populacoes\.venv\Lib\site-packages\lightgbm\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+    eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+
+tests/test_experimental_campaign_parity.py: 30 warnings
+tests/test_experimental_cli.py: 16 warnings
+  Y:\CurtaMap Etapa 2B\worktrees\medicao-populacoes\src\curtamap\experimental\campaign.py:425: DeprecationWarning: `is_in` with a collection of the same datatype is ambiguous and deprecated.
+  Please use `implode` to return to previous behavior.
+  
+  See https://github.com/pola-rs/polars/issues/22149 for more information.
+    frame = selected.collect().with_columns(self.derived)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+232 passed, 1 skipped, 80 warnings in 93.05s (0:01:33)

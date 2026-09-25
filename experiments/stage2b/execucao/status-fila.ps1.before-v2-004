@@ -1,0 +1,42 @@
+﻿# Mostra o andamento da fila da Etapa 2B. Uso: pwsh -File "Y:\CurtaMap Etapa 2B\execucao\status-fila.ps1"
+$Root = 'Y:\CurtaMap Etapa 2B'
+$log = "$Root\execucao\fila\fila.log"
+$filaLinhas = @(Get-Content $log -ErrorAction SilentlyContinue)
+$ids = @('main-eolica-v1-002','main-eolica-v2-001','main-eolica-v2-002','main-eolica-v2-003','main-eolica-v3-001','main-eolica-v4-001',
+  'main-fotovoltaica-v1-001','main-fotovoltaica-v2-001','main-fotovoltaica-v3-001','main-fotovoltaica-v4-001',
+  'features-noturno_mais_24h-eolica-development-001','check-noturno_mais_24h-eolica-001',
+  'delay-eolica-v1-001','delay-eolica-v2-001','delay-eolica-v3-001','delay-eolica-v4-001',
+  'features-noturno_mais_24h-fotovoltaica-development-001','check-noturno_mais_24h-fotovoltaica-001',
+  'delay-fotovoltaica-v1-001','delay-fotovoltaica-v2-001','delay-fotovoltaica-v3-001','delay-fotovoltaica-v4-001')
+foreach ($id in $ids) {
+  $dir = "$Root\execucao\passos\$id"
+  if (Test-Path "$dir\end.json") {
+    $e = Get-Content "$dir\end.json" -Raw | ConvertFrom-Json
+    $m = "$Root\experimentos\$id\manifest.json"
+    $st = if (Test-Path $m) { (Get-Content $m -Raw | ConvertFrom-Json).status } else { '-' }
+    $s = if ($e.interrupted_by_user) { 'CANCEL.' } elseif ($e.exit_code -eq 0) { 'OK' } else { 'FALHOU' }
+    '{0,-8} {1,-55} {2,6:N1} h  exit={3} status={4}' -f $s, $id, ($e.duration_seconds / 3600), $e.exit_code, $st
+  } elseif (Test-Path "$dir\start.json") {
+    $t = (Get-Content "$dir\start.json" -Raw | ConvertFrom-Json).started_at
+    '{0,-8} {1,-55} desde {2}' -f 'RODANDO', $id, $t
+  } else { '{0,-8} {1}' -f 'PENDENTE', $id }
+}
+$ativa = $false
+$ultimaInicializacao = $filaLinhas | Where-Object { $_ -match 'fila iniciada; PID \d+' } | Select-Object -Last 1
+if ($ultimaInicializacao -match 'fila iniciada; PID (\d+)') {
+  $ativa = $null -ne (Get-Process -Id ([int]$Matches[1]) -ErrorAction SilentlyContinue)
+}
+if (-not $ativa) {
+  $lock = Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'fila-2b\.ps1' }
+  if ($lock) { $ativa = $true }
+}
+''
+if ($ativa) { 'Fila ativa.' }
+else {
+  $ultimoEvento = $filaLinhas | Where-Object { $_ -match 'fila iniciada|fila concluída|fila interrompida|PARAR:' } | Select-Object -Last 1
+  if ($ultimoEvento -match 'fila concluída com sucesso') { 'FILA CONCLUÍDA COM SUCESSO.' }
+  elseif ($ultimoEvento -match 'fila interrompida') { 'ATENÇÃO: fila interrompida após falha (veja fila.log).' }
+  elseif ($ultimoEvento -match 'PARAR:') { 'Fila parada com segurança por solicitação.' }
+  else { 'ATENÇÃO: fila não está rodando e a execução mais recente não concluiu (veja fila.log).' }
+}
+'Últimas linhas do log:'; Get-Content $log -Tail 4

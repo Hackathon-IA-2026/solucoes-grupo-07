@@ -1,0 +1,2 @@
+. 'Y:\CurtaMap Etapa 2B\env.ps1'
+& 'Y:\CurtaMap Etapa 2B\execucao\run-step.ps1' -StepId 'main-eolica-v1-002' -Repo 'M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026' -SampleSeconds 30 -Arguments 'campaign-round --run-id main-eolica-v1-002 --source eolica --round V1 --features "Y:\CurtaMap Etapa 2B\experimentos\stage2b-datasets\scenario=noturno_dia_util\source=eolica\round=development\date=*\features.parquet" --baselines "Y:\CurtaMap Etapa 2B\experimentos\stage2b-datasets\scenario=noturno_dia_util\source=eolica\round=development\date=*\baselines.parquet"'

@@ -1,0 +1,3 @@
+. 'Y:\CurtaMap Etapa 2B\env.ps1'
+$stepArgs = '-m curtamap.experimental.population_measurement --dataset-root "Y:\CurtaMap Etapa 2B\experimentos\stage2b-datasets\scenario=noturno_dia_util\source=eolica\round=development" --start 2023-10-01 --end 2026-05-01 --source eolica --scenario noturno_dia_util --calendar configs/experimental/calendar-2023-2026.json --dataset-commit 70a181d --expected-partitions 942 --output "Y:\CurtaMap Etapa 2B\execucao\medicoes\populacoes-noturno_dia_util-eolica-001.json"'
+& 'Y:\CurtaMap Etapa 2B\execucao\run-step.ps1' -StepId 'populacoes-noturno_dia_util-eolica-001' -Repo 'M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026' -SampleSeconds 30 -UvArgumentsPrefix 'run python' -Arguments $stepArgs

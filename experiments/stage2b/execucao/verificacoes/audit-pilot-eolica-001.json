@@ -1,0 +1,236 @@
+{
+  "checksums": {
+    "manifest.json": true,
+    "models/pilot/causa-lightgbm.joblib": true,
+    "models/pilot/causa-linear.joblib": true,
+    "models/pilot/corte_positivo-lightgbm.joblib": true,
+    "models/pilot/corte_positivo-linear.joblib": true,
+    "models/pilot/restricao_registrada-lightgbm.joblib": true,
+    "models/pilot/restricao_registrada-linear.joblib": true,
+    "models/pilot/volume_condicional-lightgbm.joblib": true,
+    "models/pilot/volume_condicional-linear.joblib": true,
+    "reports/technical-pilot.json": true
+  },
+  "coverage": {
+    "rows": 2000000,
+    "first_t0": "2023-10-02 19:30:00",
+    "last_t0": "2023-10-08 11:30:00",
+    "eligible_rows": 0
+  },
+  "models": [
+    {
+      "model": "causa-lightgbm.joblib",
+      "deserialized": true,
+      "prediction_contract": true,
+      "rows": 256,
+      "effective_params": {
+        "boosting_type": "gbdt",
+        "class_weight": null,
+        "colsample_bytree": 1.0,
+        "importance_type": "split",
+        "learning_rate": 0.05,
+        "max_depth": 4,
+        "min_child_samples": 100,
+        "min_child_weight": 0.001,
+        "min_split_gain": 0.0,
+        "n_estimators": 500,
+        "n_jobs": 1,
+        "num_leaves": 15,
+        "objective": "multiclass",
+        "random_state": 42,
+        "reg_alpha": 0.0,
+        "reg_lambda": 1.0,
+        "subsample": 1.0,
+        "subsample_for_bin": 200000,
+        "subsample_freq": 0,
+        "max_bin": 63,
+        "verbosity": -1
+      },
+      "iterations": 500
+    },
+    {
+      "model": "causa-linear.joblib",
+      "deserialized": true,
+      "prediction_contract": true,
+      "rows": 256,
+      "effective_params": {
+        "C": 0.1,
+        "class_weight": null,
+        "dual": false,
+        "fit_intercept": true,
+        "intercept_scaling": 1,
+        "l1_ratio": 0.0,
+        "max_iter": 1000,
+        "n_jobs": null,
+        "penalty": "deprecated",
+        "random_state": 42,
+        "solver": "lbfgs",
+        "tol": 0.0001,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "iterations": [
+        125
+      ]
+    },
+    {
+      "model": "corte_positivo-lightgbm.joblib",
+      "deserialized": true,
+      "prediction_contract": true,
+      "rows": 256,
+      "effective_params": {
+        "boosting_type": "gbdt",
+        "class_weight": null,
+        "colsample_bytree": 1.0,
+        "importance_type": "split",
+        "learning_rate": 0.05,
+        "max_depth": 4,
+        "min_child_samples": 100,
+        "min_child_weight": 0.001,
+        "min_split_gain": 0.0,
+        "n_estimators": 500,
+        "n_jobs": 1,
+        "num_leaves": 15,
+        "objective": "binary",
+        "random_state": 42,
+        "reg_alpha": 0.0,
+        "reg_lambda": 1.0,
+        "subsample": 1.0,
+        "subsample_for_bin": 200000,
+        "subsample_freq": 0,
+        "max_bin": 63,
+        "verbosity": -1
+      },
+      "iterations": 500
+    },
+    {
+      "model": "corte_positivo-linear.joblib",
+      "deserialized": true,
+      "prediction_contract": true,
+      "rows": 256,
+      "effective_params": {
+        "C": 0.1,
+        "class_weight": null,
+        "dual": false,
+        "fit_intercept": true,
+        "intercept_scaling": 1,
+        "l1_ratio": 0.0,
+        "max_iter": 1000,
+        "n_jobs": null,
+        "penalty": "deprecated",
+        "random_state": 42,
+        "solver": "lbfgs",
+        "tol": 0.0001,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "iterations": [
+        71
+      ]
+    },
+    {
+      "model": "restricao_registrada-lightgbm.joblib",
+      "deserialized": true,
+      "prediction_contract": true,
+      "rows": 256,
+      "effective_params": {
+        "boosting_type": "gbdt",
+        "class_weight": null,
+        "colsample_bytree": 1.0,
+        "importance_type": "split",
+        "learning_rate": 0.05,
+        "max_depth": 4,
+        "min_child_samples": 100,
+        "min_child_weight": 0.001,
+        "min_split_gain": 0.0,
+        "n_estimators": 500,
+        "n_jobs": 1,
+        "num_leaves": 15,
+        "objective": "binary",
+        "random_state": 42,
+        "reg_alpha": 0.0,
+        "reg_lambda": 1.0,
+        "subsample": 1.0,
+        "subsample_for_bin": 200000,
+        "subsample_freq": 0,
+        "max_bin": 63,
+        "verbosity": -1
+      },
+      "iterations": 500
+    },
+    {
+      "model": "restricao_registrada-linear.joblib",
+      "deserialized": true,
+      "prediction_contract": true,
+      "rows": 256,
+      "effective_params": {
+        "C": 0.1,
+        "class_weight": null,
+        "dual": false,
+        "fit_intercept": true,
+        "intercept_scaling": 1,
+        "l1_ratio": 0.0,
+        "max_iter": 1000,
+        "n_jobs": null,
+        "penalty": "deprecated",
+        "random_state": 42,
+        "solver": "lbfgs",
+        "tol": 0.0001,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "iterations": [
+        71
+      ]
+    },
+    {
+      "model": "volume_condicional-lightgbm.joblib",
+      "deserialized": true,
+      "prediction_contract": true,
+      "rows": 256,
+      "effective_params": {
+        "boosting_type": "gbdt",
+        "class_weight": null,
+        "colsample_bytree": 1.0,
+        "importance_type": "split",
+        "learning_rate": 0.05,
+        "max_depth": 4,
+        "min_child_samples": 100,
+        "min_child_weight": 0.001,
+        "min_split_gain": 0.0,
+        "n_estimators": 500,
+        "n_jobs": 1,
+        "num_leaves": 15,
+        "objective": "gamma",
+        "random_state": 42,
+        "reg_alpha": 0.0,
+        "reg_lambda": 1.0,
+        "subsample": 1.0,
+        "subsample_for_bin": 200000,
+        "subsample_freq": 0,
+        "max_bin": 63,
+        "verbosity": -1
+      },
+      "iterations": 500
+    },
+    {
+      "model": "volume_condicional-linear.joblib",
+      "deserialized": true,
+      "prediction_contract": true,
+      "rows": 256,
+      "effective_params": {
+        "alpha": 0.0001,
+        "fit_intercept": true,
+        "max_iter": 1000,
+        "solver": "lbfgs",
+        "tol": 0.0001,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "iterations": 283
+    }
+  ],
+  "bytes_on_disk": 3706035,
+  "selection_metrics_emitted": false,
+  "all_checks_pass": true
+}

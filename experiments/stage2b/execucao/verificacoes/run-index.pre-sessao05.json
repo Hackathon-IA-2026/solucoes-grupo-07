@@ -1,0 +1,305 @@
+{
+  "defined_at": "2026-09-22T18:33:36.1900519-03:00",
+  "note": "run_id imutáveis; se um diretório já existir, usar novo sufixo e registrar",
+  "runs": [
+    {
+      "run_id": "pilot-eolica-001",
+      "kind": "piloto_tecnico",
+      "source": "eolica",
+      "scenario": "noturno_dia_util",
+      "round": null,
+      "frozen_from": null,
+      "status": "concluida_tecnicamente",
+      "reason": "8 ajustes; zero falhas e warnings; recarga, contratos e hashes aprovados; head2M inelegível não representa treino",
+      "code_commit": "48bc71a39c411c2c8725a744cdf3548baf7e3b9e",
+      "technical_evidence": {
+        "eligible_rows_in_pilot": 0,
+        "bytes_on_disk": 3706035,
+        "duration_seconds": 60.5,
+        "step_id": "pilot-eolica-001",
+        "report": "experimentos/pilot-eolica-001/reports/technical-pilot.json",
+        "effective_lightgbm_threads": 1,
+        "audit": "execucao/verificacoes/audit-pilot-eolica-001.json",
+        "peak_process_bytes": 1719541760
+      }
+    },
+    {
+      "run_id": "pilot-fotovoltaica-001",
+      "kind": "piloto_tecnico",
+      "source": "fotovoltaica",
+      "scenario": "noturno_dia_util",
+      "round": null,
+      "frozen_from": null,
+      "status": "nao_iniciada",
+      "reason": "aguardando dataset solar, verificação e piloto; campanha depende também da decisão sobre memória",
+      "code_commit": null
+    },
+    {
+      "run_id": "main-eolica-v1-001",
+      "kind": "campanha_principal",
+      "source": "eolica",
+      "scenario": "noturno_dia_util",
+      "round": "V1",
+      "frozen_from": null,
+      "status": "interrompida_pelo_agente",
+      "reason": "máscara de amostragem sem pushdown; 41-46 GB comprometidos e thrashing; corrigido em 560ae70",
+      "code_commit": "f36d5f6c8949e1b768d5d53d62adba4ba4485f37",
+      "step_id": "main-eolica-v1-001"
+    },
+    {
+      "run_id": "main-eolica-v1-002",
+      "kind": "campanha_principal",
+      "source": "eolica",
+      "scenario": "noturno_dia_util",
+      "round": "V1",
+      "frozen_from": null,
+      "status": "em_execucao",
+      "reason": "nova tentativa após correção de pushdown; porta medida",
+      "code_commit": "560ae70b736ef0a93f5282e3f069298ab2aebc86",
+      "step_id": "main-eolica-v1-002"
+    },
+    {
+      "run_id": "main-eolica-v2-001",
+      "kind": "campanha_principal",
+      "source": "eolica",
+      "scenario": "noturno_dia_util",
+      "round": "V2",
+      "frozen_from": null,
+      "status": "nao_iniciada",
+      "reason": "aguardando piloto eólico, contagens por segmento/tarefa e decisão de contingência de treino",
+      "code_commit": null
+    },
+    {
+      "run_id": "main-eolica-v3-001",
+      "kind": "campanha_principal",
+      "source": "eolica",
+      "scenario": "noturno_dia_util",
+      "round": "V3",
+      "frozen_from": null,
+      "status": "nao_iniciada",
+      "reason": "aguardando piloto eólico, contagens por segmento/tarefa e decisão de contingência de treino",
+      "code_commit": null
+    },
+    {
+      "run_id": "main-eolica-v4-001",
+      "kind": "campanha_principal",
+      "source": "eolica",
+      "scenario": "noturno_dia_util",
+      "round": "V4",
+      "frozen_from": null,
+      "status": "nao_iniciada",
+      "reason": "aguardando piloto eólico, contagens por segmento/tarefa e decisão de contingência de treino",
+      "code_commit": null
+    },
+    {
+      "run_id": "main-fotovoltaica-v1-001",
+      "kind": "campanha_principal",
+      "source": "fotovoltaica",
+      "scenario": "noturno_dia_util",
+      "round": "V1",
+      "frozen_from": null,
+      "status": "nao_iniciada",
+      "reason": "aguardando dataset solar, verificação e piloto; campanha depende também da decisão sobre memória",
+      "code_commit": null
+    },
+    {
+      "run_id": "main-fotovoltaica-v2-001",
+      "kind": "campanha_principal",
+      "source": "fotovoltaica",
+      "scenario": "noturno_dia_util",
+      "round": "V2",
+      "frozen_from": null,
+      "status": "nao_iniciada",
+      "reason": "aguardando dataset solar, verificação e piloto; campanha depende também da decisão sobre memória",
+      "code_commit": null
+    },
+    {
+      "run_id": "main-fotovoltaica-v3-001",
+      "kind": "campanha_principal",
+      "source": "fotovoltaica",
+      "scenario": "noturno_dia_util",
+      "round": "V3",
+      "frozen_from": null,
+      "status": "nao_iniciada",
+      "reason": "aguardando dataset solar, verificação e piloto; campanha depende também da decisão sobre memória",
+      "code_commit": null
+    },
+    {
+      "run_id": "main-fotovoltaica-v4-001",
+      "kind": "campanha_principal",
+      "source": "fotovoltaica",
+      "scenario": "noturno_dia_util",
+      "round": "V4",
+      "frozen_from": null,
+      "status": "nao_iniciada",
+      "reason": "aguardando dataset solar, verificação e piloto; campanha depende também da decisão sobre memória",
+      "code_commit": null
+    },
+    {
+      "run_id": "delay-eolica-v1-001",
+      "kind": "sensibilidade_mais_24h",
+      "source": "eolica",
+      "scenario": "noturno_mais_24h",
+      "round": "V1",
+      "frozen_from": "main-eolica-v1-002",
+      "status": "nao_iniciada",
+      "reason": "aguardando dataset +24h e run principal correspondente",
+      "code_commit": null
+    },
+    {
+      "run_id": "delay-eolica-v2-001",
+      "kind": "sensibilidade_mais_24h",
+      "source": "eolica",
+      "scenario": "noturno_mais_24h",
+      "round": "V2",
+      "frozen_from": "main-eolica-v2-001",
+      "status": "nao_iniciada",
+      "reason": "aguardando dataset +24h e run principal correspondente",
+      "code_commit": null
+    },
+    {
+      "run_id": "delay-eolica-v3-001",
+      "kind": "sensibilidade_mais_24h",
+      "source": "eolica",
+      "scenario": "noturno_mais_24h",
+      "round": "V3",
+      "frozen_from": "main-eolica-v3-001",
+      "status": "nao_iniciada",
+      "reason": "aguardando dataset +24h e run principal correspondente",
+      "code_commit": null
+    },
+    {
+      "run_id": "delay-eolica-v4-001",
+      "kind": "sensibilidade_mais_24h",
+      "source": "eolica",
+      "scenario": "noturno_mais_24h",
+      "round": "V4",
+      "frozen_from": "main-eolica-v4-001",
+      "status": "nao_iniciada",
+      "reason": "aguardando dataset +24h e run principal correspondente",
+      "code_commit": null
+    },
+    {
+      "run_id": "delay-fotovoltaica-v1-001",
+      "kind": "sensibilidade_mais_24h",
+      "source": "fotovoltaica",
+      "scenario": "noturno_mais_24h",
+      "round": "V1",
+      "frozen_from": "main-fotovoltaica-v1-001",
+      "status": "nao_iniciada",
+      "reason": "aguardando dataset +24h e run principal correspondente",
+      "code_commit": null
+    },
+    {
+      "run_id": "delay-fotovoltaica-v2-001",
+      "kind": "sensibilidade_mais_24h",
+      "source": "fotovoltaica",
+      "scenario": "noturno_mais_24h",
+      "round": "V2",
+      "frozen_from": "main-fotovoltaica-v2-001",
+      "status": "nao_iniciada",
+      "reason": "aguardando dataset +24h e run principal correspondente",
+      "code_commit": null
+    },
+    {
+      "run_id": "delay-fotovoltaica-v3-001",
+      "kind": "sensibilidade_mais_24h",
+      "source": "fotovoltaica",
+      "scenario": "noturno_mais_24h",
+      "round": "V3",
+      "frozen_from": "main-fotovoltaica-v3-001",
+      "status": "nao_iniciada",
+      "reason": "aguardando dataset +24h e run principal correspondente",
+      "code_commit": null
+    },
+    {
+      "run_id": "delay-fotovoltaica-v4-001",
+      "kind": "sensibilidade_mais_24h",
+      "source": "fotovoltaica",
+      "scenario": "noturno_mais_24h",
+      "round": "V4",
+      "frozen_from": "main-fotovoltaica-v4-001",
+      "status": "nao_iniciada",
+      "reason": "aguardando dataset +24h e run principal correspondente",
+      "code_commit": null
+    }
+  ],
+  "updated_at": "2026-09-23T19:07:56.666436-03:00",
+  "verification": {
+    "step_id": "check-noturno_dia_util-eolica-v2-002",
+    "status": "aprovada",
+    "code_commit": "a5b4a87c829e410ffcbf84c379bc7200709587c8",
+    "report": "execucao/verificacoes/dataset-noturno_dia_util-eolica-v2-002.json",
+    "checks_passed": 18,
+    "duration_seconds": 272.2,
+    "peak_process_working_set_bytes": 1291628544,
+    "rows_tau_in_reserved": 172584
+  },
+  "datasets": [
+    {
+      "source": "eolica",
+      "scenario": "noturno_dia_util",
+      "round": "development",
+      "generation_code_commit": "70a181d",
+      "generation_step": "features-noturno_dia_util-eolica-development-001",
+      "generation_status": "concluida",
+      "contract_status": "aprovado",
+      "partitions": 942,
+      "verification_code_commit": "a5b4a87c829e410ffcbf84c379bc7200709587c8"
+    },
+    {
+      "source": "fotovoltaica",
+      "scenario": "noturno_dia_util",
+      "round": "development",
+      "generation_code_commit": "2e79475",
+      "generation_step": "features-noturno_dia_util-fotovoltaica-development-001",
+      "generation_status": "concluida",
+      "generation_seconds": 2424.2,
+      "contract_status": "aprovado",
+      "partitions": 759,
+      "verification_step": "check-noturno_dia_util-fotovoltaica-001",
+      "verification_code_commit": "2e794751e2646d1515f30ff6620e12abb10546b8",
+      "verification_report": "execucao/verificacoes/dataset-noturno_dia_util-fotovoltaica-001.json",
+      "features_rows": 114382944,
+      "entities": 82
+    }
+  ],
+  "journal_commit": "2e79475",
+  "verification_previous": {
+    "step_id": "check-noturno_dia_util-eolica-sessao02-001",
+    "status": "falha_processo_sem_relatorio",
+    "code_commit": "ce73b6da02a009a49a71d928fc47f636687fcc38",
+    "exit_code": -1073740791,
+    "checks_completed": false
+  },
+  "population_measurements": [
+    {
+      "step_id": "populacoes-noturno_dia_util-eolica-001",
+      "source": "eolica",
+      "scenario": "noturno_dia_util",
+      "status": "concluida_aprovada",
+      "code_commit": "ea88fe7f4f7d8de98506b125774df37ec1c2ba51",
+      "report": "execucao/medicoes/populacoes-noturno_dia_util-eolica-001.json",
+      "checks_passed": "96/96 (cruzadas com a verificação v2-002)",
+      "duration_seconds": 150.9,
+      "peak_process_working_set_bytes": 821321728,
+      "decision_pending": "contingência de treino e threads; nenhuma amostragem implementada"
+    },
+    {
+      "step_id": "populacoes-noturno_dia_util-fotovoltaica-001",
+      "source": "fotovoltaica",
+      "status": "concluida_aprovada",
+      "code_commit": "2e794751e2646d1515f30ff6620e12abb10546b8",
+      "report": "execucao/medicoes/populacoes-noturno_dia_util-fotovoltaica-001.json",
+      "checks_passed": "59/59",
+      "duration_seconds": 106.4
+    }
+  ],
+  "contingency_decision": {
+    "decided_at": "2026-09-23",
+    "by": "responsável: seguir ações recomendadas",
+    "sampling_commit": "40cb438",
+    "threads_commit": "f36d5f6",
+    "question": "execucao/PERGUNTA-contingencia-treino-sessao04.md"
+  }
+}

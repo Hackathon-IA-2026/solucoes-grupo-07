@@ -1,0 +1,89 @@
+# Fila sequencial da Etapa 2B (autorizada pelo responsável em 23/09/2026).
+# Um passo pesado por vez, via run-step.ps1, com código congelado em worktrees\execucao-fila.
+# Parar com segurança: criar execucao\fila\PARAR (termina o passo atual e não inicia o próximo).
+$ErrorActionPreference = 'Stop'
+. 'Y:\CurtaMap Etapa 2B\env.ps1'
+$Root = 'Y:\CurtaMap Etapa 2B'; $Repo = "$Root\worktrees\execucao-fila"; $Fila = "$Root\execucao\fila"
+$Passos = "$Root\execucao\passos"; $Exp = "$Root\experimentos"; $Log = "$Fila\fila.log"
+$Commit = (git -C $Repo rev-parse --short HEAD)
+function Log($m) { "$((Get-Date).ToString('o')) $m" | Add-Content $Log -Encoding utf8 }
+function Ds($scen, $src) { "$Exp\stage2b-datasets\scenario=$scen\source=$src\round=development" }
+function Result($id) {
+  $e = "$Passos\$id\end.json"; if (-not (Test-Path $e)) { return $null }
+  if ((Get-Content $e -Raw | ConvertFrom-Json).exit_code -ne 0) { return 'falhou' }
+  $m = "$Exp\$id\manifest.json"
+  if ((Test-Path $m) -and (Get-Content $m -Raw | ConvertFrom-Json).status -ne 'complete') { return 'incompleta' }
+  'ok'
+}
+$steps = @(); $main = @{}
+foreach ($src in 'eolica','fotovoltaica') { foreach ($r in 'V1','V2','V3','V4') {
+  if ($src -eq 'eolica' -and $r -eq 'V1') { $main["$src$r"] = 'main-eolica-v1-002'; continue }
+  $id = if ($src -eq 'eolica' -and $r -eq 'V2') { 'main-eolica-v2-004' } else { "main-$src-$($r.ToLower())-001" }
+  $d = Ds 'noturno_dia_util' $src; $main["$src$r"] = $id
+  $steps += @{ id=$id; needs=@(); prefix=$null
+    args="campaign-round --run-id $id --source $src --round $r --features `"$d\date=*\features.parquet`" --baselines `"$d\date=*\baselines.parquet`"" } } }
+$ini = @{ eolica='2023-10-01T00:00:00'; fotovoltaica='2024-04-01T00:00:00' }
+foreach ($src in 'eolica','fotovoltaica') {
+  $d = Ds 'noturno_mais_24h' $src; $gen = "features-noturno_mais_24h-$src-development-001"; $chk = "check-noturno_mais_24h-$src-001"
+  $steps += @{ id=$gen; needs=@(); prefix=$null
+    args="build-features --scenario noturno_mais_24h --source $src --round development --start $($ini[$src]) --end 2026-05-01T00:00:00" }
+  $steps += @{ id=$chk; needs=@($gen); prefix='run python'
+    args="-m curtamap.experimental.dataset_verification `"$d`" $($ini[$src]) 2026-05-01T00:00:00 `"$Root\execucao\verificacoes\dataset-noturno_mais_24h-$src-001.json`" --targets `"$Root\cache\stage2b\targets\noturno_mais_24h\source=$src\year=*\month=*\targets.parquet`" --calendar configs/experimental/calendar-2023-2026.json --source $src --scenario noturno_mais_24h --dataset-commit $Commit" }
+  foreach ($r in 'V1','V2','V3','V4') { $id = "delay-$src-$($r.ToLower())-001"; $m = $main["$src$r"]
+    $steps += @{ id=$id; needs=@($chk,$m); prefix=$null
+      args="sensitivity-round --run-id $id --source $src --round $r --frozen-run `"$Exp\$m`" --features `"$d\date=*\features.parquet`" --baselines `"$d\date=*\baselines.parquet`"" } } }
+$Self = Get-Process -Id $PID
+$SelfStart = $Self.StartTime.ToString('o')
+# Lock com PID + hora de criação: o status não confunde PID reutilizado com fila ativa.
+[ordered]@{ pid = $PID; started_at = $SelfStart; parent_pid = (Get-CimInstance Win32_Process -Filter "ProcessId=$PID").ParentProcessId; commit = $Commit } |
+  ConvertTo-Json | Set-Content "$Fila\fila.lock.json" -Encoding utf8
+Log "fila iniciada; PID $PID; criado_em $SelfStart; commit $Commit; $($steps.Count) passos: $(($steps | ForEach-Object { $_.id }) -join ', ')"
+while (-not (Test-Path "$Passos\main-eolica-v1-002\end.json")) {
+  if (Test-Path "$Fila\PARAR") { Log 'PARAR antes do primeiro passo'; exit 0 }
+  Start-Sleep 30 }
+$firstResult = Result 'main-eolica-v1-002'
+Log "main-eolica-v1-002 terminou -> $firstResult"
+if ($firstResult -ne 'ok') { Log "fila interrompida: main-eolica-v1-002 terminou como $firstResult"; exit 1 }
+foreach ($s in $steps) {
+  if (Test-Path "$Fila\PARAR") { Log "PARAR: encerrada antes de $($s.id)"; break }
+  if (Test-Path "$Passos\$($s.id)") {
+    $existingResult = Result $s.id
+    if ($existingResult -eq 'ok') { Log "$($s.id): já existe (ok), pulando"; continue }
+    Log "$($s.id): fila interrompida; passo já existe com resultado '$existingResult' e exige retomada explícita"
+    exit 1
+  }
+  $bad = @($s.needs | Where-Object { (Result $_) -ne 'ok' })
+  if ($bad.Count) { Log "$($s.id): fila interrompida; bloqueado por $($bad -join ',')"; exit 1 }
+  Log "$($s.id): iniciando"
+  # Start-Process recompõe -ArgumentList em uma única string e pode perder o limite de
+  # -Arguments. ProcessStartInfo.ArgumentList preserva cada argumento sem reinterpretação.
+  $psi = [System.Diagnostics.ProcessStartInfo]::new()
+  $psi.FileName = (Get-Command pwsh).Source
+  $psi.UseShellExecute = $false
+  $psi.CreateNoWindow = $true
+  $psi.RedirectStandardOutput = $true
+  $psi.RedirectStandardError = $true
+  # -Arguments:<valor>: sob pwsh -File, um valor iniciado por '-' (ex.: '-m curtamap...') seria lido como nome de parâmetro.
+  foreach ($arg in @('-NoProfile','-File',"$Root\execucao\run-step.ps1",'-StepId',$s.id,'-Repo',$Repo,'-SampleSeconds','30',"-Arguments:$($s.args)")) {
+    $psi.ArgumentList.Add($arg)
+  }
+  if ($s.prefix) { $psi.ArgumentList.Add('-UvArgumentsPrefix'); $psi.ArgumentList.Add($s.prefix) }
+  $p = [System.Diagnostics.Process]::new()
+  $p.StartInfo = $psi
+  if (-not $p.Start()) { throw "não foi possível iniciar run-step.ps1 para $($s.id)" }
+  $stdoutTask = $p.StandardOutput.ReadToEndAsync()
+  $stderrTask = $p.StandardError.ReadToEndAsync()
+  $low = 0
+  while (-not $p.HasExited) { Start-Sleep 20
+    if ((Get-CimInstance Win32_OperatingSystem).FreeVirtualMemory*1KB -lt 2GB) { $low += 20 } else { $low = 0 }
+    if ($low -ge 120 -and (Test-Path "$Passos\$($s.id)\pid.txt")) {
+      "Encerrado pela vigia da fila em $((Get-Date).ToString('o')): commit livre < 2 GB por 2 min." | Set-Content "$Passos\$($s.id)\INTERRUPCAO.txt" -Encoding utf8
+      taskkill /PID (Get-Content "$Passos\$($s.id)\pid.txt") /T /F | Out-Null; Log "$($s.id): VIGIA encerrou"; $low = 0 } }
+  $p.WaitForExit()
+  $stdoutTask.GetAwaiter().GetResult() | Set-Content "$Fila\$($s.id).runner.stdout.log" -Encoding utf8 -NoNewline
+  $stderrTask.GetAwaiter().GetResult() | Set-Content "$Fila\$($s.id).runner.stderr.log" -Encoding utf8 -NoNewline
+  $stepResult = Result $s.id
+  Log "$($s.id): terminou -> $stepResult"
+  if ($stepResult -ne 'ok') { Log "$($s.id): fila interrompida após falha; os passos seguintes não foram iniciados"; exit 1 }
+}
+Log 'fila concluída com sucesso'

@@ -1,0 +1,11 @@
+Tentativa interrompida externamente; NÃO é run completo e não deve ser reutilizada.
+Registrado em 2026-09-24 (diagnóstico posterior; não há end.json porque o horário real de fim é desconhecido).
+Fatos: início 02:23:04,855; última amostra 02:26:36,324; próxima amostra esperada ~02:27:06 não existe;
+fila (PID 34752), run-step e uv (PID 21600) desapareceram juntos, sem end.json.
+Às 02:26:55,111 o Windows iniciou RegisterByPackageFamilyName do pacote OpenAI.Codex com
+ForceTargetApplicationShutdownOption; às 02:28:28,9 houve TerminateApplications e destruição dos
+contêineres Desktop AppX do pacote antigo. A fila fora lançada de um shell do Codex, cujos processos
+pertencem a um Job Object herdado pelos filhos.
+Causa provável (fortemente sustentada, não confirmada por auditoria de término): encerramento do Codex
+durante a atualização levou junto a árvore de processos lançada dentro do seu Job.
+Retomada: main-eolica-v2-004, via Agendador de Tarefas (CurtaMap-Fila-2B).

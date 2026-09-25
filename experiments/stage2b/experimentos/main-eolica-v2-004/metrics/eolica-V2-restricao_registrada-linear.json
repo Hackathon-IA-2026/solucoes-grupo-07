@@ -1,0 +1,6468 @@
+[
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.642010959674264
+      },
+      "brier": {
+        "value": 0.23864842894574226
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.016317989733178464,
+          "observed_frequency": 0.06255119953188999,
+          "support": 85450,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15119862485973423,
+          "observed_frequency": 0.25712733824804007,
+          "support": 9522033,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24830097164279638,
+          "observed_frequency": 0.410367378998715,
+          "support": 11422482,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3460476415548345,
+          "observed_frequency": 0.48639993065598885,
+          "support": 8052606,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.446725452877001,
+          "observed_frequency": 0.5489836417618943,
+          "support": 5226602,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482196515141453,
+          "observed_frequency": 0.6159781606717464,
+          "support": 3882537,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6484206662694206,
+          "observed_frequency": 0.712917697138891,
+          "support": 3248915,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.739841828945779,
+          "observed_frequency": 0.8022490057717391,
+          "support": 1936678,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8317604528855517,
+          "observed_frequency": 0.8147990898897199,
+          "support": 91857,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9472686482428776,
+          "observed_frequency": 0.7884236738475794,
+          "support": 34536,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 380928,
+        "fp": 19616062,
+        "tn": 3596855,
+        "tp": 19909851
+      },
+      "f2": {
+        "value": 0.8248409637963033
+      },
+      "precision": {
+        "value": 0.5037164100421918
+      },
+      "prevalence": 0.4664150604583114,
+      "recall": {
+        "value": 0.9812265463046047
+      },
+      "support": 43503696,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "global"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6545682780208458
+      },
+      "brier": {
+        "value": 0.23474447671755053
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.012533996031187804,
+          "observed_frequency": 0.07288828337874659,
+          "support": 26424,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15147230976352288,
+          "observed_frequency": 0.23560409632329068,
+          "support": 2442483,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24816262248192317,
+          "observed_frequency": 0.4070215188256384,
+          "support": 2849412,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3460833300077407,
+          "observed_frequency": 0.500594263822505,
+          "support": 1958726,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44708140026824633,
+          "observed_frequency": 0.5600683805539906,
+          "support": 1295690,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5481278279352086,
+          "observed_frequency": 0.6224790338778208,
+          "support": 978841,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6481737481634099,
+          "observed_frequency": 0.7270517488676553,
+          "support": 803863,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7412788007119601,
+          "observed_frequency": 0.8096474190619287,
+          "support": 491178,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8305913162745893,
+          "observed_frequency": 0.8593350383631714,
+          "support": 22287,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669142,
+          "observed_frequency": 0.8594622019279553,
+          "support": 7884,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 90590,
+        "fp": 4905108,
+        "tn": 910954,
+        "tp": 4970136
+      },
+      "f2": {
+        "value": 0.8251065105331178
+      },
+      "precision": {
+        "value": 0.5032924756087039
+      },
+      "prevalence": 0.4652776168846906,
+      "recall": {
+        "value": 0.982099406290718
+      },
+      "support": 10876788,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "faixa_horizonte:0_6h"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6390487181159156
+      },
+      "brier": {
+        "value": 0.24042765236285735
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.0162603202155154,
+          "observed_frequency": 0.026098437164174523,
+          "support": 32569,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.1513419890857266,
+          "observed_frequency": 0.27133649998522263,
+          "support": 2402327,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24826284285210937,
+          "observed_frequency": 0.4153331529298277,
+          "support": 2852864,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3459842384945865,
+          "observed_frequency": 0.4780943605106479,
+          "support": 1988141,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44673602073140806,
+          "observed_frequency": 0.5397115698511762,
+          "support": 1301875,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5481970556685359,
+          "observed_frequency": 0.610411304323721,
+          "support": 973999,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6483007420956634,
+          "observed_frequency": 0.7123441522698045,
+          "support": 810246,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7403388303545549,
+          "observed_frequency": 0.8005825839578988,
+          "support": 484737,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8314376427871177,
+          "observed_frequency": 0.8640416047548292,
+          "support": 21536,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496517971463028,
+          "observed_frequency": 0.856024248547613,
+          "support": 7918,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 95363,
+        "fp": 4892744,
+        "tn": 907562,
+        "tp": 4980543
+      },
+      "f2": {
+        "value": 0.8252241258225536
+      },
+      "precision": {
+        "value": 0.5044462902779996
+      },
+      "prevalence": 0.4666979643280216,
+      "recall": {
+        "value": 0.9812126150484268
+      },
+      "support": 10876212,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "faixa_horizonte:6_12h"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6373511855783678
+      },
+      "brier": {
+        "value": 0.2397109811357164
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.02016825575359536,
+          "observed_frequency": 0.09710095626866236,
+          "support": 26457,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15098206933612632,
+          "observed_frequency": 0.2610688008675233,
+          "support": 4677223,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24838890379305406,
+          "observed_frequency": 0.4095574530008185,
+          "support": 5720206,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3460613176124204,
+          "observed_frequency": 0.4836500810207371,
+          "support": 4105739,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4465447952822928,
+          "observed_frequency": 0.5481121034051631,
+          "support": 2629037,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482776341999542,
+          "observed_frequency": 0.6154904111889069,
+          "support": 1929697,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6486015173377075,
+          "observed_frequency": 0.7062519956496367,
+          "support": 1634806,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7388564414047777,
+          "observed_frequency": 0.7993074254524789,
+          "support": 960763,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8324476449979803,
+          "observed_frequency": 0.772057292750968,
+          "support": 48034,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9452470508263715,
+          "observed_frequency": 0.7299562293156827,
+          "support": 18734,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 194975,
+        "fp": 9818210,
+        "tn": 1778339,
+        "tp": 9959172
+      },
+      "f2": {
+        "value": 0.8245170834108108
+      },
+      "precision": {
+        "value": 0.5035637173818052
+      },
+      "prevalence": 0.46684239437671327,
+      "recall": {
+        "value": 0.9807984855842642
+      },
+      "support": 21750696,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "faixa_horizonte:12_24h"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6541588886828343
+      },
+      "brier": {
+        "value": 0.23425434030621012
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.009687140889810809,
+          "observed_frequency": 0.09698403311649911,
+          "support": 1691,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.1514415613468409,
+          "observed_frequency": 0.22491215315642796,
+          "support": 206325,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24804321328057816,
+          "observed_frequency": 0.41333707301733,
+          "support": 235314,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34624523584140143,
+          "observed_frequency": 0.5062839726306307,
+          "support": 162079,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44724461356435474,
+          "observed_frequency": 0.5599962976675306,
+          "support": 108040,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5480098073337404,
+          "observed_frequency": 0.6193143597959957,
+          "support": 81763,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6481822824811585,
+          "observed_frequency": 0.7228203977867504,
+          "support": 66870,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7417073728711069,
+          "observed_frequency": 0.8059133349293751,
+          "support": 41770,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8300319356601239,
+          "observed_frequency": 0.8614016736401674,
+          "support": 1912,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8599695585996956,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7545,
+        "fp": 409134,
+        "tn": 76047,
+        "tp": 413695
+      },
+      "f2": {
+        "value": 0.824820190215365
+      },
+      "precision": {
+        "value": 0.5027715357625947
+      },
+      "prevalence": 0.4647288621953816,
+      "recall": {
+        "value": 0.9820885955749692
+      },
+      "support": 906421,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:1"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6544324813088569
+      },
+      "brier": {
+        "value": 0.23426914690313277
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.009199460923099763,
+          "observed_frequency": 0.09563294637921503,
+          "support": 1809,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15144468651001072,
+          "observed_frequency": 0.2266151050826378,
+          "support": 205838,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.2480769354099006,
+          "observed_frequency": 0.411893506691901,
+          "support": 235658,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3462193868340635,
+          "observed_frequency": 0.5051740067754851,
+          "support": 162350,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44721802101040475,
+          "observed_frequency": 0.5603354126945931,
+          "support": 108046,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5480284613303096,
+          "observed_frequency": 0.6199043553772581,
+          "support": 81761,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6481613917873414,
+          "observed_frequency": 0.7245268905677313,
+          "support": 66845,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.741612593477826,
+          "observed_frequency": 0.8066759722757028,
+          "support": 41552,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8301467546109912,
+          "observed_frequency": 0.8605996843766439,
+          "support": 1901,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8599695585996956,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7559,
+        "fp": 409072,
+        "tn": 76068,
+        "tp": 413718
+      },
+      "f2": {
+        "value": 0.8248301964433961
+      },
+      "precision": {
+        "value": 0.5028233206529005
+      },
+      "prevalence": 0.4647717330985628,
+      "recall": {
+        "value": 0.9820569364100105
+      },
+      "support": 906417,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:2"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6547044738795971
+      },
+      "brier": {
+        "value": 0.23429124353852768
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.009793528054071165,
+          "observed_frequency": 0.09386281588447654,
+          "support": 1939,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15144530583641005,
+          "observed_frequency": 0.2282883971012234,
+          "support": 205328,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24810696150956288,
+          "observed_frequency": 0.41060427594505505,
+          "support": 236018,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3461893858298651,
+          "observed_frequency": 0.5040926393988032,
+          "support": 162609,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44719993094849436,
+          "observed_frequency": 0.5607171285240925,
+          "support": 108042,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5480573056967522,
+          "observed_frequency": 0.6205492018836768,
+          "support": 81755,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6481366984516578,
+          "observed_frequency": 0.7255001720861328,
+          "support": 66827,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.741507354110441,
+          "observed_frequency": 0.8078123110412384,
+          "support": 41345,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8302155773705433,
+          "observed_frequency": 0.8605388272583201,
+          "support": 1893,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8599695585996956,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7575,
+        "fp": 408988,
+        "tn": 76099,
+        "tp": 413751
+      },
+      "f2": {
+        "value": 0.8248482980554959
+      },
+      "precision": {
+        "value": 0.502894599623939
+      },
+      "prevalence": 0.4648278433782393,
+      "recall": {
+        "value": 0.9820210478346934
+      },
+      "support": 906413,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:3"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6549880651508283
+      },
+      "brier": {
+        "value": 0.23431058122502935
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.010698025375383387,
+          "observed_frequency": 0.09099616858237548,
+          "support": 2088,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.1514443628234237,
+          "observed_frequency": 0.22986080586080587,
+          "support": 204750,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.248130004322087,
+          "observed_frequency": 0.4094308021553219,
+          "support": 236438,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34616162440735576,
+          "observed_frequency": 0.5030332056194126,
+          "support": 162864,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44717994189961635,
+          "observed_frequency": 0.560999092743802,
+          "support": 108018,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5480787548414663,
+          "observed_frequency": 0.6211676331693949,
+          "support": 81738,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6481044926574252,
+          "observed_frequency": 0.7265857636654746,
+          "support": 66829,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7414039888663387,
+          "observed_frequency": 0.8088224571636894,
+          "support": 41145,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8303339250430956,
+          "observed_frequency": 0.8597236981934112,
+          "support": 1882,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8599695585996956,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7579,
+        "fp": 408896,
+        "tn": 76138,
+        "tp": 413796
+      },
+      "f2": {
+        "value": 0.8248890037126344
+      },
+      "precision": {
+        "value": 0.5029780282292766
+      },
+      "prevalence": 0.4648839541531472,
+      "recall": {
+        "value": 0.9820136458024326
+      },
+      "support": 906409,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:4"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6550149354273811
+      },
+      "brier": {
+        "value": 0.23437047916913237
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.011305169072660975,
+          "observed_frequency": 0.08280828082808281,
+          "support": 2222,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15145418236906086,
+          "observed_frequency": 0.23162148262434795,
+          "support": 204165,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24815045083434487,
+          "observed_frequency": 0.40826931194596877,
+          "support": 236900,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3461357839487247,
+          "observed_frequency": 0.5020754520316131,
+          "support": 163097,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4471609676498245,
+          "observed_frequency": 0.561265590710853,
+          "support": 107997,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5480959631435584,
+          "observed_frequency": 0.6216954551022909,
+          "support": 81630,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6481267872561075,
+          "observed_frequency": 0.727218350928612,
+          "support": 66874,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.741315223809673,
+          "observed_frequency": 0.8093483935498036,
+          "support": 40991,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.830437835313135,
+          "observed_frequency": 0.8589743589743589,
+          "support": 1872,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8599695585996956,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7529,
+        "fp": 408826,
+        "tn": 76155,
+        "tp": 413895
+      },
+      "f2": {
+        "value": 0.8250123484253217
+      },
+      "precision": {
+        "value": 0.5030806312224922
+      },
+      "prevalence": 0.46494006542329314,
+      "recall": {
+        "value": 0.9821343824746573
+      },
+      "support": 906405,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:5"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6553845291280296
+      },
+      "brier": {
+        "value": 0.23439785601505497
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.011704797767392505,
+          "observed_frequency": 0.05225547119249665,
+          "support": 2239,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15146759052112274,
+          "observed_frequency": 0.23384899379930973,
+          "support": 203687,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24816683510428542,
+          "observed_frequency": 0.4069012583358961,
+          "support": 237377,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34610590640519484,
+          "observed_frequency": 0.5011082401636032,
+          "support": 163322,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44712801925012263,
+          "observed_frequency": 0.5611290203053209,
+          "support": 107952,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5481219901821442,
+          "observed_frequency": 0.6232902758866031,
+          "support": 81519,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6481501126113478,
+          "observed_frequency": 0.7282033655139433,
+          "support": 66914,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7412619222165616,
+          "observed_frequency": 0.8102170136765101,
+          "support": 40873,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.83055176086563,
+          "observed_frequency": 0.8586781300376142,
+          "support": 1861,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8599695585996956,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7465,
+        "fp": 408724,
+        "tn": 76106,
+        "tp": 414106
+      },
+      "f2": {
+        "value": 0.8252036376186973
+      },
+      "precision": {
+        "value": 0.5032704203784499
+      },
+      "prevalence": 0.4651042971047031,
+      "recall": {
+        "value": 0.9822924252379789
+      },
+      "support": 906401,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:6"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.655511456596236
+      },
+      "brier": {
+        "value": 0.23451371672821122
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.01206098043434863,
+          "observed_frequency": 0.0547945205479452,
+          "support": 2263,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15147681393576948,
+          "observed_frequency": 0.23589799112195986,
+          "support": 203198,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.2481802021395677,
+          "observed_frequency": 0.4056108399443372,
+          "support": 237861,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34605421646531026,
+          "observed_frequency": 0.5004314380656888,
+          "support": 163407,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44708497286690446,
+          "observed_frequency": 0.5607794446040233,
+          "support": 107923,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5481474920541305,
+          "observed_frequency": 0.6239953864464595,
+          "support": 81499,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6481745076574769,
+          "observed_frequency": 0.7288310214564078,
+          "support": 66973,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7412172973770088,
+          "observed_frequency": 0.8111171073934161,
+          "support": 40766,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8306679105314158,
+          "observed_frequency": 0.8583783783783784,
+          "support": 1850,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8599695585996956,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7493,
+        "fp": 408710,
+        "tn": 75969,
+        "tp": 414225
+      },
+      "f2": {
+        "value": 0.8252128550123575
+      },
+      "precision": {
+        "value": 0.5033508114249606
+      },
+      "prevalence": 0.4652685302356473,
+      "recall": {
+        "value": 0.9822322025619016
+      },
+      "support": 906397,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:7"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6553935358860142
+      },
+      "brier": {
+        "value": 0.23469273714731048
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.013490089101937372,
+          "observed_frequency": 0.0667240637107189,
+          "support": 2323,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15149451220218837,
+          "observed_frequency": 0.23812578014376848,
+          "support": 202687,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.2481964406721481,
+          "observed_frequency": 0.4044853286779024,
+          "support": 238288,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34603140044251757,
+          "observed_frequency": 0.4994954282743647,
+          "support": 163505,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44704781678972877,
+          "observed_frequency": 0.5605177573730392,
+          "support": 107927,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5481776380958745,
+          "observed_frequency": 0.6243156318283372,
+          "support": 81462,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6481799743349953,
+          "observed_frequency": 0.7292975101815524,
+          "support": 67033,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7411612182076819,
+          "observed_frequency": 0.8115610631654004,
+          "support": 40671,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8307697916218628,
+          "observed_frequency": 0.8581521739130434,
+          "support": 1840,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8599695585996956,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7526,
+        "fp": 408699,
+        "tn": 75829,
+        "tp": 414339
+      },
+      "f2": {
+        "value": 0.8252127665507003
+      },
+      "precision": {
+        "value": 0.5034263302544961
+      },
+      "prevalence": 0.4654327648161449,
+      "recall": {
+        "value": 0.9821601697225416
+      },
+      "support": 906393,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:8"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6551069257573536
+      },
+      "brier": {
+        "value": 0.23491692935266054
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.014494491731605849,
+          "observed_frequency": 0.07843959731543625,
+          "support": 2384,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15150684492215305,
+          "observed_frequency": 0.2405323175105746,
+          "support": 202135,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24820959367367623,
+          "observed_frequency": 0.40346519100022205,
+          "support": 238717,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3459907562805721,
+          "observed_frequency": 0.498460015399846,
+          "support": 163638,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44699846030561513,
+          "observed_frequency": 0.5602246087415795,
+          "support": 107921,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482007096940825,
+          "observed_frequency": 0.6245656684715214,
+          "support": 81447,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6482013253494603,
+          "observed_frequency": 0.7291899545420673,
+          "support": 67095,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7411152664230524,
+          "observed_frequency": 0.8118868017551645,
+          "support": 40566,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.830890911416921,
+          "observed_frequency": 0.8583925642427556,
+          "support": 1829,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8599695585996956,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7560,
+        "fp": 408700,
+        "tn": 75677,
+        "tp": 414452
+      },
+      "f2": {
+        "value": 0.8252070723160242
+      },
+      "precision": {
+        "value": 0.5034938869127451
+      },
+      "prevalence": 0.465597000846215,
+      "recall": {
+        "value": 0.9820858174649062
+      },
+      "support": 906389,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:9"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6545991271982633
+      },
+      "brier": {
+        "value": 0.23519355455957133
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.01472393219318389,
+          "observed_frequency": 0.06981519507186858,
+          "support": 2435,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.1515166696373099,
+          "observed_frequency": 0.24335332668541973,
+          "support": 201567,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24822177007798335,
+          "observed_frequency": 0.4025083612040134,
+          "support": 239200,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34595030958978806,
+          "observed_frequency": 0.4975024731012079,
+          "support": 163762,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4469472300879484,
+          "observed_frequency": 0.5599799788665814,
+          "support": 107886,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482202667230116,
+          "observed_frequency": 0.6242525447245313,
+          "support": 81443,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6482180016565272,
+          "observed_frequency": 0.7289746071933875,
+          "support": 67145,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7410577353637928,
+          "observed_frequency": 0.8118559885344337,
+          "support": 40469,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8309719962312621,
+          "observed_frequency": 0.8588687534321802,
+          "support": 1821,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8584474885844748,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7562,
+        "fp": 408662,
+        "tn": 75564,
+        "tp": 414597
+      },
+      "f2": {
+        "value": 0.8252673778163498
+      },
+      "precision": {
+        "value": 0.5036045764455658
+      },
+      "prevalence": 0.46576123832587696,
+      "recall": {
+        "value": 0.9820873178115355
+      },
+      "support": 906385,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:10"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6535391464407014
+      },
+      "brier": {
+        "value": 0.23560970917501145
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.014936636887208029,
+          "observed_frequency": 0.058444175735590485,
+          "support": 2481,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.1514987004099539,
+          "observed_frequency": 0.24602319821720162,
+          "support": 201481,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24823156777564617,
+          "observed_frequency": 0.4033992935228433,
+          "support": 238932,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34595745140392153,
+          "observed_frequency": 0.49576679557404446,
+          "support": 163942,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4469010114861768,
+          "observed_frequency": 0.558399570155448,
+          "support": 107946,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482076361659132,
+          "observed_frequency": 0.6237764814246239,
+          "support": 81425,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6482233676360869,
+          "observed_frequency": 0.7274485878396476,
+          "support": 67202,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7410059172056163,
+          "observed_frequency": 0.8111851851851852,
+          "support": 40500,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.831052998017318,
+          "observed_frequency": 0.8589531680440772,
+          "support": 1815,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8584474885844748,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7590,
+        "fp": 408453,
+        "tn": 75622,
+        "tp": 414716
+      },
+      "f2": {
+        "value": 0.8253406214712428
+      },
+      "precision": {
+        "value": 0.5038042005955035
+      },
+      "prevalence": 0.4659254772551499,
+      "recall": {
+        "value": 0.9820272503824241
+      },
+      "support": 906381,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:11"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6520646145685476
+      },
+      "brier": {
+        "value": 0.23611352125388407
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.015460533454829128,
+          "observed_frequency": 0.052941176470588235,
+          "support": 2550,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15147878823679498,
+          "observed_frequency": 0.2488997725037502,
+          "support": 201322,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24823362944265034,
+          "observed_frequency": 0.40458047245809753,
+          "support": 238709,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34596299888008697,
+          "observed_frequency": 0.4938684503901895,
+          "support": 164151,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4468653304854633,
+          "observed_frequency": 0.5564764056596785,
+          "support": 107992,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5481893103240032,
+          "observed_frequency": 0.6229560559712036,
+          "support": 81399,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6482251493472524,
+          "observed_frequency": 0.7260021410729154,
+          "support": 67256,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7409518005418891,
+          "observed_frequency": 0.8095978287688133,
+          "support": 40530,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8311004473528396,
+          "observed_frequency": 0.8591938155715074,
+          "support": 1811,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8569254185692542,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7607,
+        "fp": 408244,
+        "tn": 75680,
+        "tp": 414846
+      },
+      "f2": {
+        "value": 0.8254321099668829
+      },
+      "precision": {
+        "value": 0.5040104970294864
+      },
+      "prevalence": 0.46608971763405294,
+      "recall": {
+        "value": 0.9819932631559014
+      },
+      "support": 906377,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:12"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6504434100745013
+      },
+      "brier": {
+        "value": 0.23667145440613732
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.015132659287302199,
+          "observed_frequency": 0.047819433817903594,
+          "support": 2614,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.1514630302591396,
+          "observed_frequency": 0.2520817073231357,
+          "support": 201157,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24823854648509708,
+          "observed_frequency": 0.4058832654806777,
+          "support": 238507,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34596746405872114,
+          "observed_frequency": 0.4916825875853341,
+          "support": 164354,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44682455000739807,
+          "observed_frequency": 0.5545283769652888,
+          "support": 108063,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5481762536955955,
+          "observed_frequency": 0.6218155899376944,
+          "support": 81373,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6482255830060185,
+          "observed_frequency": 0.7244459638222922,
+          "support": 67279,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7408967418624436,
+          "observed_frequency": 0.8080222868694837,
+          "support": 40562,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8311492960134151,
+          "observed_frequency": 0.8594355285002767,
+          "support": 1807,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8554033485540334,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7636,
+        "fp": 408065,
+        "tn": 75706,
+        "tp": 414966
+      },
+      "f2": {
+        "value": 0.8254944719167643
+      },
+      "precision": {
+        "value": 0.5041924301757771
+      },
+      "prevalence": 0.4662561660596686,
+      "recall": {
+        "value": 0.9819309894416023
+      },
+      "support": 906373,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:13"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6486928415189414
+      },
+      "brier": {
+        "value": 0.23729465988107198
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.014546351807490412,
+          "observed_frequency": 0.04328189687617614,
+          "support": 2657,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15144577251651367,
+          "observed_frequency": 0.25542934758272756,
+          "support": 200991,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.2482398089534929,
+          "observed_frequency": 0.4073791231154619,
+          "support": 238321,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3459738339533826,
+          "observed_frequency": 0.48954707008110815,
+          "support": 164595,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4467956741292412,
+          "observed_frequency": 0.5522603443012682,
+          "support": 108103,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5481521499301509,
+          "observed_frequency": 0.620145034414946,
+          "support": 81360,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6482486310517573,
+          "observed_frequency": 0.722501968123821,
+          "support": 67323,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7408203868936601,
+          "observed_frequency": 0.8068047337278107,
+          "support": 40560,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8312169154060368,
+          "observed_frequency": 0.8601553829078802,
+          "support": 1802,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8554033485540334,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7671,
+        "fp": 407909,
+        "tn": 75709,
+        "tp": 415080
+      },
+      "f2": {
+        "value": 0.8255392914777407
+      },
+      "precision": {
+        "value": 0.5043566803444518
+      },
+      "prevalence": 0.46642261595442913,
+      "recall": {
+        "value": 0.9818545668726981
+      },
+      "support": 906369,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:14"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.646764192532791
+      },
+      "brier": {
+        "value": 0.2379810636006033
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.014154783656853106,
+          "observed_frequency": 0.04245108896271687,
+          "support": 2709,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15142700539363046,
+          "observed_frequency": 0.2589848534639859,
+          "support": 200838,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24825375229083868,
+          "observed_frequency": 0.40911285886448284,
+          "support": 238147,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34598149680783347,
+          "observed_frequency": 0.48711382434507156,
+          "support": 164789,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44678074815784813,
+          "observed_frequency": 0.5499574908512919,
+          "support": 108212,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5481612994940762,
+          "observed_frequency": 0.618056153382608,
+          "support": 81313,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6482826407771988,
+          "observed_frequency": 0.7205749157374274,
+          "support": 67349,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7407479235567367,
+          "observed_frequency": 0.8055137721007077,
+          "support": 40553,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8312689506653843,
+          "observed_frequency": 0.8609566184649611,
+          "support": 1798,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8554033485540334,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7732,
+        "fp": 407736,
+        "tn": 75726,
+        "tp": 415171
+      },
+      "f2": {
+        "value": 0.8255475500483392
+      },
+      "precision": {
+        "value": 0.5045175214210111
+      },
+      "prevalence": 0.4665923772431636,
+      "recall": {
+        "value": 0.9817168475986219
+      },
+      "support": 906365,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:15"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6446954546074589
+      },
+      "brier": {
+        "value": 0.23871028526047353
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.014303207640745318,
+          "observed_frequency": 0.04189435336976321,
+          "support": 2745,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.1514016649311959,
+          "observed_frequency": 0.2626655769403275,
+          "support": 200662,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24825930713734382,
+          "observed_frequency": 0.41084356079545215,
+          "support": 238003,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34598874173517,
+          "observed_frequency": 0.4848732773353696,
+          "support": 165006,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44676581746019806,
+          "observed_frequency": 0.5471971634610946,
+          "support": 108301,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.54816537200762,
+          "observed_frequency": 0.6159714531807555,
+          "support": 81270,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6482992385323024,
+          "observed_frequency": 0.7185372005044136,
+          "support": 67405,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7406319705510069,
+          "observed_frequency": 0.8041069180837673,
+          "support": 40517,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.831304098728045,
+          "observed_frequency": 0.8618384401114206,
+          "support": 1795,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8554033485540334,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7798,
+        "fp": 407590,
+        "tn": 75716,
+        "tp": 415257
+      },
+      "f2": {
+        "value": 0.8255386437021359
+      },
+      "precision": {
+        "value": 0.5046588247875972
+      },
+      "prevalence": 0.466762140030297,
+      "recall": {
+        "value": 0.9815674084929855
+      },
+      "support": 906361,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:16"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6425525955353127
+      },
+      "brier": {
+        "value": 0.23937137083722412
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.01447687370369849,
+          "observed_frequency": 0.03896103896103896,
+          "support": 2772,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15138092423973273,
+          "observed_frequency": 0.2659703934243077,
+          "support": 200496,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24826294983552846,
+          "observed_frequency": 0.41256874253712517,
+          "support": 237844,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34599178637589906,
+          "observed_frequency": 0.48238761172263134,
+          "support": 165253,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4467554702719769,
+          "observed_frequency": 0.5444329630586412,
+          "support": 108388,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5481830007153711,
+          "observed_frequency": 0.6140188872061956,
+          "support": 81219,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6483153042621548,
+          "observed_frequency": 0.7161156412157154,
+          "support": 67450,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7405051520757306,
+          "observed_frequency": 0.8026627803576721,
+          "support": 40484,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8314034894441626,
+          "observed_frequency": 0.8634336677814939,
+          "support": 1794,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8554033485540334,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7844,
+        "fp": 407578,
+        "tn": 75714,
+        "tp": 415221
+      },
+      "f2": {
+        "value": 0.8254697007107984
+      },
+      "precision": {
+        "value": 0.5046445122077202
+      },
+      "prevalence": 0.4667752331586781,
+      "recall": {
+        "value": 0.9814591138477539
+      },
+      "support": 906357,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:17"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6403559989509329
+      },
+      "brier": {
+        "value": 0.24005894345243736
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.01485240941631659,
+          "observed_frequency": 0.02744119743406985,
+          "support": 2806,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.1513569468228634,
+          "observed_frequency": 0.26955623118513083,
+          "support": 200307,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24826769428737505,
+          "observed_frequency": 0.41445356375124626,
+          "support": 237713,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34599256511480947,
+          "observed_frequency": 0.47972711671863294,
+          "support": 165492,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44674867732390794,
+          "observed_frequency": 0.5414992072563696,
+          "support": 108484,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5481946543346986,
+          "observed_frequency": 0.6117149758454107,
+          "support": 81144,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6483105976216215,
+          "observed_frequency": 0.7138160330554033,
+          "support": 67523,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7403937306979441,
+          "observed_frequency": 0.8013058317257753,
+          "support": 40434,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8314502852728933,
+          "observed_frequency": 0.8643973214285714,
+          "support": 1792,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496428529434475,
+          "observed_frequency": 0.8556231003039514,
+          "support": 658,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7898,
+        "fp": 407565,
+        "tn": 75713,
+        "tp": 415177
+      },
+      "f2": {
+        "value": 0.8253878066449785
+      },
+      "precision": {
+        "value": 0.5046259945402082
+      },
+      "prevalence": 0.4667883264026268,
+      "recall": {
+        "value": 0.9813319151450688
+      },
+      "support": 906353,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:18"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6380677541462325
+      },
+      "brier": {
+        "value": 0.24076863069100227
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.01414955192123969,
+          "observed_frequency": 0.01606569082470546,
+          "support": 2801,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15133028344240526,
+          "observed_frequency": 0.2731515021309125,
+          "support": 200149,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24827282051338762,
+          "observed_frequency": 0.41636853402921,
+          "support": 237590,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3459947955019887,
+          "observed_frequency": 0.4770756783173747,
+          "support": 165741,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44672579789879974,
+          "observed_frequency": 0.5386436929881139,
+          "support": 108530,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5481958017514195,
+          "observed_frequency": 0.6094695708985122,
+          "support": 81123,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6483078220210711,
+          "observed_frequency": 0.7111610974635215,
+          "support": 67574,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7402783697628027,
+          "observed_frequency": 0.7997375717963954,
+          "support": 40392,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8314971547087371,
+          "observed_frequency": 0.8653631284916201,
+          "support": 1790,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496068636763496,
+          "observed_frequency": 0.8558421851289834,
+          "support": 659,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7961,
+        "fp": 407560,
+        "tn": 75704,
+        "tp": 415124
+      },
+      "f2": {
+        "value": 0.8252883471489735
+      },
+      "precision": {
+        "value": 0.504597147872087
+      },
+      "prevalence": 0.4668014197621446,
+      "recall": {
+        "value": 0.9811834501341338
+      },
+      "support": 906349,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:19"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6356860306653074
+      },
+      "brier": {
+        "value": 0.24149853970158963
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.015036658460093616,
+          "observed_frequency": 0.011773100249732429,
+          "support": 2803,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15130758979880865,
+          "observed_frequency": 0.2767337427239814,
+          "support": 199972,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24827044798735495,
+          "observed_frequency": 0.4183484383949328,
+          "support": 237448,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.345975371216447,
+          "observed_frequency": 0.4743995228714464,
+          "support": 165993,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44669756112397724,
+          "observed_frequency": 0.535455181557045,
+          "support": 108616,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482113037848562,
+          "observed_frequency": 0.60696541946619,
+          "support": 81115,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6483089560330899,
+          "observed_frequency": 0.709007543262831,
+          "support": 67610,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7401669210921253,
+          "observed_frequency": 0.7978232844109481,
+          "support": 40336,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8314818048269513,
+          "observed_frequency": 0.8660714285714286,
+          "support": 1792,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.949570983467637,
+          "observed_frequency": 0.8560606060606061,
+          "support": 660,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8014,
+        "fp": 407578,
+        "tn": 75685,
+        "tp": 415068
+      },
+      "f2": {
+        "value": 0.8251934214826873
+      },
+      "precision": {
+        "value": 0.5045523834067144
+      },
+      "prevalence": 0.4668001699132229,
+      "recall": {
+        "value": 0.9810580454852723
+      },
+      "support": 906345,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:20"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6333079240294128
+      },
+      "brier": {
+        "value": 0.24223797140513123
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.017063812189714145,
+          "observed_frequency": 0.00968783638320775,
+          "support": 2787,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15127872814428406,
+          "observed_frequency": 0.2803320050461563,
+          "support": 199756,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24826965415498697,
+          "observed_frequency": 0.42028631373176834,
+          "support": 237362,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34597984881702626,
+          "observed_frequency": 0.47174213723014013,
+          "support": 166290,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4466950492959888,
+          "observed_frequency": 0.5322340210169866,
+          "support": 108674,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482316996371699,
+          "observed_frequency": 0.6044073941621142,
+          "support": 81091,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6483181253088839,
+          "observed_frequency": 0.7066546416901992,
+          "support": 67637,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7400608850027782,
+          "observed_frequency": 0.7962126476719944,
+          "support": 40292,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8315818681964049,
+          "observed_frequency": 0.8665549972082636,
+          "support": 1791,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9495912436484165,
+          "observed_frequency": 0.8562783661119516,
+          "support": 661,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8079,
+        "fp": 407600,
+        "tn": 75663,
+        "tp": 414999
+      },
+      "f2": {
+        "value": 0.8250769112704187
+      },
+      "precision": {
+        "value": 0.5044973310203392
+      },
+      "prevalence": 0.4667978167157836,
+      "recall": {
+        "value": 0.9809042304255953
+      },
+      "support": 906341,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:21"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6311621980819744
+      },
+      "brier": {
+        "value": 0.24294488095417138
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.01920262199519845,
+          "observed_frequency": 0.010857763300760043,
+          "support": 2763,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15125364873079075,
+          "observed_frequency": 0.28395303032581076,
+          "support": 199533,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24827513747036573,
+          "observed_frequency": 0.4220686458355281,
+          "support": 237305,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34598571490588576,
+          "observed_frequency": 0.46887869655528475,
+          "support": 166574,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44668496529950696,
+          "observed_frequency": 0.529029351184346,
+          "support": 108752,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482216426675307,
+          "observed_frequency": 0.6025025605587571,
+          "support": 81037,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6483217596176151,
+          "observed_frequency": 0.7038744569554038,
+          "support": 67674,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7399500834239604,
+          "observed_frequency": 0.795428003478693,
+          "support": 40245,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8316141316558148,
+          "observed_frequency": 0.8665549972082636,
+          "support": 1791,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496315806599236,
+          "observed_frequency": 0.8567119155354449,
+          "support": 663,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8170,
+        "fp": 407672,
+        "tn": 75591,
+        "tp": 414904
+      },
+      "f2": {
+        "value": 0.8249008299428361
+      },
+      "precision": {
+        "value": 0.5043959463927953
+      },
+      "prevalence": 0.46679546349757317,
+      "recall": {
+        "value": 0.9806889574873426
+      },
+      "support": 906337,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:22"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6292468218070215
+      },
+      "brier": {
+        "value": 0.24359068534028075
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.02054777786486436,
+          "observed_frequency": 0.01139384732244588,
+          "support": 2633,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15123536694685938,
+          "observed_frequency": 0.28751454830035716,
+          "support": 199336,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24827294639844535,
+          "observed_frequency": 0.42332312126792554,
+          "support": 237301,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3459870313855802,
+          "observed_frequency": 0.46598951310861425,
+          "support": 166875,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4466813999106307,
+          "observed_frequency": 0.5263921939745864,
+          "support": 108839,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482245844130422,
+          "observed_frequency": 0.6007555742117089,
+          "support": 80998,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6483339535129302,
+          "observed_frequency": 0.7015465516477348,
+          "support": 67699,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7398371139209456,
+          "observed_frequency": 0.7946759547207364,
+          "support": 40195,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8316283833639664,
+          "observed_frequency": 0.8666294642857143,
+          "support": 1792,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496716750427897,
+          "observed_frequency": 0.8571428571428571,
+          "support": 665,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8248,
+        "fp": 407848,
+        "tn": 75415,
+        "tp": 414822
+      },
+      "f2": {
+        "value": 0.824712220918905
+      },
+      "precision": {
+        "value": 0.5042386376068169
+      },
+      "prevalence": 0.4667931102585915,
+      "recall": {
+        "value": 0.9805044082539532
+      },
+      "support": 906333,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:23"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6280481647180146
+      },
+      "brier": {
+        "value": 0.24400377708445667
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.022374318467859713,
+          "observed_frequency": 0.012101653892698669,
+          "support": 2479,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.1512198552517688,
+          "observed_frequency": 0.29012705267915434,
+          "support": 199130,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.2482712857934802,
+          "observed_frequency": 0.4234819212634258,
+          "support": 237323,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3459919730864153,
+          "observed_frequency": 0.4642808008182846,
+          "support": 167179,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44667792806628226,
+          "observed_frequency": 0.5251990120554938,
+          "support": 108913,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482474465901098,
+          "observed_frequency": 0.5989673402836109,
+          "support": 80956,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6483355519782436,
+          "observed_frequency": 0.7001018856223145,
+          "support": 67723,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7397613557060727,
+          "observed_frequency": 0.7945079293947768,
+          "support": 40167,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8316600524097681,
+          "observed_frequency": 0.8671875,
+          "support": 1792,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9497115289795818,
+          "observed_frequency": 0.8575712143928036,
+          "support": 667,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8312,
+        "fp": 408043,
+        "tn": 75220,
+        "tp": 414754
+      },
+      "f2": {
+        "value": 0.824540637384143
+      },
+      "precision": {
+        "value": 0.5040781626573748
+      },
+      "prevalence": 0.46679075699883815,
+      "recall": {
+        "value": 0.9803529472942756
+      },
+      "support": 906329,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:24"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6277312093319936
+      },
+      "brier": {
+        "value": 0.24414005641473924
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.02329919595385186,
+          "observed_frequency": 0.013566739606126914,
+          "support": 2285,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.1512014858765828,
+          "observed_frequency": 0.2919769318564627,
+          "support": 198889,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.2482802830717121,
+          "observed_frequency": 0.42218739731567373,
+          "support": 237378,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3460023475908432,
+          "observed_frequency": 0.4635194670296214,
+          "support": 167514,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4466763898237143,
+          "observed_frequency": 0.5252461302724178,
+          "support": 108987,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482640193875777,
+          "observed_frequency": 0.5984251968503937,
+          "support": 80899,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6483470186827028,
+          "observed_frequency": 0.6992843969015123,
+          "support": 67775,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7396868729027889,
+          "observed_frequency": 0.7951669157947184,
+          "support": 40140,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8316451179694697,
+          "observed_frequency": 0.868641699273337,
+          "support": 1789,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.949751144626767,
+          "observed_frequency": 0.8579970104633782,
+          "support": 669,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8362,
+        "fp": 408268,
+        "tn": 74994,
+        "tp": 414701
+      },
+      "f2": {
+        "value": 0.8243828275924859
+      },
+      "precision": {
+        "value": 0.5039084096727823
+      },
+      "prevalence": 0.46678950707527656,
+      "recall": {
+        "value": 0.98023462226666
+      },
+      "support": 906325,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:25"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.627748038766843
+      },
+      "brier": {
+        "value": 0.2441253806015513
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.024854227351062557,
+          "observed_frequency": 0.014839636189564385,
+          "support": 2089,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15118466008209833,
+          "observed_frequency": 0.2930093450414888,
+          "support": 198608,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.2482880459571996,
+          "observed_frequency": 0.4202384612468887,
+          "support": 237439,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3460020725243876,
+          "observed_frequency": 0.46377372880346057,
+          "support": 167834,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4466599514843732,
+          "observed_frequency": 0.5260383723381826,
+          "support": 109089,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.548261616876384,
+          "observed_frequency": 0.59843162477736,
+          "support": 80848,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6483495780103733,
+          "observed_frequency": 0.6990162386985442,
+          "support": 67801,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7396250214108336,
+          "observed_frequency": 0.7950793136937521,
+          "support": 40157,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8317004328292712,
+          "observed_frequency": 0.8689809630459127,
+          "support": 1786,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9497708637586119,
+          "observed_frequency": 0.8597014925373134,
+          "support": 670,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8407,
+        "fp": 408513,
+        "tn": 74748,
+        "tp": 414653
+      },
+      "f2": {
+        "value": 0.8242267848609728
+      },
+      "precision": {
+        "value": 0.5037295029192168
+      },
+      "prevalence": 0.46678825714068195,
+      "recall": {
+        "value": 0.9801281142154777
+      },
+      "support": 906321,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:26"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6278384748223165
+      },
+      "brier": {
+        "value": 0.2440388417624798
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.026356163187134886,
+          "observed_frequency": 0.01647183846971307,
+          "support": 1882,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15116463360438195,
+          "observed_frequency": 0.29342854405260793,
+          "support": 198297,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24830098482490268,
+          "observed_frequency": 0.41822530253395873,
+          "support": 237494,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3459978665728967,
+          "observed_frequency": 0.4643732014174614,
+          "support": 168188,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4466514630325096,
+          "observed_frequency": 0.5272061180565096,
+          "support": 109185,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482647077411329,
+          "observed_frequency": 0.5987501546838263,
+          "support": 80810,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6483438592224846,
+          "observed_frequency": 0.698777772863314,
+          "support": 67827,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7395517805414674,
+          "observed_frequency": 0.7954771866905758,
+          "support": 40152,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.832078116483471,
+          "observed_frequency": 0.8558807288790723,
+          "support": 1811,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9497905241151013,
+          "observed_frequency": 0.8614008941877794,
+          "support": 671,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8448,
+        "fp": 408768,
+        "tn": 74492,
+        "tp": 414609
+      },
+      "f2": {
+        "value": 0.824074129285003
+      },
+      "precision": {
+        "value": 0.5035469778728334
+      },
+      "prevalence": 0.4667870071950543,
+      "recall": {
+        "value": 0.980031059644445
+      },
+      "support": 906317,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:27"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.628121536518361
+      },
+      "brier": {
+        "value": 0.24385343636835763
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.026828503247552725,
+          "observed_frequency": 0.0196078431372549,
+          "support": 1632,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15114469265323874,
+          "observed_frequency": 0.2923950916527799,
+          "support": 198030,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24830957609045387,
+          "observed_frequency": 0.4168143940510428,
+          "support": 237487,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.345997203399394,
+          "observed_frequency": 0.4654563792233989,
+          "support": 168555,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44663281137023586,
+          "observed_frequency": 0.5285969166018574,
+          "support": 109295,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482703709350061,
+          "observed_frequency": 0.598977798678316,
+          "support": 80806,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6483732807870332,
+          "observed_frequency": 0.6990066615575076,
+          "support": 67852,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7394879805503835,
+          "observed_frequency": 0.7957257080230155,
+          "support": 40147,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8323861539715662,
+          "observed_frequency": 0.8422198041349293,
+          "support": 1838,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9498457208916095,
+          "observed_frequency": 0.8628912071535022,
+          "support": 671,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8462,
+        "fp": 409002,
+        "tn": 74257,
+        "tp": 414592
+      },
+      "f2": {
+        "value": 0.8239731935241532
+      },
+      "precision": {
+        "value": 0.5033936624113338
+      },
+      "prevalence": 0.4667857572383934,
+      "recall": {
+        "value": 0.9799978253367182
+      },
+      "support": 906313,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:28"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6287229130166525
+      },
+      "brier": {
+        "value": 0.24354517140379872
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.02917125558423553,
+          "observed_frequency": 0.0234208658623137,
+          "support": 1409,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15112402124309093,
+          "observed_frequency": 0.2903082229887615,
+          "support": 197714,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24831803661107205,
+          "observed_frequency": 0.41558955531791275,
+          "support": 237518,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34600532107833487,
+          "observed_frequency": 0.466977416355226,
+          "support": 168839,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4466076778447133,
+          "observed_frequency": 0.5303778033667819,
+          "support": 109422,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482875258422232,
+          "observed_frequency": 0.5994162172859051,
+          "support": 80852,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6484044059386064,
+          "observed_frequency": 0.6992337164750958,
+          "support": 67860,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7394209240355194,
+          "observed_frequency": 0.7967076754495194,
+          "support": 40154,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8325967141582731,
+          "observed_frequency": 0.8272727272727273,
+          "support": 1870,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9497905241151013,
+          "observed_frequency": 0.8628912071535022,
+          "support": 671,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8452,
+        "fp": 409211,
+        "tn": 74047,
+        "tp": 414599
+      },
+      "f2": {
+        "value": 0.8239202961509753
+      },
+      "precision": {
+        "value": 0.5032701715201321
+      },
+      "prevalence": 0.4667845072706991,
+      "recall": {
+        "value": 0.9800213213064146
+      },
+      "support": 906309,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:29"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6294942892769153
+      },
+      "brier": {
+        "value": 0.24312209281152805
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.029757421111200253,
+          "observed_frequency": 0.028309741881765195,
+          "support": 1201,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15110309880232387,
+          "observed_frequency": 0.2875049398603666,
+          "support": 197374,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24832727129149887,
+          "observed_frequency": 0.4141526390449852,
+          "support": 237567,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34601280228861014,
+          "observed_frequency": 0.468946798885952,
+          "support": 169113,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44660391819682405,
+          "observed_frequency": 0.5320982807264227,
+          "support": 109523,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482838077979961,
+          "observed_frequency": 0.601093369284239,
+          "support": 80851,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6484342029983913,
+          "observed_frequency": 0.6996305726859279,
+          "support": 67943,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7393560861991897,
+          "observed_frequency": 0.7983055071019187,
+          "support": 40130,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8329094113671899,
+          "observed_frequency": 0.8147368421052632,
+          "support": 1900,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9489077794508681,
+          "observed_frequency": 0.8221906116642959,
+          "support": 703,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8430,
+        "fp": 409408,
+        "tn": 73850,
+        "tp": 414617
+      },
+      "f2": {
+        "value": 0.8238909027176952
+      },
+      "precision": {
+        "value": 0.5031607050756955
+      },
+      "prevalence": 0.4667821539106592,
+      "recall": {
+        "value": 0.9800731360818065
+      },
+      "support": 906305,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:30"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6302298838325469
+      },
+      "brier": {
+        "value": 0.24265524434148739
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.027185598489323906,
+          "observed_frequency": 0.0344149459193707,
+          "support": 1017,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15108587932160317,
+          "observed_frequency": 0.2840145377758827,
+          "support": 197004,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24833362310829515,
+          "observed_frequency": 0.41297184005521725,
+          "support": 237607,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34602042311678277,
+          "observed_frequency": 0.47110316209499864,
+          "support": 169413,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4466026661171704,
+          "observed_frequency": 0.5340187563859291,
+          "support": 109616,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482783593359741,
+          "observed_frequency": 0.603208767828206,
+          "support": 80841,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6484753920639128,
+          "observed_frequency": 0.7001970646195477,
+          "support": 67998,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7392889166513622,
+          "observed_frequency": 0.7995563973483527,
+          "support": 40126,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8328804389533849,
+          "observed_frequency": 0.8070907194994786,
+          "support": 1918,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9468664046479964,
+          "observed_frequency": 0.7568988173455979,
+          "support": 761,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8391,
+        "fp": 409591,
+        "tn": 73667,
+        "tp": 414652
+      },
+      "f2": {
+        "value": 0.8238943099607974
+      },
+      "precision": {
+        "value": 0.5030700897672167
+      },
+      "prevalence": 0.466779800529846,
+      "recall": {
+        "value": 0.9801651368773387
+      },
+      "support": 906301,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:31"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6311908501226615
+      },
+      "brier": {
+        "value": 0.24210860945597032
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.022273858447847263,
+          "observed_frequency": 0.03990326481257558,
+          "support": 827,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15106049542928246,
+          "observed_frequency": 0.2796917912725053,
+          "support": 196620,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24833633792018153,
+          "observed_frequency": 0.41210897233617333,
+          "support": 237675,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34602442386392857,
+          "observed_frequency": 0.473267373408211,
+          "support": 169699,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44659206144727875,
+          "observed_frequency": 0.5363352083656222,
+          "support": 109687,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482681513363995,
+          "observed_frequency": 0.6054242570400327,
+          "support": 80859,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.648511037072126,
+          "observed_frequency": 0.7011506076325109,
+          "support": 68051,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7392143106652931,
+          "observed_frequency": 0.8003688105858606,
+          "support": 40129,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8329283521781339,
+          "observed_frequency": 0.8009307135470527,
+          "support": 1934,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9449680802276285,
+          "observed_frequency": 0.7034313725490197,
+          "support": 816,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8315,
+        "fp": 409723,
+        "tn": 73549,
+        "tp": 414710
+      },
+      "f2": {
+        "value": 0.8239709155413419
+      },
+      "precision": {
+        "value": 0.5030245029007815
+      },
+      "prevalence": 0.4667619996535352,
+      "recall": {
+        "value": 0.9803439513031145
+      },
+      "support": 906297,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:32"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6322713739933574
+      },
+      "brier": {
+        "value": 0.24154320805658105
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.019496016116272913,
+          "observed_frequency": 0.04625850340136054,
+          "support": 735,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15103293354345312,
+          "observed_frequency": 0.2753425983967058,
+          "support": 196221,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.2483439745170633,
+          "observed_frequency": 0.4113276138462639,
+          "support": 237667,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34602951513431507,
+          "observed_frequency": 0.47532672242415686,
+          "support": 170022,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.446590722725234,
+          "observed_frequency": 0.5389472533279879,
+          "support": 109751,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482450841349855,
+          "observed_frequency": 0.6077936537390982,
+          "support": 80835,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6485430376957497,
+          "observed_frequency": 0.7021638920696438,
+          "support": 68118,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7391505312911857,
+          "observed_frequency": 0.8012010665071889,
+          "support": 40131,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8330250154196163,
+          "observed_frequency": 0.7961914565105507,
+          "support": 1943,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9433681805771361,
+          "observed_frequency": 0.6586206896551724,
+          "support": 870,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8251,
+        "fp": 409739,
+        "tn": 73533,
+        "tp": 414770
+      },
+      "f2": {
+        "value": 0.8240704794140332
+      },
+      "precision": {
+        "value": 0.5030509066608126
+      },
+      "prevalence": 0.46675964616299587,
+      "recall": {
+        "value": 0.9804950581649611
+      },
+      "support": 906293,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:33"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6333117555882021
+      },
+      "brier": {
+        "value": 0.24096720574223796
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.01619322062835114,
+          "observed_frequency": 0.051470588235294115,
+          "support": 680,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15100438874072097,
+          "observed_frequency": 0.27076981220729207,
+          "support": 195801,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.248354817596938,
+          "observed_frequency": 0.41075343013299787,
+          "support": 237673,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3460344850103351,
+          "observed_frequency": 0.4773973487383611,
+          "support": 170334,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44659127316586,
+          "observed_frequency": 0.5416613558149275,
+          "support": 109838,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482185206503067,
+          "observed_frequency": 0.6100700547070327,
+          "support": 80794,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6485610090257039,
+          "observed_frequency": 0.7035786630654963,
+          "support": 68126,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7390616998483341,
+          "observed_frequency": 0.8016290133758438,
+          "support": 40147,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.833261398601106,
+          "observed_frequency": 0.7766649974962444,
+          "support": 1997,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.942537739947964,
+          "observed_frequency": 0.6351501668520578,
+          "support": 899,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8182,
+        "fp": 409716,
+        "tn": 73557,
+        "tp": 414834
+      },
+      "f2": {
+        "value": 0.8241907578993044
+      },
+      "precision": {
+        "value": 0.5031035110060033
+      },
+      "prevalence": 0.4667561892508902,
+      "recall": {
+        "value": 0.9806579420163777
+      },
+      "support": 906289,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:34"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6343948401019239
+      },
+      "brier": {
+        "value": 0.24039219844408016
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.016260618386577465,
+          "observed_frequency": 0.052552552552552555,
+          "support": 666,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15097823360564955,
+          "observed_frequency": 0.2662596216835899,
+          "support": 195392,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.2483591104070815,
+          "observed_frequency": 0.4099992427365817,
+          "support": 237698,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3460371335950553,
+          "observed_frequency": 0.4797514727000967,
+          "support": 170605,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44656050013258725,
+          "observed_frequency": 0.544732893839509,
+          "support": 109975,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482251466079321,
+          "observed_frequency": 0.6123055951422021,
+          "support": 80695,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6485605583422264,
+          "observed_frequency": 0.7051517331493253,
+          "support": 68113,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7389760858365292,
+          "observed_frequency": 0.8016432217104444,
+          "support": 40165,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8334770345652145,
+          "observed_frequency": 0.7552311435523115,
+          "support": 2055,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9416620207844869,
+          "observed_frequency": 0.6178067318132465,
+          "support": 921,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8107,
+        "fp": 409634,
+        "tn": 73621,
+        "tp": 414923
+      },
+      "f2": {
+        "value": 0.8243469463900215
+      },
+      "precision": {
+        "value": 0.5032071767021564
+      },
+      "prevalence": 0.4667736970158394,
+      "recall": {
+        "value": 0.9808358745242655
+      },
+      "support": 906285,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:35"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.635572313031532
+      },
+      "brier": {
+        "value": 0.23979274671710082
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.014774507907568775,
+          "observed_frequency": 0.05359877488514548,
+          "support": 653,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15095629115137055,
+          "observed_frequency": 0.26158807966035647,
+          "support": 195028,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24837868738302338,
+          "observed_frequency": 0.4092371623127815,
+          "support": 237757,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34606075695624866,
+          "observed_frequency": 0.4822223652416085,
+          "support": 170917,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4465449445033741,
+          "observed_frequency": 0.5475634254756343,
+          "support": 110011,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482482232661726,
+          "observed_frequency": 0.6148081981043124,
+          "support": 80604,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6485764040657097,
+          "observed_frequency": 0.7065368975793074,
+          "support": 68121,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7388814158952626,
+          "observed_frequency": 0.80231225394927,
+          "support": 40134,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8336020378822736,
+          "observed_frequency": 0.734375,
+          "support": 2112,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9408113771162407,
+          "observed_frequency": 0.6016949152542372,
+          "support": 944,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8033,
+        "fp": 409550,
+        "tn": 73717,
+        "tp": 414981
+      },
+      "f2": {
+        "value": 0.8244916627162104
+      },
+      "precision": {
+        "value": 0.5032933873923479
+      },
+      "prevalence": 0.4667581026193863,
+      "recall": {
+        "value": 0.981010084772608
+      },
+      "support": 906281,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:36"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6365858104344765
+      },
+      "brier": {
+        "value": 0.23926425880598376
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.016168091904057044,
+          "observed_frequency": 0.05247376311844078,
+          "support": 667,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15094261961992828,
+          "observed_frequency": 0.2571995109572293,
+          "support": 194666,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24839119076832827,
+          "observed_frequency": 0.40852863762119795,
+          "support": 237834,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.346085686818459,
+          "observed_frequency": 0.4849219233599234,
+          "support": 171242,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4465193419795837,
+          "observed_frequency": 0.5503436863543788,
+          "support": 109984,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482391051055047,
+          "observed_frequency": 0.6171283070426034,
+          "support": 80510,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6485880651701957,
+          "observed_frequency": 0.7077995450876807,
+          "support": 68145,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7388021960654758,
+          "observed_frequency": 0.8015750386283208,
+          "support": 40126,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.833283135063527,
+          "observed_frequency": 0.7152777777777778,
+          "support": 2160,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9408271623242899,
+          "observed_frequency": 0.601272534464475,
+          "support": 943,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7957,
+        "fp": 409434,
+        "tn": 73816,
+        "tp": 415070
+      },
+      "f2": {
+        "value": 0.8246602972567881
+      },
+      "precision": {
+        "value": 0.5034178124060041
+      },
+      "prevalence": 0.4667745071319255,
+      "recall": {
+        "value": 0.9811903259130031
+      },
+      "support": 906277,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:37"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6376150350298354
+      },
+      "brier": {
+        "value": 0.23873724589829518
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.017571124055542186,
+          "observed_frequency": 0.0513950073421439,
+          "support": 681,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15092584582449442,
+          "observed_frequency": 0.25276009202880273,
+          "support": 194287,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24840566185995042,
+          "observed_frequency": 0.40781031374872373,
+          "support": 237993,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3461059955683864,
+          "observed_frequency": 0.48781269671041894,
+          "support": 171572,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4465088317701288,
+          "observed_frequency": 0.5529932956726614,
+          "support": 109929,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482371606395959,
+          "observed_frequency": 0.6192176130356365,
+          "support": 80395,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6485976385640079,
+          "observed_frequency": 0.7091544025941632,
+          "support": 68153,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7387067127917349,
+          "observed_frequency": 0.8007329477463103,
+          "support": 40112,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.833021274024452,
+          "observed_frequency": 0.698053417836125,
+          "support": 2209,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9408429810465812,
+          "observed_frequency": 0.6008492569002123,
+          "support": 942,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7892,
+        "fp": 409347,
+        "tn": 73902,
+        "tp": 415132
+      },
+      "f2": {
+        "value": 0.8247956051379355
+      },
+      "precision": {
+        "value": 0.5035082761355959
+      },
+      "prevalence": 0.4667732570649241,
+      "recall": {
+        "value": 0.9813438481031809
+      },
+      "support": 906273,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:38"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6389838867133892
+      },
+      "brier": {
+        "value": 0.23818999847385092
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.019202329423135014,
+          "observed_frequency": 0.049575070821529746,
+          "support": 706,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15091162048670645,
+          "observed_frequency": 0.24838060856111396,
+          "support": 193900,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24843079516162656,
+          "observed_frequency": 0.4071222571585695,
+          "support": 238211,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34610223514308813,
+          "observed_frequency": 0.49070880613247875,
+          "support": 171937,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44650122437744183,
+          "observed_frequency": 0.5551548598020198,
+          "support": 109809,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482221133771513,
+          "observed_frequency": 0.621728351998804,
+          "support": 80273,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6486238346023109,
+          "observed_frequency": 0.7103413875562988,
+          "support": 68163,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7386410442956085,
+          "observed_frequency": 0.7997007854382246,
+          "support": 40105,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8327872810253987,
+          "observed_frequency": 0.699055330634278,
+          "support": 2223,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9408429810465812,
+          "observed_frequency": 0.6008492569002123,
+          "support": 942,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7827,
+        "fp": 409249,
+        "tn": 73992,
+        "tp": 415201
+      },
+      "f2": {
+        "value": 0.8249369576430066
+      },
+      "precision": {
+        "value": 0.5036096791800594
+      },
+      "prevalence": 0.4667797309628819,
+      "recall": {
+        "value": 0.9814976786406574
+      },
+      "support": 906269,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:39"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6407119925889253
+      },
+      "brier": {
+        "value": 0.23764060460262024
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.01886587949818012,
+          "observed_frequency": 0.047156726768377254,
+          "support": 721,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15089287314274424,
+          "observed_frequency": 0.2441644747381313,
+          "support": 193513,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24842627632891914,
+          "observed_frequency": 0.4065648413294034,
+          "support": 238513,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34610582137009294,
+          "observed_frequency": 0.4932100951573667,
+          "support": 172241,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4464817878547564,
+          "observed_frequency": 0.5573813820382421,
+          "support": 109722,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482114481949381,
+          "observed_frequency": 0.6239065600159727,
+          "support": 80137,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6486741046022426,
+          "observed_frequency": 0.7111694251828831,
+          "support": 68213,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7385691321558132,
+          "observed_frequency": 0.7990724117295033,
+          "support": 40104,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8324280184921733,
+          "observed_frequency": 0.7066605839416058,
+          "support": 2192,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9411456115216196,
+          "observed_frequency": 0.6226622662266227,
+          "support": 909,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7765,
+        "fp": 409152,
+        "tn": 74081,
+        "tp": 415267
+      },
+      "f2": {
+        "value": 0.8250730067827067
+      },
+      "precision": {
+        "value": 0.5037086724105097
+      },
+      "prevalence": 0.46678620491798756,
+      "recall": {
+        "value": 0.9816444146069329
+      },
+      "support": 906265,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:40"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6426894726883774
+      },
+      "brier": {
+        "value": 0.23706843682074627
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.01767851905880268,
+          "observed_frequency": 0.04483695652173913,
+          "support": 736,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.1508880331714121,
+          "observed_frequency": 0.24009648582476228,
+          "support": 193189,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24842769266916162,
+          "observed_frequency": 0.4058842748117183,
+          "support": 238738,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3461029640520082,
+          "observed_frequency": 0.4957289722875787,
+          "support": 172558,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4464602313805107,
+          "observed_frequency": 0.5596752861768596,
+          "support": 109635,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482141557631734,
+          "observed_frequency": 0.6256498050584824,
+          "support": 80024,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6487208882691042,
+          "observed_frequency": 0.711986291338352,
+          "support": 68278,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7385004715812015,
+          "observed_frequency": 0.799041987875159,
+          "support": 40083,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8324473887470194,
+          "observed_frequency": 0.7108655616942909,
+          "support": 2172,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9424131415544048,
+          "observed_frequency": 0.6662735849056604,
+          "support": 848,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7710,
+        "fp": 409064,
+        "tn": 74161,
+        "tp": 415326
+      },
+      "f2": {
+        "value": 0.8251944936964889
+      },
+      "precision": {
+        "value": 0.5037979597035384
+      },
+      "prevalence": 0.46679267893024196,
+      "recall": {
+        "value": 0.9817746007431991
+      },
+      "support": 906261,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:41"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.644938568588755
+      },
+      "brier": {
+        "value": 0.23648591211348002
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.01793559106338316,
+          "observed_frequency": 0.044386422976501305,
+          "support": 766,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15088525053060345,
+          "observed_frequency": 0.23641849541969298,
+          "support": 192891,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24843367173689185,
+          "observed_frequency": 0.40497275489449325,
+          "support": 238942,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34610609241830953,
+          "observed_frequency": 0.4981517155203832,
+          "support": 172863,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44645614189285077,
+          "observed_frequency": 0.5619204089083607,
+          "support": 109560,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482515427475704,
+          "observed_frequency": 0.6274249668327118,
+          "support": 79898,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6487679362181961,
+          "observed_frequency": 0.7129563245299583,
+          "support": 68345,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.738445240065396,
+          "observed_frequency": 0.8001148621654015,
+          "support": 40048,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8323726453689726,
+          "observed_frequency": 0.7152810032512773,
+          "support": 2153,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.944009859144867,
+          "observed_frequency": 0.7142857142857143,
+          "support": 791,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7683,
+        "fp": 408945,
+        "tn": 74229,
+        "tp": 415400
+      },
+      "f2": {
+        "value": 0.8252946246180975
+      },
+      "precision": {
+        "value": 0.5039152296671903
+      },
+      "prevalence": 0.46684660090901364,
+      "recall": {
+        "value": 0.98184044265546
+      },
+      "support": 906257,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:42"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6468259221631711
+      },
+      "brier": {
+        "value": 0.23603893370877133
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.017832855555563108,
+          "observed_frequency": 0.049937578027465665,
+          "support": 801,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15087343764150898,
+          "observed_frequency": 0.23394831265805038,
+          "support": 192581,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24844114710685156,
+          "observed_frequency": 0.40381560022744756,
+          "support": 239176,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3461062320202141,
+          "observed_frequency": 0.5000404339136563,
+          "support": 173122,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44644616554625816,
+          "observed_frequency": 0.5641643835616439,
+          "support": 109500,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.548311675161369,
+          "observed_frequency": 0.6284033297865682,
+          "support": 79885,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6487801246882866,
+          "observed_frequency": 0.7138279192273924,
+          "support": 68340,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7383676522392657,
+          "observed_frequency": 0.8011608125687981,
+          "support": 39972,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8322445592052511,
+          "observed_frequency": 0.7182242990654205,
+          "support": 2140,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9457546670478618,
+          "observed_frequency": 0.7676630434782609,
+          "support": 736,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7718,
+        "fp": 408853,
+        "tn": 74270,
+        "tp": 415412
+      },
+      "f2": {
+        "value": 0.8252830496049524
+      },
+      "precision": {
+        "value": 0.5039786961717408
+      },
+      "prevalence": 0.46690052336378474,
+      "recall": {
+        "value": 0.9817597428686219
+      },
+      "support": 906253,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:43"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.648426465326987
+      },
+      "brier": {
+        "value": 0.2357273006028238
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.014878435480200106,
+          "observed_frequency": 0.18808777429467086,
+          "support": 957,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15085684752865983,
+          "observed_frequency": 0.23158338406781248,
+          "support": 192177,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.2484576463499463,
+          "observed_frequency": 0.4028486101539168,
+          "support": 239415,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34611679435599024,
+          "observed_frequency": 0.5011882513093837,
+          "support": 173364,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4464346309720852,
+          "observed_frequency": 0.5662501942217876,
+          "support": 109411,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5483278778540582,
+          "observed_frequency": 0.6297339240569698,
+          "support": 79902,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6488008504831905,
+          "observed_frequency": 0.7141122069712312,
+          "support": 68338,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.738291951002457,
+          "observed_frequency": 0.8016344538868416,
+          "support": 39891,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.831947201108708,
+          "observed_frequency": 0.7367161321206319,
+          "support": 2089,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9469155105634416,
+          "observed_frequency": 0.8,
+          "support": 705,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7839,
+        "fp": 408765,
+        "tn": 74310,
+        "tp": 415335
+      },
+      "f2": {
+        "value": 0.8251264703217901
+      },
+      "precision": {
+        "value": 0.5039861667273389
+      },
+      "prevalence": 0.46695113594608106,
+      "recall": {
+        "value": 0.981475705029137
+      },
+      "support": 906249,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:44"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6493762737939694
+      },
+      "brier": {
+        "value": 0.23561633706457794
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.013213316734799424,
+          "observed_frequency": 0.25989208633093525,
+          "support": 1112,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.1508443771589706,
+          "observed_frequency": 0.2308811337577625,
+          "support": 191787,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24847764990274884,
+          "observed_frequency": 0.40214057707955186,
+          "support": 239655,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.346123441841238,
+          "observed_frequency": 0.5012405662278152,
+          "support": 173711,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44648233043727786,
+          "observed_frequency": 0.5674634757709655,
+          "support": 109311,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5483571410370365,
+          "observed_frequency": 0.6313772155069831,
+          "support": 79835,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6488177528125652,
+          "observed_frequency": 0.7136082202608351,
+          "support": 68319,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.738218881110615,
+          "observed_frequency": 0.8017637747795282,
+          "support": 39801,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8316512902953356,
+          "observed_frequency": 0.7570093457943925,
+          "support": 2033,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9482485361659977,
+          "observed_frequency": 0.8281938325991189,
+          "support": 681,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7972,
+        "fp": 408687,
+        "tn": 74340,
+        "tp": 415246
+      },
+      "f2": {
+        "value": 0.8249467082272961
+      },
+      "precision": {
+        "value": 0.5039802993690021
+      },
+      "prevalence": 0.4670017489751668,
+      "recall": {
+        "value": 0.9811633720682957
+      },
+      "support": 906245,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:45"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6494594829415438
+      },
+      "brier": {
+        "value": 0.23575620488567295
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.01177622804764774,
+          "observed_frequency": 0.3164956590370955,
+          "support": 1267,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15082941525250768,
+          "observed_frequency": 0.2311884421454137,
+          "support": 191385,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24848720283549688,
+          "observed_frequency": 0.4020566152512854,
+          "support": 240006,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3461090662414507,
+          "observed_frequency": 0.5006699907409005,
+          "support": 173883,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44648864125857407,
+          "observed_frequency": 0.568075117370892,
+          "support": 109269,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5483756170796026,
+          "observed_frequency": 0.6324655628392013,
+          "support": 79783,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6488425940793714,
+          "observed_frequency": 0.712158917906078,
+          "support": 68312,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7381599872807806,
+          "observed_frequency": 0.8004432914389341,
+          "support": 39703,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8313622093412513,
+          "observed_frequency": 0.7768218623481782,
+          "support": 1976,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8584474885844748,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8124,
+        "fp": 408633,
+        "tn": 74346,
+        "tp": 415138
+      },
+      "f2": {
+        "value": 0.8247275628481826
+      },
+      "precision": {
+        "value": 0.5039483060219405
+      },
+      "prevalence": 0.4670523624510478,
+      "recall": {
+        "value": 0.98080621459049
+      },
+      "support": 906241,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:46"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6490901504134926
+      },
+      "brier": {
+        "value": 0.23599499381330477
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.010671045055090941,
+          "observed_frequency": 0.35364989369241673,
+          "support": 1411,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15082836688055798,
+          "observed_frequency": 0.23210809453038328,
+          "support": 191092,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.2485057162607627,
+          "observed_frequency": 0.4020077914294276,
+          "support": 240264,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34609733598546477,
+          "observed_frequency": 0.4997414209207714,
+          "support": 174028,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4464972028579459,
+          "observed_frequency": 0.5689913966684972,
+          "support": 109260,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5483941244096261,
+          "observed_frequency": 0.6334826301328617,
+          "support": 79707,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6488557244411092,
+          "observed_frequency": 0.7103583557793652,
+          "support": 68312,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7380855546069973,
+          "observed_frequency": 0.7982425130043938,
+          "support": 39602,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8311669788425072,
+          "observed_frequency": 0.805672268907563,
+          "support": 1904,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8584474885844748,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8271,
+        "fp": 408552,
+        "tn": 74378,
+        "tp": 415036
+      },
+      "f2": {
+        "value": 0.8245259089261988
+      },
+      "precision": {
+        "value": 0.5039364342365358
+      },
+      "prevalence": 0.4671040798378349,
+      "recall": {
+        "value": 0.980460989305634
+      },
+      "support": 906237,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:47"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6486853218924329
+      },
+      "brier": {
+        "value": 0.23625688020301944
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.010582220746673669,
+          "observed_frequency": 0.35668380462724936,
+          "support": 1556,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.1508125771665719,
+          "observed_frequency": 0.23344008973828081,
+          "support": 190777,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.2485119068247472,
+          "observed_frequency": 0.4025131081626119,
+          "support": 240499,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3460735230338051,
+          "observed_frequency": 0.49810833309412406,
+          "support": 174185,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44648538068043625,
+          "observed_frequency": 0.5693432660980342,
+          "support": 109268,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5484100536682784,
+          "observed_frequency": 0.63419288422427,
+          "support": 79654,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.648876223421164,
+          "observed_frequency": 0.7085047508894192,
+          "support": 68303,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.738019513068522,
+          "observed_frequency": 0.7967294451194815,
+          "support": 39504,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8310250613044973,
+          "observed_frequency": 0.8360655737704918,
+          "support": 1830,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496789517669141,
+          "observed_frequency": 0.8584474885844748,
+          "support": 657,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8377,
+        "fp": 408406,
+        "tn": 74482,
+        "tp": 414968
+      },
+      "f2": {
+        "value": 0.824411126395349
+      },
+      "precision": {
+        "value": 0.5039848234216772
+      },
+      "prevalence": 0.46714807339834236,
+      "recall": {
+        "value": 0.980212356352384
+      },
+      "support": 906233,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "horizonte:48"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.7179243124364623
+      },
+      "brier": {
+        "value": 0.19536645784509507
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.016317989733178464,
+          "observed_frequency": 0.06255119953188999,
+          "support": 85450,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.14694845449679875,
+          "observed_frequency": 0.2785788060318116,
+          "support": 24205,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.237952041811596,
+          "observed_frequency": 0.3506057938204838,
+          "support": 23853,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34764806174045276,
+          "observed_frequency": 0.5432692307692307,
+          "support": 16848,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44204076523217206,
+          "observed_frequency": 0.6377613199587513,
+          "support": 21334,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5436656153365182,
+          "observed_frequency": 0.5483754349496136,
+          "support": 22129,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6596742229803418,
+          "observed_frequency": 0.4329286747150015,
+          "support": 29737,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7557386105005773,
+          "observed_frequency": 0.5620689655172414,
+          "support": 31030,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8627495076031342,
+          "observed_frequency": 0.7375561146465394,
+          "support": 40542,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9472686482428776,
+          "observed_frequency": 0.7884236738475794,
+          "support": 34536,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 8160,
+        "fp": 95887,
+        "tn": 90986,
+        "tp": 134631
+      },
+      "f2": {
+        "value": 0.8396783263189145
+      },
+      "precision": {
+        "value": 0.5840368214195855
+      },
+      "prevalence": 0.4331410163075131,
+      "recall": {
+        "value": 0.9428535411895708
+      },
+      "support": 329664,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "historico_insuficiente"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.7605358120530317
+      },
+      "brier": {
+        "value": 0.2108488577798065
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.006578474096955296,
+          "observed_frequency": 0.04766486566501369,
+          "support": 27022,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15279445051550017,
+          "observed_frequency": 0.3151026405064754,
+          "support": 121151,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.2464537236518256,
+          "observed_frequency": 0.3499264658865656,
+          "support": 125112,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3454313761814131,
+          "observed_frequency": 0.480327404821437,
+          "support": 84788,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44699828426477295,
+          "observed_frequency": 0.5576264218171851,
+          "support": 51079,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5437216816630188,
+          "observed_frequency": 0.6207868869739374,
+          "support": 37947,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6570774539084899,
+          "observed_frequency": 0.666628073019181,
+          "support": 51822,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7504759490591901,
+          "observed_frequency": 0.8668847120257163,
+          "support": 71239,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8656762941666488,
+          "observed_frequency": 0.8421319225574065,
+          "support": 35536,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.949671224338248,
+          "observed_frequency": 0.8590673902069662,
+          "support": 31696,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 14161,
+        "fp": 248055,
+        "tn": 59871,
+        "tp": 315305
+      },
+      "f2": {
+        "value": 0.838031515651512
+      },
+      "precision": {
+        "value": 0.5596865237148537
+      },
+      "prevalence": 0.5168969801942918,
+      "recall": {
+        "value": 0.9570183266255091
+      },
+      "support": 637392,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "entidade_nova"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6405287312143108
+      },
+      "brier": {
+        "value": 0.23859162272856976
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.020746228733489133,
+          "observed_frequency": 0.0699088672511175,
+          "support": 57718,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15116087953719434,
+          "observed_frequency": 0.25620460499373804,
+          "support": 9396408,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24826350052628962,
+          "observed_frequency": 0.4097650306536952,
+          "support": 11224911,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34599772902661174,
+          "observed_frequency": 0.48587926852114754,
+          "support": 7868006,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4466843506025085,
+          "observed_frequency": 0.5503308037562769,
+          "support": 5064483,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5481415947676116,
+          "observed_frequency": 0.6193867784149862,
+          "support": 3729810,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6482719208587562,
+          "observed_frequency": 0.7197144084473258,
+          "support": 3089167,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7394868061493551,
+          "observed_frequency": 0.8052127341806474,
+          "support": 1814518,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8102997477559966,
+          "observed_frequency": 0.7996831105018604,
+          "support": 56171,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9204545454545454,
+          "observed_frequency": 0.0,
+          "support": 2840,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 366735,
+        "fp": 19107205,
+        "tn": 3536266,
+        "tp": 19293826
+      },
+      "f2": {
+        "value": 0.8242176237806059
+      },
+      "precision": {
+        "value": 0.5024298956973317
+      },
+      "prevalence": 0.4647443770844349,
+      "recall": {
+        "value": 0.9813466665574803
+      },
+      "support": 42304032,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "painel_fixo"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.642010959674264
+      },
+      "brier": {
+        "value": 0.23864842894574226
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.016317989733178464,
+          "observed_frequency": 0.06255119953188999,
+          "support": 85450,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15119862485973423,
+          "observed_frequency": 0.25712733824804007,
+          "support": 9522033,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24830097164279638,
+          "observed_frequency": 0.410367378998715,
+          "support": 11422482,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3460476415548345,
+          "observed_frequency": 0.48639993065598885,
+          "support": 8052606,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.446725452877001,
+          "observed_frequency": 0.5489836417618943,
+          "support": 5226602,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5482196515141453,
+          "observed_frequency": 0.6159781606717464,
+          "support": 3882537,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6484206662694206,
+          "observed_frequency": 0.712917697138891,
+          "support": 3248915,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.739841828945779,
+          "observed_frequency": 0.8022490057717391,
+          "support": 1936678,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8317604528855517,
+          "observed_frequency": 0.8147990898897199,
+          "support": 91857,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9472686482428776,
+          "observed_frequency": 0.7884236738475794,
+          "support": 34536,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 380928,
+        "fp": 19616062,
+        "tn": 3596855,
+        "tp": 19909851
+      },
+      "f2": {
+        "value": 0.8248409637963033
+      },
+      "precision": {
+        "value": 0.5037164100421918
+      },
+      "prevalence": 0.4664150604583114,
+      "recall": {
+        "value": 0.9812265463046047
+      },
+      "support": 43503696,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "painel_aberto"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.674567795772498
+      },
+      "brier": {
+        "value": 0.246628373806942
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.006242666299611631,
+          "observed_frequency": 0.07333333333333333,
+          "support": 7200,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.14208276826962096,
+          "observed_frequency": 0.2986907890473057,
+          "support": 1712711,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.2556123885443444,
+          "observed_frequency": 0.48446041932684386,
+          "support": 2170908,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3498130055322603,
+          "observed_frequency": 0.4798232413470298,
+          "support": 2980335,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44770287721140656,
+          "observed_frequency": 0.5110766488975934,
+          "support": 2472273,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5474863621275976,
+          "observed_frequency": 0.5775157080607841,
+          "support": 1798758,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6490709959576219,
+          "observed_frequency": 0.6850132945581126,
+          "support": 1452474,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7427540982057017,
+          "observed_frequency": 0.8056564532308643,
+          "support": 1265033,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8200664659826742,
+          "observed_frequency": 0.8663377303393415,
+          "support": 49655,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9504200372870382,
+          "observed_frequency": 0.975557917109458,
+          "support": 8469,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 192659,
+        "fp": 5703210,
+        "tn": 852996,
+        "tp": 7168951
+      },
+      "f2": {
+        "value": 0.8470212661330653
+      },
+      "precision": {
+        "value": 0.5569345349238563
+      },
+      "prevalence": 0.5289342810682366,
+      "recall": {
+        "value": 0.9738292302906565
+      },
+      "support": 13917816,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "fim_semana_feriado"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6504772673594431
+      },
+      "brier": {
+        "value": 0.23692031493441884
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.00646054074851491,
+          "observed_frequency": 0.05940100662779688,
+          "support": 20067,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.1503873119179485,
+          "observed_frequency": 0.24972897618994655,
+          "support": 6742950,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24869814724671327,
+          "observed_frequency": 0.40270890302724593,
+          "support": 8482991,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3457295711987494,
+          "observed_frequency": 0.4877234083737101,
+          "support": 5899846,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44617385888206756,
+          "observed_frequency": 0.5558402039976507,
+          "support": 3708278,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5481715860724657,
+          "observed_frequency": 0.6306666361656705,
+          "support": 2710294,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6483939336441074,
+          "observed_frequency": 0.7331430213813075,
+          "support": 2205852,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7379477344203167,
+          "observed_frequency": 0.8224108830567626,
+          "support": 1225244,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8338329142982494,
+          "observed_frequency": 0.8731375947616297,
+          "support": 57117,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9496201001268594,
+          "observed_frequency": 0.8621884523859225,
+          "support": 23953,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 298625,
+        "fp": 14040775,
+        "tn": 2591162,
+        "tp": 14146030
+      },
+      "f2": {
+        "value": 0.822774388656835
+      },
+      "precision": {
+        "value": 0.5018670970335233
+      },
+      "prevalence": 0.46480820676861867,
+      "recall": {
+        "value": 0.979326262897937
+      },
+      "support": 31076592,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "idade:ate_48h"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6456147474178706
+      },
+      "brier": {
+        "value": 0.24526569265618534
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.006143790849673202,
+          "observed_frequency": 0.011800766283524904,
+          "support": 6525,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15158017452393685,
+          "observed_frequency": 0.26570026437964744,
+          "support": 2341330,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24756098979225444,
+          "observed_frequency": 0.4545344860920682,
+          "support": 2710252,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3468473754544605,
+          "observed_frequency": 0.49551774340402305,
+          "support": 1958277,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4482138976005951,
+          "observed_frequency": 0.5390115780064176,
+          "support": 1403955,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5480857108642982,
+          "observed_frequency": 0.5896264162263193,
+          "support": 1083425,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6486638397931453,
+          "observed_frequency": 0.6877720654753837,
+          "support": 951747,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.742371260733569,
+          "observed_frequency": 0.7856188005684096,
+          "support": 641087,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8268082063813548,
+          "observed_frequency": 0.8472148353012091,
+          "support": 28203,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9498293772809563,
+          "observed_frequency": 0.8494123724654526,
+          "support": 7743,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 74385,
+        "fp": 4850329,
+        "tn": 873512,
+        "tp": 5334318
+      },
+      "f2": {
+        "value": 0.8382163254252688
+      },
+      "precision": {
+        "value": 0.5237607155162078
+      },
+      "prevalence": 0.485846092321755,
+      "recall": {
+        "value": 0.9862471649857646
+      },
+      "support": 11132544,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "idade:48_96h"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.44088251594644734
+      },
+      "brier": {
+        "value": 0.22322767953534176
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.020806692653599062,
+          "observed_frequency": 0.06925141866866016,
+          "support": 58858,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.16165499848944442,
+          "observed_frequency": 0.32523592071327895,
+          "support": 437753,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24235215934187326,
+          "observed_frequency": 0.17158947648524028,
+          "support": 229239,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34764400533115086,
+          "observed_frequency": 0.35444229058580956,
+          "support": 194483,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44633858636973184,
+          "observed_frequency": 0.4490814818700872,
+          "support": 114369,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5513202181419867,
+          "observed_frequency": 0.489202639104686,
+          "support": 88818,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6465319342107214,
+          "observed_frequency": 0.48643173156949493,
+          "support": 91316,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7497803070076245,
+          "observed_frequency": 0.6026411929435512,
+          "support": 70347,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8350181291359445,
+          "observed_frequency": 0.16521340064249657,
+          "support": 6537,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9204545454545454,
+          "observed_frequency": 0.0,
+          "support": 2840,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 7918,
+        "fp": 724958,
+        "tn": 132181,
+        "tp": 429503
+      },
+      "f2": {
+        "value": 0.7394654881212888
+      },
+      "precision": {
+        "value": 0.37203768685126654
+      },
+      "prevalence": 0.33789163885799034,
+      "recall": {
+        "value": 0.9818984456621881
+      },
+      "support": 1294560,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "idade:acima_96h"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "reason": "classe_unica",
+        "value": null
+      },
+      "brier": {
+        "value": 0.4097010836819569
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.05084730362091681,
+          "observed_frequency": 1.0,
+          "support": 435,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.16608553458510442,
+          "observed_frequency": 1.0,
+          "support": 206162,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24875023363831555,
+          "observed_frequency": 1.0,
+          "support": 367853,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3465357000634481,
+          "observed_frequency": 1.0,
+          "support": 270263,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4473778396042093,
+          "observed_frequency": 1.0,
+          "support": 186157,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5497123014919977,
+          "observed_frequency": 1.0,
+          "support": 153374,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6488819846707443,
+          "observed_frequency": 1.0,
+          "support": 144012,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7378856322162959,
+          "observed_frequency": 1.0,
+          "support": 82200,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8269170786595371,
+          "observed_frequency": 1.0,
+          "support": 2753,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9658055354121344,
+          "observed_frequency": 1.0,
+          "support": 788,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 36984,
+        "fp": 0,
+        "tn": 0,
+        "tp": 1377013
+      },
+      "f2": {
+        "value": 0.9789654515902956
+      },
+      "precision": {
+        "value": 1.0
+      },
+      "prevalence": 1.0,
+      "recall": {
+        "value": 0.9738443575198533
+      },
+      "support": 1413997,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "inicio_episodio"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6297674345784832
+      },
+      "brier": {
+        "value": 0.3094604876489713
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.017629308512898977,
+          "observed_frequency": 0.32903225806451614,
+          "support": 930,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.16605345339829236,
+          "observed_frequency": 0.6002692053547393,
+          "support": 204305,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24870579559238964,
+          "observed_frequency": 0.5959278010125467,
+          "support": 363440,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3464794862880368,
+          "observed_frequency": 0.5689363030343567,
+          "support": 269118,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44750780389578987,
+          "observed_frequency": 0.5882525713187153,
+          "support": 187258,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.549852371403135,
+          "observed_frequency": 0.6314808849814629,
+          "support": 158331,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6486217144848504,
+          "observed_frequency": 0.6688325040095406,
+          "support": 145902,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7376301227216059,
+          "observed_frequency": 0.6666876463331739,
+          "support": 79442,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8247484265939528,
+          "observed_frequency": 0.5857892612030682,
+          "support": 2477,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9521608034401947,
+          "observed_frequency": 0.673582295988935,
+          "support": 723,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 12583,
+        "fp": 532574,
+        "tn": 24090,
+        "tp": 842679
+      },
+      "f2": {
+        "value": 0.8784675940896953
+      },
+      "precision": {
+        "value": 0.612744709518903
+      },
+      "prevalence": 0.6057413773809676,
+      "recall": {
+        "value": 0.9852875493123745
+      },
+      "support": 1411926,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "primeiro_zero_pos_episodio"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "reason": "classe_unica",
+        "value": null
+      },
+      "brier": {
+        "value": 0.35580277628046597
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.0,
+          "observed_frequency": 1.0,
+          "support": 4,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.16588859736962572,
+          "observed_frequency": 1.0,
+          "support": 20388,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.25388956254685424,
+          "observed_frequency": 1.0,
+          "support": 48355,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.3503424947702279,
+          "observed_frequency": 1.0,
+          "support": 65570,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.44556682514374,
+          "observed_frequency": 1.0,
+          "support": 49189,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.5436223203017632,
+          "observed_frequency": 1.0,
+          "support": 30696,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.647444460440453,
+          "observed_frequency": 1.0,
+          "support": 24833,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7435815518612067,
+          "observed_frequency": 1.0,
+          "support": 25292,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8699928150986215,
+          "observed_frequency": 1.0,
+          "support": 2046,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.9630856325084213,
+          "observed_frequency": 1.0,
+          "support": 1450,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 4746,
+        "fp": 0,
+        "tn": 0,
+        "tp": 263077
+      },
+      "f2": {
+        "value": 0.9857730507828044
+      },
+      "precision": {
+        "value": 1.0
+      },
+      "prevalence": 1.0,
+      "recall": {
+        "value": 0.9822793412066925
+      },
+      "support": 267823,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "cauda_volume_p99_treino"
+  },
+  {
+    "metrics": {
+      "average_precision": {
+        "value": 0.6385838780316517
+      },
+      "brier": {
+        "value": 0.23792272071808074
+      },
+      "calibration_bins": [
+        {
+          "lower": 0.0,
+          "mean_probability": 0.016318753630364204,
+          "observed_frequency": 0.06250731456124335,
+          "support": 85446,
+          "upper": 0.1
+        },
+        {
+          "lower": 0.1,
+          "mean_probability": 0.15116710409048517,
+          "observed_frequency": 0.2555333313336796,
+          "support": 9501645,
+          "upper": 0.2
+        },
+        {
+          "lower": 0.2,
+          "mean_probability": 0.24827721278084894,
+          "observed_frequency": 0.40786066482289146,
+          "support": 11374127,
+          "upper": 0.3
+        },
+        {
+          "lower": 0.3,
+          "mean_probability": 0.34601238272723767,
+          "observed_frequency": 0.48218350336720656,
+          "support": 7987036,
+          "upper": 0.4
+        },
+        {
+          "lower": 0.4,
+          "mean_probability": 0.4467364606408343,
+          "observed_frequency": 0.5446986748014887,
+          "support": 5177413,
+          "upper": 0.5
+        },
+        {
+          "lower": 0.5,
+          "mean_probability": 0.548256288457076,
+          "observed_frequency": 0.6129178229319434,
+          "support": 3851841,
+          "upper": 0.6
+        },
+        {
+          "lower": 0.6,
+          "mean_probability": 0.6484281853459672,
+          "observed_frequency": 0.7107064894751436,
+          "support": 3224082,
+          "upper": 0.7
+        },
+        {
+          "lower": 0.7,
+          "mean_probability": 0.7397923438747485,
+          "observed_frequency": 0.7996323087016437,
+          "support": 1911386,
+          "upper": 0.8
+        },
+        {
+          "lower": 0.8,
+          "mean_probability": 0.8308894747972557,
+          "observed_frequency": 0.8105799957688925,
+          "support": 89811,
+          "upper": 0.9
+        },
+        {
+          "lower": 0.9,
+          "mean_probability": 0.946575466015197,
+          "observed_frequency": 0.7791513026657801,
+          "support": 33086,
+          "upper": 1.0
+        }
+      ],
+      "confusion": {
+        "fn": 376182,
+        "fp": 19616062,
+        "tn": 3596855,
+        "tp": 19646774
+      },
+      "f2": {
+        "value": 0.8230417647706424
+      },
+      "precision": {
+        "value": 0.5003911077640952
+      },
+      "prevalence": 0.4631097884851313,
+      "recall": {
+        "value": 0.9812124643334381
+      },
+      "support": 43235873,
+      "threshold": 0.14029301291671673
+    },
+    "slice": "fora_cauda_volume"
+  }
+]

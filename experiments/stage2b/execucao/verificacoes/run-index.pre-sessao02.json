@@ -1,0 +1,186 @@
+{
+  "defined_at": "2026-09-22T18:33:36.1900519-03:00",
+  "note": "run_id imutáveis; se um diretório já existir, usar novo sufixo e registrar",
+  "runs": [
+    {
+      "run_id": "pilot-eolica-001",
+      "kind": "piloto_tecnico",
+      "source": "eolica",
+      "scenario": "noturno_dia_util",
+      "round": null,
+      "frozen_from": null,
+      "status": "nao_iniciada",
+      "reason": "aguardando datasets"
+    },
+    {
+      "run_id": "pilot-fotovoltaica-001",
+      "kind": "piloto_tecnico",
+      "source": "fotovoltaica",
+      "scenario": "noturno_dia_util",
+      "round": null,
+      "frozen_from": null,
+      "status": "nao_iniciada",
+      "reason": "aguardando datasets"
+    },
+    {
+      "run_id": "main-eolica-v1-001",
+      "kind": "campanha_principal",
+      "source": "eolica",
+      "scenario": "noturno_dia_util",
+      "round": "V1",
+      "frozen_from": null,
+      "status": "nao_iniciada",
+      "reason": "aguardando datasets, piloto e decisão sobre memória do treino"
+    },
+    {
+      "run_id": "main-eolica-v2-001",
+      "kind": "campanha_principal",
+      "source": "eolica",
+      "scenario": "noturno_dia_util",
+      "round": "V2",
+      "frozen_from": null,
+      "status": "nao_iniciada",
+      "reason": "aguardando datasets, piloto e decisão sobre memória do treino"
+    },
+    {
+      "run_id": "main-eolica-v3-001",
+      "kind": "campanha_principal",
+      "source": "eolica",
+      "scenario": "noturno_dia_util",
+      "round": "V3",
+      "frozen_from": null,
+      "status": "nao_iniciada",
+      "reason": "aguardando datasets, piloto e decisão sobre memória do treino"
+    },
+    {
+      "run_id": "main-eolica-v4-001",
+      "kind": "campanha_principal",
+      "source": "eolica",
+      "scenario": "noturno_dia_util",
+      "round": "V4",
+      "frozen_from": null,
+      "status": "nao_iniciada",
+      "reason": "aguardando datasets, piloto e decisão sobre memória do treino"
+    },
+    {
+      "run_id": "main-fotovoltaica-v1-001",
+      "kind": "campanha_principal",
+      "source": "fotovoltaica",
+      "scenario": "noturno_dia_util",
+      "round": "V1",
+      "frozen_from": null,
+      "status": "nao_iniciada",
+      "reason": "aguardando datasets, piloto e decisão sobre memória do treino"
+    },
+    {
+      "run_id": "main-fotovoltaica-v2-001",
+      "kind": "campanha_principal",
+      "source": "fotovoltaica",
+      "scenario": "noturno_dia_util",
+      "round": "V2",
+      "frozen_from": null,
+      "status": "nao_iniciada",
+      "reason": "aguardando datasets, piloto e decisão sobre memória do treino"
+    },
+    {
+      "run_id": "main-fotovoltaica-v3-001",
+      "kind": "campanha_principal",
+      "source": "fotovoltaica",
+      "scenario": "noturno_dia_util",
+      "round": "V3",
+      "frozen_from": null,
+      "status": "nao_iniciada",
+      "reason": "aguardando datasets, piloto e decisão sobre memória do treino"
+    },
+    {
+      "run_id": "main-fotovoltaica-v4-001",
+      "kind": "campanha_principal",
+      "source": "fotovoltaica",
+      "scenario": "noturno_dia_util",
+      "round": "V4",
+      "frozen_from": null,
+      "status": "nao_iniciada",
+      "reason": "aguardando datasets, piloto e decisão sobre memória do treino"
+    },
+    {
+      "run_id": "delay-eolica-v1-001",
+      "kind": "sensibilidade_mais_24h",
+      "source": "eolica",
+      "scenario": "noturno_mais_24h",
+      "round": "V1",
+      "frozen_from": "main-eolica-v1-001",
+      "status": "nao_iniciada",
+      "reason": "depende da run principal correspondente"
+    },
+    {
+      "run_id": "delay-eolica-v2-001",
+      "kind": "sensibilidade_mais_24h",
+      "source": "eolica",
+      "scenario": "noturno_mais_24h",
+      "round": "V2",
+      "frozen_from": "main-eolica-v2-001",
+      "status": "nao_iniciada",
+      "reason": "depende da run principal correspondente"
+    },
+    {
+      "run_id": "delay-eolica-v3-001",
+      "kind": "sensibilidade_mais_24h",
+      "source": "eolica",
+      "scenario": "noturno_mais_24h",
+      "round": "V3",
+      "frozen_from": "main-eolica-v3-001",
+      "status": "nao_iniciada",
+      "reason": "depende da run principal correspondente"
+    },
+    {
+      "run_id": "delay-eolica-v4-001",
+      "kind": "sensibilidade_mais_24h",
+      "source": "eolica",
+      "scenario": "noturno_mais_24h",
+      "round": "V4",
+      "frozen_from": "main-eolica-v4-001",
+      "status": "nao_iniciada",
+      "reason": "depende da run principal correspondente"
+    },
+    {
+      "run_id": "delay-fotovoltaica-v1-001",
+      "kind": "sensibilidade_mais_24h",
+      "source": "fotovoltaica",
+      "scenario": "noturno_mais_24h",
+      "round": "V1",
+      "frozen_from": "main-fotovoltaica-v1-001",
+      "status": "nao_iniciada",
+      "reason": "depende da run principal correspondente"
+    },
+    {
+      "run_id": "delay-fotovoltaica-v2-001",
+      "kind": "sensibilidade_mais_24h",
+      "source": "fotovoltaica",
+      "scenario": "noturno_mais_24h",
+      "round": "V2",
+      "frozen_from": "main-fotovoltaica-v2-001",
+      "status": "nao_iniciada",
+      "reason": "depende da run principal correspondente"
+    },
+    {
+      "run_id": "delay-fotovoltaica-v3-001",
+      "kind": "sensibilidade_mais_24h",
+      "source": "fotovoltaica",
+      "scenario": "noturno_mais_24h",
+      "round": "V3",
+      "frozen_from": "main-fotovoltaica-v3-001",
+      "status": "nao_iniciada",
+      "reason": "depende da run principal correspondente"
+    },
+    {
+      "run_id": "delay-fotovoltaica-v4-001",
+      "kind": "sensibilidade_mais_24h",
+      "source": "fotovoltaica",
+      "scenario": "noturno_mais_24h",
+      "round": "V4",
+      "frozen_from": "main-fotovoltaica-v4-001",
+      "status": "nao_iniciada",
+      "reason": "depende da run principal correspondente"
+    }
+  ]
+}

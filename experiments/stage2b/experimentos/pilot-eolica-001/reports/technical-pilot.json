@@ -1,0 +1,104 @@
+{
+  "failures": [],
+  "fits": [
+    {
+      "duration_seconds": 1.881845699972473,
+      "examples": 500000,
+      "family": "linear",
+      "missing_classes": [],
+      "params": {
+        "C": 0.1
+      },
+      "peak_rss_bytes": 1575419904,
+      "task": "corte_positivo"
+    },
+    {
+      "duration_seconds": 6.799920800025575,
+      "examples": 500000,
+      "family": "lightgbm",
+      "missing_classes": [],
+      "params": {
+        "max_depth": 4,
+        "num_leaves": 15
+      },
+      "peak_rss_bytes": 1575419904,
+      "task": "corte_positivo"
+    },
+    {
+      "duration_seconds": 1.6774520999751985,
+      "examples": 500000,
+      "family": "linear",
+      "missing_classes": [],
+      "params": {
+        "C": 0.1
+      },
+      "peak_rss_bytes": 1578127360,
+      "task": "restricao_registrada"
+    },
+    {
+      "duration_seconds": 6.722694399999455,
+      "examples": 500000,
+      "family": "lightgbm",
+      "missing_classes": [],
+      "params": {
+        "max_depth": 4,
+        "num_leaves": 15
+      },
+      "peak_rss_bytes": 1578127360,
+      "task": "restricao_registrada"
+    },
+    {
+      "duration_seconds": 1.5967944000149146,
+      "examples": 191505,
+      "family": "linear",
+      "missing_classes": [],
+      "params": {
+        "alpha": 0.0001
+      },
+      "peak_rss_bytes": 1578127360,
+      "task": "volume_condicional"
+    },
+    {
+      "duration_seconds": 2.2116889000171795,
+      "examples": 191505,
+      "family": "lightgbm",
+      "missing_classes": [],
+      "params": {
+        "max_depth": 4,
+        "num_leaves": 15
+      },
+      "peak_rss_bytes": 1578127360,
+      "task": "volume_condicional"
+    },
+    {
+      "duration_seconds": 4.152145300060511,
+      "examples": 269514,
+      "family": "linear",
+      "missing_classes": [],
+      "params": {
+        "C": 0.1
+      },
+      "peak_rss_bytes": 1719541760,
+      "task": "causa"
+    },
+    {
+      "duration_seconds": 10.014986700029112,
+      "examples": 269514,
+      "family": "lightgbm",
+      "missing_classes": [],
+      "params": {
+        "max_depth": 4,
+        "num_leaves": 15
+      },
+      "peak_rss_bytes": 1719541760,
+      "task": "causa"
+    }
+  ],
+  "host": {
+    "machine": "AMD64",
+    "system": "Windows"
+  },
+  "max_examples_per_task_source": 500000,
+  "purpose": "contracts_and_resources_only",
+  "selection_metrics_emitted": false
+}

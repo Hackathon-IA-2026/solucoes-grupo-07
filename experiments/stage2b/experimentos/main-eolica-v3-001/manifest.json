@@ -1,0 +1,103 @@
+{
+  "bytes_consumed": 4647134587,
+  "calendar": {
+    "path": "configs\\experimental\\calendar-2023-2026.json",
+    "sha256": "8c3f500b7ca979ea868b22505d101498639f44404bbaa08db3c4f1dd810f1709"
+  },
+  "code_commit": "88634ed64b228e67aef3a3a187d9123a223b975f",
+  "configuration_sha256": "1ed847278be8bed4dee386b246bf492ae4b3f54e63934291373c14820789a267",
+  "data_hashes": {
+    "eolica": "487050da7ed2470ec563b96ca88ed620654f43683927cb7b1bb8421323f0734d",
+    "fotovoltaica": "e293594146a29b5b78b4837f7618201f15b4e5a9e4ec9de5e7a7c8342db711ec"
+  },
+  "finished_at": "2026-09-24T11:55:04.404079+00:00",
+  "host": {
+    "machine": "AMD64",
+    "python": "3.12.12",
+    "release": "11",
+    "system": "Windows"
+  },
+  "parameters": {
+    "families": [
+      "linear",
+      "lightgbm"
+    ],
+    "tasks": [
+      "corte_positivo",
+      "restricao_registrada",
+      "volume_condicional",
+      "causa"
+    ]
+  },
+  "resolved_config": {
+    "cache_dir": "Y:\\CurtaMap Etapa 2B\\cache",
+    "calendar": "configs/experimental/calendar-2023-2026.json",
+    "data_dir": "Y:\\CurtaMap Etapa 2B\\dados",
+    "duckdb_memory_limit": "22GB",
+    "experiment_dir": "Y:\\CurtaMap Etapa 2B\\experimentos",
+    "families": [
+      "linear",
+      "lightgbm"
+    ],
+    "feature_workers": 6,
+    "initial_artifact_warning_gib": 50,
+    "model_dir": "Y:\\CurtaMap Etapa 2B\\modelos",
+    "optional_delay_72h_enabled": false,
+    "optional_origin_enabled": false,
+    "pilot_max_examples_per_task_source": 500000,
+    "protocol_version": "stage2a-fe71446d",
+    "raw_files": {
+      "eolica": "raw/constrained_off_eolica_tm.parquet",
+      "fotovoltaica": "raw/constrained_off_fotovoltaica_tm.parquet"
+    },
+    "recommended_seeds": [
+      17,
+      101
+    ],
+    "reserved_test_enabled": false,
+    "scenarios": [
+      "noturno_dia_util",
+      "noturno_mais_24h"
+    ],
+    "seed": 42,
+    "sources": [
+      "eolica",
+      "fotovoltaica"
+    ],
+    "tasks": [
+      "corte_positivo",
+      "restricao_registrada",
+      "volume_condicional",
+      "causa"
+    ],
+    "temp_dir": "Y:\\CurtaMap Etapa 2B\\temporarios",
+    "threads": 6,
+    "training_sampling": {
+      "decision": "contingência aprovada pelo responsável em 23/09/2026; ver diário",
+      "method": "t0_sistematico_diario_v1",
+      "seed": 42,
+      "slots_per_day": {
+        "eolica": {
+          "causa": 14,
+          "corte_positivo": 4,
+          "restricao_registrada": 4,
+          "volume_condicional": 14
+        },
+        "fotovoltaica": {
+          "causa": 48,
+          "corte_positivo": 16,
+          "restricao_registrada": 16,
+          "volume_condicional": 48
+        }
+      }
+    }
+  },
+  "resume_command": "curtamap-experiment --config configs\\experimental\\stage2b.example.json campaign-round ...",
+  "run_id": "main-eolica-v3-001",
+  "schema": {},
+  "seeds": [
+    42
+  ],
+  "started_at": "2026-09-24T10:31:01.227305+00:00",
+  "status": "complete"
+}

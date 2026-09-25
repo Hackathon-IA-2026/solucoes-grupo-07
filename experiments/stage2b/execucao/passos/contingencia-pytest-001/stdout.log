@@ -1,0 +1,157 @@
+Validação isolada de Settings: uv run pytest; sem CURTAMAP_DATA_DIR/MODEL_DIR somente neste subprocesso.
+....................................F.F................................. [ 29%]
+........................................................................ [ 59%]
+........................................................................ [ 88%]
+...........................                                              [100%]
+================================== FAILURES ===================================
+__________ test_campaign_round_in_parts_reproduces_oracle_artifacts ___________
+
+campaign_runs = {'root': WindowsPath('Y:/CurtaMap Etapa 2B/temporarios/pytest-of-Angelo/pytest-10/campanha com espaços0'), 'expected':...56322, 0.8691342027126882), 'fit_seconds': 0.2696673000464216, 'calibration_status': 'sigmoide', ...}, ...}, ...}, ...}
+
+    def test_campaign_round_in_parts_reproduces_oracle_artifacts(campaign_runs: dict) -> None:
+        oracle_report, report = campaign_runs["oracle_report"], campaign_runs["report"]
+        # Não vacuidade: todos os modelos, pipelines e comparadores existem nas duas execuções.
+        assert oracle_report["failures"] == []
+        assert len(oracle_report["models"]) == 8
+        assert {
+            entry["calibration_status"]
+            for identity, entry in oracle_report["models"].items()
+            if "corte_positivo" in identity or "restricao_registrada" in identity
+        } == {"sigmoide"}
+        assert len(oracle_report["baselines"]) == 16
+        assert oracle_report["volume_tail_p99_training"] is not None
+        expected_root = campaign_runs["expected"].path
+        assert len(list((expected_root / "predictions").glob("*-volume-*.parquet"))) == 4
+        episodes = pl.read_parquet(
+            expected_root / "predictions" / "eolica-V1-corte_positivo-linear.parquet"
+        )
+        assert episodes["episode_start"].any() and episodes["post_episode_zero"].any()
+        assert episodes["entity_new"].any() and not episodes["panel_fixed"].all()
+        assert episodes["volume_tail"].any() and (~episodes["eligible_history"]).any()
+    
+        assert report["execution"]["validation_chunks"] > 1
+        assert report["execution"]["validation_chunk_days"] == CHUNK_DAYS
+        assert report["execution"]["peak_rss_bytes"] > 0
+>       assert _as_json(_normalized_report(report)) == _as_json(_normalized_report(oracle_report))
+E       AssertionError: assert {'baseline_ro...res': [], ...} == {'baseline_ro...res': [], ...}
+E         
+E         Omitting 8 identical items, use -vv to show
+E         Left contains 2 more items:
+E         {'training_rows': {'causa': {'initial': {'rows': 1178, 'target_mean': None},
+E                                      'refit': {'rows': 1742, 'target_mean': None},
+E                                      'tuning': {'rows': 537, 'target_mean': None}},
+E                            'corte_positivo': {'calibration': {'rows': 1767,...
+E         
+E         ...Full output truncated (23 lines hidden), use '-vv' to show
+
+tests\test_experimental_campaign_parity.py:186: AssertionError
+______________ test_campaign_accepts_dataframes_like_the_oracle _______________
+
+campaign_runs = {'root': WindowsPath('Y:/CurtaMap Etapa 2B/temporarios/pytest-of-Angelo/pytest-10/campanha com espaços0'), 'expected':...56322, 0.8691342027126882), 'fit_seconds': 0.2696673000464216, 'calibration_status': 'sigmoide', ...}, ...}, ...}, ...}
+
+    def test_campaign_accepts_dataframes_like_the_oracle(campaign_runs: dict) -> None:
+        """Entrada eager (``DataFrame``) segue o mesmo caminho via ``.lazy()``."""
+        root = campaign_runs["root"]
+        features_glob = str(
+            root
+            / "dados sintéticos"
+            / "scenario=noturno_dia_util"
+            / "source=eolica"
+            / "round=development"
+            / "date=*"
+        )
+        actual = RunStore.create(root / "novo eager", manifest("main-eolica-v1"))
+        run_campaign_round(
+            pl.scan_parquet(features_glob + "/features.parquet").collect(),
+            pl.scan_parquet(features_glob + "/baselines.parquet").collect(),
+            actual,
+            source="eolica",
+            round_=V1,
+            calendar=CALENDAR,
+            seed=SEED,
+            chunk_days=45,
+            scratch_dir=campaign_runs["scratch"],
+        )
+>       assert_same_artifacts(campaign_runs["expected"].path, actual.path)
+
+tests\test_experimental_campaign_parity.py:253: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+expected_root = WindowsPath('Y:/CurtaMap Etapa 2B/temporarios/pytest-of-Angelo/pytest-10/campanha com espaços0/oráculo/main-eolica-v1')
+actual_root = WindowsPath('Y:/CurtaMap Etapa 2B/temporarios/pytest-of-Angelo/pytest-10/campanha com espaços0/novo eager/main-eolica-v1')
+
+    def assert_same_artifacts(expected_root: Path, actual_root: Path) -> None:
+        assert _files(actual_root) == _files(expected_root)
+        for relative in _files(expected_root):
+            expected, actual = expected_root / relative, actual_root / relative
+            if relative.endswith(".parquet"):
+                left, right = pl.read_parquet(expected), pl.read_parquet(actual)
+                assert right.schema == left.schema, relative
+                assert right.equals(left), relative
+            elif relative.endswith(".joblib"):
+                assert _model_signature(joblib.load(actual)) == _model_signature(
+                    joblib.load(expected)
+                ), relative
+            elif relative.endswith(".json"):
+                left = json.loads(expected.read_text(encoding="utf-8"))
+                right = json.loads(actual.read_text(encoding="utf-8"))
+                if relative.startswith("reports/"):
+                    left, right = _normalized_report(left), _normalized_report(right)
+                if relative.startswith("failures/"):
+                    for payload in (left, right):
+                        payload.pop("traceback")
+                        payload.pop("recorded_at")
+                if relative.startswith("diagnostics/"):
+                    _assert_same_diagnostics(left, right, relative)
+                    continue
+>               assert right == left, relative
+E               AssertionError: reports/eolica-V1.json
+E               assert {'baseline_ro...res': [], ...} == {'baseline_ro...res': [], ...}
+E                 
+E                 Omitting 8 identical items, use -vv to show
+E                 Left contains 2 more items:
+E                 {'training_rows': {'causa': {'initial': {'rows': 1178, 'target_mean': None},
+E                                              'refit': {'rows': 1742, 'target_mean': None},
+E                                              'tuning': {'rows': 537, 'target_mean': None}},
+E                                    'corte_positivo': {'calibration': {'rows': 1767,...
+E                 
+E                 ...Full output truncated (23 lines hidden), use '-vv' to show
+
+tests\test_experimental_campaign_parity.py:116: AssertionError
+============================== warnings summary ===============================
+tests/test_experimental_campaign_parity.py::test_campaign_round_in_parts_reproduces_oracle_artifacts
+  M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\tests\reference_campaign_stage2b.py:191: DeprecationWarning: `is_in` with a collection of the same datatype is ambiguous and deprecated.
+  Please use `implode` to return to previous behavior.
+  
+  See https://github.com/pola-rs/polars/issues/22149 for more information.
+    features = features.with_columns(
+
+tests/test_experimental_campaign_parity.py::test_campaign_round_in_parts_reproduces_oracle_artifacts
+  M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\tests\reference_campaign_stage2b.py:205: DeprecationWarning: `is_in` with a collection of the same datatype is ambiguous and deprecated.
+  Please use `implode` to return to previous behavior.
+  
+  See https://github.com/pola-rs/polars/issues/22149 for more information.
+    features = features.with_columns(pl.col("id_ons").is_in(fixed_ids).alias("panel_fixed"))
+
+tests/test_experimental_campaign_parity.py: 24 warnings
+tests/test_experimental_cli.py: 8 warnings
+  M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\.venv\Lib\site-packages\lightgbm\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+    eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+
+tests/test_experimental_campaign_parity.py: 30 warnings
+tests/test_experimental_cli.py: 16 warnings
+  M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\src\curtamap\experimental\campaign.py:462: DeprecationWarning: `is_in` with a collection of the same datatype is ambiguous and deprecated.
+  Please use `implode` to return to previous behavior.
+  
+  See https://github.com/pola-rs/polars/issues/22149 for more information.
+    frame = selected.collect().with_columns(self.derived)
+
+tests/test_notebook.py::test_eda_notebook_runs_end_to_end_on_local_data
+  M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\.venv\Lib\site-packages\zmq\_future.py:718: RuntimeWarning: Proactor event loop does not implement add_reader family of methods required for zmq. Registering an additional selector thread for add_reader support via tornado. Use `asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())` to avoid this warning.
+    self._get_loop()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_experimental_campaign_parity.py::test_campaign_round_in_parts_reproduces_oracle_artifacts
+FAILED tests/test_experimental_campaign_parity.py::test_campaign_accepts_dataframes_like_the_oracle
+2 failed, 241 passed, 81 warnings in 125.45s (0:02:05)

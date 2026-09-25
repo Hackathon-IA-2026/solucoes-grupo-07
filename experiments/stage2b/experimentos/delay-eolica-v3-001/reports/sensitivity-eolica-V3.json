@@ -1,0 +1,57 @@
+{
+  "execution": {
+    "mode": "validacao_por_partes_de_t0",
+    "peak_rss_bytes": 7399915520,
+    "validation_chunk_days": 7,
+    "validation_chunks": 18,
+    "validation_rows": 43104576
+  },
+  "failures": [],
+  "frozen_run": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-eolica-v3-001",
+  "models": {
+    "eolica-V3-causa-lightgbm": {
+      "calibration_status": "nao_aplicavel",
+      "frozen_model": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-eolica-v3-001\\models\\eolica-V3-causa-lightgbm.joblib",
+      "threshold": null
+    },
+    "eolica-V3-causa-linear": {
+      "calibration_status": "nao_aplicavel",
+      "frozen_model": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-eolica-v3-001\\models\\eolica-V3-causa-linear.joblib",
+      "threshold": null
+    },
+    "eolica-V3-corte_positivo-lightgbm": {
+      "calibration_status": "sigmoide",
+      "frozen_model": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-eolica-v3-001\\models\\eolica-V3-corte_positivo-lightgbm.joblib",
+      "threshold": 0.23386144603278775
+    },
+    "eolica-V3-corte_positivo-linear": {
+      "calibration_status": "sigmoide",
+      "frozen_model": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-eolica-v3-001\\models\\eolica-V3-corte_positivo-linear.joblib",
+      "threshold": 0.23213324431219648
+    },
+    "eolica-V3-restricao_registrada-lightgbm": {
+      "calibration_status": "sigmoide",
+      "frozen_model": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-eolica-v3-001\\models\\eolica-V3-restricao_registrada-lightgbm.joblib",
+      "threshold": 0.15105556321960503
+    },
+    "eolica-V3-restricao_registrada-linear": {
+      "calibration_status": "sigmoide",
+      "frozen_model": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-eolica-v3-001\\models\\eolica-V3-restricao_registrada-linear.joblib",
+      "threshold": 0.24909383813149474
+    },
+    "eolica-V3-volume_condicional-lightgbm": {
+      "calibration_status": "nao_aplicavel",
+      "frozen_model": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-eolica-v3-001\\models\\eolica-V3-volume_condicional-lightgbm.joblib",
+      "threshold": null
+    },
+    "eolica-V3-volume_condicional-linear": {
+      "calibration_status": "nao_aplicavel",
+      "frozen_model": "Y:\\CurtaMap Etapa 2B\\experimentos\\main-eolica-v3-001\\models\\eolica-V3-volume_condicional-linear.joblib",
+      "threshold": null
+    }
+  },
+  "models_retrained": false,
+  "round": "V3",
+  "scenario": "noturno_mais_24h",
+  "source": "eolica"
+}
