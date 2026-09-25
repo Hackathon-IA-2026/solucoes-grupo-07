@@ -34,6 +34,7 @@ from sklearn.metrics import average_precision_score, f1_score
 
 from curtamap.contexto import (
     BASELINE_FEATURES,
+    BASELINE_IDS,
     BOOLEAN,
     CATEGORICAL,
     CAUSES,
@@ -72,12 +73,19 @@ TARGET = {
     "restricao_registrada": "true_restriction",
     "volume_condicional": "true_volume_mwmed",
     "causa": "true_cause",
+    "volume_total": "true_volume_mwmed",
 }
 FALLBACK = {
     "corte_positivo": "b_historico_prob_positive",
     "restricao_registrada": "b_historico_prob_restriction",
     "volume_condicional": "b_historico_volume_positive_mean",
+    "volume_total": "b_historico_volume_expected",
 }
+VOLUME_VALID = (
+    pl.col("target_observed")
+    & pl.col("true_volume_valid").fill_null(False)
+    & pl.col("true_volume_mwmed").is_not_null()
+)
 
 
 @dataclass(frozen=True)
@@ -118,7 +126,15 @@ def _estimator(task: str, params: dict[str, Any], n_estimators: int, seed: int) 
     if task in ("corte_positivo", "restricao_registrada"):
         return LGBMClassifier(objective="binary", **common)
     if task == "causa":
-        return LGBMClassifier(objective="multiclass", **common)
+        return LGBMClassifier(
+            objective="multiclass", class_weight=params.get("class_weight"), **common
+        )
+    if task == "volume_total":
+        return LGBMRegressor(
+            objective="tweedie",
+            tweedie_variance_power=params.get("tweedie_variance_power", 1.5),
+            **common,
+        )
     return LGBMRegressor(objective=params.get("objective", "gamma"), **common)
 
 
@@ -129,10 +145,27 @@ def _target(frame: pl.DataFrame, task: str) -> np.ndarray:
     return values.cast(pl.Float64).to_numpy()
 
 
+def _volume_offset(frame: pl.DataFrame) -> np.ndarray:
+    """Log do volume esperado do `historico` (ligação log do Tweedie)."""
+    expected = frame["b_historico_volume_expected"].fill_null(0.0).cast(pl.Float64).to_numpy()
+    return np.log(np.maximum(expected, 1e-3))
+
+
 def _offset(frame: pl.DataFrame, task: str, enabled: bool) -> np.ndarray | None:
+    if enabled and task == "volume_total":
+        return _volume_offset(frame)
     if not enabled or task not in HISTORICO_PROBABILITY:
         return None
     return historico_offset(frame, task)
+
+
+def _baseline_cause(frame: pl.DataFrame, baseline_id: str) -> np.ndarray:
+    """Argmax das probabilidades de causa do baseline, com desempate fixo CNF, ENE, REL."""
+    order = ("CNF", "ENE", "REL")
+    matrix = np.column_stack(
+        [frame[f"b_{baseline_id}_cause_{c}"].fill_null(0.0).to_numpy() for c in order]
+    )
+    return np.asarray(order)[matrix.argmax(axis=1)]
 
 
 def _collect(lazy: pl.LazyFrame) -> pl.DataFrame:
@@ -152,9 +185,15 @@ def main() -> int:
     parser.add_argument(
         "--offset", action="store_true", help="parte do logit do historico (init_score)"
     )
+    parser.add_argument("--no-categorical", action="store_true")
     parser.add_argument("--drop", default="", help="features removidas, separadas por vírgula")
     args = parser.parse_args()
     drop = tuple(name for name in args.drop.split(",") if name)
+
+    def categorical(encoder: Encoder) -> list[int] | str:
+        # Contorno do erro interno `best_split_info.left_count > 0` do LightGBM em regressão
+        # com categóricas nativas: os códigos entram como numéricos.
+        return [] if args.no_categorical else encoder.categorical_indices
 
     params = {
         "learning_rate": 0.05,
@@ -181,6 +220,7 @@ def main() -> int:
         "slots_per_day_training": args.slots,
         "offset_historico": args.offset,
         "dropped_features": drop,
+        "native_categorical": not args.no_categorical,
         "seed": args.seed,
         "params": params,
         "features": {
@@ -213,7 +253,7 @@ def main() -> int:
 
     def segment(start, end, label_cutoff, sampled: bool) -> pl.DataFrame:
         lazy = _range(features, start, end, label_cutoff=label_cutoff).filter(
-            _task_filter(args.task)
+            VOLUME_VALID if args.task == "volume_total" else _task_filter(args.task)
         )
         side = raw_baselines.filter(window(start, end))
         if sampled:
@@ -237,7 +277,8 @@ def main() -> int:
         "corte_positivo": "average_precision",
         "restricao_registrada": "average_precision",
         "causa": "multi_logloss",
-    }.get(args.task, params.get("stopping_metric", "l1"))
+        "volume_total": "tweedie",
+    }.get(args.task, params.get("stopping_metric", "gamma_deviance"))
     model = _estimator(args.task, params, params["max_trees"], args.seed)
     model.fit(
         x_initial,
@@ -246,7 +287,7 @@ def main() -> int:
         eval_set=[(x_tuning, y_tuning)],
         eval_init_score=None if offset_tuning is None else [offset_tuning],
         eval_metric=stopping_metric,
-        categorical_feature=encoder.categorical_indices,
+        categorical_feature=categorical(encoder),
         callbacks=[early_stopping(50, verbose=False)],
     )
     best = int(model.best_iteration_ or params["max_trees"])
@@ -264,7 +305,7 @@ def main() -> int:
         encoder.matrix(refit),
         _target(refit, args.task),
         init_score=_offset(refit, args.task, args.offset),
-        categorical_feature=encoder.categorical_indices,
+        categorical_feature=categorical(encoder),
     )
     del refit
     importance = sorted(
@@ -298,6 +339,8 @@ def main() -> int:
         validation = validation.filter(pl.col(TARGET[args.task]).is_not_null())
     if args.task == "causa":
         validation = validation.filter(pl.col("true_cause").is_in(CAUSES))
+    if args.task == "volume_total":
+        validation = validation.filter(VOLUME_VALID)
     parts = []
     day = round_.start
     step = timedelta(days=args.chunk_days)
@@ -324,10 +367,20 @@ def main() -> int:
         if args.task == "causa":
             proba = model.predict_proba(matrix)
             labels = np.asarray(model.classes_)[proba.argmax(axis=1)]
+            baseline_labels = {b: _baseline_cause(chunk, b) for b in ("ultimo_valor", "historico")}
             frame = chunk.select(*keep).with_columns(
-                pl.Series("prediction", labels),
+                pl.Series("prediction", np.where(eligible, labels, baseline_labels["historico"])),
+                *[pl.Series(f"b_{b}_pred", v) for b, v in baseline_labels.items()],
                 *[pl.Series(f"p_{c}", proba[:, i]) for i, c in enumerate(model.classes_)],
             )
+        elif args.task == "volume_total":
+            offset = _offset(chunk, args.task, args.offset)
+            raw_log = model.predict(matrix, raw_score=True)
+            prediction = np.exp(raw_log + offset) if offset is not None else np.exp(raw_log)
+            fallback = chunk[FALLBACK[args.task]].fill_null(0.0).to_numpy()
+            frame = chunk.select(
+                *keep, *[f"b_{b}_volume_expected" for b in BASELINE_IDS]
+            ).with_columns(pl.Series("prediction", np.where(eligible, prediction, fallback)))
         elif args.task == "volume_condicional":
             prediction = np.maximum(model.predict(matrix), 0.0)
             fallback = chunk[FALLBACK[args.task]].fill_null(0.0).to_numpy()
@@ -385,9 +438,35 @@ def main() -> int:
         }
     elif args.task == "causa":
         y = predictions["true_cause"].to_numpy()
-        metrics["model_macro_f1"] = float(
-            f1_score(y, predictions["prediction"].to_numpy(), labels=CAUSES, average="macro")
-        )
+        for name, column in (
+            ("model", "prediction"),
+            ("baseline_ultimo_valor", "b_ultimo_valor_pred"),
+            ("baseline_historico", "b_historico_pred"),
+        ):
+            predicted = predictions[column].to_numpy()
+            metrics[f"{name}_macro_f1"] = float(
+                f1_score(y, predicted, labels=CAUSES, average="macro", zero_division=0)
+            )
+            metrics[f"{name}_recall"] = {
+                c: float(((predicted == c) & (y == c)).sum() / max((y == c).sum(), 1))
+                for c in CAUSES
+            }
+    elif args.task == "volume_total":
+        y = predictions["true_volume_mwmed"].to_numpy()
+
+        def volume(p: np.ndarray) -> dict[str, float]:
+            error = np.abs(y - p)
+            return {
+                "mae": float(error.mean()),
+                "wape": float(error.sum() / y.sum()),
+                "bias": float((p - y).mean()),
+            }
+
+        metrics["model"] = volume(predictions["prediction"].to_numpy())
+        for b in BASELINE_IDS:
+            metrics[f"baseline_{b}"] = volume(
+                predictions[f"b_{b}_volume_expected"].fill_null(0.0).to_numpy()
+            )
     else:
         positive = predictions.filter(pl.col("true_volume_mwmed") > 0)
         metrics["conditional_mae_positive_rows"] = float(

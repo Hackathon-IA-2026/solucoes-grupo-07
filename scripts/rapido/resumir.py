@@ -18,6 +18,19 @@ for path in sorted(EXP.glob(f"{prefix}*/resultado.json")):
             f" Brier {m['model_brier']:.4f} vs {m['baseline_historico_brier']:.4f}"
             f" sem {w.get('wins')}/{w.get('weeks')} IC {[round(x, 3) for x in w.get('ci95', [])]}"
         )
+    elif "baseline_historico" in m:
+        line += (
+            f" MAE {m['model']['mae']:.3f} vs hist {m['baseline_historico']['mae']:.3f}"
+            f" ontem {m['baseline_mesmo_horario_dia_anterior']['mae']:.3f}"
+            f" WAPE {m['model']['wape']:.3f} vs {m['baseline_historico']['wape']:.3f}"
+            f" vies {m['model']['bias']:+.2f}"
+        )
+    elif "model_macro_f1" in m:
+        line += (
+            f" F1 {m['model_macro_f1']:.4f} hist {m['baseline_historico_macro_f1']:.4f}"
+            f" ultimo {m['baseline_ultimo_valor_macro_f1']:.4f}"
+            f" REL {m['model_recall']['REL']:.3f}"
+        )
     else:
         line += " " + json.dumps({k: v for k, v in m.items() if k != "rows"})
     line += f" pico {d.get('peak_rss_gib') or 0:.1f}GiB {d.get('phases', {}).get('fim')}s"
