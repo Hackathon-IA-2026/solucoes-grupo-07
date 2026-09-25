@@ -51,6 +51,14 @@ Os achados vêm da leitura do código e dos artefatos. Não são interpretaçõe
 - **Fato.** O `HANDOFF-sessao-01` (§5) registrou "Modelos usam 8 numéricas + 4 categóricas das
   ~50 features geradas" como observação de conformidade "não corrigida; para a 2C". Não existe
   aprovação da lista reduzida no protocolo, no diário nem nos handoffs.
+- **Nuance de leitura.** O §8 chama a tabela de "lista permitida inicial", o que admitiria usar
+  um subconjunto. Mesmo nessa leitura, o subconjunto:
+  - eliminou famílias inteiras da tabela (hora do dia, histórico próprio, mesmo horário,
+    agregados e episódio);
+  - não tem critério de seleção registrado;
+  - contraria a justificativa do próprio §8 ("os históricos dos alvos já representam o
+    primeiro teste informativo").
+  A 2C trata isso como lacuna de implementação, não como escolha metodológica.
 - **Consequências observáveis:**
   - nenhum modelo recebe a posição do dia; na solar, a hora só pode ser reconstruída por
     interação entre `history_age_hours` e `horizon`;
@@ -89,6 +97,9 @@ Os achados vêm da leitura do código e dos artefatos. Não são interpretaçõe
    0,271, então o `or 0.5` não disparou.
 2. **LightGBM com one-hot esparso** das categorias, em vez das categorias nativas do §9.1. A
    parte numérica também é guardada como CSR.
+   - O `FeaturePreprocessor` imputa a mediana nas numéricas **sem indicador de ausência**, e o
+     §8 pede "manter indicador".
+   - O LightGBM também recebe a mediana imputada, em vez do tratamento nativo de ausências.
 3. **Volume LightGBM** com objetivo Gamma e *early stopping* por L1:
    - na solar V3/V4 isso escolheu `n_estimators=1`, com MAE interno de 69,7 contra 69,2 da
      outra configuração, ou seja, um regressor praticamente constante;
