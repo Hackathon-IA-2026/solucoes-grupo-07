@@ -36,6 +36,31 @@ não pontue o teste reservado (maio–agosto/2026).
   - o dataset inteiro **não cabe**: a solar teria cerca de 30 GB de matriz, a eólica cerca
     de 98 GB.
 
+## Estado ao escrever este prompt (25/09/2026, cerca de 01h15)
+
+- **Implementação já feita:** a sessão anterior implementou `--train-months` (commit
+  `df39a91`) e lançou a fila `experiments/stage2b/execucao/rapido/jobs-q.txt` com `nohup`,
+  encadeada depois de `jobs-c.txt`. A fila roda sozinha, mesmo sem sessão aberta.
+- **Primeiro passo:** leia `jobs-c.txt.status` e `jobs-q.txt.status`.
+  - Se `jobs-q.txt.status` tiver `FILA CONCLUIDA`, **não refaça nada**: pule para a análise
+    (tarefa 6) usando os `resultado.json` das runs `rapido-*`.
+  - Se a fila ainda estiver rodando (processo `python` ativo e status sem `FILA CONCLUIDA`),
+    só rearme o monitor.
+  - Se ela tiver parado no meio, relance só os jobs sem `resultado.json`, com os mesmos
+    `run_id`, apagando antes apenas a pasta vazia ou incompleta do job interrompido. O script
+    recusa `run_id` existente.
+- **A fila também treina o volume total da solar V1–V3** (`rapido-fv-v*-voltot-004`: Tweedie
+  com offset do `volume_expected` do `historico`). Referência na V4: MAE 12,16 contra 13,59
+  do `historico` (−10,5%). Inclua essas runs na tabela e aplique a elas a margem do §11 para
+  volume: −5% de MAE médio, WAPE médio não pior, 3 de 4 rodadas melhores.
+- **Diário:** nenhuma entrada foi escrita ainda para o treino rápido de 25/09. A entrada da
+  nova sessão deve cobrir também o que já foi feito:
+  - variantes `001`–`004` do corte;
+  - eólica V4;
+  - falha do Gamma condicional e troca para `volume_total`;
+  - causa (`-003` e `-005` balanceada);
+  - encerramento de shells por pressão de memória.
+
 ## Perguntas
 
 1. **Quantidade:** treinar com mais emissões por dia (12/48, um quarto) melhora a solar em
@@ -62,7 +87,7 @@ solar V2 e V4 primeiro; V1 e V3 só se a variante passar nessas duas.
 1. **Leitura:** `scripts/rapido/treinar_contexto.py`, `src/curtamap/contexto.py`,
    `experiments/stage2b/execucao/rapido/fila.sh` e `experiments/stage2b/README.md` (proibido
    `git clean -x`).
-2. **Janela de treino (TDD onde couber):**
+2. **Janela de treino (já implementada em `df39a91`; confira apenas):**
    - acrescente a `treinar_contexto.py` a opção `--train-months N`, que restringe initial e
      refit a `t0 >= calibration_start − N meses`;
    - tuning, calibração e validação ficam inalterados;
