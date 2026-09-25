@@ -186,6 +186,7 @@ def main() -> int:
         "--offset", action="store_true", help="parte do logit do historico (init_score)"
     )
     parser.add_argument("--no-categorical", action="store_true")
+    parser.add_argument("--train-months", type=int, default=None)
     parser.add_argument("--drop", default="", help="features removidas, separadas por vírgula")
     args = parser.parse_args()
     drop = tuple(name for name in args.drop.split(",") if name)
@@ -221,6 +222,7 @@ def main() -> int:
         "offset_historico": args.offset,
         "dropped_features": drop,
         "native_categorical": not args.no_categorical,
+        "train_months": args.train_months,
         "seed": args.seed,
         "params": params,
         "features": {
@@ -261,7 +263,17 @@ def main() -> int:
         return _collect(lazy.join(baseline_wide(side), on=KEYS, how="left"))
 
     phase("carregar_initial")
-    initial = segment(first_t0, boundary.tuning_start, boundary.tuning_start, True)
+
+    def train_start(end: datetime) -> datetime:
+        # Janela recente: N×30 dias antes do fim do segmento (initial ou refit), com o
+        # mesmo comprimento nos dois; sem a opção, todo o histórico desde o primeiro t0.
+        if args.train_months is None:
+            return first_t0
+        return max(first_t0, end - timedelta(days=30 * args.train_months))
+
+    initial = segment(
+        train_start(boundary.tuning_start), boundary.tuning_start, boundary.tuning_start, True
+    )
     tuning = segment(
         boundary.tuning_start, boundary.calibration_start, boundary.calibration_start, False
     )
@@ -296,7 +308,12 @@ def main() -> int:
     del x_initial, y_initial, x_tuning, y_tuning, tuning, model
 
     phase("carregar_refit")
-    refit = segment(first_t0, boundary.calibration_start, boundary.calibration_start, True)
+    refit = segment(
+        train_start(boundary.calibration_start),
+        boundary.calibration_start,
+        boundary.calibration_start,
+        True,
+    )
     log["rows"]["refit"] = refit.height
     encoder = Encoder(drop).fit(refit)
     phase("ajuste_refit")
