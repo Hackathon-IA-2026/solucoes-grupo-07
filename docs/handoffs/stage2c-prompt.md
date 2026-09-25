@@ -23,8 +23,10 @@ Leia integralmente:
 - `docs/implementation-journal.md`, principalmente as entradas de 23 e 24/09/2026;
 - os commits de implementação da 2B;
 - todos os manifestos, checksums, relatórios, métricas, previsões, diagnósticos, logs e falhas
-  da raiz experimental externa (hoje `Y:\CurtaMap Etapa 2B`; os caminhos abaixo são relativos
-  a ela), além de `execucao/run-index.json`.
+  em `experiments/stage2b/` (os caminhos abaixo são relativos a ela), além de
+  `execucao/run-index.json`. Leia antes `experiments/stage2b/README.md`: os arquivos leves
+  estão no Git, e previsões, modelos e datasets ficam no disco externo, expostos por junction.
+  Se faltarem na máquina, copie-os; não os recrie.
 
 Confira primeiro hashes, commit do código, calendário, configuração, versões, sementes, cortes
 e conclusão de cada run.

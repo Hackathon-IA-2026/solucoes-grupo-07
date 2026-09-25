@@ -2080,3 +2080,79 @@ Executar a 2C com `handoff/PROMPT-analise-etapa-2c.md`.
   - apagar `stage2c-analysis-prompt.md` e a cópia `handoff/PROMPT-analise-etapa-2c.md` da raiz
     externa;
   - apontar o relatório para o prompt consolidado e regenerar `SHA256SUMS-handoff.txt`.
+
+## 24/09/2026 — Etapa 2B: raiz operacional unificada no repositório
+
+### Contexto e pergunta
+
+O desenvolvimento acontecia em dois lugares: no Mac e no computador Windows dedicado ao
+treino. Neste último, scripts, logs, métricas e relatórios ficavam na raiz externa
+`Y:\CurtaMap Etapa 2B`, fora do Git. O responsável pediu que tudo o que deve ser versionado
+volte ao repositório e que o worktree separado deixe de existir, sem recriar nenhum artefato
+(tudo é caro de gerar).
+
+### Fatos observados
+
+- **Tamanho no `Y:`:** cerca de 68 GB, dos quais 58,7 GB são previsões Parquet e 8,2 GB
+  datasets de features. O disco `M:` tem 42 GB livres.
+- **Material leve:** manifests, checksums, reports, metrics, diagnostics, `execucao/` e
+  `handoff/` somam cerca de 49 MB em texto e JSON.
+- **Ambiente:** o Git deste computador usa `core.autocrlf=true`, que converteria os fins de
+  linha e mudaria os bytes dos JSON de runs verificados por checksum.
+- **Junctions:** o Git trata junctions como diretórios comuns.
+
+### Decisão
+
+- **`experiments/stage2b/` espelha a raiz externa com a mesma estrutura**, para que continuem
+  válidos os caminhos relativos do relatório, do prompt e do `run-index`.
+- **No Git:** os arquivos leves, cerca de 930.
+- **No disco externo, via junction e ignorados:**
+  - previsões, modelos, datasets, cache, dados brutos, sondas e temporários;
+  - modelos ficam fora mesmo sendo pequenos, pela regra do `AGENTS.md`;
+  - `env.ps1` também fica fora; `env.example.ps1` é versionado no lugar dele.
+- **Progresso intermediário** (`*.progress.jsonl` e `*.sqlite`, 72 MB): copiado para o
+  repositório, mas ignorado pelo Git.
+- **Nada foi apagado.** `Y:\…\execucao` e `handoff` foram apenas renomeados para
+  `_migrado-para-repo-20260924-*`, para que ninguém volte a gravar neles.
+- **`.gitattributes`** (`experiments/stage2b/** -text`) preserva os bytes exatos.
+- **Ruff:** exclui `experiments/`, porque os scripts históricos são evidência e não devem ser
+  reformatados.
+- **`run-step.ps1`:** passa a resolver `env.ps1` e `passos/` pelo próprio diretório.
+
+### Alternativas consideradas
+
+- **Mover tudo para o `M:`:** inviável por espaço.
+- **Mover tudo para outro disco:** não unificaria nada.
+- **Apagar as previsões depois da 2C:** descartado pelo responsável, porque não haverá
+  recriação.
+
+### Implementação e validação
+
+- **Commits:** `51b71d6` (estrutura, `.gitignore` e scripts `migrar-para-repo.ps1` e
+  `conferir_migracao.py`), `f0e4e5a` (cópia verbatim) e `89221e2` (run-step parametrizado).
+- **Conferência da cópia:** 941 arquivos com SHA-256 igual à origem; 650 entradas de checksum
+  resolvidas pelas junctions com o mesmo tamanho.
+- **Conferência dos blobs:** todos os blobs de `experiments/` foram comparados com
+  `git hash-object --no-filters`, sem diferença.
+- **Teste do run-step:** o passo `smoke-run-step-repo-001` rodou a partir do repositório
+  (exit 0) e gravou em `experiments/stage2b/execucao/passos/`.
+- **Limpeza:** worktree `medicao-populacoes` removido; branches `codex/*` integradas e apagadas.
+- **Espaços em branco:** o `git diff --check` acusa espaços finais nos logs copiados. Eles
+  foram mantidos, por serem evidência verbatim.
+
+### Limitações e riscos
+
+- **`git clean -x` apagaria dados reais do `Y:`** através das junctions. O alerta está no
+  `AGENTS.md` e no `experiments/stage2b/README.md`.
+- **Runs futuras** continuam gravando previsões no `Y:`. Depois de cada uma, é preciso rodar de
+  novo a migração e a conferência.
+- **Fila da 2B:** `fila-2b.ps1` e `status-fila.ps1` ainda apontam para o `Y:` e para o
+  worktree removido; ficam como registro histórico.
+- **Cópia única:** os artefatos pesados existem só no `Y:`. Uma cópia de segurança em outro
+  disco é recomendável, já que não serão recriados.
+
+### Valor e próximos passos
+
+- A partir de agora, o repositório é a fonte única do que é versionável nas duas máquinas.
+- No Mac, basta colocar previsões, modelos e datasets nos mesmos caminhos relativos.
+- Próximo passo: a Etapa 2C, pelo prompt `docs/handoffs/stage2c-prompt.md`.
