@@ -2511,3 +2511,45 @@ liberando, corrige o nível sem perder ranking?
 - Pré-registrar e testar uma única feature de estado sistêmico recente do subsistema.
 - Rodar as sementes 17 e 101 nas células defensáveis.
 - Congelar as receitas e abrir o teste reservado uma vez.
+
+### Adendo (25/09, 12h40): modelos finais, simplicidade e estado sistêmico
+
+- **Modelos FINAL:**
+  - cinco modelos treinados com dados até 30/04/2026 (`rapido-{fv,eol}-final-*`), com os
+    limites internos calculados para 01/05/2026: tuning em 05/03, calibração em 02/04 e cutoff
+    em 30/04;
+  - coerentes com a V4: o corte solar tem 93 árvores (73 na V4) e limiar 0,071 (0,069 na V4);
+  - pico de memória de 16 a 24 GiB;
+  - o corte eólico FINAL não foi treinado, porque a receita da célula é o baseline.
+- **Simplicidade (`s01`)**, pergunta do responsável ("complicamos demais?"), pré-registrada
+  no commit `9c4ee1b`:
+  - **resultado:** reprovada nas duas células, porque a V4 perde mais de 0,01;
+  - **corte solar:** V2 +0,020 de AP, com Brier de 0,074 (melhor que o `historico`, 0,077);
+    V4 −0,015;
+  - **causa eólica:** V2 +0,050 de macro-F1; V4 −0,060;
+  - **fato:** a simples ganha na mudança de regime e perde no regime estável;
+  - **hipótese:** as features extras carregam o nível do período de treino;
+  - **resposta à pergunta:** com 8 variáveis já se obtém a maior parte do ganho sobre o
+    `historico` (V4 +0,049 contra +0,064). A complexidade extra compra desempenho em regime
+    estável e custa robustez. Relatório, §3.8.
+- **Estado sistêmico (`sys`)**, pré-registrado no commit `3555451`:
+  - **fato medido antes de definir a feature:** toda informação disponível em `t0` tem cerca
+    de 39 h, as colunas de 24 h são 87% nulas e `last_positive` é sempre falso na solar. Por
+    isso a feature usa `positive_frequency_7d`;
+  - **corte solar:** V2 −0,009 de AP e V4 +0,000, média −0,005. **Reprovada.**
+  - **corte eólico, primeira tentativa:** falhou por memória. O agregado global chegou a
+    33,5 GB privados, com 1,1 GB livre e exit 127. O job da V4 foi encerrado por necessidade.
+  - **correção:** cálculo partição a partição (commit `f677a1e`). Cada partição tem um único
+    dia de `t0`, e a diferença para o global é de 3×10⁻¹⁶.
+  - **relançamento:** como `-sys-b`, com as pastas das runs falhas preservadas.
+- **Teste reservado:**
+  - modo de pontuação preparado (commit `d3dbb77`), travado por `--allow-reserved-test` e
+    `--decision-ref`, com a trava verificada antes de criar a pasta da run;
+  - procedimento descrito em `docs/reports/rapido/teste-reservado-procedimento.md`;
+  - nenhuma feature do período reservado foi gerada até aqui.
+- **Próximos passos:**
+  - concluir o `sys-b` eólico;
+  - rodar as sementes 17 e 101 da 003 solar, para medir a variância da receita;
+  - decidir com o responsável a receita por célula;
+  - fazer o commit de congelamento com uma previsão escrita antes do teste;
+  - gerar as features e pontuar o teste uma única vez.
