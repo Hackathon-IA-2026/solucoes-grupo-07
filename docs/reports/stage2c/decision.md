@@ -24,6 +24,7 @@ passou pelo teste.
 | Commit do código | V1 eólica `560ae70`; demais 15 runs `88634ed` | `manifest.code_commit` |
 | Configuração, dados e calendário | `configuration_sha256 1ed84727…`, dados `487050da…`/`e2935941…`, calendário `8c3f500b…`, idênticos nas 16 | manifestos |
 | Semente | `[42]` nas 16 | manifestos |
+| Versões | `uv.lock` sem alteração desde `560ae70` e `88634ed`; `pyproject.toml` só ganhou a exclusão `experiments` do ruff. Os 64 joblibs carregam no ambiente atual (Python 3.12.12, LightGBM 4.7.0, scikit-learn 1.9.1) | `git diff --stat 88634ed HEAD -- uv.lock pyproject.toml` |
 | Cortes | V1–V4 conforme o §6.1; tuning e calibração nas fronteiras `C−56`/`C−28` | `reports/*.json → boundaries` |
 | Congelamento +24h | Cada joblib contém modelo, pré-processador, calibrador e limiar; os SHA-256 dos 8 modelos de cada sensibilidade são iguais aos da principal (auditoria 2B); sem `fit_seconds` nem pasta `models/` | joblibs inspecionados; `auditoria-runs-2b-001.json` |
 | Convergência linear | Todos os `n_iter_` entre 32 e 209, abaixo de `max_iter=1000` | joblibs |
@@ -202,6 +203,14 @@ Média V1–V4 do melhor candidato de cada célula contra o comparador. Detalhe 
   representação, não de um horizonte específico.
 - **Painel fixo e fins de semana/feriados:** o mesmo padrão do global. O prejuízo não está
   concentrado em um recorte; é estrutural.
+- **Entidades novas** (`entidade_nova`: IDs desconhecidos no treino da rodada):
+  - o recorte só falta na solar V2 (os 28 arquivos ausentes são todos dessa run, ou seja,
+    nenhuma entidade nova);
+  - nas outras sete runs, o suporte vai de 56 mil a 1,5 milhão de linhas;
+  - o comparador supera o melhor candidato em quase todas as rodadas (eólica corte V4: 0,762
+    contra 0,357; solar volume: 3,8–8,4 contra 6,8–11,5 MWmed);
+  - as exceções são o volume eólico na V1 (21,23 contra 21,72 MWmed) e a causa solar na V1 e
+    na V3 (0,465 contra 0,327 e 0,408 contra 0,396).
 - **Histórico insuficiente:** métricas idênticas às do comparador, porque ali a previsão
   publicada é o fallback `historico` (fato do código `_with_prediction`). Esse recorte não
   discrimina modelos.
@@ -245,6 +254,14 @@ Média V1–V4 do melhor candidato de cada célula contra o comparador. Detalhe 
 - **Pico de processo:** 24,06 GiB (solar V4) e 22,02 GiB (eólica V4). Ambos acima da meta de 20
   GiB da projeção, e o da solar também acima da referência de 22 GiB do §12.1. Isso ocorreu
   **com só 12 features**.
+- **Armazenamento:**
+  - principais: 1,7–2,2 GB (solar) e 3,4–4,4 GB (eólica) por run;
+  - sensibilidades: 2,3–2,9 GB e 5,2–6,5 GB, maiores porque gravam as features junto das
+    previsões;
+  - cerca de 56 GB de runs e 7,7 GB de datasets no `Y:`, que tem 519 GB livres;
+  - o `M:` tem 38,7 GB livres e não comporta uma segunda campanha.
+- **Projeção de memória:** subestimou o pico real em cerca de 20% (≤ 20 GiB projetados contra
+  24,06 GiB medidos).
 - **Reprodução:**
   - a V1 eólica difere das demais só no código de métricas, com paridade testada;
   - o LightGBM em 6 threads determinísticas é repetível só com o mesmo número de threads;
@@ -282,14 +299,14 @@ e a prioridade do responsável de evitar verificações sem efeito na decisão.
 
 | Fonte | Tarefa | Estado | Comparador (piso) | Melhor candidato na 2B | Evidência principal | Limitações |
 |---|---|---|---|---|---|---|
-| Eólica | corte_positivo | `requer_2d` | `historico`, AP 0,6896 | LightGBM 0,5250 | −0,164 de AP médio; 0/4 rodadas; §2.1 | §6 |
-| Eólica | restricao_registrada | `requer_2d` | `historico`, AP 0,7305 | LightGBM 0,5818 | −0,149 de AP; 0/4; §2.1 | §6 |
-| Eólica | volume (pipeline) | `requer_2d` | `mesmo_horario_dia_anterior` (na prática, frequência entidade×horário), MAE 15,86 | lgbm-lgbm 19,62 | MAE +24%; WAPE pior; §2.1 e §2.3 item 3 | §6 |
-| Eólica | causa | `requer_2d` | `historico`, macro-F1 0,5298 | linear 0,4110 | −0,119; causa sem histórico de causa (§2.1); baselines de causa a corrigir (§2.2) | §6 |
-| Solar | corte_positivo | `requer_2d` | `historico`, AP 0,7063 | LightGBM 0,6433 | −0,063; 1/4; Brier +0,030; §2.1 | §6 |
-| Solar | restricao_registrada | `requer_2d` | `historico`, AP 0,7699 | LightGBM 0,7334 | −0,037; 1/4; Brier +0,037; §2.1 | §6 |
-| Solar | volume (pipeline) | `requer_2d` | `mesmo_horario_dia_anterior`, MAE 15,06 | lgbm-lgbm 20,41 | MAE +35%; `n_estimators=1` em V3/V4; Gamma linear extrapola | §6 |
-| Solar | causa | `requer_2d` | `ultimo_valor`, macro-F1 0,4786 | linear 0,4126 | −0,066; 1/4; §2.1 e §2.2 | §6 |
+| Eólica | corte_positivo | `requer_2d` | `historico`, AP 0,6896 | LightGBM 0,5250 | −0,164 de AP médio; 0/4 rodadas; §2.1 | §7 |
+| Eólica | restricao_registrada | `requer_2d` | `historico`, AP 0,7305 | LightGBM 0,5818 | −0,149 de AP; 0/4; §2.1 | §7 |
+| Eólica | volume (pipeline) | `requer_2d` | `mesmo_horario_dia_anterior` (na prática, frequência entidade×horário), MAE 15,86 | lgbm-lgbm 19,62 | MAE +24%; WAPE pior; §2.1 e §2.3 item 3 | §7 |
+| Eólica | causa | `requer_2d` | `historico`, macro-F1 0,5298 | linear 0,4110 | −0,119; causa sem histórico de causa (§2.1); baselines de causa a corrigir (§2.2) | §7 |
+| Solar | corte_positivo | `requer_2d` | `historico`, AP 0,7063 | LightGBM 0,6433 | −0,063; 1/4; Brier +0,030; §2.1 | §7 |
+| Solar | restricao_registrada | `requer_2d` | `historico`, AP 0,7699 | LightGBM 0,7334 | −0,037; 1/4; Brier +0,037; §2.1 | §7 |
+| Solar | volume (pipeline) | `requer_2d` | `mesmo_horario_dia_anterior`, MAE 15,06 | lgbm-lgbm 20,41 | MAE +35%; `n_estimators=1` em V3/V4; Gamma linear extrapola | §7 |
+| Solar | causa | `requer_2d` | `ultimo_valor`, macro-F1 0,4786 | linear 0,4126 | −0,066; 1/4; §2.1 e §2.2 | §7 |
 
 **Por que não `baseline_preferido`?** Esse estado conclui que um modelo conforme não superou o
 baseline. Aqui o modelo avaliado não era o do protocolo. Se a 2D, com as features aprovadas,
