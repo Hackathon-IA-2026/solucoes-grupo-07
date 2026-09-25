@@ -50,6 +50,8 @@ addopts = "-q"
 [tool.ruff]
 target-version = "py312"
 line-length = 100
+# Scripts e registros operacionais da 2B são evidência histórica: não reformatar.
+extend-exclude = ["experiments"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]

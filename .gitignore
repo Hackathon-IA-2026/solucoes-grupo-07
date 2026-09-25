@@ -21,3 +21,17 @@ models/*
 coverage.xml
 htmlcov/
 tmp/
+
+# Etapa 2B: dados pesados e binários não versionados ficam no disco externo e aparecem
+# aqui como junctions (ver scripts/stage2b/migrar-para-repo.ps1). Sem barra final:
+# o Git pode ver a junction como link, não como diretório.
+experiments/stage2b/experimentos/*/predictions
+experiments/stage2b/experimentos/*/models
+experiments/stage2b/experimentos/stage2b-datasets
+experiments/stage2b/cache
+experiments/stage2b/dados
+experiments/stage2b/sondas
+experiments/stage2b/temporarios
+experiments/stage2b/env.ps1
+experiments/stage2b/**/*.progress.jsonl
+experiments/stage2b/**/*.sqlite
