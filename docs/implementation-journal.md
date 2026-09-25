@@ -2310,3 +2310,17 @@ completo: `docs/reports/stage2c/decision.md`.
   de causa e limiar corrigidos, agregações do §10, piloto de memória e novas runs.
 - Depois, rodar a 2C′ com a mesma matriz.
 - Merge em `main` segue não autorizado.
+
+### Adendo (mesma sessão): complementos da revisão final
+
+- **Commit `c0f265d`:**
+  - matriz corrigida: as limitações apontam para o §7;
+  - versões conferidas: `uv.lock` sem alteração desde as runs;
+  - recorte `entidade_nova`: ausente só na solar V2 e com o mesmo padrão do global nas demais;
+  - armazenamento: cerca de 56 GB de runs no `Y:`, e o `M:` com 38,7 GB livres.
+- **Commit `b9ce5f1`,** no prompt da 2D:
+  - quatro decisões do responsável antes de gastar computação: *early stopping* Gamma,
+    regeneração de datasets, variante com estatísticas entidade×horário e desenvolvimento no
+    Windows;
+  - precondições: memória corrigida pelo erro de cerca de 20% da projeção da 2B e espaço no
+    `Y:` conferido antes de cada run.
