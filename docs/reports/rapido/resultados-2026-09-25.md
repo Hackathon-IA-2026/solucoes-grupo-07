@@ -337,6 +337,24 @@ Regra pré-registrada no commit `3555451` ([`sistemico-regra.md`](sistemico-regr
   informação à regra histórica da própria usina. É mais um indício de que o limite é a
   **idade da informação** disponível no noturno, não a engenharia de features.
 
+## 3.10 Sementes 17 e 101 do corte solar 003 (variância da receita congelada)
+
+A semente muda o modelo e a amostra de emissões do treino. Cada célula mostra AP / Brier.
+
+| Rodada | Semente 42 | Semente 17 | Semente 101 | `historico` |
+|---|---|---|---|---|
+| V1 | 0,596 / 0,077 | 0,597 / 0,076 | 0,586 / 0,078 | 0,429 / 0,087 |
+| V2 | 0,846 / 0,162 | 0,844 / 0,159 | 0,844 / 0,163 | 0,835 / 0,077 |
+| V3 | 0,857 / 0,078 | 0,855 / 0,078 | 0,856 / 0,079 | 0,851 / 0,078 |
+| V4 | 0,775 / 0,083 | 0,776 / 0,083 | 0,773 / 0,083 | 0,711 / 0,089 |
+
+- **AP:** amplitude de no máximo 0,011 (V1) e ≤ 0,004 nas demais rodadas. Nas três sementes,
+  o modelo vence o `historico` em todas as rodadas.
+- **Brier da V2:** fica entre 0,159 e 0,163 em todas as sementes. É um efeito estrutural da
+  mudança de regime, não da semente.
+- **Uso:** só descrição da variância. Não serve para reinterpretar a `s01` (a diferença de
+  −0,015 dela na V4 é maior que a amplitude entre sementes).
+
 ## 4. Achados que valem para o produto e para o pitch
 
 1. **"A IA corrige o baseline" funciona.** O modelo recebe a regra histórica como feature, ou
