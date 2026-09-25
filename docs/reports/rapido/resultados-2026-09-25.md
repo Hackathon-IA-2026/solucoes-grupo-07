@@ -149,8 +149,26 @@ traria ganho relevante.
 | 003 | 0,455 | 0,502 | 0,434 | 0,023 |
 | 005 (balanceada) | **0,494** | 0,502 | 0,434 | 0,158 |
 
-O balanceamento ajuda, mas ainda **não supera** o `ultimo_valor`. A causa segue como a tarefa
-mais difícil. V1–V3 e a eólica V4 estão na fila R.
+O balanceamento ajuda, mas ainda **não supera** o `ultimo_valor` na V4.
+
+**Solar V1–V4, variante 005** (comparador `ultimo_valor`, conforme a 2C):
+
+| Rodada | Modelo | `ultimo_valor` | `historico` | Diferença | Recall de REL |
+|---|---|---|---|---|---|
+| V1 | 0,436 | 0,520 | 0,437 | −0,084 | 0,057 |
+| V2 | 0,487 | 0,401 | 0,511 | +0,086 | 0,135 |
+| V3 | 0,532 | 0,492 | 0,522 | +0,040 | 0,176 |
+| V4 | 0,494 | 0,502 | 0,434 | −0,008 | 0,158 |
+| **Média** | **0,487** | **0,479** | | **+0,009** | |
+
+**§11:** ganho médio abaixo de 0,02, 2 de 4 rodadas melhores e piora acima de 0,02 na V1.
+**Não aprova**, e o resultado é instável: **na causa solar, o baseline continua preferível.**
+
+**Eólica V4, variante 005:**
+- macro-F1 de **0,638**, contra 0,517 do `historico` e 0,511 do `ultimo_valor` (+0,121);
+- recall de REL de 0,436;
+- é o maior ganho relativo da noite;
+- a eólica V1–V3 está na fila S (`jobs-s.txt`).
 
 ## 4. Achados que valem para o produto e para o pitch
 

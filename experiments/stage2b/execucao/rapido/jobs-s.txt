@@ -1,0 +1,3 @@
+uv run python scripts/rapido/treinar_contexto.py --source eolica --round V1 --task causa --slots 4 --chunk-days 7 --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --params '{"class_weight":"balanced"}' --run-id rapido-eol-v1-causa-005
+uv run python scripts/rapido/treinar_contexto.py --source eolica --round V2 --task causa --slots 4 --chunk-days 7 --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --params '{"class_weight":"balanced"}' --run-id rapido-eol-v2-causa-005
+uv run python scripts/rapido/treinar_contexto.py --source eolica --round V3 --task causa --slots 4 --chunk-days 7 --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --params '{"class_weight":"balanced"}' --run-id rapido-eol-v3-causa-005
