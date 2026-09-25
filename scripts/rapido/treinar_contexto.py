@@ -184,6 +184,17 @@ def _collect(lazy: pl.LazyFrame) -> pl.DataFrame:
     return lazy.collect(engine="streaming")
 
 
+def _systemic_by_day(base: Path) -> pl.LazyFrame:
+    """Agregado sistêmico partição a partição: cada partição diária contém um único dia de t0,
+    então o resultado é idêntico ao global, sem carregar o dataset inteiro (a eólica estoura
+    32 GB de uma vez)."""
+    parts = [
+        _collect(systemic_state(pl.scan_parquet(path.as_posix())))
+        for path in sorted(base.glob("date=*/features.parquet"))
+    ]
+    return pl.concat(parts).lazy()
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", required=True, choices=("eolica", "fotovoltaica"))
@@ -291,7 +302,7 @@ def main() -> int:
     sample = emission_mask(args.slots, args.seed)
     extra = SYSTEMIC if args.systemic else ()
     # Agregado de todas as usinas (não só das amostradas), pequeno: fonte × subsistema × t0.
-    systemic = _collect(systemic_state(features)).lazy() if args.systemic else None
+    systemic = _systemic_by_day(base) if args.systemic else None
 
     def with_systemic(lazy: pl.LazyFrame) -> pl.LazyFrame:
         return lazy.join(systemic, on=SYSTEMIC_KEYS, how="left") if args.systemic else lazy
@@ -412,7 +423,7 @@ def main() -> int:
         ).with_columns(_weekend_or_holiday(calendar.calendar))
         raw_baselines = pl.scan_parquet((test_base / "date=*" / "baselines.parquet").as_posix())
         if args.systemic:
-            systemic = _collect(systemic_state(features)).lazy()
+            systemic = _systemic_by_day(test_base)
     validation = features.filter(_validation_filter(round_))
     if args.task in ("corte_positivo", "restricao_registrada", "causa"):
         validation = validation.filter(pl.col(TARGET[args.task]).is_not_null())
