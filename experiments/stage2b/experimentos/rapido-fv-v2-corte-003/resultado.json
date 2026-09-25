@@ -1,0 +1,293 @@
+{
+ "run_id": "rapido-fv-v2-corte-003",
+ "kind": "rapido_exploratorio_fora_do_protocolo",
+ "source": "fotovoltaica",
+ "round": "V2",
+ "task": "corte_positivo",
+ "slots_per_day_training": 4,
+ "offset_historico": false,
+ "dropped_features": [
+  "t0_month",
+  "t0_day_of_year",
+  "tau_month",
+  "tau_day_of_year"
+ ],
+ "seed": 42,
+ "params": {
+  "learning_rate": 0.05,
+  "num_leaves": 63,
+  "max_depth": 8,
+  "min_child_samples": 200,
+  "reg_lambda": 1.0,
+  "colsample_bytree": 0.8,
+  "subsample": 1.0,
+  "max_bin": 63,
+  "cat_smooth": 10.0,
+  "max_trees": 1500
+ },
+ "features": {
+  "numeric": [
+   "horizon",
+   "t0_hour_sin",
+   "t0_hour_cos",
+   "tau_hour_sin",
+   "tau_hour_cos",
+   "t0_weekday",
+   "t0_month",
+   "t0_day_of_year",
+   "tau_weekday",
+   "tau_month",
+   "tau_day_of_year",
+   "last_volume_mwmed",
+   "observed_episode_length",
+   "history_coverage_28d",
+   "history_age_hours",
+   "hours_since_positive",
+   "hours_since_restriction",
+   "positive_frequency_24h",
+   "positive_frequency_7d",
+   "positive_frequency_28d",
+   "mean_volume_24h",
+   "std_volume_24h",
+   "max_volume_24h",
+   "mean_volume_7d",
+   "std_volume_7d",
+   "max_volume_7d",
+   "mean_volume_28d",
+   "std_volume_28d",
+   "max_volume_28d",
+   "restriction_frequency_28d",
+   "state_positive_frequency_28d",
+   "subsystem_positive_frequency_28d",
+   "cause_rel_share_28d",
+   "cause_cnf_share_28d",
+   "cause_ene_share_28d",
+   "same_hour_1d_volume",
+   "same_hour_2d_volume",
+   "same_hour_3d_volume",
+   "same_hour_7d_volume",
+   "history_30m_volume",
+   "history_1h_volume",
+   "history_24h_volume",
+   "history_48h_volume",
+   "history_7d_volume"
+  ],
+  "boolean": [
+   "last_positive",
+   "last_restriction",
+   "tau_weekend_or_holiday",
+   "same_hour_1d_positive",
+   "same_hour_2d_positive",
+   "same_hour_3d_positive",
+   "same_hour_7d_positive",
+   "history_30m_positive",
+   "history_1h_positive",
+   "history_24h_positive",
+   "history_48h_positive",
+   "history_7d_positive"
+  ],
+  "baseline": [
+   "b_ultimo_valor_prob_positive",
+   "b_ultimo_valor_prob_restriction",
+   "b_ultimo_valor_volume_positive_mean",
+   "b_ultimo_valor_volume_expected",
+   "b_mesmo_horario_dia_anterior_prob_positive",
+   "b_mesmo_horario_dia_anterior_prob_restriction",
+   "b_mesmo_horario_dia_anterior_volume_positive_mean",
+   "b_mesmo_horario_dia_anterior_volume_expected",
+   "b_mesmo_horario_recente_prob_positive",
+   "b_mesmo_horario_recente_prob_restriction",
+   "b_mesmo_horario_recente_volume_positive_mean",
+   "b_mesmo_horario_recente_volume_expected",
+   "b_historico_prob_positive",
+   "b_historico_prob_restriction",
+   "b_historico_volume_positive_mean",
+   "b_historico_volume_expected",
+   "b_ultimo_valor_native",
+   "b_mesmo_horario_dia_anterior_native",
+   "b_mesmo_horario_recente_native",
+   "b_historico_native",
+   "b_ultimo_valor_cause_REL",
+   "b_ultimo_valor_cause_CNF",
+   "b_ultimo_valor_cause_ENE",
+   "b_historico_cause_REL",
+   "b_historico_cause_CNF",
+   "b_historico_cause_ENE"
+  ],
+  "categorical": [
+   "id_ons",
+   "id_estado",
+   "id_subsistema",
+   "ceg_level",
+   "last_cause"
+  ]
+ },
+ "started_at": "2026-09-25T00:23:17",
+ "boundaries": {
+  "tuning_start": "2025-03-05 00:00:00",
+  "calibration_start": "2025-04-02 00:00:00",
+  "cutoff": "2025-04-30 00:00:00"
+ },
+ "phases": {
+  "carregar_initial": 0.3,
+  "ajuste_initial": 21.2,
+  "carregar_refit": 60.6,
+  "ajuste_refit": 72.3,
+  "calibracao": 84.5,
+  "validacao": 96.2,
+  "metricas": 125.4,
+  "fim": 133.1
+ },
+ "rows": {
+  "initial": 3523808,
+  "tuning": 3789240,
+  "refit": 3909908,
+  "calibration": 4015440
+ },
+ "best_iteration": 65,
+ "tuning_score": {
+  "average_precision": 0.6051319143262606,
+  "binary_logloss": 0.17007957952844985
+ },
+ "importance_gain_top30": [
+  [
+   "b_mesmo_horario_dia_anterior_prob_positive",
+   8544919.376617432
+  ],
+  [
+   "b_historico_prob_positive",
+   1412442.9052124023
+  ],
+  [
+   "same_hour_7d_volume",
+   722879.8531799316
+  ],
+  [
+   "tau_hour_cos",
+   668600.8394470215
+  ],
+  [
+   "subsystem_positive_frequency_28d",
+   663318.5908432007
+  ],
+  [
+   "id_ons",
+   632945.7681427002
+  ],
+  [
+   "tau_weekday",
+   559923.4827651978
+  ],
+  [
+   "tau_weekend_or_holiday",
+   495454.8305053711
+  ],
+  [
+   "cause_ene_share_28d",
+   361386.14489746094
+  ],
+  [
+   "same_hour_7d_positive",
+   345626.57859802246
+  ],
+  [
+   "tau_hour_sin",
+   326507.017868042
+  ],
+  [
+   "b_mesmo_horario_dia_anterior_prob_restriction",
+   271368.04206848145
+  ],
+  [
+   "positive_frequency_7d",
+   161005.49002075195
+  ],
+  [
+   "b_historico_cause_ENE",
+   148501.9294128418
+  ],
+  [
+   "cause_cnf_share_28d",
+   133193.81686401367
+  ],
+  [
+   "state_positive_frequency_28d",
+   124061.0737991333
+  ],
+  [
+   "cause_rel_share_28d",
+   102252.03929138184
+  ],
+  [
+   "same_hour_3d_volume",
+   88240.88910675049
+  ],
+  [
+   "hours_since_positive",
+   88206.82120513916
+  ],
+  [
+   "history_coverage_28d",
+   85192.81428527832
+  ],
+  [
+   "same_hour_2d_volume",
+   80233.51446533203
+  ],
+  [
+   "restriction_frequency_28d",
+   79212.52102661133
+  ],
+  [
+   "b_mesmo_horario_recente_prob_positive",
+   60364.53042602539
+  ],
+  [
+   "b_mesmo_horario_recente_volume_expected",
+   51363.239501953125
+  ],
+  [
+   "b_historico_cause_CNF",
+   43516.39326477051
+  ],
+  [
+   "b_mesmo_horario_recente_prob_restriction",
+   39320.48309326172
+  ],
+  [
+   "b_historico_prob_restriction",
+   38036.95602416992
+  ],
+  [
+   "t0_weekday",
+   33516.845962524414
+  ],
+  [
+   "b_mesmo_horario_recente_volume_positive_mean",
+   28906.034606933594
+  ],
+  [
+   "hours_since_restriction",
+   24999.435928344727
+  ]
+ ],
+ "threshold": 0.08152002796674845,
+ "metrics": {
+  "rows": 18273840,
+  "prevalence": 0.25454343476795244,
+  "model_ap": 0.8455841127971545,
+  "baseline_historico_ap": 0.8347766762711314,
+  "model_brier": 0.16201072837206715,
+  "baseline_historico_brier": 0.07734997981179134,
+  "weekly_ap_diff": {
+   "weeks": 18,
+   "mean": 0.016091153499661264,
+   "ci95": [
+    -0.00014929981021374165,
+    0.03505787623670907
+   ],
+   "wins": 10
+  }
+ },
+ "peak_rss_gib": 11.236888885498047
+}

@@ -1,0 +1,27 @@
+[     0.3s] carregar_initial
+[    23.2s] ajuste_initial
+M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\.venv\Lib\site-packages\lightgbm\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+[    33.5s] carregar_refit
+[    50.7s] ajuste_refit
+[LightGBM] [Fatal] Check failed: (best_split_info.left_count) > (0) at D:\a\LightGBM\LightGBM\lightgbm-python\src\treelearner\serial_tree_learner.cpp, line 860 .
+
+Traceback (most recent call last):
+  File "M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\scripts\rapido\treinar_contexto.py", line 428, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\scripts\rapido\treinar_contexto.py", line 272, in main
+    model.fit(
+  File "M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\.venv\Lib\site-packages\lightgbm\sklearn.py", line 1536, in fit
+    super().fit(
+  File "M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\.venv\Lib\site-packages\lightgbm\sklearn.py", line 1171, in fit
+    self._Booster = train(
+                    ^^^^^^
+  File "M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\.venv\Lib\site-packages\lightgbm\engine.py", line 321, in train
+    booster.update(fobj=fobj)
+  File "M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\.venv\Lib\site-packages\lightgbm\basic.py", line 4265, in update
+    _safe_call(
+  File "M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\.venv\Lib\site-packages\lightgbm\basic.py", line 297, in _safe_call
+    raise LightGBMError(_LIB.LGBM_GetLastError().decode("utf-8"))
+lightgbm.basic.LightGBMError: Check failed: (best_split_info.left_count) > (0) at D:\a\LightGBM\LightGBM\lightgbm-python\src\treelearner\serial_tree_learner.cpp, line 860 .
+

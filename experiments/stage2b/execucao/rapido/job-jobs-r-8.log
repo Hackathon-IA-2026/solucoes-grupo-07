@@ -1,0 +1,39 @@
+[     1.4s] carregar_initial
+[    31.9s] ajuste_initial
+M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\.venv\Lib\site-packages\lightgbm\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+[    51.7s] carregar_refit
+[    63.3s] ajuste_refit
+[    75.4s] validacao
+   parte 2025-01-15 217389 linhas
+   parte 2025-01-29 284213 linhas
+   parte 2025-02-12 405722 linhas
+   parte 2025-02-26 420897 linhas
+   parte 2025-03-12 419270 linhas
+   parte 2025-03-26 156450 linhas
+   parte 2025-04-09 411147 linhas
+   parte 2025-04-23 272429 linhas
+   parte 2025-05-07 161584 linhas
+[   104.3s] metricas
+[   126.8s] fim
+{
+ "rows": 2749101,
+ "model_macro_f1": 0.4362221495996969,
+ "model_recall": {
+  "REL": 0.05721932699790129,
+  "CNF": 0.8008249325934115,
+  "ENE": 0.6986711964101505
+ },
+ "baseline_ultimo_valor_macro_f1": 0.5198549641643418,
+ "baseline_ultimo_valor_recall": {
+  "REL": 0.5236727165064468,
+  "CNF": 0.5339459214909352,
+  "ENE": 0.5433800150110357
+ },
+ "baseline_historico_macro_f1": 0.43674751219721797,
+ "baseline_historico_recall": {
+  "REL": 0.4097200933808098,
+  "CNF": 0.49522225019428423,
+  "ENE": 0.4599950334200746
+ }
+}

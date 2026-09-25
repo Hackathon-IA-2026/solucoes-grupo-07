@@ -1,0 +1,302 @@
+{
+ "run_id": "rapido-eol-v1-voltot-004",
+ "kind": "rapido_exploratorio_fora_do_protocolo",
+ "source": "eolica",
+ "round": "V1",
+ "task": "volume_total",
+ "slots_per_day_training": 2,
+ "offset_historico": true,
+ "dropped_features": [
+  "t0_month",
+  "t0_day_of_year",
+  "tau_month",
+  "tau_day_of_year"
+ ],
+ "native_categorical": false,
+ "train_months": null,
+ "seed": 42,
+ "params": {
+  "learning_rate": 0.05,
+  "num_leaves": 63,
+  "max_depth": 8,
+  "min_child_samples": 200,
+  "reg_lambda": 1.0,
+  "colsample_bytree": 0.8,
+  "subsample": 1.0,
+  "max_bin": 63,
+  "cat_smooth": 10.0,
+  "max_trees": 1500
+ },
+ "features": {
+  "numeric": [
+   "horizon",
+   "t0_hour_sin",
+   "t0_hour_cos",
+   "tau_hour_sin",
+   "tau_hour_cos",
+   "t0_weekday",
+   "t0_month",
+   "t0_day_of_year",
+   "tau_weekday",
+   "tau_month",
+   "tau_day_of_year",
+   "last_volume_mwmed",
+   "observed_episode_length",
+   "history_coverage_28d",
+   "history_age_hours",
+   "hours_since_positive",
+   "hours_since_restriction",
+   "positive_frequency_24h",
+   "positive_frequency_7d",
+   "positive_frequency_28d",
+   "mean_volume_24h",
+   "std_volume_24h",
+   "max_volume_24h",
+   "mean_volume_7d",
+   "std_volume_7d",
+   "max_volume_7d",
+   "mean_volume_28d",
+   "std_volume_28d",
+   "max_volume_28d",
+   "restriction_frequency_28d",
+   "state_positive_frequency_28d",
+   "subsystem_positive_frequency_28d",
+   "cause_rel_share_28d",
+   "cause_cnf_share_28d",
+   "cause_ene_share_28d",
+   "same_hour_1d_volume",
+   "same_hour_2d_volume",
+   "same_hour_3d_volume",
+   "same_hour_7d_volume",
+   "history_30m_volume",
+   "history_1h_volume",
+   "history_24h_volume",
+   "history_48h_volume",
+   "history_7d_volume"
+  ],
+  "boolean": [
+   "last_positive",
+   "last_restriction",
+   "tau_weekend_or_holiday",
+   "same_hour_1d_positive",
+   "same_hour_2d_positive",
+   "same_hour_3d_positive",
+   "same_hour_7d_positive",
+   "history_30m_positive",
+   "history_1h_positive",
+   "history_24h_positive",
+   "history_48h_positive",
+   "history_7d_positive"
+  ],
+  "baseline": [
+   "b_ultimo_valor_prob_positive",
+   "b_ultimo_valor_prob_restriction",
+   "b_ultimo_valor_volume_positive_mean",
+   "b_ultimo_valor_volume_expected",
+   "b_mesmo_horario_dia_anterior_prob_positive",
+   "b_mesmo_horario_dia_anterior_prob_restriction",
+   "b_mesmo_horario_dia_anterior_volume_positive_mean",
+   "b_mesmo_horario_dia_anterior_volume_expected",
+   "b_mesmo_horario_recente_prob_positive",
+   "b_mesmo_horario_recente_prob_restriction",
+   "b_mesmo_horario_recente_volume_positive_mean",
+   "b_mesmo_horario_recente_volume_expected",
+   "b_historico_prob_positive",
+   "b_historico_prob_restriction",
+   "b_historico_volume_positive_mean",
+   "b_historico_volume_expected",
+   "b_ultimo_valor_native",
+   "b_mesmo_horario_dia_anterior_native",
+   "b_mesmo_horario_recente_native",
+   "b_historico_native",
+   "b_ultimo_valor_cause_REL",
+   "b_ultimo_valor_cause_CNF",
+   "b_ultimo_valor_cause_ENE",
+   "b_historico_cause_REL",
+   "b_historico_cause_CNF",
+   "b_historico_cause_ENE"
+  ],
+  "categorical": [
+   "id_ons",
+   "id_estado",
+   "id_subsistema",
+   "ceg_level",
+   "last_cause"
+  ]
+ },
+ "started_at": "2026-09-25T01:55:08",
+ "boundaries": {
+  "tuning_start": "2024-11-04 00:00:00",
+  "calibration_start": "2024-12-02 00:00:00",
+  "cutoff": "2024-12-30 00:00:00"
+ },
+ "phases": {
+  "carregar_initial": 0.5,
+  "ajuste_initial": 50.8,
+  "carregar_refit": 144.3,
+  "ajuste_refit": 172.0,
+  "validacao": 220.1,
+  "metricas": 370.1,
+  "fim": 371.8
+ },
+ "rows": {
+  "initial": 5521054,
+  "tuning": 8480256,
+  "refit": 5925032
+ },
+ "best_iteration": 200,
+ "tuning_score": {
+  "tweedie": 7.34768136617429
+ },
+ "importance_gain_top30": [
+  [
+   "b_historico_volume_positive_mean",
+   753412935.8217773
+  ],
+  [
+   "b_historico_volume_expected",
+   288931394.90356445
+  ],
+  [
+   "b_historico_prob_positive",
+   61006077.21166992
+  ],
+  [
+   "subsystem_positive_frequency_28d",
+   30633674.29345703
+  ],
+  [
+   "state_positive_frequency_28d",
+   13209182.98059082
+  ],
+  [
+   "tau_weekday",
+   12839872.504394531
+  ],
+  [
+   "cause_cnf_share_28d",
+   10249200.305541992
+  ],
+  [
+   "cause_rel_share_28d",
+   9588700.427734375
+  ],
+  [
+   "cause_ene_share_28d",
+   8800838.186401367
+  ],
+  [
+   "max_volume_28d",
+   8524795.17944336
+  ],
+  [
+   "tau_hour_cos",
+   8198618.600219727
+  ],
+  [
+   "hours_since_restriction",
+   8197745.038208008
+  ],
+  [
+   "tau_weekend_or_holiday",
+   7791236.1318359375
+  ],
+  [
+   "restriction_frequency_28d",
+   6478504.533325195
+  ],
+  [
+   "history_coverage_28d",
+   5171642.346191406
+  ],
+  [
+   "tau_hour_sin",
+   4632378.945556641
+  ],
+  [
+   "id_estado",
+   4463905.265136719
+  ],
+  [
+   "b_mesmo_horario_dia_anterior_prob_positive",
+   4413307.065185547
+  ],
+  [
+   "t0_hour_cos",
+   4281299.376464844
+  ],
+  [
+   "id_ons",
+   4227591.947021484
+  ],
+  [
+   "history_age_hours",
+   3835520.3002929688
+  ],
+  [
+   "t0_weekday",
+   3270543.1130371094
+  ],
+  [
+   "b_historico_prob_restriction",
+   3051054.6655273438
+  ],
+  [
+   "hours_since_positive",
+   2898092.885864258
+  ],
+  [
+   "t0_hour_sin",
+   2870208.23828125
+  ],
+  [
+   "max_volume_7d",
+   2860881.9765625
+  ],
+  [
+   "b_mesmo_horario_dia_anterior_prob_restriction",
+   2529333.809326172
+  ],
+  [
+   "b_historico_cause_CNF",
+   2336672.9887695312
+  ],
+  [
+   "std_volume_28d",
+   2316159.410888672
+  ],
+  [
+   "history_24h_volume",
+   1974301.1435546875
+  ]
+ ],
+ "metrics": {
+  "rows": 42687648,
+  "model": {
+   "mae": 11.568286061914872,
+   "wape": 1.1332402617671447,
+   "bias": -6.384045075224204
+  },
+  "baseline_ultimo_valor": {
+   "mae": 12.93209138552211,
+   "wape": 1.266839923259978,
+   "bias": -1.560160662986164
+  },
+  "baseline_mesmo_horario_dia_anterior": {
+   "mae": 13.629216536413935,
+   "wape": 1.3351309634584037,
+   "bias": -0.9142013424175206
+  },
+  "baseline_mesmo_horario_recente": {
+   "mae": 12.844957344358724,
+   "wape": 1.258304190041735,
+   "bias": 0.08083390045288981
+  },
+  "baseline_historico": {
+   "mae": 13.647285580107102,
+   "wape": 1.3369010240961794,
+   "bias": -0.9486457797192362
+  }
+ },
+ "peak_rss_gib": 20.27130889892578
+}

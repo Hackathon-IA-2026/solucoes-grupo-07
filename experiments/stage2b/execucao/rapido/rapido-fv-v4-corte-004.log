@@ -1,0 +1,56 @@
+[     0.3s] carregar_initial
+[    19.6s] ajuste_initial
+M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\.venv\Lib\site-packages\lightgbm\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+[    70.1s] carregar_refit
+[    85.3s] ajuste_refit
+[   100.5s] calibracao
+M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\scripts\rapido\treinar_contexto.py:242: RuntimeWarning: overflow encountered in exp
+  return 1 / (1 + np.exp(-(model.predict(matrix, raw_score=True) + offset)))
+[   109.8s] validacao
+M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\scripts\rapido\treinar_contexto.py:242: RuntimeWarning: overflow encountered in exp
+  return 1 / (1 + np.exp(-(model.predict(matrix, raw_score=True) + offset)))
+   parte 2026-01-15 2290176 linhas
+M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\scripts\rapido\treinar_contexto.py:242: RuntimeWarning: overflow encountered in exp
+  return 1 / (1 + np.exp(-(model.predict(matrix, raw_score=True) + offset)))
+   parte 2026-01-29 2311344 linhas
+M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\scripts\rapido\treinar_contexto.py:242: RuntimeWarning: overflow encountered in exp
+  return 1 / (1 + np.exp(-(model.predict(matrix, raw_score=True) + offset)))
+   parte 2026-02-12 2343600 linhas
+M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\scripts\rapido\treinar_contexto.py:242: RuntimeWarning: overflow encountered in exp
+  return 1 / (1 + np.exp(-(model.predict(matrix, raw_score=True) + offset)))
+   parte 2026-02-26 2354688 linhas
+M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\scripts\rapido\treinar_contexto.py:242: RuntimeWarning: overflow encountered in exp
+  return 1 / (1 + np.exp(-(model.predict(matrix, raw_score=True) + offset)))
+   parte 2026-03-12 2368944 linhas
+M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\scripts\rapido\treinar_contexto.py:242: RuntimeWarning: overflow encountered in exp
+  return 1 / (1 + np.exp(-(model.predict(matrix, raw_score=True) + offset)))
+   parte 2026-03-26 2455488 linhas
+M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\scripts\rapido\treinar_contexto.py:242: RuntimeWarning: overflow encountered in exp
+  return 1 / (1 + np.exp(-(model.predict(matrix, raw_score=True) + offset)))
+   parte 2026-04-09 2515968 linhas
+M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\scripts\rapido\treinar_contexto.py:242: RuntimeWarning: overflow encountered in exp
+  return 1 / (1 + np.exp(-(model.predict(matrix, raw_score=True) + offset)))
+   parte 2026-04-23 2515968 linhas
+M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\scripts\rapido\treinar_contexto.py:242: RuntimeWarning: overflow encountered in exp
+  return 1 / (1 + np.exp(-(model.predict(matrix, raw_score=True) + offset)))
+   parte 2026-05-07 1261728 linhas
+[   138.5s] metricas
+[   147.6s] fim
+{
+ "rows": 20417904,
+ "prevalence": 0.2063421397220792,
+ "model_ap": 0.7658889440277212,
+ "baseline_historico_ap": 0.7109053312380591,
+ "model_brier": 0.08390060927475648,
+ "baseline_historico_brier": 0.08858653161731049,
+ "weekly_ap_diff": {
+  "weeks": 18,
+  "mean": 0.06138836531867246,
+  "ci95": [
+   0.03672125986218085,
+   0.09357634697206103
+  ],
+  "wins": 17
+ }
+}

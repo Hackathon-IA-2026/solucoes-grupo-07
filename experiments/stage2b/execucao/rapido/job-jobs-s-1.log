@@ -1,0 +1,48 @@
+[     0.5s] carregar_initial
+[    51.1s] ajuste_initial
+M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\.venv\Lib\site-packages\lightgbm\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+[   124.5s] carregar_refit
+[   153.3s] ajuste_refit
+[   197.6s] validacao
+   parte 2025-01-08 794684 linhas
+   parte 2025-01-15 220068 linhas
+   parte 2025-01-22 1389 linhas
+   parte 2025-01-29 650262 linhas
+   parte 2025-02-05 918427 linhas
+   parte 2025-02-12 1274097 linhas
+   parte 2025-02-19 1018561 linhas
+   parte 2025-02-26 662673 linhas
+   parte 2025-03-05 1092626 linhas
+   parte 2025-03-12 853151 linhas
+   parte 2025-03-19 188856 linhas
+   parte 2025-03-26 152810 linhas
+   parte 2025-04-02 446811 linhas
+   parte 2025-04-09 853374 linhas
+   parte 2025-04-16 134131 linhas
+   parte 2025-04-23 522869 linhas
+   parte 2025-04-30 419185 linhas
+   parte 2025-05-07 1469 linhas
+[   308.6s] metricas
+[   396.6s] fim
+{
+ "rows": 10205443,
+ "model_macro_f1": 0.6357120817741282,
+ "model_recall": {
+  "REL": 0.5071114767139138,
+  "CNF": 0.8043688203521511,
+  "ENE": 0.6345563091604195
+ },
+ "baseline_ultimo_valor_macro_f1": 0.6081071670372175,
+ "baseline_ultimo_valor_recall": {
+  "REL": 0.6710843337190242,
+  "CNF": 0.6364060909898038,
+  "ENE": 0.533020687656808
+ },
+ "baseline_historico_macro_f1": 0.524718884164122,
+ "baseline_historico_recall": {
+  "REL": 0.4576258316459358,
+  "CNF": 0.5817064032132546,
+  "ENE": 0.5477737973201313
+ }
+}

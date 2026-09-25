@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\scripts\rapido\avaliar_volume.py", line 83, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\scripts\rapido\avaliar_volume.py", line 42, in main
+    volume_log = json.loads((EXP / args.volume / "resultado.json").read_text("utf-8"))
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\dev\cpython-3.12-windows-x86_64-none\Lib\pathlib.py", line 1027, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\dev\cpython-3.12-windows-x86_64-none\Lib\pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'M:\\Bibliotecas\\Development\\workspaces\\hackathon-ia-coppe-2026\\experiments\\stage2b\\experimentos\\rapido-fv-v4-vol-003\\resultado.json'

@@ -1,0 +1,15 @@
+INICIO 1 01:10:27 uv run python scripts/rapido/treinar_contexto.py --source fotovoltaica --round V2 --task corte_positivo --slots 12 --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --run-id rapido-fv-v2-corte-q12
+FIM 1 exit=0 01:13:46
+INICIO 2 01:13:46 uv run python scripts/rapido/treinar_contexto.py --source fotovoltaica --round V4 --task corte_positivo --slots 12 --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --run-id rapido-fv-v4-corte-q12
+FIM 2 exit=0 01:19:12
+INICIO 3 01:19:12 uv run python scripts/rapido/treinar_contexto.py --source fotovoltaica --round V2 --task corte_positivo --slots 4 --train-months 6 --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --run-id rapido-fv-v2-corte-j6
+FIM 3 exit=0 01:21:11
+INICIO 4 01:21:11 uv run python scripts/rapido/treinar_contexto.py --source fotovoltaica --round V4 --task corte_positivo --slots 4 --train-months 6 --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --run-id rapido-fv-v4-corte-j6
+FIM 4 exit=0 01:23:14
+INICIO 5 01:23:14 uv run python scripts/rapido/treinar_contexto.py --source fotovoltaica --round V1 --task volume_total --slots 4 --offset --no-categorical --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --run-id rapido-fv-v1-voltot-004
+FIM 5 exit=0 01:25:08
+INICIO 6 01:25:08 uv run python scripts/rapido/treinar_contexto.py --source fotovoltaica --round V2 --task volume_total --slots 4 --offset --no-categorical --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --run-id rapido-fv-v2-voltot-004
+FIM 6 exit=0 01:27:42
+INICIO 7 01:27:42 uv run python scripts/rapido/treinar_contexto.py --source fotovoltaica --round V3 --task volume_total --slots 4 --offset --no-categorical --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --run-id rapido-fv-v3-voltot-004
+FIM 7 exit=0 01:30:33
+FILA CONCLUIDA 01:30:33

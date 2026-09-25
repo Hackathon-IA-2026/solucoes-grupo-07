@@ -1,0 +1,37 @@
+{
+ "source": "fotovoltaica",
+ "round": "V4",
+ "rows": 20417904,
+ "pipeline": {
+  "mae_full": 37.79494624732457,
+  "wape": 2.7284835282033444,
+  "bias": 28.746327637680142,
+  "mae_conditional": 107.49632749145215
+ },
+ "baselines": {
+  "ultimo_valor": {
+   "mae_full": 13.85199721993991,
+   "wape": 1.0,
+   "bias": -13.85199721993991,
+   "mae_conditional": 67.13120857715768
+  },
+  "mesmo_horario_dia_anterior": {
+   "mae_full": 13.586803959260774,
+   "wape": 0.9808552328975786,
+   "bias": -1.0146535956929126,
+   "mae_conditional": 44.22528515174145
+  },
+  "mesmo_horario_recente": {
+   "mae_full": 15.782688431437428,
+   "wape": 1.139379988375849,
+   "bias": -1.253341770291407,
+   "mae_conditional": 57.475395118386245
+  },
+  "historico": {
+   "mae_full": 13.586803948290012,
+   "wape": 0.98085523210558,
+   "bias": -1.0146536066636767,
+   "mae_conditional": 44.22528515174145
+  }
+ }
+}

@@ -1,0 +1,55 @@
+[     0.5s] carregar_initial
+[    50.8s] ajuste_initial
+M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\.venv\Lib\site-packages\lightgbm\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+[   144.3s] carregar_refit
+[   172.0s] ajuste_refit
+[   220.1s] validacao
+   parte 2025-01-08 2511792 linhas
+   parte 2025-01-15 2515968 linhas
+   parte 2025-01-22 2515968 linhas
+   parte 2025-01-29 2515968 linhas
+   parte 2025-02-05 2515968 linhas
+   parte 2025-02-12 2515968 linhas
+   parte 2025-02-19 2515968 linhas
+   parte 2025-02-26 2515968 linhas
+   parte 2025-03-05 2515968 linhas
+   parte 2025-03-12 2515968 linhas
+   parte 2025-03-19 2515968 linhas
+   parte 2025-03-26 2513712 linhas
+   parte 2025-04-02 2495664 linhas
+   parte 2025-04-09 2499840 linhas
+   parte 2025-04-16 2499840 linhas
+   parte 2025-04-23 2499840 linhas
+   parte 2025-04-30 2499840 linhas
+   parte 2025-05-07 7440 linhas
+[   370.1s] metricas
+[   371.8s] fim
+{
+ "rows": 42687648,
+ "model": {
+  "mae": 11.568286061914872,
+  "wape": 1.1332402617671447,
+  "bias": -6.384045075224204
+ },
+ "baseline_ultimo_valor": {
+  "mae": 12.93209138552211,
+  "wape": 1.266839923259978,
+  "bias": -1.560160662986164
+ },
+ "baseline_mesmo_horario_dia_anterior": {
+  "mae": 13.629216536413935,
+  "wape": 1.3351309634584037,
+  "bias": -0.9142013424175206
+ },
+ "baseline_mesmo_horario_recente": {
+  "mae": 12.844957344358724,
+  "wape": 1.258304190041735,
+  "bias": 0.08083390045288981
+ },
+ "baseline_historico": {
+  "mae": 13.647285580107102,
+  "wape": 1.3369010240961794,
+  "bias": -0.9486457797192362
+ }
+}
