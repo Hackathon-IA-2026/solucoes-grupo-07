@@ -81,8 +81,23 @@ traria ganho relevante.
 | 003 | 0,713 / 0,705 | +0,008 | 0,132 / 0,133 | 8 | 21 GiB |
 | 004 (offset) | 0,710 / 0,705 | +0,005 | 0,128 / 0,133 | 46 | 24 GiB |
 
-**Interpretação:** empate técnico com leve vantagem do modelo. O corte eólico parece mais
-sistêmico, e a regra histórica já captura a maior parte do sinal. V1–V3 estão na fila R.
+**V1–V4 da variante 003 (fila R):**
+
+| Rodada | AP (modelo / `historico`) | Diferença | Brier (modelo / `historico`) | IC semanal |
+|---|---|---|---|---|
+| V1 | 0,485 / 0,385 | +0,100 | 0,138 / 0,151 | [+0,061, +0,206] |
+| V2 | 0,780 / 0,782 | −0,001 | **0,213 / 0,144** | [−0,018, +0,032] |
+| V3 | 0,871 / 0,887 | −0,015 | 0,129 / 0,116 | [−0,033, −0,003] |
+| V4 | 0,713 / 0,705 | +0,008 | 0,132 / 0,133 | [−0,008, +0,139] |
+| **Média** | | **+0,023** | | |
+
+- **§11:** a média passa de +0,02, mas o modelo vence só em **2 de 4 rodadas**, e o Brier piora
+  na V2 e na V3. **Não aprova.**
+- **Na eólica, o baseline continua preferível.** O ganho do modelo se concentra na V1
+  (jan–abr/2025).
+- **Interpretação (hipótese):** o corte eólico é mais sistêmico, e a regra histórica já captura
+  a maior parte do sinal. A feature de estado sistêmico recente do subsistema, não
+  implementada, seria o próximo candidato.
 
 ### 3.4 Volume total, solar (MAE em MWmed; Tweedie + offset)
 
