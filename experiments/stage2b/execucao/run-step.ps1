@@ -9,11 +9,12 @@ param(
     [int] $SampleSeconds = 30
 )
 $ErrorActionPreference = "Stop"
-. "Y:\CurtaMap Etapa 2B\env.ps1"
+# Caminhos relativos a este script (experiments/stage2b/execucao); os dados pesados vêm do env.ps1.
+. (Join-Path $PSScriptRoot "..\env.ps1")
 if ($ExperimentDirOverride) { $env:CURTAMAP_EXPERIMENT_DIR = $ExperimentDirOverride }
 # Atualização solicitada, aplicada somente na fronteira entre passos da fila.
-& "Y:\CurtaMap Etapa 2B\execucao\apply-queued-code.ps1" -Repo $Repo -RequestPath "Y:\CurtaMap Etapa 2B\execucao\fila\code-update.json"
-$stepDir = Join-Path "Y:\CurtaMap Etapa 2B\execucao\passos" $StepId
+& (Join-Path $PSScriptRoot "apply-queued-code.ps1") -Repo $Repo -RequestPath (Join-Path $PSScriptRoot "fila\code-update.json")
+$stepDir = Join-Path (Join-Path $PSScriptRoot "passos") $StepId
 if (Test-Path $stepDir) { throw "passo já existe, não sobrescrevo: $stepDir" }
 New-Item -ItemType Directory -Force $stepDir | Out-Null
 
