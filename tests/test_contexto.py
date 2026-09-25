@@ -1,5 +1,6 @@
 import math
 import pickle
+from datetime import datetime, timedelta
 
 import numpy as np
 import polars as pl
@@ -10,9 +11,11 @@ from curtamap.contexto import (
     BOOLEAN,
     CATEGORICAL,
     NUMERIC,
+    SYSTEMIC,
     Encoder,
     historico_offset,
     probability_with_offset,
+    systemic_state,
 )
 
 
@@ -88,3 +91,44 @@ def test_probabilidade_com_offset_reproduz_o_historico_sem_correcao():
         _Raw(), np.zeros((2, 1)), historico_offset(frame, "corte_positivo")
     )
     np.testing.assert_allclose(probability, [0.2, 0.7])
+
+
+def test_estado_sistemico_agrega_uma_linha_por_usina_no_mesmo_t0():
+    t0 = datetime(2025, 5, 1, 20)
+    rows = []
+    for id_ons, sub, last, freq in (
+        ("A", "NE", True, 0.5),
+        ("B", "NE", False, 0.1),
+        ("C", "NE", None, 0.3),
+        ("D", "S", True, 1.0),
+    ):
+        for horizon in (1, 2, 3):  # vários tau por usina não podem pesar mais
+            rows.append(
+                {
+                    "fonte": "eolica",
+                    "id_ons": id_ons,
+                    "id_subsistema": sub,
+                    "t0": t0,
+                    "horizon": horizon,
+                    "last_positive": last,
+                    "positive_frequency_7d": freq,
+                    "true_positive": True,  # verdade futura nunca entra no agregado
+                }
+            )
+    rows.append({**rows[0], "t0": t0 + timedelta(minutes=30), "last_positive": False})
+    state = systemic_state(pl.DataFrame(rows).lazy()).collect().sort("id_subsistema", "t0")
+    assert state.columns == ["fonte", "id_subsistema", "t0", *SYSTEMIC]
+    ne = state.filter((pl.col("id_subsistema") == "NE") & (pl.col("t0") == t0)).row(0, named=True)
+    assert ne["sys_last_positive_share"] == pytest.approx(0.5)  # A e B; C nulo fica fora
+    assert ne["sys_positive_frequency_7d_mean"] == pytest.approx(0.3)
+    later = state.filter(pl.col("t0") == t0 + timedelta(minutes=30)).row(0, named=True)
+    assert later["sys_last_positive_share"] == 0.0
+    assert state.filter(pl.col("id_subsistema") == "S")["sys_last_positive_share"].item() == 1.0
+
+
+def test_encoder_aceita_features_extras_densas():
+    frame = _frame(["A"]).with_columns(pl.lit(0.25).alias("sys_last_positive_share"))
+    encoder = Encoder(extra=("sys_last_positive_share",)).fit(frame)
+    column = encoder.columns.index("sys_last_positive_share")
+    assert column < encoder.categorical_indices[0]
+    assert encoder.matrix(frame)[0, column] == pytest.approx(0.25)

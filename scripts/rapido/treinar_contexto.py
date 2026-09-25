@@ -44,10 +44,13 @@ from curtamap.contexto import (
     CAUSES,
     HISTORICO_PROBABILITY,
     NUMERIC,
+    SYSTEMIC,
+    SYSTEMIC_KEYS,
     Encoder,
     baseline_wide,
     historico_offset,
     probability_with_offset,
+    systemic_state,
 )
 from curtamap.experimental.calendar import load_calendar_manifest
 from curtamap.experimental.campaign import (
@@ -192,6 +195,9 @@ def main() -> int:
     )
     parser.add_argument("--no-categorical", action="store_true")
     parser.add_argument("--train-months", type=int, default=None)
+    parser.add_argument(
+        "--systemic", action="store_true", help="estado recente do subsistema em t0 (variante sys)"
+    )
     parser.add_argument("--drop", default="", help="features removidas, separadas por vírgula")
     args = parser.parse_args()
     drop = tuple(name for name in args.drop.split(",") if name)
@@ -228,6 +234,7 @@ def main() -> int:
         "dropped_features": drop,
         "native_categorical": not args.no_categorical,
         "train_months": args.train_months,
+        "systemic": args.systemic,
         "seed": args.seed,
         "params": params,
         "features": {
@@ -261,6 +268,12 @@ def main() -> int:
     raw_baselines = pl.scan_parquet((base / "date=*" / "baselines.parquet").as_posix())
     first_t0 = _collect(features.select(pl.col("t0").min())).item()
     sample = emission_mask(args.slots, args.seed)
+    extra = SYSTEMIC if args.systemic else ()
+    # Agregado de todas as usinas (não só das amostradas), pequeno: fonte × subsistema × t0.
+    systemic = _collect(systemic_state(features)).lazy() if args.systemic else None
+
+    def with_systemic(lazy: pl.LazyFrame) -> pl.LazyFrame:
+        return lazy.join(systemic, on=SYSTEMIC_KEYS, how="left") if args.systemic else lazy
 
     def window(start, end) -> pl.Expr:
         return (pl.col("t0") >= start) & (pl.col("t0") + timedelta(hours=24) <= end)
@@ -272,7 +285,7 @@ def main() -> int:
         side = raw_baselines.filter(window(start, end))
         if sampled:
             lazy, side = lazy.filter(sample), side.filter(sample)
-        return _collect(lazy.join(baseline_wide(side), on=KEYS, how="left"))
+        return _collect(with_systemic(lazy.join(baseline_wide(side), on=KEYS, how="left")))
 
     phase("carregar_initial")
 
@@ -289,7 +302,7 @@ def main() -> int:
     tuning = segment(
         boundary.tuning_start, boundary.calibration_start, boundary.calibration_start, False
     )
-    encoder = Encoder(drop).fit(initial)
+    encoder = Encoder(drop, extra).fit(initial)
     log["rows"] = {"initial": initial.height, "tuning": tuning.height}
     phase("ajuste_initial")
     x_initial, y_initial = encoder.matrix(initial), _target(initial, args.task)
@@ -327,7 +340,7 @@ def main() -> int:
         True,
     )
     log["rows"]["refit"] = refit.height
-    encoder = Encoder(drop).fit(refit)
+    encoder = Encoder(drop, extra).fit(refit)
     phase("ajuste_refit")
     model = _estimator(args.task, params, best, args.seed)
     model.fit(
@@ -383,7 +396,11 @@ def main() -> int:
     while day < round_.end:
         in_chunk = (pl.col("t0") >= day) & (pl.col("t0") < day + step)
         side = raw_baselines.filter(_validation_filter(round_) & in_chunk)
-        chunk = _collect(validation.filter(in_chunk).join(baseline_wide(side), on=KEYS, how="left"))
+        chunk = _collect(
+            with_systemic(
+                validation.filter(in_chunk).join(baseline_wide(side), on=KEYS, how="left")
+            )
+        )
         day += step
         if chunk.is_empty():
             continue

@@ -63,6 +63,11 @@ BASELINE_FEATURES = (
 # Mês e dia do ano confundem tendência com sazonalidade quando há menos de dois anos de
 # histórico (solar começa em 04/2024): removidos na variante 003 em diante.
 SEASONAL = ("t0_month", "t0_day_of_year", "tau_month", "tau_day_of_year")
+# Estado recente do subsistema no instante t0 (variante `sys`): agregados entre usinas da
+# mesma fonte e subsistema, só de colunas disponíveis em t0. A informação mais nova tem ~39 h
+# (as de 24 h são 87% nulas), por isso o regime recente usa a frequência de 7 dias.
+SYSTEMIC = ("sys_last_positive_share", "sys_positive_frequency_7d_mean")
+SYSTEMIC_KEYS = ["fonte", "id_subsistema", "t0"]
 HISTORICO_PROBABILITY = {
     "corte_positivo": "b_historico_prob_positive",
     "restricao_registrada": "b_historico_prob_restriction",
@@ -92,12 +97,24 @@ def baseline_wide(baselines: pl.LazyFrame) -> pl.LazyFrame:
     return wide
 
 
+def systemic_state(features: pl.LazyFrame) -> pl.LazyFrame:
+    """Uma linha por fonte+subsistema+t0; cada usina pesa uma vez, qualquer que seja o tau."""
+    per_plant = features.group_by("fonte", "id_ons", "id_subsistema", "t0").agg(
+        pl.col("last_positive").cast(pl.Float64).first(),
+        pl.col("positive_frequency_7d").first(),
+    )
+    return per_plant.group_by(SYSTEMIC_KEYS).agg(
+        pl.col("last_positive").mean().alias(SYSTEMIC[0]),
+        pl.col("positive_frequency_7d").mean().alias(SYSTEMIC[1]),
+    )
+
+
 class Encoder:
     """Códigos inteiros aprendidos no treino; desconhecido e ausente viram NaN (nativo)."""
 
-    def __init__(self, drop: tuple[str, ...] = ()) -> None:
+    def __init__(self, drop: tuple[str, ...] = (), extra: tuple[str, ...] = ()) -> None:
         self.categories: dict[str, dict[str, int]] = {}
-        self.dense = [c for c in (*NUMERIC, *BOOLEAN, *BASELINE_FEATURES) if c not in drop]
+        self.dense = [c for c in (*NUMERIC, *BOOLEAN, *BASELINE_FEATURES, *extra) if c not in drop]
         self.categorical = [c for c in CATEGORICAL if c not in drop]
 
     @property
