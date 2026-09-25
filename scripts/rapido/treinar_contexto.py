@@ -47,6 +47,7 @@ from curtamap.contexto import (
     SYSTEMIC,
     SYSTEMIC_KEYS,
     Encoder,
+    baseline_cause,
     baseline_wide,
     historico_offset,
     probability_with_offset,
@@ -169,15 +170,6 @@ def _offset(frame: pl.DataFrame, task: str, enabled: bool) -> np.ndarray | None:
     if not enabled or task not in HISTORICO_PROBABILITY:
         return None
     return historico_offset(frame, task)
-
-
-def _baseline_cause(frame: pl.DataFrame, baseline_id: str) -> np.ndarray:
-    """Argmax das probabilidades de causa do baseline, com desempate fixo CNF, ENE, REL."""
-    order = ("CNF", "ENE", "REL")
-    matrix = np.column_stack(
-        [frame[f"b_{baseline_id}_cause_{c}"].fill_null(0.0).to_numpy() for c in order]
-    )
-    return np.asarray(order)[matrix.argmax(axis=1)]
 
 
 def _collect(lazy: pl.LazyFrame) -> pl.DataFrame:
@@ -461,7 +453,7 @@ def main() -> int:
         if args.task == "causa":
             proba = model.predict_proba(matrix)
             labels = np.asarray(model.classes_)[proba.argmax(axis=1)]
-            baseline_labels = {b: _baseline_cause(chunk, b) for b in ("ultimo_valor", "historico")}
+            baseline_labels = {b: baseline_cause(chunk, b) for b in ("ultimo_valor", "historico")}
             frame = chunk.select(*keep).with_columns(
                 pl.Series("prediction", np.where(eligible, labels, baseline_labels["historico"])),
                 *[pl.Series(f"b_{b}_pred", v) for b, v in baseline_labels.items()],

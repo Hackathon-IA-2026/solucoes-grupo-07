@@ -13,7 +13,10 @@ from curtamap.contexto import (
     NUMERIC,
     SYSTEMIC,
     Encoder,
+    baseline_cause,
     historico_offset,
+    predict_causa,
+    predict_corte,
     probability_with_offset,
     systemic_state,
 )
@@ -132,3 +135,53 @@ def test_encoder_aceita_features_extras_densas():
     column = encoder.columns.index("sys_last_positive_share")
     assert column < encoder.categorical_indices[0]
     assert encoder.matrix(frame)[0, column] == pytest.approx(0.25)
+
+
+class _Proba:
+    def __init__(self, proba, classes=(False, True)):
+        self.proba = np.asarray(proba, dtype=float)
+        self.classes_ = np.asarray(classes)
+
+    def predict_proba(self, matrix):
+        assert len(matrix) == len(self.proba)
+        return self.proba
+
+
+class _Half:
+    def predict(self, scores):
+        return np.asarray(scores) * 0.5
+
+
+def _inference_frame(eligible: list[bool]) -> pl.DataFrame:
+    rows = len(eligible)
+    frame = _frame(["A"] * rows).with_columns(
+        pl.Series("eligible_history", eligible),
+        pl.Series("b_historico_prob_positive", [0.9] * rows),
+        pl.Series("b_historico_cause_REL", [0.2] * rows),
+        pl.Series("b_historico_cause_CNF", [0.2] * rows),
+        pl.Series("b_historico_cause_ENE", [0.1] * rows),
+    )
+    return frame
+
+
+def test_inferencia_de_corte_calibra_elegiveis_e_usa_historico_nos_demais():
+    frame = _inference_frame([True, False])
+    bundle = {
+        "model": _Proba([[0.4, 0.6], [0.2, 0.8]]),
+        "encoder": Encoder().fit(frame),
+        "calibrator": _Half(),
+    }
+    np.testing.assert_allclose(predict_corte(bundle, frame), [0.3, 0.9])
+
+
+def test_inferencia_de_causa_usa_argmax_e_historico_com_desempate_fixo():
+    frame = _inference_frame([True, False])
+    bundle = {
+        "model": _Proba([[0.1, 0.7, 0.2], [0.8, 0.1, 0.1]], classes=("CNF", "ENE", "REL")),
+        "encoder": Encoder().fit(frame),
+    }
+    labels, proba = predict_causa(bundle, frame)
+    # Linha inelegível: empate CNF = REL no historico resolve para CNF (ordem CNF, ENE, REL).
+    assert labels.tolist() == ["ENE", "CNF"]
+    assert proba.shape == (2, 3)
+    assert baseline_cause(frame, "historico").tolist() == ["CNF", "CNF"]

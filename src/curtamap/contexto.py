@@ -169,3 +169,34 @@ def probability_with_offset(
     if offset is None:
         return model.predict_proba(matrix)[:, 1]
     return 1 / (1 + np.exp(-(model.predict(matrix, raw_score=True) + offset)))
+
+
+def baseline_cause(frame: pl.DataFrame, baseline_id: str) -> np.ndarray:
+    """Argmax das probabilidades de causa do baseline, com desempate fixo CNF, ENE, REL."""
+    order = ("CNF", "ENE", "REL")
+    matrix = np.column_stack(
+        [frame[f"b_{baseline_id}_cause_{c}"].fill_null(0.0).to_numpy() for c in order]
+    )
+    return np.asarray(order)[matrix.argmax(axis=1)]
+
+
+def predict_corte(bundle: dict[str, Any], frame: pl.DataFrame) -> np.ndarray:
+    """Probabilidade calibrada da receita 003; linhas sem histórico elegível usam o `historico`.
+
+    ``bundle`` é o ``model.joblib`` do treino rápido e ``frame`` já traz features, baselines
+    largos (`baseline_wide`) e ``tau_weekend_or_holiday``.
+    """
+    raw = probability_with_offset(bundle["model"], bundle["encoder"].matrix(frame), None)
+    calibrator = bundle.get("calibrator")
+    probabilities = calibrator.predict(raw) if calibrator is not None else raw
+    fallback = frame[HISTORICO_PROBABILITY["corte_positivo"]].to_numpy()
+    return np.where(frame["eligible_history"].to_numpy(), probabilities, fallback)
+
+
+def predict_causa(bundle: dict[str, Any], frame: pl.DataFrame) -> tuple[np.ndarray, np.ndarray]:
+    """Causa prevista pela receita 005 e suas probabilidades (ordem de ``model.classes_``)."""
+    model = bundle["model"]
+    proba = model.predict_proba(bundle["encoder"].matrix(frame))
+    labels = np.asarray(model.classes_)[proba.argmax(axis=1)]
+    eligible = frame["eligible_history"].to_numpy()
+    return np.where(eligible, labels, baseline_cause(frame, "historico")), proba
