@@ -1,0 +1,9 @@
+INICIO 1 12:24:15 uv run python scripts/rapido/treinar_contexto.py --source fotovoltaica --round V2 --task corte_positivo --slots 4 --systemic --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --run-id rapido-fv-v2-corte-sys
+FIM 1 exit=0 12:26:49
+INICIO 2 12:26:49 uv run python scripts/rapido/treinar_contexto.py --source fotovoltaica --round V4 --task corte_positivo --slots 4 --systemic --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --run-id rapido-fv-v4-corte-sys
+FIM 2 exit=0 12:30:09
+INICIO 3 12:30:09 uv run python scripts/rapido/treinar_contexto.py --source eolica --round V2 --task corte_positivo --slots 2 --chunk-days 7 --systemic --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --run-id rapido-eol-v2-corte-sys
+FIM 3 exit=127 12:30:57
+INICIO 4 12:30:57 uv run python scripts/rapido/treinar_contexto.py --source eolica --round V4 --task corte_positivo --slots 2 --chunk-days 7 --systemic --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --run-id rapido-eol-v4-corte-sys
+FIM 4 exit=127 12:31:51
+FILA CONCLUIDA 12:31:51

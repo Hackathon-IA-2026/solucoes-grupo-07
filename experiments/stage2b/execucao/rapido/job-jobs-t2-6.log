@@ -1,0 +1,45 @@
+[     0.5s] carregar_initial
+[    43.8s] ajuste_initial
+M:\Bibliotecas\Development\workspaces\hackathon-ia-coppe-2026\.venv\Lib\site-packages\lightgbm\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+[   398.1s] carregar_refit
+[   445.7s] ajuste_refit
+[   574.3s] calibracao
+[   630.5s] validacao
+   parte 2026-05-08 2467584 linhas
+   parte 2026-05-15 2467584 linhas
+   parte 2026-05-22 2467584 linhas
+   parte 2026-05-29 2467536 linhas
+   parte 2026-06-05 2467584 linhas
+   parte 2026-06-12 2467584 linhas
+   parte 2026-06-19 2467584 linhas
+   parte 2026-06-26 2467584 linhas
+   parte 2026-07-03 2467584 linhas
+   parte 2026-07-10 2467584 linhas
+   parte 2026-07-17 2467392 linhas
+   parte 2026-07-24 2467392 linhas
+   parte 2026-07-31 2467200 linhas
+   parte 2026-08-07 2467584 linhas
+   parte 2026-08-14 2467584 linhas
+   parte 2026-08-21 2467470 linhas
+   parte 2026-08-28 2467506 linhas
+   parte 2026-09-04 1064880 linhas
+[   851.9s] metricas
+[   880.3s] fim
+{
+ "rows": 43012800,
+ "prevalence": 0.40282966930774095,
+ "model_ap": 0.8467721877809611,
+ "baseline_historico_ap": 0.828442405332053,
+ "model_brier": 0.12665548665961593,
+ "baseline_historico_brier": 0.12465965038022864,
+ "weekly_ap_diff": {
+  "weeks": 18,
+  "mean": 0.016864535947340394,
+  "ci95": [
+   0.0054753432131199944,
+   0.030461508235476126
+  ],
+  "wins": 13
+ }
+}

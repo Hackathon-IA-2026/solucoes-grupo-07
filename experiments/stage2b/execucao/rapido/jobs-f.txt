@@ -1,0 +1,5 @@
+uv run python scripts/rapido/treinar_contexto.py --source fotovoltaica --round FINAL --task corte_positivo --slots 4 --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --run-id rapido-fv-final-corte-003
+uv run python scripts/rapido/treinar_contexto.py --source eolica --round FINAL --task causa --slots 4 --chunk-days 7 --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --params '{"class_weight":"balanced"}' --run-id rapido-eol-final-causa-005
+uv run python scripts/rapido/treinar_contexto.py --source fotovoltaica --round FINAL --task volume_total --slots 4 --offset --no-categorical --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --run-id rapido-fv-final-voltot-004
+uv run python scripts/rapido/treinar_contexto.py --source fotovoltaica --round FINAL --task causa --slots 8 --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --params '{"class_weight":"balanced"}' --run-id rapido-fv-final-causa-005
+uv run python scripts/rapido/treinar_contexto.py --source eolica --round FINAL --task volume_total --slots 2 --chunk-days 7 --offset --no-categorical --drop t0_month,t0_day_of_year,tau_month,tau_day_of_year --run-id rapido-eol-final-voltot-004

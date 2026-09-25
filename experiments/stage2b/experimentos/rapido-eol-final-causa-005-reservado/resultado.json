@@ -1,0 +1,300 @@
+{
+ "run_id": "rapido-eol-final-causa-005-reservado",
+ "kind": "rapido_exploratorio_fora_do_protocolo",
+ "source": "eolica",
+ "round": "FINAL",
+ "task": "causa",
+ "slots_per_day_training": 4,
+ "offset_historico": false,
+ "dropped_features": [
+  "t0_month",
+  "t0_day_of_year",
+  "tau_month",
+  "tau_day_of_year"
+ ],
+ "native_categorical": true,
+ "train_months": null,
+ "systemic": false,
+ "seed": 42,
+ "params": {
+  "learning_rate": 0.05,
+  "num_leaves": 63,
+  "max_depth": 8,
+  "min_child_samples": 200,
+  "reg_lambda": 1.0,
+  "colsample_bytree": 0.8,
+  "subsample": 1.0,
+  "max_bin": 63,
+  "cat_smooth": 10.0,
+  "max_trees": 1500,
+  "class_weight": "balanced"
+ },
+ "features": {
+  "numeric": [
+   "horizon",
+   "t0_hour_sin",
+   "t0_hour_cos",
+   "tau_hour_sin",
+   "tau_hour_cos",
+   "t0_weekday",
+   "t0_month",
+   "t0_day_of_year",
+   "tau_weekday",
+   "tau_month",
+   "tau_day_of_year",
+   "last_volume_mwmed",
+   "observed_episode_length",
+   "history_coverage_28d",
+   "history_age_hours",
+   "hours_since_positive",
+   "hours_since_restriction",
+   "positive_frequency_24h",
+   "positive_frequency_7d",
+   "positive_frequency_28d",
+   "mean_volume_24h",
+   "std_volume_24h",
+   "max_volume_24h",
+   "mean_volume_7d",
+   "std_volume_7d",
+   "max_volume_7d",
+   "mean_volume_28d",
+   "std_volume_28d",
+   "max_volume_28d",
+   "restriction_frequency_28d",
+   "state_positive_frequency_28d",
+   "subsystem_positive_frequency_28d",
+   "cause_rel_share_28d",
+   "cause_cnf_share_28d",
+   "cause_ene_share_28d",
+   "same_hour_1d_volume",
+   "same_hour_2d_volume",
+   "same_hour_3d_volume",
+   "same_hour_7d_volume",
+   "history_30m_volume",
+   "history_1h_volume",
+   "history_24h_volume",
+   "history_48h_volume",
+   "history_7d_volume"
+  ],
+  "boolean": [
+   "last_positive",
+   "last_restriction",
+   "tau_weekend_or_holiday",
+   "same_hour_1d_positive",
+   "same_hour_2d_positive",
+   "same_hour_3d_positive",
+   "same_hour_7d_positive",
+   "history_30m_positive",
+   "history_1h_positive",
+   "history_24h_positive",
+   "history_48h_positive",
+   "history_7d_positive"
+  ],
+  "baseline": [
+   "b_ultimo_valor_prob_positive",
+   "b_ultimo_valor_prob_restriction",
+   "b_ultimo_valor_volume_positive_mean",
+   "b_ultimo_valor_volume_expected",
+   "b_mesmo_horario_dia_anterior_prob_positive",
+   "b_mesmo_horario_dia_anterior_prob_restriction",
+   "b_mesmo_horario_dia_anterior_volume_positive_mean",
+   "b_mesmo_horario_dia_anterior_volume_expected",
+   "b_mesmo_horario_recente_prob_positive",
+   "b_mesmo_horario_recente_prob_restriction",
+   "b_mesmo_horario_recente_volume_positive_mean",
+   "b_mesmo_horario_recente_volume_expected",
+   "b_historico_prob_positive",
+   "b_historico_prob_restriction",
+   "b_historico_volume_positive_mean",
+   "b_historico_volume_expected",
+   "b_ultimo_valor_native",
+   "b_mesmo_horario_dia_anterior_native",
+   "b_mesmo_horario_recente_native",
+   "b_historico_native",
+   "b_ultimo_valor_cause_REL",
+   "b_ultimo_valor_cause_CNF",
+   "b_ultimo_valor_cause_ENE",
+   "b_historico_cause_REL",
+   "b_historico_cause_CNF",
+   "b_historico_cause_ENE"
+  ],
+  "categorical": [
+   "id_ons",
+   "id_estado",
+   "id_subsistema",
+   "ceg_level",
+   "last_cause"
+  ]
+ },
+ "started_at": "2026-09-25T13:33:51",
+ "reserved_test": {
+  "decision_ref": "8271bf19442a452c9d817e7ef0c52d49193355d8"
+ },
+ "boundaries": {
+  "tuning_start": "2026-03-05 00:00:00",
+  "calibration_start": "2026-04-02 00:00:00",
+  "cutoff": "2026-04-30 00:00:00"
+ },
+ "phases": {
+  "carregar_initial": 0.7,
+  "ajuste_initial": 71.1,
+  "carregar_refit": 186.8,
+  "ajuste_refit": 243.7,
+  "validacao": 302.7,
+  "metricas": 368.4,
+  "fim": 536.9
+ },
+ "rows": {
+  "initial": 7886662,
+  "tuning": 2870194,
+  "refit": 8134801
+ },
+ "best_iteration": 44,
+ "tuning_score": {
+  "multi_logloss": 0.6513872877275315
+ },
+ "importance_gain_top30": [
+  [
+   "b_historico_cause_CNF",
+   13112380.217895508
+  ],
+  [
+   "b_historico_cause_ENE",
+   12080556.119262695
+  ],
+  [
+   "tau_weekend_or_holiday",
+   10428190.42993164
+  ],
+  [
+   "subsystem_positive_frequency_28d",
+   9244993.400024414
+  ],
+  [
+   "b_historico_cause_REL",
+   8772025.274658203
+  ],
+  [
+   "tau_hour_cos",
+   8297965.415893555
+  ],
+  [
+   "cause_cnf_share_28d",
+   8003835.689453125
+  ],
+  [
+   "tau_weekday",
+   7482753.769165039
+  ],
+  [
+   "cause_rel_share_28d",
+   7127101.354248047
+  ],
+  [
+   "id_ons",
+   4147113.9642333984
+  ],
+  [
+   "hours_since_restriction",
+   3508162.073486328
+  ],
+  [
+   "cause_ene_share_28d",
+   2786809.647216797
+  ],
+  [
+   "b_ultimo_valor_cause_REL",
+   2663105.2673339844
+  ],
+  [
+   "state_positive_frequency_28d",
+   1821465.12890625
+  ],
+  [
+   "restriction_frequency_28d",
+   1711315.8303222656
+  ],
+  [
+   "tau_hour_sin",
+   1206051.3446044922
+  ],
+  [
+   "last_cause",
+   895608.6540527344
+  ],
+  [
+   "b_historico_prob_restriction",
+   833965.5716552734
+  ],
+  [
+   "id_estado",
+   808890.5123291016
+  ],
+  [
+   "b_ultimo_valor_cause_ENE",
+   793308.7801513672
+  ],
+  [
+   "b_mesmo_horario_dia_anterior_prob_restriction",
+   762809.78125
+  ],
+  [
+   "history_coverage_28d",
+   744063.8482666016
+  ],
+  [
+   "b_ultimo_valor_cause_CNF",
+   650326.1821289062
+  ],
+  [
+   "history_age_hours",
+   631150.6090087891
+  ],
+  [
+   "hours_since_positive",
+   557039.6199951172
+  ],
+  [
+   "t0_weekday",
+   512436.69079589844
+  ],
+  [
+   "positive_frequency_7d",
+   421607.62109375
+  ],
+  [
+   "b_mesmo_horario_recente_prob_restriction",
+   329360.19885253906
+  ],
+  [
+   "id_subsistema",
+   299694.36975097656
+  ],
+  [
+   "same_hour_3d_volume",
+   205819.05737304688
+  ]
+ ],
+ "metrics": {
+  "rows": 18808206,
+  "model_macro_f1": 0.7386125988148526,
+  "model_recall": {
+   "REL": 0.6713802091366174,
+   "CNF": 0.8726077422512728,
+   "ENE": 0.837751767859951
+  },
+  "baseline_ultimo_valor_macro_f1": 0.5670250586928508,
+  "baseline_ultimo_valor_recall": {
+   "REL": 0.251834572318702,
+   "CNF": 0.8118434454967067,
+   "ENE": 0.7032216996565736
+  },
+  "baseline_historico_macro_f1": 0.6777464391684346,
+  "baseline_historico_recall": {
+   "REL": 0.20251318671149635,
+   "CNF": 0.845291030021683,
+   "ENE": 0.9284003245303885
+  }
+ },
+ "peak_rss_gib": 24.132614135742188
+}
