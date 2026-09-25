@@ -80,6 +80,17 @@ não pontue o teste reservado (maio–agosto/2026).
 - **Diário:** a entrada do treino rápido já foi escrita. Acrescente só um adendo com os
   resultados das filas.
 
+## Atualização final (03h06): todas as filas concluídas
+
+- **Filas Q, R e S** (causa eólica V1–V3) terminaram sem falhas.
+- **O quadro final está na §3.6 do relatório:**
+  - IA defensável no corte solar (003) e na causa eólica (005);
+  - baseline preferível nas demais células.
+- **A nova sessão não precisa relançar nada.** Deve seguir os "Próximos passos" (§7) do
+  relatório, a começar por decidir com o responsável:
+  - a receita final por célula;
+  - a eventual abertura única do teste reservado.
+
 ## Perguntas
 
 1. **Quantidade:** treinar com mais emissões por dia (12/48, um quarto) melhora a solar em

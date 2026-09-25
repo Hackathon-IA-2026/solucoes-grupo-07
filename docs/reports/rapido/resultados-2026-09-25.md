@@ -167,8 +167,41 @@ O balanceamento ajuda, mas ainda **não supera** o `ultimo_valor` na V4.
 **Eólica V4, variante 005:**
 - macro-F1 de **0,638**, contra 0,517 do `historico` e 0,511 do `ultimo_valor` (+0,121);
 - recall de REL de 0,436;
-- é o maior ganho relativo da noite;
-- a eólica V1–V3 está na fila S (`jobs-s.txt`).
+- é o maior ganho relativo da noite.
+
+**Eólica V1–V4, variante 005** (comparador `historico`, conforme a 2C):
+
+| Rodada | Modelo | `historico` | `ultimo_valor` | Diferença | Recall de REL |
+|---|---|---|---|---|---|
+| V1 | 0,636 | 0,525 | 0,608 | +0,111 | 0,507 |
+| V2 | 0,564 | 0,577 | 0,503 | −0,012 | 0,318 |
+| V3 | 0,507 | 0,501 | 0,432 | +0,005 | 0,002 |
+| V4 | 0,638 | 0,517 | 0,511 | +0,121 | 0,436 |
+| **Média** | **0,586** | **0,530** | | **+0,056** | |
+
+- **§11:** **passa as margens** (ganho médio ≥ 0,02, 3 de 4 rodadas melhores, nenhuma piora
+  acima de 0,02).
+- **Falta:** a incerteza semanal, que o script não calcula para causa.
+- **Ponto fraco:** o recall de REL na V3 (0,002).
+
+## 3.6 Quadro final (§11 aplicado como diagnóstico, filas Q, R e S concluídas às 03h06)
+
+| Fonte | Tarefa | Receita testada | Ganho médio sobre o comparador | Rodadas melhores | Estado diagnóstico |
+|---|---|---|---|---|---|
+| Solar | corte | 003 | AP +0,062 | 4/4 | AP aprovado; **Brier falha na V2** |
+| Solar | volume | `volume_total` 004 | MAE −4,97% | 3/4 | **Não aprova** (margem por um fio; V2 +14%) |
+| Solar | causa | 005 | macro-F1 +0,009 | 2/4 | **Não aprova**; baseline preferível |
+| Eólica | corte | 003 | AP +0,023 | 2/4 | **Não aprova**; baseline preferível |
+| Eólica | volume | `volume_total` 004 | MAE +0,1% | 2/4 | **Não aprova**; baseline preferível |
+| Eólica | causa | 005 | macro-F1 +0,056 | 3/4 | **Passa as margens** (falta a incerteza semanal) |
+
+- **Onde a IA é defensável:**
+  - **alerta de corte solar**, com a ressalva de calibração;
+  - **causa eólica.**
+- **Nas demais células,** o baseline histórico é a entrega honesta, e o modelo aparece como
+  "em evolução".
+- **O padrão da V2** (maio–agosto de 2025, salto de corte) derruba todas as tarefas. Isso
+  sustenta a proposta de recalibração periódica.
 
 ## 4. Achados que valem para o produto e para o pitch
 

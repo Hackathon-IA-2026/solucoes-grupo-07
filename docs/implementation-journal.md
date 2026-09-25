@@ -2409,3 +2409,17 @@ completo: `docs/reports/stage2c/decision.md`.
 - Congelar a receita e decidir com o responsável sobre abrir o teste reservado uma vez.
 - Treinar os modelos finais e ligá-los ao dashboard.
 - Prompt: `docs/handoffs/rapido-quantidade-janela-prompt.md`.
+
+### Adendo (25/09, 03h10): filas concluídas
+
+- **Todas as filas terminaram** (Q, R e S), sem falhas.
+- **Quadro final** (§3.6 de `docs/reports/rapido/resultados-2026-09-25.md`):
+  - **corte solar:** a 003 passa as margens de AP, mas falha no Brier da V2;
+  - **causa eólica:** a 005 passa as margens (+0,056 de macro-F1, 3 de 4 rodadas melhores), sem
+    incerteza semanal calculada;
+  - **baseline preferível:** volume solar (−4,97%, por um fio abaixo de 5%, com a V2 em +14%),
+    causa solar (+0,009), corte eólico (+0,023, 2 de 4) e volume eólico (+0,1%).
+- **Padrão comum:** as rodadas de alta do corte (V2, e às vezes V3) derrubam o modelo em todas
+  as tarefas. Isso reforça a proposta de recalibração periódica.
+- **Próximo passo:** decidir com o responsável a receita por célula e se o teste reservado
+  será aberto uma única vez.
