@@ -127,6 +127,21 @@ traria ganho relevante.
 - **Tentativa anterior com categóricas nativas:** falhou com um erro interno do LightGBM
   (`best_split_info.left_count > 0`); por isso o volume usa `--no-categorical`.
 
+### 3.4b Volume total, eólica (MAE em MWmed; comparador `mesmo_horario_dia_anterior`)
+
+| Rodada | Modelo | Comparador | Variação | WAPE (modelo / comparador) | Viés |
+|---|---|---|---|---|---|
+| V1 | 11,57 | 13,63 | −15,1% | 1,133 / 1,337 | −6,38 |
+| V2 | 17,23 | 16,72 | +3,0% | 0,886 / 0,860 | −12,93 |
+| V3 | 22,20 | 20,09 | **+10,5%** | 0,786 / 0,712 | −13,96 |
+| V4 | 12,51 | 13,01 | −3,8% | 1,065 / 1,107 | −1,07 |
+| **Média** | **15,88** | **15,86** | **+0,1%** | | |
+
+- **§11:** é empate na média, com 2 de 4 rodadas melhores, e a V3 dispara a proteção de piora
+  acima de 10%. **Não aprova.**
+- **Na eólica, o baseline continua preferível também no volume.**
+- **Padrão:** o viés negativo cresce em V2 e V3, justamente os períodos de alta do corte.
+
 ### 3.5 Causa, solar V4 (macro-F1, mesmas linhas)
 
 | Variante | Modelo | `ultimo_valor` | `historico` | Recall de REL |
