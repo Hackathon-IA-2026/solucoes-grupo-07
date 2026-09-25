@@ -90,9 +90,16 @@ sistêmico, e a regra histórica já captura a maior parte do sinal. V1–V3 est
 |---|---|---|---|---|---|
 | V1 | 13,04 | 15,44 | −15,6% | 1,004 / 1,189 | −6,53 |
 | V2 | 17,27 | 15,13 | **+14,1% (piora)** | 0,791 / 0,693 | −14,64 |
+| V3 | 14,79 | 16,09 | −8,1% | 0,684 / 0,744 | −3,66 |
 | V4 | 12,16 | 13,59 | −10,5% | 0,878 / 0,981 | −1,23 |
+| **Média** | **14,32** | **15,06** | **−4,97%** | 0,839 / 0,902 | |
 
-- **V3:** na fila Q.
+- **§11, completo:**
+  - vence em 3 de 4 rodadas, com WAPE médio melhor;
+  - fica **por um fio abaixo da margem de 5%**;
+  - a V2 dispara a proteção de piora acima de 10%;
+  - portanto, **não aprovaria**. É um ganho real, mas modesto e concentrado fora dos saltos de
+    regime.
 - **V2:** repete o padrão do corte. Mesmo partindo do baseline, o modelo aplica uma correção para
   baixo, aprendida antes do salto de maio–agosto de 2025.
 - **§11:** a V2 dispara a proteção de piora acima de 10% em uma rodada. O ganho médio pode
