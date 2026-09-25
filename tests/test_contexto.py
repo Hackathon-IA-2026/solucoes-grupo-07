@@ -44,6 +44,23 @@ def test_drop_remove_colunas_e_mantem_categoricas_no_fim():
     assert encoder.columns[-len(CATEGORICAL) :] == list(CATEGORICAL)
 
 
+def test_drop_tambem_remove_categoricas():
+    encoder = Encoder(drop=("id_ons", "last_cause")).fit(_frame(["A"]))
+    assert "id_ons" not in encoder.columns
+    assert "last_cause" not in encoder.columns
+    assert encoder.matrix(_frame(["A"])).shape == (1, len(encoder.columns))
+    assert encoder.categorical_indices == list(
+        range(len(encoder.columns) - len(CATEGORICAL) + 2, len(encoder.columns))
+    )
+
+
+def test_encoder_antigo_sem_lista_de_categoricas_mantem_todas():
+    encoder = Encoder().fit(_frame(["A"]))
+    del encoder.__dict__["categorical"]
+    assert encoder.columns[-len(CATEGORICAL) :] == list(CATEGORICAL)
+    assert encoder.matrix(_frame(["A"])).shape == (1, len(encoder.columns))
+
+
 def test_encoder_serializavel_fora_do_script():
     encoder = Encoder().fit(_frame(["A"]))
     restored = pickle.loads(pickle.dumps(encoder))

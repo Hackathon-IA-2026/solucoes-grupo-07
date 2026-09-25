@@ -98,16 +98,22 @@ class Encoder:
     def __init__(self, drop: tuple[str, ...] = ()) -> None:
         self.categories: dict[str, dict[str, int]] = {}
         self.dense = [c for c in (*NUMERIC, *BOOLEAN, *BASELINE_FEATURES) if c not in drop]
+        self.categorical = [c for c in CATEGORICAL if c not in drop]
+
+    @property
+    def _categorical(self) -> list[str]:
+        # Encoders salvos antes de 25/09 (tarde) não têm a lista e usam todas as categóricas.
+        return self.__dict__.get("categorical", list(CATEGORICAL))
 
     def fit(self, frame: pl.DataFrame) -> Encoder:
-        for name in CATEGORICAL:
+        for name in self._categorical:
             values = sorted(str(v) for v in frame[name].drop_nulls().unique().to_list())
             self.categories[name] = {v: i for i, v in enumerate(values)}
         return self
 
     @property
     def columns(self) -> list[str]:
-        return [*self.dense, *CATEGORICAL]
+        return [*self.dense, *self._categorical]
 
     def matrix(self, frame: pl.DataFrame) -> np.ndarray:
         numeric = frame.select(
@@ -121,7 +127,7 @@ class Encoder:
                     default=None,
                     return_dtype=pl.Float32,
                 )
-                for c in CATEGORICAL
+                for c in self._categorical
             ],
         )
         return numeric.to_numpy().astype(np.float32, copy=False)
@@ -129,7 +135,7 @@ class Encoder:
     @property
     def categorical_indices(self) -> list[int]:
         start = len(self.dense)
-        return list(range(start, start + len(CATEGORICAL)))
+        return list(range(start, start + len(self._categorical)))
 
 
 def historico_offset(frame: pl.DataFrame, task: str) -> np.ndarray:
