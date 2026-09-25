@@ -89,9 +89,15 @@ sistêmico, e a regra histórica já captura a maior parte do sinal. V1–V3 est
 | Rodada | Modelo | `historico` | Redução | WAPE (modelo / `historico`) | Viés |
 |---|---|---|---|---|---|
 | V1 | 13,04 | 15,44 | −15,6% | 1,004 / 1,189 | −6,53 |
+| V2 | 17,27 | 15,13 | **+14,1% (piora)** | 0,791 / 0,693 | −14,64 |
 | V4 | 12,16 | 13,59 | −10,5% | 0,878 / 0,981 | −1,23 |
 
-V2 e V3 estão na fila Q (ver §5).
+- **V3:** na fila Q.
+- **V2:** repete o padrão do corte. Mesmo partindo do baseline, o modelo aplica uma correção para
+  baixo, aprendida antes do salto de maio–agosto de 2025.
+- **§11:** a V2 dispara a proteção de piora acima de 10% em uma rodada. O ganho médio pode
+  existir, mas a adoção automática fica bloqueada. A proposta de recalibração periódica (§4,
+  item 3) também valeria para o volume.
 
 - **Tentativa descartada:** o pipeline `P(corte) × volume condicional` com LightGBM Gamma
   (`rapido-fv-v4-vol-003`) teve MAE de 37,8 contra 13,6. O Gamma produziu previsões enormes em
