@@ -41,6 +41,30 @@ reescrever o texto aprovado. Ela deve:
    conformidade exige decisão explícita do responsável **antes** da execução real. Registre
    quem decidiu e quando.
 
+**Decisões pendentes do responsável.** Pergunte antes de gastar computação e registre as
+respostas no protocolo v2.
+
+1. **Métrica de *early stopping* do LightGBM Gamma** (§3.5).
+2. **Regenerar os datasets** para as colunas do §8 ausentes (§3.1, cerca de 6 h), ou mantê-las
+   como lacuna.
+3. **Estatísticas recentes entidade × mesmo horário como features.**
+   - **Fato da 2C:** os comparadores vencedores são, em 98,5%–99,8% das linhas, a frequência
+     (e a média positiva) da própria entidade no horário de `tau` nos últimos 28 dias.
+   - **Por que o §8 não cobre isso:** a lista do §8 não tem essa estatística. O "mesmo
+     horário" do §8 são só quatro buscas exatas (`tau − 1, 2, 3, 7 dias`), e `tau − 1d` só
+     está disponível em cerca de 1,3% das linhas sob a liberação noturna. As estatísticas
+     móveis do §8 são por entidade, não por horário.
+   - **Risco:** uma 2D de pura conformidade pode falhar de novo por um motivo previsível,
+     depois de cerca de 13 h de execução.
+   - **Pergunta:**
+     - (a) admitir essas estatísticas (já calculadas e auditadas sem vazamento em
+       `baselines.parquet`) como features de uma variante **nomeada separadamente** e
+       declarada motivada por resultado, avaliada com as mesmas margens;
+     - ou (b) não admiti-las.
+   - A variante conforme ao §8 continua sendo executada em qualquer caso.
+4. **Desenvolvimento e execução no mesmo computador Windows** como desvio permanente do §13.3,
+   já que a raiz foi unificada no repositório.
+
 ## 3. Correções de conformidade (obrigatórias)
 
 ### 3.1 Features do §8, iguais entre famílias
@@ -185,13 +209,24 @@ colunas numéricas.
    - evitar cópias entre Polars, NumPy e SciPy.
 2. Meça com um piloto técnico por fonte (StepId novo, até 500 mil exemplos, sem métricas de
    seleção) e projete o pico da rodada mais pesada.
+   - A projeção da 2B subestimou o pico real em cerca de 20% (≤ 20 GiB projetados contra 24,06
+     GiB medidos). Aplique essa margem, ou uma medida melhor, à nova projeção.
+   - A `main-eolica-v1-001` entrou em *thrashing* justamente por confiar na projeção.
 3. Se a taxa de amostragem de `t0` precisar mudar (hoje, eólica 4/48 e 14/48; solar 16/48 e
    48/48):
    - fixe as novas taxas **antes** da validação externa, pela regra da 2B (maior fração com
-     pico projetado ≤ 20 GiB);
+     pico **corrigido** ≤ 20 GiB);
    - use o mesmo método `t0_sistematico_diario_v1` e a mesma semente;
    - registre como desvio.
 4. Não execute runs em paralelo nem use o teste reservado.
+5. **Armazenamento:**
+   - verifique o espaço livre no `Y:` antes de cada run, usando os bytes por run de
+     `handoff/inventario-etapa-2b-002.csv` como referência;
+   - na 2B foram 1,7–4,4 GB por principal e 2,3–6,5 GB por sensibilidade, cerca de 56 GB no
+     total;
+   - as runs vão para `experimentos/` (junção para o `Y:`), nunca para o `M:`, que tem cerca
+     de 39 GB livres;
+   - avalie se a sensibilidade precisa mesmo gravar todas as features junto das previsões.
 
 ## 5. Execução
 
