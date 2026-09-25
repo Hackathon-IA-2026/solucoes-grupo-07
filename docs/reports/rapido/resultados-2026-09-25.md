@@ -355,6 +355,50 @@ A semente muda o modelo e a amostra de emissões do treino. Cada célula mostra 
 - **Uso:** só descrição da variância. Não serve para reinterpretar a `s01` (a diferença de
   −0,015 dela na V4 é maior que a amplitude entre sementes).
 
+## 3.11 Teste reservado (maio–agosto/2026): aberto uma única vez, receita confirmada
+
+- **Autorização:** o responsável autorizou a abertura única de manhã. A receita foi congelada
+  no commit `8271bf1`, antes de gerar as features do período
+  ([procedimento](teste-reservado-procedimento.md)).
+- **Features:** geradas com `build-features --round reserved`. São 123 partições por fonte,
+  com `t0` de 01/05 00h a 31/08 23h30: 22,5 milhões de linhas na solar e 43,4 milhões na
+  eólica.
+- **Pontuação:** 13h30–14h13, seis células, todas com exit 0. Runs `rapido-*-final-*-reservado`.
+
+| Célula | Receita | Receita no teste | Comparador no teste | Diferença e IC semanal |
+|---|---|---|---|---|
+| **Corte solar** | modelo 003 | AP **0,875**, Brier **0,071** | `historico` 0,824 / 0,078 | **+0,051**, IC [+0,029, +0,068], 17/18 |
+| **Causa eólica** | modelo 005 | macro-F1 **0,739** (REL 0,67) | `historico` 0,678 (REL 0,20) | **+0,061**, IC semanal [+0,008, +0,104], 10/18 |
+| Corte eólico | `historico` | AP 0,828, Brier 0,125 | — | diagnóstico do modelo: 0,847 (+0,018, IC [+0,005, +0,030]) |
+| Volume solar | `historico` | MAE 16,60 | — | diagnóstico do modelo: 14,56 (−12,3%) |
+| Volume eólico | `mesmo_horario_dia_anterior` | MAE 20,10 | — | diagnóstico do modelo: 20,03 (−0,4%) |
+| Causa solar | `ultimo_valor` | macro-F1 0,448 | — | diagnóstico do modelo: 0,496 (+0,048) |
+
+**Previsões escritas antes do teste:**
+
+1. **Corte solar, AP ≥ `historico`: confirmada** (+0,051).
+   - A ressalva condicional do Brier não se aplicou: a prevalência foi de 25,8%, sem o salto
+     de 2025, e o Brier ficou melhor que o do baseline.
+2. **Causa eólica, macro-F1 ≥ `historico`: confirmada** (+0,061). O IC semanal exclui zero.
+3. **Células de baseline:** reportado o baseline. Os números do modelo são **diagnóstico**. Em
+   três delas, o modelo teria vencido fora da amostra (volume solar −12%, causa solar +0,048,
+   corte eólico +0,018). Pela §11.3, isso **não** muda a receita: é evidência para uma versão
+   futura, a validar com dados novos.
+
+**Determinismo, limitação encontrada:**
+
+- O retreino da pontuação **não é idêntico bit a bit** ao FINAL salvo, apesar da mesma semente
+  e das mesmas linhas: o early stopping para em 93→75 árvores (corte solar), 57→44, 60→37 e
+  167→221.
+- **Causa provável:** a ordem das linhas vinda do motor *streaming* do Polars não é fixa.
+- **Magnitude esperada:** a variação entre sementes (§3.10) é de ≤ 0,004 de AP em V2–V4.
+- **Consequência:** o artefato do produto é o **`-reservado`**, o modelo efetivamente medido.
+- **Correção futura:** ordenar por `KEYS` depois de cada `collect`.
+
+**Observação sobre o comparador:** no volume solar, o `mesmo_horario_dia_anterior` tem MAE
+idêntico ao do `historico` (16,603). É coerente com a defasagem de cerca de 39 h: o mesmo
+horário de ontem ainda não está liberado e cai no fallback. Não foi investigado a fundo.
+
 ## 4. Achados que valem para o produto e para o pitch
 
 1. **"A IA corrige o baseline" funciona.** O modelo recebe a regra histórica como feature, ou

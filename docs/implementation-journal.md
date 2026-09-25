@@ -2553,3 +2553,86 @@ liberando, corrige o nível sem perder ranking?
   - decidir com o responsável a receita por célula;
   - fazer o commit de congelamento com uma previsão escrita antes do teste;
   - gerar as features e pontuar o teste uma única vez.
+
+## 25/09/2026 — Teste reservado aberto uma vez: a receita congelada se confirma
+
+### Contexto e pergunta
+
+Depois de um dia de hipóteses pré-registradas sobre V1–V4 (recalibração, simplicidade e estado
+sistêmico, todas reprovadas), o responsável decidiu congelar a receita "pelas regras" e abrir o
+teste reservado uma única vez. É a única evidência independente disponível: as variantes da
+receita foram escolhidas olhando V1–V4.
+
+### Fatos e evidências observados
+
+- **Congelamento:** commit `8271bf1`, com previsões falseáveis escritas antes do teste:
+  - corte solar e causa eólica: modelo;
+  - demais células: baseline.
+- **Features do período:** 123 partições por fonte, `t0` de 01/05 a 31/08/2026.
+- **Corte solar (003):**
+  - AP 0,875 contra 0,824 do `historico` (+0,051), IC semanal [+0,029, +0,068], 17/18
+    semanas;
+  - Brier 0,071 contra 0,078;
+  - prevalência de 25,8%.
+- **Causa eólica (005):** macro-F1 0,739 contra 0,678 (+0,061), IC semanal [+0,008, +0,104];
+  recall de REL de 0,67 contra 0,20.
+- **Células de baseline (diagnóstico do modelo, não receita):**
+  - volume solar: MAE 14,56 contra 16,60 (−12,3%);
+  - causa solar: macro-F1 +0,048;
+  - corte eólico: AP +0,018;
+  - volume eólico: −0,4%.
+- **Determinismo:** nenhum retreino reproduziu o FINAL bit a bit. As árvores do early stopping
+  variam (93→75, 57→44, 60→37, 140→140, 167→221) com as mesmas linhas.
+- **Incidentes operacionais:**
+  - uma queda momentânea para 1,2 GB livre durante o volume eólico;
+  - o cálculo do IC da causa foi encerrado pelo Claude Code por pressão de memória e refeito,
+    com autorização do responsável, depois da fila.
+
+### Interpretação e decisão
+
+- **Fato:** as duas previsões pré-teste se confirmaram, com ganhos iguais ou maiores que os de
+  V1–V4. Isso sustenta que o ganho da IA nessas duas células não é artefato de seleção sobre
+  V1–V4.
+- **Interpretação:** maio–agosto de 2026 não repetiu o salto de prevalência de 2025, por isso
+  o problema de calibração da V2 não apareceu. A limitação continua declarada para regimes
+  novos.
+- **Decisão:** a receita congelada fica confirmada, e as células de baseline continuam
+  baseline. Os bons números diagnósticos do modelo nessas células são evidência para uma
+  próxima versão, não troca (§11.3).
+- **Decisão de produto:** o artefato do dashboard é o `-reservado` de cada célula, o modelo
+  exatamente medido.
+
+### Alternativas consideradas
+
+- **Pontuar também a `s01` como diagnóstico:** oferecida e não escolhida pelo responsável.
+- **Trocar para a `s01` antes do teste:** não recomendada (troca post-hoc) e não escolhida.
+
+### Implementação e validação
+
+- **Modo de pontuação:** commit `d3dbb77`.
+- **Congelamento:** commit `8271bf1`.
+- **Filas:** `jobs-t1` (features) e `jobs-t2` (pontuação), em
+  `experiments/stage2b/execucao/rapido/`.
+- **Tabela completa:** §3.11 do relatório.
+
+### Limitações e incertezas
+
+- Uma janela de quatro meses, sem mudança de regime marcada.
+- Treino não determinístico: a variação esperada é da ordem da variação entre sementes.
+- Tudo segue fora do protocolo completo (uma configuração de LightGBM, sem família linear).
+- O teste reservado está agora **consumido**: não serve mais para escolher variantes.
+
+### Valor para o usuário e para a apresentação
+
+- **Frase para o pitch:** "a regra histórica já é forte; a IA a corrige e ganhou num período
+  que ninguém viu durante o desenvolvimento":
+  - alerta de corte solar com AP 0,875 contra 0,824;
+  - causa eólica com recall de restrição elétrica de 67% contra 20%.
+- **Rigor:** três hipóteses reprovadas por regras escritas antes, e a receita congelada antes
+  de abrir o teste.
+
+### Próximos passos
+
+- Ligar os artefatos `-reservado` ao dashboard e à containerização (amanhã).
+- Tornar o treino determinístico, ordenando depois de cada `collect`.
+- Validar prospectivamente os modelos das células de baseline antes de promovê-los.
