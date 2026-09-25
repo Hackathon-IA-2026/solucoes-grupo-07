@@ -23,6 +23,65 @@ O dashboard deve abrir com a decisao que o usuario precisa tomar, nao com a acur
 
 Os três problemas estão definidos, mas os algoritmos não. A seleção ocorrerá depois da auditoria dos dados, por meio de baselines e experimentos temporais reproduzíveis. LightGBM, regressões regularizadas e outros modelos tabulares são candidatos, não compromissos arquiteturais.
 
+## Inferência em produção: cálculo incremental de features
+
+Decisão registrada em 24/09/2026, ao fim da Etapa 2B. Ela vale para a fase de produto,
+depois do treino final e do teste reservado, e não altera a Etapa 2C.
+
+**Princípio.** Os datasets de features da 2B (≈ 8,2 GB) existem para treinar e avaliar: cobrem
+todas as usinas, a cada meia hora de ≈ 2,5 anos, com 48 horizontes. Em operação, a pergunta é
+sempre "e as próximas 24 h a partir de agora?". Por isso a aplicação calcula as features de
+**um t0 por vez**, a partir de uma janela móvel de dados brutos. Ela não carrega nem distribui
+o dataset de treino.
+
+**O que a inferência precisa (estado mínimo):**
+
+- os modelos finais congelados, em `models/`, com versão, receita e hashes (dezenas de MB);
+- uma janela móvel de dados brutos de **35 dias** por fonte, cerca de 5 MB. As features usam
+  janelas de até 28 dias (`features.py`, `baselines.py`), e a preparação lê 35 dias
+  (`preparation.py`);
+- uma tabela pequena por usina com a data do primeiro registro, usada pelas flags de histórico
+  insuficiente e de usina nova;
+- o calendário de liberação (hoje simulado às 19h30 do dia útil seguinte).
+
+**Fluxo:**
+
+1. **Job agendado de previsão:**
+   1. quando o ONS libera dados novos, ingere o incremento e descarta o que passar de 35 dias;
+   2. calcula as features do t0 atual com **a mesma função usada no treino**;
+   3. aplica os modelos (ocorrência, volume e causa);
+   4. grava as previsões com t0, horizonte, versão do modelo, fonte e horário da última
+      atualização (Parquet/DuckDB).
+2. **Dashboard:** apenas lê as previsões gravadas e as exibe com fonte, janela temporal, última
+   atualização, incerteza e limitações. Não calcula features nem treina.
+
+**Custo estimado** (hipótese extrapolada dos tempos medidos na geração dos datasets da 2B,
+≈ 8 s por dia de 48 t0 na eólica e ≈ 3 s na solar):
+
+- features de um t0 para todas as usinas: frações de segundo de cálculo, mais a leitura da
+  janela de histórico;
+- previsão: milissegundos;
+- ciclo completo: poucos segundos por fonte.
+
+Cabe num container modesto, sem GPU e sem serviço externo obrigatório. A implantação na AWS
+continua atrás de interfaces e configuração.
+
+**Modo de reprodução (demonstração).** Como os dados disponíveis terminam em 2026, o MVP roda
+o mesmo job com um relógio histórico: recebe um t0 passado e usa só os dados que estariam
+liberados naquele instante. O código é idêntico ao da operação; muda apenas a fonte do "agora".
+O dashboard deve indicar explicitamente que se trata de reprodução histórica.
+
+**Requisito de qualidade: paridade treino/produção.** O principal risco desse desenho é o
+cálculo incremental divergir do dataset de treino. Antes de integrar o job, é obrigatório um
+teste de paridade:
+
+1. escolher t0 presentes em `experiments/stage2b/experimentos/stage2b-datasets`;
+2. recalculá-los pelo caminho incremental, só com a janela de 35 dias;
+3. exigir igualdade linha a linha das features.
+
+Os datasets da 2B servem de gabarito para esse teste, e só nesse papel precisam existir fora
+do container.
+
 ## Interface: decisão pendente
 
 O Streamlit é adequado para exploração e possui `st.chat_input` e `st.chat_message`. Também aceita componentes customizados e CSS, mas um botão flutuante, navegação sofisticada e identidade visual muito específica tendem a exigir componentes próprios e soluções mais frágeis.

@@ -2186,3 +2186,24 @@ volte ao repositório e que o worktree separado deixe de existir, sem recriar ne
   a junção e os temporários para o `Y:`. O `env.example.ps1` acompanha.
 - **Script obsoleto:** `migrar-para-repo.ps1`, da política de junção por run, foi removido
   (continua no histórico do Git).
+
+## 24/09/2026 — Arquitetura: inferência em produção com features incrementais
+
+- **Pergunta do responsável:** como a aplicação funcionaria de verdade se os 8,2 GB de
+  features da 2B não cabem num container?
+- **Fatos do código:** as features usam janelas de até 28 dias, e a preparação lê 35 dias de
+  dados brutos (`features.py`, `baselines.py`, `preparation.py`). Os 138 MB de dados brutos
+  cobrem cerca de 31 meses, então 35 dias somam cerca de 5 MB.
+- **Decisão**, registrada em `docs/architecture.md`, seção "Inferência em produção":
+  - um job agendado calcula as features de um t0 por vez, a partir de uma janela móvel de 35
+    dias, aplica os modelos finais e grava as previsões;
+  - o dashboard só lê essas previsões;
+  - a demonstração usa o mesmo job com relógio histórico (modo de reprodução).
+- **Estimativa de custo** (hipótese, extrapolada dos tempos de geração da 2B): poucos segundos
+  por ciclo e por fonte.
+- **Requisito:** um teste de paridade entre as features incrementais e as linhas de
+  `stage2b-datasets` antes de integrar o job.
+- **Valor para o pitch:** responde ao "funciona de verdade?" com um desenho operacional leve e
+  sem dependência obrigatória de nuvem.
+- **Momento:** vale para a fase de produto, depois do treino final e do teste reservado. Não
+  altera a Etapa 2C.
