@@ -52,7 +52,7 @@ O usuario principal e o gerador eolico/solar. Analises para investidores e carga
 - `data/`: apenas documentacao e diretorios locais ignorados pelo Git.
 - `models/`: artefatos locais ignorados pelo Git.
 - `docs/`: decisoes de arquitetura e notas tecnicas.
-- `experiments/stage2b/`: raiz operacional da Etapa 2B (scripts, logs, run-index, métricas e relatórios versionados). Previsões, modelos e datasets ficam em disco externo, expostos por junction e ignorados pelo Git (ver `experiments/stage2b/README.md`). Nunca rode `git clean -x` neste repositório.
+- `experiments/stage2b/`: raiz operacional da Etapa 2B (scripts, logs, run-index, métricas e relatórios versionados). A pasta `experimentos/` é uma junção para o disco externo; previsões, modelos e datasets dentro dela são ignorados pelo Git (ver `experiments/stage2b/README.md`). Nunca rode `git clean -x` neste repositório.
 
 ## Comandos
 

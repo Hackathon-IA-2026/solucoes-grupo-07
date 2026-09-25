@@ -1,53 +1,51 @@
 # Etapa 2B — raiz operacional e artefatos
 
-Este diretório espelha a raiz experimental da Etapa 2B, que antes ficava em
+Este diretório reúne a raiz experimental da Etapa 2B, que antes ficava inteira em
 `Y:\CurtaMap Etapa 2B`. A estrutura de pastas foi mantida, para que continuem válidos os
-caminhos relativos citados no relatório, no prompt da 2C e no `run-index`, como
-`execucao/run-index.json` e `experimentos/<run>/metrics/…`.
+caminhos relativos citados no relatório, no prompt da 2C e no `run-index`.
 
-## O que está no Git
+## Onde está cada coisa
 
-- `execucao/`: scripts operacionais, `run-index.json`, checkpoints, logs de cada passo
-  (`passos/`), verificações e medições. Os backups `.before-*` guardam versões de scripts
-  nunca commitadas.
-- `handoff/`: relatório factual, inventários e `SHA256SUMS-handoff.txt`.
-- `experimentos/<run>/`: `manifest.json`, `checksums.json`, `reports/`, `metrics/` e
-  `diagnostics/`.
-
-O `.gitattributes` desativa a conversão de fim de linha aqui, para que os bytes (e os
-`checksums.json`) sejam os mesmos em qualquer clone.
-
-## O que fica fora do Git (disco externo, via junction)
-
-| Caminho aqui | Conteúdo | Tamanho aproximado |
+| Caminho aqui | Onde fica fisicamente | No Git? |
 |---|---|---|
-| `experimentos/<run>/predictions` | Previsões Parquet | 58,7 GB |
-| `experimentos/<run>/models` | Modelos `.joblib` (≈ 11 h de treino) | 27 MB |
-| `experimentos/stage2b-datasets` | Features e baselines | 8,2 GB |
-| `cache`, `dados`, `sondas`, `temporarios` | Alvos, dados brutos, sondagens, spill | ≈ 0,9 GB |
-| `env.ps1` | Caminhos desta máquina (modelo em `env.example.ps1`) | — |
-| `**/*.progress.jsonl`, `**/*.sqlite` | Progresso intermediário de medições e verificações | 72 MB |
+| `execucao/` (scripts, `run-index.json`, logs de passos, verificações, checkpoints) | aqui | sim, exceto `*.progress.jsonl` e `*.sqlite` |
+| `handoff/` (relatório, inventários, `SHA256SUMS-handoff.txt`) | aqui | sim |
+| `cache/` (alvos), `dados/` (Parquet bruto), `sondas/` | aqui | não |
+| `env.ps1` (caminhos desta máquina; modelo em `env.example.ps1`) | aqui | não |
+| **`experimentos/`** | **junção** para `Y:\CurtaMap Etapa 2B\experimentos` (≈ 68 GB) | ver abaixo |
+| `temporarios` (spill de runs pesadas) | só em `Y:\CurtaMap Etapa 2B\temporarios`, pelo `env.ps1` | não |
 
-Nada disso deve ser recriado: os artefatos são caros. Em outra máquina, copie as pastas para os
-mesmos caminhos relativos (como pastas reais ou symlinks) e confira com:
+Dentro de `experimentos/<run>/`:
+
+- `manifest.json`, `checksums.json`, `reports/`, `metrics/` e `diagnostics/` são versionados.
+  O Git os lê através da junção.
+- `predictions/` e `models/` ficam ignorados, assim como `experimentos/stage2b-datasets/`.
+
+O `.gitattributes` desativa a conversão de fim de linha em `experiments/stage2b`, para que os
+bytes (e os `checksums.json`) sejam os mesmos em qualquer clone.
+
+## Em outra máquina (Mac)
+
+Nada deve ser recriado: os artefatos levam horas para gerar.
+
+1. Copie `Y:\CurtaMap Etapa 2B\experimentos` inteira para `experiments/stage2b/experimentos`,
+   como pasta real ou symlink. Os arquivos leves já vêm do Git e são idênticos.
+2. Copie também `cache/`, `dados/` e `sondas/` deste diretório, se forem necessários.
+3. Confira:
 
 ```bash
-uv run python scripts/stage2b/conferir_migracao.py "<origem>" experiments/stage2b
+uv run python scripts/stage2b/conferir_migracao.py
 ```
 
-No computador dedicado, as junctions são criadas por `scripts/stage2b/migrar-para-repo.ps1`.
-O script só copia arquivos e cria junctions; nunca apaga nada.
+O script recalcula o SHA-256 de todas as entradas dos `checksums.json` (650 hoje).
 
 ## Atenção
 
-- **Nunca rode `git clean -x` (nem `-X`) neste repositório.** O Git trata as junctions como
-  diretórios comuns e apagaria os dados reais no disco externo.
-- **Novas runs:** `execucao/run-step.ps1` grava os passos aqui, mas `CURTAMAP_EXPERIMENT_DIR`
-  continua no disco externo, porque as previsões não cabem no disco do repositório. Depois de
-  cada run, rode de novo `migrar-para-repo.ps1` e `conferir_migracao.py` para trazer as partes
-  leves e criar as junctions.
-- **Caminhos absolutos gravados:** os manifests e relatórios registram caminhos `Y:\…`. Isso
-  é histórico e continua válido nesta máquina.
+- **Nunca rode `git clean -x` (nem `-X`) neste repositório.** O Git trata a junção como um
+  diretório comum e apagaria os dados reais no disco externo.
+- **Novas runs** gravam direto em `experimentos/` (portanto no `Y:`), e os passos do
+  `run-step.ps1` vão para `execucao/passos/`.
+- **Caminhos absolutos gravados:** manifests e relatórios registram caminhos `Y:\…`. Os de
+  `experimentos` continuam válidos nesta máquina; os de `cache` e `dados` agora ficam aqui.
 - **Fila da 2B:** `execucao/fila/fila-2b.ps1` e `status-fila.ps1` são registros da fila já
-  concluída. Eles ainda apontam para o `Y:` e para o worktree removido; adapte-os antes de
-  reutilizá-los.
+  concluída e ainda apontam para caminhos antigos; adapte-os antes de reutilizá-los.

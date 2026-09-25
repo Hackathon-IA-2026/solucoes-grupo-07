@@ -25,7 +25,8 @@ Leia integralmente:
 - todos os manifestos, checksums, relatórios, métricas, previsões, diagnósticos, logs e falhas
   em `experiments/stage2b/` (os caminhos abaixo são relativos a ela), além de
   `execucao/run-index.json`. Leia antes `experiments/stage2b/README.md`: os arquivos leves
-  estão no Git, e previsões, modelos e datasets ficam no disco externo, expostos por junction.
+  estão no Git, e a pasta `experimentos/` é uma junção para o disco externo (previsões,
+  modelos e datasets).
   Se faltarem na máquina, copie-os; não os recrie.
 
 Confira primeiro hashes, commit do código, calendário, configuração, versões, sementes, cortes

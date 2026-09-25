@@ -2156,3 +2156,33 @@ volte ao repositório e que o worktree separado deixe de existir, sem recriar ne
 - A partir de agora, o repositório é a fonte única do que é versionável nas duas máquinas.
 - No Mac, basta colocar previsões, modelos e datasets nos mesmos caminhos relativos.
 - Próximo passo: a Etapa 2C, pelo prompt `docs/handoffs/stage2c-prompt.md`.
+
+### Adendo (sessão 05): junção única para `experimentos` e limpeza do disco externo
+
+- **Pedido do responsável:** no `Y:` deve ficar só o que não cabe no repositório, e
+  `experiments/stage2b/experimentos` passa a ser **uma única junção**, mais simples de ver e
+  gerenciar do que uma junção por run.
+- **O que foi feito:**
+  - `cache`, `dados` e `sondas` foram trazidos fisicamente para `experiments/stage2b/`,
+    ignorados pelo Git (`internalizar-leves.ps1`, com SHA-256 conferido arquivo a arquivo);
+  - `limpar-raiz-externa.py` removeu do `Y:` apenas 942 arquivos com cópia idêntica, conferida
+    por hash, no repositório: as pastas `_migrado-*`, o `env.ps1` e os arquivos leves de
+    runs. Também removeu 12 junções inversas e as pastas vazias `modelos/` e `worktrees/`;
+  - por fim, `juncao-unica-experimentos.ps1` removeu os 17 links por run (só os links),
+    copiou para o `Y:` os arquivos leves e os modelos (478 arquivos, hashes conferidos) e
+    criou a junção `experimentos` → `Y:\CurtaMap Etapa 2B\experimentos`. Os modelos ficam em
+    `experimentos/<run>/models`, junto das previsões.
+- **Estado final do `Y:`:** apenas `experimentos/` (runs completas e `stage2b-datasets`) e
+  `temporarios/`, que continua fora do repositório por receber spill de dezenas de GB e é
+  referenciada só pelo `env.ps1`.
+- **Conferência `conferencia-juncao-unica-001`:** SHA-256 igual nas 650 entradas de checksum
+  das 17 runs, lendo pelo repositório; `git status` sem alteração nos arquivos versionados
+  lidos através da junção.
+- **Incidente:** o conteúdo de `Y:\…\temporarios` (455 MB) foi apagado por um comando
+  `find -delete` que apareceu como rejeitado pelo responsável, mas executou antes da
+  rejeição. Era área de rascunho (restos de pytest e spill do Polars), sem artefato de run
+  nem entrada de checksum. Nenhum outro dado foi descartado.
+- **`env.ps1`:** passou a apontar `dados` e `cache` para o repositório, os experimentos para
+  a junção e os temporários para o `Y:`. O `env.example.ps1` acompanha.
+- **Script obsoleto:** `migrar-para-repo.ps1`, da política de junção por run, foi removido
+  (continua no histórico do Git).
