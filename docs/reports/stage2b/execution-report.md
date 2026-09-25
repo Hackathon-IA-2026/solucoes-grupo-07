@@ -845,4 +845,4 @@ de fase. Nas sensibilidades, o stderr está vazio.
 (maio–agosto/2026); não mudar grades, candidatos ou metodologia para resgatar médias; não fazer
 merge em `main` sem aprovação da 2C.
 
-**Prompt de análise:** `handoff/PROMPT-analise-etapa-2c.md`.
+**Prompt de análise:** `docs/handoffs/stage2c-prompt.md` (versão consolidada, único prompt da 2C).

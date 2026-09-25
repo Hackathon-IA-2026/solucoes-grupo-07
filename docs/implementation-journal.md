@@ -2061,3 +2061,22 @@ Executar a 2C com `handoff/PROMPT-analise-etapa-2c.md`.
     `Y:\…`.
 - **Hashes:** `configuration_sha256` e `data_hashes` foram conferidos nos 16 manifests (antes,
   só nas 8 principais e em uma sensibilidade).
+
+### Adendo (sessão 05): prompt único da 2C
+
+- **Situação:** havia dois prompts. `docs/handoffs/stage2c-prompt.md` era o original, escrito
+  antes da execução e dono do método de decisão. `docs/handoffs/stage2c-analysis-prompt.md`
+  era o da sessão 05, com os fatos da execução.
+- **Conflitos do prompt novo com o original**, que prevalece:
+  - estados: o novo usava os estados do §11.2 (`aprovado_preliminar`, `requer_analise`); o
+    original define `aprovado_para_teste`, `baseline_preferido`, `inconclusivo`, `inelegivel`
+    e `requer_2d`;
+  - teste reservado: o novo proibia abri-lo de forma absoluta; o original atribui à 2C a
+    decisão explícita de liberá-lo depois de congelar a receita. A proibição absoluta valia
+    para a 2B.
+- **Decisão**, a pedido do responsável:
+  - consolidar tudo em `docs/handoffs/stage2c-prompt.md`, com o texto original preservado e
+    uma seção "Fatos da execução 2B";
+  - apagar `stage2c-analysis-prompt.md` e a cópia `handoff/PROMPT-analise-etapa-2c.md` da raiz
+    externa;
+  - apontar o relatório para o prompt consolidado e regenerar `SHA256SUMS-handoff.txt`.
