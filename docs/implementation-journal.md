@@ -2636,3 +2636,17 @@ receita foram escolhidas olhando V1–V4.
 - Ligar os artefatos `-reservado` ao dashboard e à containerização (amanhã).
 - Tornar o treino determinístico, ordenando depois de cada `collect`.
 - Validar prospectivamente os modelos das células de baseline antes de promovê-los.
+
+### Adendo (25/09, 15h): preparação da integração
+
+- **Contexto:** sem resposta do responsável ao fim do timer de 29 minutos, segui com a opção
+  recomendada. Ela não mexe no modelo nem na receita.
+- **Fato:** a inferência passou para o pacote (`predict_corte`, `predict_causa`,
+  `replay_frame`, com testes). Reproduz exatamente as previsões do teste: diferença 0,0 no
+  corte solar e zero divergências na causa eólica, em três dias.
+- **Fato:** o recorte de reprodução histórica para o dashboard tem 158.016 linhas e 2,1 MB,
+  com emissões às 20h de 18/08 a 31/08/2026. Cada número indica a origem (modelo ou baseline).
+- **Decisão:** o dashboard e o container consomem `replay_frame` e o recorte. O horário das
+  20h é escolha de demonstração.
+- **Próximos passos (amanhã):** ligar o recorte ao `src/curtamap/app.py` e containerizar.
+  Tornar o treino determinístico fica para depois da entrega.

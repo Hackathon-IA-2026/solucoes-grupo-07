@@ -504,3 +504,17 @@ esta:
 - **Pendente técnico:** ordenar as linhas por `KEYS` depois de cada `collect`, para um treino
   determinístico. Isso fica para depois da entrega, porque a ordenação duplica a memória no
   pico eólico.
+
+### 7.2 Preparação da integração (25/09, tarde)
+
+- **Inferência no pacote:**
+  - `curtamap.contexto.predict_corte`, `predict_causa`, `baseline_cause` e `replay_frame`;
+  - autoconferência em três dias do teste: diferença 0,0 em 548.352 linhas do corte solar e
+    nenhuma divergência em 387.149 linhas da causa eólica, contra os `predictions.parquet`.
+- **Recorte de demonstração:** `scripts/rapido/recorte_demo.py` gera
+  `experimentos/rapido-demo/replay.parquet`, com 158.016 linhas e 2,1 MB:
+  - uma emissão por dia às 20h, de 18/08 a 31/08/2026;
+  - colunas `prob_corte`, `alerta_corte`, `volume_esperado_mwmed`, `causa_prevista`, `p_*`,
+    as colunas `*_fonte` com a origem de cada número e a verdade observada.
+  - O horário das 20h é **escolha de demonstração** (logo após a liberação simulada), não
+    regra do protocolo.
