@@ -32,6 +32,18 @@ import polars as pl
 from lightgbm import LGBMClassifier, LGBMRegressor, early_stopping
 from sklearn.metrics import average_precision_score, f1_score
 
+from curtamap.contexto import (
+    BASELINE_FEATURES,
+    BOOLEAN,
+    CATEGORICAL,
+    CAUSES,
+    HISTORICO_PROBABILITY,
+    NUMERIC,
+    Encoder,
+    baseline_wide,
+    historico_offset,
+    probability_with_offset,
+)
 from curtamap.experimental.calendar import load_calendar_manifest
 from curtamap.experimental.campaign import (
     KEYS,
@@ -55,53 +67,6 @@ MAIN_RUNS = {
     ("eolica", "V4"): "main-eolica-v4-001",
     **{("fotovoltaica", f"V{i}"): f"main-fotovoltaica-v{i}-001" for i in range(1, 5)},
 }
-CAUSES = ("REL", "CNF", "ENE")
-BASELINE_IDS = ("ultimo_valor", "mesmo_horario_dia_anterior", "mesmo_horario_recente", "historico")
-BASELINE_VALUES = ("prob_positive", "prob_restriction", "volume_positive_mean", "volume_expected")
-
-# Features do §8 já presentes em features.parquet (lista do prompt 2D, §3.1).
-NUMERIC = (
-    "horizon",
-    "t0_hour_sin",
-    "t0_hour_cos",
-    "tau_hour_sin",
-    "tau_hour_cos",
-    "t0_weekday",
-    "t0_month",
-    "t0_day_of_year",
-    "tau_weekday",
-    "tau_month",
-    "tau_day_of_year",
-    "last_volume_mwmed",
-    "observed_episode_length",
-    "history_coverage_28d",
-    "history_age_hours",
-    "hours_since_positive",
-    "hours_since_restriction",
-    "positive_frequency_24h",
-    "positive_frequency_7d",
-    "positive_frequency_28d",
-    *[f"{s}_volume_{w}" for w in ("24h", "7d", "28d") for s in ("mean", "std", "max")],
-    "restriction_frequency_28d",
-    "state_positive_frequency_28d",
-    "subsystem_positive_frequency_28d",
-    *[f"cause_{c.lower()}_share_28d" for c in CAUSES],
-    *[f"same_hour_{d}d_volume" for d in (1, 2, 3, 7)],
-    *[f"history_{w}_volume" for w in ("30m", "1h", "24h", "48h", "7d")],
-)
-BOOLEAN = (
-    "last_positive",
-    "last_restriction",
-    "tau_weekend_or_holiday",
-    *[f"same_hour_{d}d_positive" for d in (1, 2, 3, 7)],
-    *[f"history_{w}_positive" for w in ("30m", "1h", "24h", "48h", "7d")],
-)
-CATEGORICAL = ("id_ons", "id_estado", "id_subsistema", "ceg_level", "last_cause")
-BASELINE_FEATURES = (
-    *[f"b_{b}_{v}" for b in BASELINE_IDS for v in BASELINE_VALUES],
-    *[f"b_{b}_native" for b in BASELINE_IDS],
-    *[f"b_{b}_cause_{c}" for b in ("ultimo_valor", "historico") for c in CAUSES],
-)
 TARGET = {
     "corte_positivo": "true_positive",
     "restricao_registrada": "true_restriction",
@@ -129,68 +94,6 @@ def _boundary(source: str, round_id: str) -> Boundary:
     return Boundary(
         *(datetime.fromisoformat(raw[k]) for k in ("tuning_start", "calibration_start", "cutoff"))
     )
-
-
-def _baseline_wide(baselines: pl.LazyFrame) -> pl.LazyFrame:
-    """Uma coluna por baseline×valor, unidas pela chave da requisição."""
-    wide = None
-    for baseline_id in BASELINE_IDS:
-        part = baselines.filter(pl.col("baseline_id") == baseline_id).select(
-            *KEYS,
-            *[pl.col(v).alias(f"b_{baseline_id}_{v}") for v in BASELINE_VALUES],
-            pl.col("native_available").cast(pl.Float32).alias(f"b_{baseline_id}_native"),
-            *(
-                [
-                    pl.col("cause_probabilities")
-                    .struct.field(c)
-                    .alias(f"b_{baseline_id}_cause_{c}")
-                    for c in CAUSES
-                ]
-                if baseline_id in ("ultimo_valor", "historico")
-                else []
-            ),
-        )
-        wide = part if wide is None else wide.join(part, on=KEYS, how="inner")
-    return wide
-
-
-class Encoder:
-    """Códigos inteiros aprendidos no treino; desconhecido e ausente viram NaN (nativo)."""
-
-    def __init__(self) -> None:
-        self.categories: dict[str, dict[str, int]] = {}
-
-    def fit(self, frame: pl.DataFrame) -> Encoder:
-        for name in CATEGORICAL:
-            values = sorted(str(v) for v in frame[name].drop_nulls().unique().to_list())
-            self.categories[name] = {v: i for i, v in enumerate(values)}
-        return self
-
-    @property
-    def columns(self) -> list[str]:
-        return [*NUMERIC, *BOOLEAN, *BASELINE_FEATURES, *CATEGORICAL]
-
-    def matrix(self, frame: pl.DataFrame) -> np.ndarray:
-        numeric = frame.select(
-            *[pl.col(c).cast(pl.Float32) for c in (*NUMERIC, *BOOLEAN, *BASELINE_FEATURES)],
-            *[
-                pl.col(c)
-                .cast(pl.String)
-                .replace_strict(
-                    list(self.categories[c]),
-                    list(self.categories[c].values()),
-                    default=None,
-                    return_dtype=pl.Float32,
-                )
-                for c in CATEGORICAL
-            ],
-        )
-        return numeric.to_numpy().astype(np.float32, copy=False)
-
-    @property
-    def categorical_indices(self) -> list[int]:
-        start = len(NUMERIC) + len(BOOLEAN) + len(BASELINE_FEATURES)
-        return list(range(start, start + len(CATEGORICAL)))
 
 
 def _estimator(task: str, params: dict[str, Any], n_estimators: int, seed: int) -> Any:
@@ -226,6 +129,12 @@ def _target(frame: pl.DataFrame, task: str) -> np.ndarray:
     return values.cast(pl.Float64).to_numpy()
 
 
+def _offset(frame: pl.DataFrame, task: str, enabled: bool) -> np.ndarray | None:
+    if not enabled or task not in HISTORICO_PROBABILITY:
+        return None
+    return historico_offset(frame, task)
+
+
 def _collect(lazy: pl.LazyFrame) -> pl.DataFrame:
     return lazy.collect(engine="streaming")
 
@@ -240,7 +149,12 @@ def main() -> int:
     parser.add_argument("--params", default="{}", help="JSON que sobrescreve PARAMS")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--chunk-days", type=int, default=14)
+    parser.add_argument(
+        "--offset", action="store_true", help="parte do logit do historico (init_score)"
+    )
+    parser.add_argument("--drop", default="", help="features removidas, separadas por vírgula")
     args = parser.parse_args()
+    drop = tuple(name for name in args.drop.split(",") if name)
 
     params = {
         "learning_rate": 0.05,
@@ -265,6 +179,8 @@ def main() -> int:
         "round": args.round,
         "task": args.task,
         "slots_per_day_training": args.slots,
+        "offset_historico": args.offset,
+        "dropped_features": drop,
         "seed": args.seed,
         "params": params,
         "features": {
@@ -302,18 +218,20 @@ def main() -> int:
         side = raw_baselines.filter(window(start, end))
         if sampled:
             lazy, side = lazy.filter(sample), side.filter(sample)
-        return _collect(lazy.join(_baseline_wide(side), on=KEYS, how="left"))
+        return _collect(lazy.join(baseline_wide(side), on=KEYS, how="left"))
 
     phase("carregar_initial")
     initial = segment(first_t0, boundary.tuning_start, boundary.tuning_start, True)
     tuning = segment(
         boundary.tuning_start, boundary.calibration_start, boundary.calibration_start, False
     )
-    encoder = Encoder().fit(initial)
+    encoder = Encoder(drop).fit(initial)
     log["rows"] = {"initial": initial.height, "tuning": tuning.height}
     phase("ajuste_initial")
     x_initial, y_initial = encoder.matrix(initial), _target(initial, args.task)
     x_tuning, y_tuning = encoder.matrix(tuning), _target(tuning, args.task)
+    offset_initial = _offset(initial, args.task, args.offset)
+    offset_tuning = _offset(tuning, args.task, args.offset)
     del initial
     stopping_metric = {
         "corte_positivo": "average_precision",
@@ -324,7 +242,9 @@ def main() -> int:
     model.fit(
         x_initial,
         y_initial,
+        init_score=offset_initial,
         eval_set=[(x_tuning, y_tuning)],
+        eval_init_score=None if offset_tuning is None else [offset_tuning],
         eval_metric=stopping_metric,
         categorical_feature=encoder.categorical_indices,
         callbacks=[early_stopping(50, verbose=False)],
@@ -337,12 +257,13 @@ def main() -> int:
     phase("carregar_refit")
     refit = segment(first_t0, boundary.calibration_start, boundary.calibration_start, True)
     log["rows"]["refit"] = refit.height
-    encoder = Encoder().fit(refit)
+    encoder = Encoder(drop).fit(refit)
     phase("ajuste_refit")
     model = _estimator(args.task, params, best, args.seed)
     model.fit(
         encoder.matrix(refit),
         _target(refit, args.task),
+        init_score=_offset(refit, args.task, args.offset),
         categorical_feature=encoder.categorical_indices,
     )
     del refit
@@ -356,7 +277,9 @@ def main() -> int:
     if args.task in ("corte_positivo", "restricao_registrada"):
         phase("calibracao")
         calibration = segment(boundary.calibration_start, boundary.cutoff, round_.start, False)
-        raw = model.predict_proba(encoder.matrix(calibration))[:, 1]
+        raw = probability_with_offset(
+            model, encoder.matrix(calibration), _offset(calibration, args.task, args.offset)
+        )
         target = _target(calibration, args.task).astype(int)
         calibrator = fit_sigmoid_calibrator(raw, target, seed=args.seed)
         probabilities = calibrator.predict(raw) if calibrator else raw
@@ -381,9 +304,7 @@ def main() -> int:
     while day < round_.end:
         in_chunk = (pl.col("t0") >= day) & (pl.col("t0") < day + step)
         side = raw_baselines.filter(_validation_filter(round_) & in_chunk)
-        chunk = _collect(
-            validation.filter(in_chunk).join(_baseline_wide(side), on=KEYS, how="left")
-        )
+        chunk = _collect(validation.filter(in_chunk).join(baseline_wide(side), on=KEYS, how="left"))
         day += step
         if chunk.is_empty():
             continue
@@ -414,7 +335,7 @@ def main() -> int:
                 pl.Series("prediction", np.where(eligible, prediction, fallback))
             )
         else:
-            raw = model.predict_proba(matrix)[:, 1]
+            raw = probability_with_offset(model, matrix, _offset(chunk, args.task, args.offset))
             probabilities = calibrator.predict(raw) if calibrator else raw
             fallback = chunk[FALLBACK[args.task]].to_numpy()
             frame = chunk.select(*keep, FALLBACK[args.task]).with_columns(
