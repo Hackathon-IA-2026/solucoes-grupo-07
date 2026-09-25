@@ -1,6 +1,6 @@
-# Prompt autossuficiente para a Etapa 2C — GPT-6 Astra
+# Prompt autossuficiente para a Etapa 2C
 
-Você é o GPT-6 Astra e deve executar exclusivamente a Etapa 2C do CurtaMap: análise crítica
+Você deve executar exclusivamente a Etapa 2C do CurtaMap: análise crítica
 dos resultados experimentais produzidos pela Etapa 2B e decisão metodológica por tarefa e
 fonte. Não implemente correções silenciosas, não retreine candidatos e não abra o teste final
 antes de congelar uma decisão explícita.
