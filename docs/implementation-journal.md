@@ -2207,3 +2207,106 @@ volte ao repositório e que o worktree separado deixe de existir, sem recriar ne
   sem dependência obrigatória de nuvem.
 - **Momento:** vale para a fase de produto, depois do treino final e do teste reservado. Não
   altera a Etapa 2C.
+
+## 24/09/2026 — Etapa 2C: análise crítica da 2B e decisão `requer_2d`
+
+### Contexto e pergunta
+
+A 2B entregou 16 runs completas (8 principais V1–V4 e 8 sensibilidades +24h). A pergunta da
+2C: algum candidato aprendido supera o melhor baseline pelos critérios pré-definidos do §11, a
+ponto de congelar uma receita e liberar o teste reservado de maio–agosto/2026? Documento
+completo: `docs/reports/stage2c/decision.md`.
+
+### Fatos e evidências observados
+
+- **Integridade:**
+  - 650 entradas de checksum recalculadas, zero divergências;
+  - handoff 6/6 e CSV `-002` iguais ao resumo;
+  - 16/16 `complete`, `failures=[]`, semente 42;
+  - configuração, dados e calendário idênticos;
+  - commits `560ae70` (V1 eólica) e `88634ed`.
+- **Congelamento +24h:** cada joblib contém modelo, pré-processador, calibrador e limiar, e os
+  hashes dos modelos são iguais aos da principal.
+- **Convergência:** todos os lineares convergiram (32 a 209 iterações).
+- **Features:** os 64 modelos usam só 12 features (8 numéricas e 4 categóricas). Não têm hora
+  do dia, mesmo horário, `last_*` nem histórico de causa. O dataset tem cerca de 50 colunas e
+  o §8 as lista. O `HANDOFF-sessao-01` já marcava isso como não conformidade "para a 2C", e
+  não há aprovação registrada.
+- **Baselines de causa:** `mesmo_horario_*` usam a última causa da entidade, não a regra do
+  §7.2. Isso explica o empate exato com `ultimo_valor`.
+- **Auditoria DuckDB dos baselines (37 s):**
+  - zero uso de dado posterior a `t0`;
+  - `mesmo_horario_dia_anterior` só é nativo em cerca de 1,3% das linhas; no resto é a
+    frequência entidade×horário do `historico`.
+- **§11:** 20 de 20 candidatos falham a margem média e têm menos de três rodadas melhores.
+  - O melhor caso é o LightGBM solar de restrição: −0,037 de AP médio contra o `historico`
+    (0,7699).
+  - Na eólica, o corte do LightGBM fica em 0,525 contra 0,690.
+  - No volume, os pipelines têm MAE de 24% a 35% acima do comparador (cerca de 15 MWmed).
+  - Na causa, os modelos ficam 0,07–0,12 abaixo em macro-F1.
+- **Distribuição do déficit:** é uniforme entre horizontes, no painel fixo e nos fins de
+  semana.
+
+### Interpretação e decisão
+
+- **Interpretação:**
+  - os modelos avaliados não são os do protocolo. O resultado negativo mede a lacuna de
+    implementação, não a hipótese do §8/§9;
+  - hipótese: a ausência da hora do dia e do sinal por horário explica o LightGBM solar
+    muito melhor que a logística e o REL quase nunca previsto.
+- **Decisão:**
+  - as oito células fonte×tarefa ficam em `requer_2d`;
+  - nenhuma receita congelada; teste reservado **bloqueado**;
+  - congelados já: margens do §11, regra do comparador (baselines conformes ao §7.2) e
+    valores de referência V1–V4.
+- **Demonstração até a 2D:** usa os baselines, qualificados como validação retrospectiva, sem
+  teste independente.
+
+### Alternativas consideradas
+
+- **`baseline_preferido` já:** rejeitado. Concluiria contra uma hipótese que não foi testada.
+  Continua sendo o desfecho provável se a 2D não superar o piso.
+- **Abrir o teste para confirmar o baseline:** rejeitado. Um segundo uso depois da 2D faria do
+  teste um seletor (§6.3).
+- **Calcular bootstrap semanal, visão por entidade, energia das 00h e interseção agora:**
+  adiado para a 2D. São proteções que só bloqueiam aprovações, e nenhuma célula passa a
+  margem. A interseção +24h perde no máximo 0,095% das linhas.
+
+### Implementação e validação
+
+- **Commits:**
+  - `ef95dda`: scripts `scripts/stage2c/analisar_matriz_2c.py` (usa o
+    `decision.assess_candidate` testado) e `auditar_baselines_2c.py`, com as saídas JSON;
+  - `9ebb61a` e `3917681`: documento de decisão;
+  - `a35098c`: prompt da 2D.
+- **Verificações:**
+  - `ruff check` e `ruff format --check` nos scripts novos;
+  - `pytest tests/test_experimental_decision.py` (4 aprovados).
+- **Sem testes próprios:** os scripts de relatório, que são somente leitura.
+- **Não reexecutado:** a suíte completa. Nada em `src/` ou `tests/` mudou.
+
+### Limitações e incertezas
+
+- A 2C foi executada no computador Windows, e não no Mac, o que é desvio do §13.3.
+- A explicação causal do déficit é hipótese até a 2D.
+- As limitações da 2B continuam valendo:
+  - amostragem de `t0`;
+  - limiar 0,5 dos baselines;
+  - 6 threads;
+  - sementes 17 e 101 e intervalo de volume não executados.
+
+### Valor para o usuário e para a apresentação
+
+- Uma regra transparente, a frequência recente da própria usina naquele horário, já alcança
+  AP de 0,69 a 0,77 e MAE de cerca de 15 MWmed. É o piso que qualquer IA precisa superar.
+- **Mensagem honesta para o pitch:** "o baseline forte existe e é explicável; a IA ainda não
+  foi avaliada na forma aprovada".
+- A alta da prevalência de corte (0,19 no refit contra 0,48 na calibração, eólica V3) sustenta
+  o "por que agora".
+
+### Próximos passos
+
+- Executar a 2D por `docs/handoffs/stage2d-prompt.md`: protocolo v2, features do §8, baselines
+  de causa e limiar corrigidos, agregações do §10, piloto de memória e novas runs.
+- Depois, rodar a 2C′ com a mesma matriz.
+- Merge em `main` segue não autorizado.
