@@ -63,7 +63,11 @@ from curtamap.experimental.campaign import (
 from curtamap.experimental.models import fit_sigmoid_calibrator, optimize_f2_threshold
 from curtamap.experimental.resources import peak_rss_bytes
 from curtamap.experimental.sampling import emission_mask
-from curtamap.experimental.temporal import AvailabilityScenario, external_rounds
+from curtamap.experimental.temporal import (
+    AvailabilityScenario,
+    external_rounds,
+    require_reserved_test_release,
+)
 from curtamap.experimental.training import internal_boundaries
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -196,11 +200,26 @@ def main() -> int:
     parser.add_argument("--no-categorical", action="store_true")
     parser.add_argument("--train-months", type=int, default=None)
     parser.add_argument(
+        "--allow-reserved-test",
+        action="store_true",
+        help="com --round FINAL, pontua o teste reservado (exige --decision-ref)",
+    )
+    parser.add_argument("--decision-ref", help="commit/documento da receita congelada")
+    parser.add_argument(
         "--systemic", action="store_true", help="estado recente do subsistema em t0 (variante sys)"
     )
     parser.add_argument("--drop", default="", help="features removidas, separadas por vírgula")
     args = parser.parse_args()
     drop = tuple(name for name in args.drop.split(",") if name)
+    reserved = args.allow_reserved_test or args.decision_ref is not None
+    if reserved:
+        if args.round != "FINAL":
+            parser.error("o teste reservado só pode ser pontuado com --round FINAL")
+        require_reserved_test_release(
+            real_data=True,
+            allow_reserved_test=args.allow_reserved_test,
+            decision_ref=args.decision_ref,
+        )
 
     def categorical(encoder: Encoder) -> list[int] | str:
         # Contorno do erro interno `best_split_info.left_count > 0` do LightGBM em regressão
@@ -252,6 +271,8 @@ def main() -> int:
 
     calendar = load_calendar_manifest(ROOT / "configs/experimental/calendar-2023-2026.json")
     final = args.round == "FINAL"
+    if reserved:
+        log["reserved_test"] = {"decision_ref": args.decision_ref}
     if final:
         # Só a data de início do teste reservado define os limites; nenhum dado dele é lido.
         round_ = next(r for r in external_rounds() if r.reserved)
@@ -374,7 +395,7 @@ def main() -> int:
         {"model": model, "encoder": encoder, "calibrator": calibrator, "threshold": threshold},
         out / "model.joblib",
     )
-    if final:
+    if final and not reserved:
         log["peak_rss_gib"] = peak_rss_bytes() / 2**30 if peak_rss_bytes() else None
         phase("fim")
         (out / "resultado.json").write_text(
@@ -383,6 +404,15 @@ def main() -> int:
         return 0
 
     phase("validacao")
+    if reserved:
+        # Única leitura do período reservado: features geradas com --round reserved.
+        test_base = DATASETS / f"source={args.source}" / "round=reserved"
+        features = pl.scan_parquet(
+            (test_base / "date=*" / "features.parquet").as_posix()
+        ).with_columns(_weekend_or_holiday(calendar.calendar))
+        raw_baselines = pl.scan_parquet((test_base / "date=*" / "baselines.parquet").as_posix())
+        if args.systemic:
+            systemic = _collect(systemic_state(features)).lazy()
     validation = features.filter(_validation_filter(round_))
     if args.task in ("corte_positivo", "restricao_registrada", "causa"):
         validation = validation.filter(pl.col(TARGET[args.task]).is_not_null())
