@@ -200,3 +200,73 @@ def predict_causa(bundle: dict[str, Any], frame: pl.DataFrame) -> tuple[np.ndarr
     labels = np.asarray(model.classes_)[proba.argmax(axis=1)]
     eligible = frame["eligible_history"].to_numpy()
     return np.where(eligible, labels, baseline_cause(frame, "historico")), proba
+
+
+# Receita confirmada no teste reservado (25/09/2026, commit de congelamento 8271bf1):
+# modelo no corte solar e na causa eólica; baseline nas demais células.
+VOLUME_BASELINE = {"fotovoltaica": "historico", "eolica": "mesmo_horario_dia_anterior"}
+CAUSE_BASELINE = {"fotovoltaica": "ultimo_valor", "eolica": "historico"}
+REPLAY_PASSTHROUGH = (
+    *KEYS,
+    "id_estado",
+    "id_subsistema",
+    "eligible_history",
+    "target_observed",
+    "true_positive",
+    "true_volume_mwmed",
+    "true_volume_valid",
+    "true_cause",
+)
+
+
+def replay_frame(
+    frame: pl.DataFrame,
+    source: str,
+    *,
+    corte: dict[str, Any] | None,
+    causa: dict[str, Any] | None,
+) -> pl.DataFrame:
+    """Saída do produto por usina e janela, aplicando a receita congelada de cada célula.
+
+    ``corte`` só é usado na solar (modelo 003) e ``causa`` só na eólica (modelo 005); nas demais
+    células entram os baselines. As colunas ``*_fonte`` dizem de onde veio cada número.
+    """
+    eligible = frame["eligible_history"].to_numpy()
+    rows = frame.height
+    if source == "fotovoltaica" and corte is not None:
+        prob = predict_corte(corte, frame)
+        prob_source = np.where(eligible, "modelo_003", "historico")
+        threshold = corte.get("threshold")
+        alert = [bool(p >= threshold) if e else None for p, e in zip(prob, eligible, strict=True)]
+    else:
+        prob = frame[HISTORICO_PROBABILITY["corte_positivo"]].to_numpy()
+        prob_source = np.full(rows, "historico")
+        alert = [None] * rows
+    volume_id = VOLUME_BASELINE[source]
+    columns = [
+        pl.Series("prob_corte", prob, dtype=pl.Float64),
+        pl.Series("prob_corte_fonte", prob_source, dtype=pl.String),
+        pl.Series("alerta_corte", alert, dtype=pl.Boolean),
+        frame[f"b_{volume_id}_volume_expected"].alias("volume_esperado_mwmed"),
+        pl.Series("volume_fonte", np.full(rows, volume_id), dtype=pl.String),
+    ]
+    if source == "eolica" and causa is not None:
+        labels, proba = predict_causa(causa, frame)
+        columns += [
+            pl.Series("causa_prevista", labels, dtype=pl.String),
+            pl.Series(
+                "causa_fonte", np.where(eligible, "modelo_005", "historico"), dtype=pl.String
+            ),
+            *[
+                pl.Series(f"p_{c}", proba[:, i], dtype=pl.Float64)
+                for i, c in enumerate(causa["model"].classes_)
+            ],
+        ]
+    else:
+        cause_id = CAUSE_BASELINE[source]
+        columns += [
+            pl.Series("causa_prevista", baseline_cause(frame, cause_id), dtype=pl.String),
+            pl.Series("causa_fonte", np.full(rows, cause_id), dtype=pl.String),
+        ]
+    present = [c for c in REPLAY_PASSTHROUGH if c in frame.columns]
+    return frame.select(present).with_columns(columns)

@@ -18,6 +18,7 @@ from curtamap.contexto import (
     predict_causa,
     predict_corte,
     probability_with_offset,
+    replay_frame,
     systemic_state,
 )
 
@@ -185,3 +186,51 @@ def test_inferencia_de_causa_usa_argmax_e_historico_com_desempate_fixo():
     assert labels.tolist() == ["ENE", "CNF"]
     assert proba.shape == (2, 3)
     assert baseline_cause(frame, "historico").tolist() == ["CNF", "CNF"]
+
+
+def _replay_input(eligible: list[bool]) -> pl.DataFrame:
+    frame = _inference_frame(eligible)
+    rows = len(eligible)
+    return frame.with_columns(
+        pl.lit("fotovoltaica").alias("fonte"),
+        pl.Series("b_historico_volume_expected", [5.0] * rows),
+        pl.Series("b_mesmo_horario_dia_anterior_volume_expected", [7.0] * rows),
+        pl.Series("b_ultimo_valor_cause_REL", [0.9] * rows),
+        pl.Series("b_ultimo_valor_cause_CNF", [0.0] * rows),
+        pl.Series("b_ultimo_valor_cause_ENE", [0.0] * rows),
+    )
+
+
+def test_replay_solar_usa_modelo_no_corte_e_baselines_no_volume_e_na_causa():
+    frame = _replay_input([True, False])
+    corte = {
+        "model": _Proba([[0.4, 0.6], [0.2, 0.8]]),
+        "encoder": Encoder().fit(frame),
+        "calibrator": _Half(),
+        "threshold": 0.25,
+    }
+    out = replay_frame(frame, "fotovoltaica", corte=corte, causa=None)
+    np.testing.assert_allclose(out["prob_corte"].to_numpy(), [0.3, 0.9])
+    assert out["prob_corte_fonte"].to_list() == ["modelo_003", "historico"]
+    assert out["alerta_corte"].to_list() == [True, None]
+    assert out["volume_esperado_mwmed"].to_list() == [5.0, 5.0]
+    assert out["volume_fonte"].to_list() == ["historico", "historico"]
+    assert out["causa_prevista"].to_list() == ["REL", "REL"]
+    assert out["causa_fonte"].to_list() == ["ultimo_valor", "ultimo_valor"]
+
+
+def test_replay_eolico_usa_historico_no_corte_e_modelo_na_causa():
+    frame = _replay_input([True, False]).with_columns(pl.lit("eolica").alias("fonte"))
+    causa = {
+        "model": _Proba([[0.1, 0.7, 0.2], [0.8, 0.1, 0.1]], classes=("CNF", "ENE", "REL")),
+        "encoder": Encoder().fit(frame),
+    }
+    out = replay_frame(frame, "eolica", corte=None, causa=causa)
+    assert out["prob_corte"].to_list() == [0.9, 0.9]
+    assert out["prob_corte_fonte"].to_list() == ["historico", "historico"]
+    assert out["alerta_corte"].to_list() == [None, None]
+    assert out["volume_esperado_mwmed"].to_list() == [7.0, 7.0]
+    assert out["volume_fonte"].to_list() == ["mesmo_horario_dia_anterior"] * 2
+    assert out["causa_prevista"].to_list() == ["ENE", "CNF"]
+    assert out["causa_fonte"].to_list() == ["modelo_005", "historico"]
+    np.testing.assert_allclose(out["p_ENE"].to_numpy(), [0.7, 0.1])
