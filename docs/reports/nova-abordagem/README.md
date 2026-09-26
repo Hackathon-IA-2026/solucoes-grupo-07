@@ -172,3 +172,28 @@ São só 24 dias, então nenhum número isolado é conclusivo.
 - Usinas novas só recebem previsão depois que o primeiro dia delas é liberado.
 - A disponibilidade simula a publicação do ONS (19h30 do dia útil seguinte) com calendário
   conservador. Não é a escala real do ONS.
+
+## 6. H5: quanto valeria uma previsão meteorológica? (oráculo, fora do produto)
+
+- **Experimento:** o vento e a irradiância **verificados** (`*_detail`), agregados por estado ×
+  slot, entram como se fossem uma previsão perfeita para o dia-alvo.
+- **Rótulo:** é um **oráculo**. Mede um teto e **nunca** é feature D+1 do produto.
+- **Execução:** dobras de mai–ago/2026 com o mesmo protocolo do backtest, só ocorrência e
+  volume. Script em `scripts/experimentos/oraculo_h5.py`; números em `oraculo_h5.csv`.
+
+| Variante (média mai–ago) | AP eólica | WAPE eólica | WAPE diário eólica | AP solar | WAPE solar | WAPE diário solar |
+|---|---|---|---|---|---|---|
+| Produto (14/19 features) | 0,826 | 0,905 | 0,711 | 0,860 | 0,728 | 0,611 |
+| + clima médio do estado em L (legítimo) | 0,829 | 0,914 | 0,718 | 0,863 | 0,728 | 0,610 |
+| + clima do estado no dia-alvo (oráculo) | **0,872** | **0,723** | **0,540** | 0,869 | 0,692 | 0,579 |
+
+**Leitura:**
+
+- O clima já observado (em L) não ajuda, porque não persiste por 2–4 dias. Por isso não
+  entra no produto.
+- Com o clima do próprio dia-alvo, a eólica ganha +0,05 de AP e reduz ~24% do erro diário de
+  volume, justamente na célula em que o modelo não bate o `historico`.
+- Na solar, o ganho é pequeno: o nível solar parece mais ligado a carga e calendário do que à
+  irradiância média do estado. Isso é uma interpretação, não algo medido.
+- **Para o pitch:** "com um feed de previsão de vento, o erro de volume eólico do dia seguinte
+  cairia até ~24%". É um **teto**: previsões reais têm erro, e o ganho real será menor.
