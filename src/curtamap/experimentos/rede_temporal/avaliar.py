@@ -192,7 +192,9 @@ def run_selection(output: Path, report: Path) -> dict:
         "volume_divergente": sorted(diverged),
         "rede": select_best(
             table.filter(pl.col("fonte") == "eolica"), nets, "wape_diario", higher=False
-        ).get("eolica"),
+        )
+        .get("eolica", "")
+        .removesuffix("_s0"),
         "limiares_selecao": {f"{s}|{c}": t for (s, c), t in thresholds.items()},
         "criterio": "médias das 4 dobras jan–abr/2026; AP (ocorrência), WAPE diário (volume)",
     }
@@ -221,6 +223,7 @@ def freeze(report: Path, seeds: list[int]) -> dict:
     from curtamap.experimentos.rede_temporal.rede import NetConfig
 
     choices = json.loads((report / "selecao_escolhas.json").read_text("utf-8"))
+    choices["rede"] = choices["rede"].removesuffix("_s0")
     used = sorted({*choices["hgb_ocorrencia"].values(), *choices["hgb_volume"].values()})
     frozen = {
         "hgb_ocorrencia": choices["hgb_ocorrencia"],

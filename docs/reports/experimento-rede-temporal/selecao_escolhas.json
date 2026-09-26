@@ -1,0 +1,43 @@
+{
+  "hgb_ocorrencia": {
+    "eolica": "B3_recencia60",
+    "fotovoltaica": "B1_mudanca"
+  },
+  "hgb_volume": {
+    "eolica": "B2_janela180",
+    "fotovoltaica": "B5_hp_suave"
+  },
+  "hgb_volume_sem_emenda": {
+    "eolica": "B4_hp_rapido",
+    "fotovoltaica": "B5_hp_suave"
+  },
+  "volume_divergente": [
+    "B1_mudanca",
+    "B3_recencia60",
+    "B4_hp_rapido"
+  ],
+  "rede": "C_gru32_k14_s0",
+  "limiares_selecao": {
+    "eolica|historico": 0.3636,
+    "eolica|servido": 0.30245965899278776,
+    "eolica|B0_original": 0.30245965899278776,
+    "eolica|B1_mudanca": 0.31669187555766226,
+    "eolica|B2_janela180": 0.301272241004184,
+    "eolica|B3_recencia60": 0.2859840065328698,
+    "eolica|B4_hp_rapido": 0.29181665662359735,
+    "eolica|B5_hp_suave": 0.31858856409602615,
+    "eolica|C_gru64_k28_s0": 0.3907648026943207,
+    "eolica|C_gru32_k14_s0": 0.4003618359565735,
+    "fotovoltaica|historico": 0.3043,
+    "fotovoltaica|servido": 0.32354527415640666,
+    "fotovoltaica|B0_original": 0.32354527415640666,
+    "fotovoltaica|B1_mudanca": 0.28848043860606487,
+    "fotovoltaica|B2_janela180": 0.2766,
+    "fotovoltaica|B3_recencia60": 0.2901942709685902,
+    "fotovoltaica|B4_hp_rapido": 0.2674977866630744,
+    "fotovoltaica|B5_hp_suave": 0.3102918974969996,
+    "fotovoltaica|C_gru64_k28_s0": 0.4012,
+    "fotovoltaica|C_gru32_k14_s0": 0.3938
+  },
+  "criterio": "médias das 4 dobras jan–abr/2026; AP (ocorrência), WAPE diário (volume)"
+}
