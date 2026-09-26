@@ -786,3 +786,69 @@ iteração para.
 
 Tentativa 1 de causa; congelar o modelo com manifesto; validar em setembro; H5 (oráculo
 meteorológico); relatório e handoff.
+
+## 2026-09-26 - Nova Etapa 2 (3/n): tentativa de causa e congelamento antes de setembro
+
+### Contexto e pergunta
+
+Uma tentativa de melhorar a causa, com hipótese registrada antes, e depois o congelamento da
+receita para a validação única em setembro.
+
+### Fatos e evidências observados
+
+Diagnóstico de causa: macro-F1 médio de jan–ago/2026, nas mesmas linhas (cache em
+`data/interim/cache_causa.parquet`, script exploratório).
+
+| Variante | Eólica | Solar | Meses > moda (eól./sol.) |
+|---|---|---|---|
+| Moda da usina 28 d (baseline) | 0,649 | 0,462 | — |
+| Atual (13 features, balanceado) | 0,625 | 0,498 | 2 / 5 |
+| Só participações da usina, sem peso | 0,638 | 0,422 | 3 / 0 |
+| Só participações da usina, balanceado | 0,567 | 0,426 | 1 / 3 |
+| 13 features, sem peso | 0,630 | 0,483 | 4 / 6 |
+
+### Interpretação e decisão
+
+- **Eólica:** nem o aprendiz restrito às participações da usina empata com a moda. Pelo
+  critério registrado, o limite está no aprendiz ou no alvo, não nas features, e a iteração
+  para. **Interpretação:** a causa da ordem é quase uma propriedade da usina e do slot, e a
+  moda recente já captura isso.
+- **Solar:** a variante sem peso venceria em 6/8 meses, mas foi a melhor de 4 variantes nas
+  mesmas dobras. Adotá-la seria viés de seleção, com margem de 0,02. **Decisão:** manter a moda
+  da usina, como a regra já decidia, e registrar a variante como candidata para uma futura
+  validação independente.
+- **Congelamento:**
+  - modelo `diario_hgb_v1_2026-08-30`, treinado com rótulos até 30/08/2026, o último dia
+    liberado na emissão que prevê 01/09;
+  - 2,71 M linhas eólicas e 1,31 M solares;
+  - limiar de alerta de 0,346 na eólica e 0,321 na solar;
+  - SHA-256 `6340240d…` e commit da receita `e89be0f`;
+  - manifesto em `docs/reports/nova-abordagem/modelo-congelado.json`.
+
+### Alternativas consideradas
+
+Mais tentativas de causa ou de volume eólico: descartadas. A primeira tentativa respondeu à
+pergunta, e novas rodadas só aumentariam o risco de sobreajuste às dobras.
+
+### Implementação e validação
+
+- `treinar.py` grava o manifesto.
+- O calendário aceita `CURTAMAP_CALENDAR_PATH`, para o container.
+- Suíte verde.
+
+### Limitações e incertezas
+
+- A causa servida é um baseline. O pitch não deve atribuir a causa ao modelo.
+- A reprodução histórica e a validação de setembro ainda não foram rodadas.
+
+### Valor para o usuário e para a apresentação
+
+- Mostra disciplina: a regra decide, a tentativa é declarada e o congelamento é verificável
+  por hash.
+- Sustenta a narrativa: "o modelo onde ele ganha e o baseline honesto onde não ganha".
+
+### Próximos passos
+
+1. Baixar setembro.
+2. Prever sem rótulo.
+3. Avaliar por semana.
