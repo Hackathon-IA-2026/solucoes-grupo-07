@@ -69,6 +69,7 @@ SERVING = {
     "eolica": {"volume": "historico", "causa": "usina_28d"},
     "fotovoltaica": {"volume": "modelo", "causa": "usina_28d"},
 }
+_BAND_PREFIXES = ("p_faixa_", "faixa_provavel", "tipo_saida_faixas")
 # Coluna da classe na ordem de PREDICTABLE_CAUSES.
 _CAUSE_COLUMNS = [f"p_causa_{c.lower()}" for c in PREDICTABLE_CAUSES]
 
@@ -208,10 +209,14 @@ class DailyModel:
 
     sources: dict[str, SourceModel]
     metadata: dict = field(default_factory=dict)
+    # Faixas da v3 (`faixas_servico.BandModel`). Default simples, e não `default_factory`,
+    # para que artefatos v1 desserializados (sem o atributo) leiam `None` da classe.
+    faixas: object | None = None
 
     @property
     def model_id(self) -> str:
-        return f"{MODEL_VERSION}_{self.metadata.get('treino_ate', 'sem_data')}"
+        version = self.metadata.get("versao", MODEL_VERSION)
+        return f"{version}_{self.metadata.get('treino_ate', 'sem_data')}"
 
     def save(self, directory: Path) -> Path:
         directory.mkdir(parents=True, exist_ok=True)
@@ -336,6 +341,9 @@ class DailyForecaster:
             for source, model in self.model.sources.items()
         ]
         predicted = pl.concat([p for p in parts if not p.is_empty()], how="diagonal_relaxed")
+        bands = getattr(self.model, "faixas", None)
+        if bands is not None:
+            predicted = bands.augment(predicted, base, mapping, features, self.calendar)
         return self._to_contract(predicted, t0, data_cutoff, generated_at, emitted_at)
 
     def _to_contract(self, rows, t0, data_cutoff, generated_at, emitted_at) -> pl.DataFrame:
@@ -400,6 +408,8 @@ class DailyForecaster:
             pl.col("hist_28d").alias("baseline_historico_28d"),
             "tipo_saida_volume",
             "tipo_saida_causa",
+            # Faixas da v3, quando o artefato as tem.
+            *(c for c in rows.columns if c.startswith(_BAND_PREFIXES)),
         )
         # p_causa_* somam 1 dentro da tolerância; renormaliza contra erro de ponto flutuante.
         total = pl.sum_horizontal(_CAUSE_COLUMNS)
