@@ -8,7 +8,9 @@ Uso: `uv run python -m curtamap.previsao.treinar --limiares data/interim/previsa
 """
 
 import argparse
+import hashlib
 import json
+import subprocess
 from datetime import date, datetime
 from pathlib import Path
 
@@ -27,6 +29,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--limiares", type=Path, required=True)
     parser.add_argument("--saida", type=Path, default=settings.model_dir / "previsao")
+    parser.add_argument("--manifesto", type=Path, help="JSON versionado do congelamento")
     args = parser.parse_args()
     calendar = load_calendar()
     last_label = release_map([FIRST_FORECAST_DAY], calendar)["ultimo_dia"].item()
@@ -45,7 +48,21 @@ def main() -> None:
     for source, threshold in thresholds.items():
         model.sources[source].threshold = float(threshold)
     path = model.save(args.saida)
-    print(path)
+    manifest = {
+        "modelo_id": model.model_id,
+        "artefato": path.name,
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        "commit_receita": subprocess.run(
+            ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=False
+        ).stdout.strip(),
+        "treino_ate": model.metadata["treino_ate"],
+        "limiares_alerta": thresholds,
+        "servico": model.metadata["servico"],
+        "linhas_treino": model.metadata["linhas_treino"],
+    }
+    if args.manifesto:
+        args.manifesto.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n")
+    print(json.dumps(manifest, indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":
