@@ -1,0 +1,178 @@
+{
+  "modelo_id": "diario_hgb_v3_2026-08-30",
+  "artefato": "diario_hgb_v3_2026-08-30.joblib",
+  "sha256": "1b64de92d6420eb56ce872032e4d23580e1228dd9bb509d127c779ff15fc8afd",
+  "commit_receita": "17cf7187ff2865197780738141275faf221758b9",
+  "treino_ate": "2026-08-30",
+  "limiares_alerta": {
+    "eolica": 0.3461,
+    "fotovoltaica": 0.3212
+  },
+  "servico": {
+    "eolica": {
+      "volume": "historico",
+      "causa": "usina_28d"
+    },
+    "fotovoltaica": {
+      "volume": "modelo",
+      "causa": "usina_28d"
+    }
+  },
+  "linhas_treino": {
+    "eolica": 2714688,
+    "fotovoltaica": 1309584
+  },
+  "faixas": {
+    "limiares": {
+      "definicao": {
+        "k0": 0.0,
+        "k1_k2": "tercis (p33, p67) da fração positiva, 2 casas",
+        "periodo": "2025-01-01..2025-12-31 (dias-alvo)",
+        "fracao_meia_hora": "y_volume / cap_91d",
+        "fracao_diaria": "energia cortada no dia / (cap_91d × 24 h), exige 48 slots",
+        "cap_91d": "p99 de val_geracaoreferencia em (L − 91, L]",
+        "faixas": "sem corte (= 0), leve (0, k1], moderado (k1, k2], severo (> k2)"
+      },
+      "meia_hora": {
+        "eolica": {
+          "k0": 0.0,
+          "k1": 0.12,
+          "k2": 0.38
+        },
+        "fotovoltaica": {
+          "k0": 0.0,
+          "k1": 0.2,
+          "k2": 0.48
+        }
+      },
+      "diario": {
+        "eolica": {
+          "k0": 0.0,
+          "k1": 0.05,
+          "k2": 0.16
+        },
+        "fotovoltaica": {
+          "k0": 0.0,
+          "k1": 0.05,
+          "k2": 0.14
+        }
+      },
+      "contagens": {
+        "eolica": {
+          "meias_horas": 2712240,
+          "meias_horas_fracao_nula": 8208,
+          "meias_horas_positivas": 959118,
+          "meias_horas_fracao_acima_de_1": 4855,
+          "dias": 56505,
+          "dias_excluidos": 171,
+          "dias_sem_48_slots": 0,
+          "dias_cap_zero": 171,
+          "dias_positivos": 44234,
+          "p33_p67_exatos_meia_hora": [
+            0.12006987100812236,
+            0.381650295679007
+          ],
+          "p33_p67_exatos_diario": [
+            0.04675346689354878,
+            0.15982707986553718
+          ]
+        },
+        "fotovoltaica": {
+          "meias_horas": 1160160,
+          "meias_horas_fracao_nula": 6432,
+          "meias_horas_positivas": 247784,
+          "meias_horas_fracao_acima_de_1": 1220,
+          "dias": 24170,
+          "dias_excluidos": 134,
+          "dias_sem_48_slots": 0,
+          "dias_cap_zero": 134,
+          "dias_positivos": 18194,
+          "p33_p67_exatos_meia_hora": [
+            0.20236853543926533,
+            0.4788377118402843
+          ],
+          "p33_p67_exatos_diario": [
+            0.05266440960944653,
+            0.13544522055217223
+          ]
+        }
+      }
+    },
+    "servico": {
+      "meia_hora": {
+        "eolica": [
+          "modelo",
+          "historico",
+          "historico"
+        ],
+        "fotovoltaica": [
+          "modelo",
+          "modelo",
+          "modelo"
+        ]
+      },
+      "diario": {
+        "eolica": [
+          "modelo",
+          "historico",
+          "historico"
+        ],
+        "fotovoltaica": [
+          "modelo",
+          "modelo",
+          "modelo"
+        ]
+      }
+    },
+    "treino_ate": "2026-08-30",
+    "features_meia_hora": [
+      "hist_7d",
+      "hist_28d",
+      "hist_91d",
+      "ultimo_slot",
+      "usina_nivel_ultimo",
+      "usina_nivel_7d",
+      "estado_nivel_ultimo",
+      "estado_nivel_7d",
+      "estado_nivel_28d",
+      "estado_ene_7d",
+      "idade",
+      "dia_semana",
+      "feriado",
+      "slot"
+    ],
+    "features_diario": [
+      "hist_7d_media",
+      "hist_7d_max",
+      "hist_28d_media",
+      "hist_28d_max",
+      "hist_91d_media",
+      "hist_91d_max",
+      "ultimo_slot_media",
+      "ultimo_slot_max",
+      "vol_hist_7d_media",
+      "vol_hist_7d_max",
+      "vol_hist_28d_media",
+      "vol_hist_28d_max",
+      "usina_nivel_ultimo",
+      "usina_nivel_7d",
+      "estado_nivel_ultimo",
+      "estado_nivel_7d",
+      "estado_nivel_28d",
+      "estado_ene_7d",
+      "idade",
+      "dia_semana",
+      "feriado"
+    ],
+    "linhas_treino": {
+      "meia_hora": {
+        "eolica": 2675547,
+        "fotovoltaica": 1289184
+      },
+      "diario": {
+        "eolica": 55735,
+        "fotovoltaica": 26858
+      }
+    }
+  }
+}

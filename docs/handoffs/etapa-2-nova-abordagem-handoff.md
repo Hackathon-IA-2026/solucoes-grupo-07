@@ -22,7 +22,8 @@ diário.
    - Ela devolve o `DailyForecaster` com o modelo mais recente em `models/previsao/`.
    - Sem artefato, devolve o `SameSlotRecentBaseline`.
    - A interface `predict(history, t0, data_cutoff)` é a mesma do `Predictor`.
-4. **Histórico exigido:** o preditor novo precisa de `HISTORY_DAYS` = 92 dias antes do corte.
+4. **Histórico exigido:** o preditor novo precisa de `HISTORY_DAYS` dias antes do corte: 92
+   na v1 e **130 na v3** (ver seção 5). Importe a constante de `curtamap.previsao.produto`.
    A interface carrega hoje só 28 (`inicio = corte - timedelta(days=28)` em
    `ui/operacao.py`). Troque por `corte - timedelta(days=HISTORY_DAYS)`.
 5. **Emissão recomendada:** às 20h de D, com `t0` = 00h de D + 1 e
@@ -94,3 +95,52 @@ Observações:
   - causa solar com HGB sem peso;
   - recalibração periódica;
   - previsão meteorológica real como feature.
+
+## 5. v3: faixas de volume (26/09, noite)
+
+Resultados e decisões nas entradas "Nova Etapa 2 (8/n)" a "(12/n)" do diário. Dados em
+`docs/reports/nova-abordagem/v3/`.
+
+- **O que mudou no produto:** só as faixas de volume. Ocorrência, volume, causa, limiares de
+  alerta e `SERVING` são os da v1; o `p_corte` da v3 é idêntico ao da v1.
+  - A frente B (regime nacional e grupo de restrição) não foi adotada.
+  - A frente C (causa) também não: a moda da usina continua servida.
+- **Artefato:** `models/previsao/diario_hgb_v3_2026-08-30.joblib`, com manifesto em
+  `docs/reports/nova-abordagem/modelo-congelado-v3.json` (SHA-256, limiares, composição e
+  commit da receita). `product_predictor()` prefere o v3, depois o v1, depois o baseline.
+  Para regenerar (~6 min):
+
+  ```bash
+  uv run python -m curtamap.previsao.treinar --limiares data/interim/previsao/limiares.json     --faixas docs/reports/nova-abordagem/v3/faixas.json     --manifesto docs/reports/nova-abordagem/modelo-congelado-v3.json
+  ```
+
+  `data/interim/previsao/limiares.json` é a chave `final_jan_ago` de
+  `docs/reports/nova-abordagem/limiares.json`.
+- **Histórico exigido: 130 dias antes do corte.** O `historico` de faixa usa cada dia d dos
+  28 até L com o `cap_91d` do seu próprio L(d).
+- **Colunas extras novas** (permitidas pelo contrato):
+
+  | Coluna | Significado |
+  |---|---|
+  | `p_faixa_sem_corte`, `p_faixa_leve`, `p_faixa_moderada`, `p_faixa_severa` | probabilidade da faixa da fração cortada na meia-hora (somam 1) |
+  | `faixa_provavel` | faixa de maior probabilidade na meia-hora |
+  | `tipo_saida_faixas` | proveniência por limiar, por exemplo `k0:modelo,k1:historico,k2:historico` |
+  | `p_faixa_dia_*`, `faixa_provavel_dia`, `tipo_saida_faixas_dia` | o mesmo para a fração do dia inteiro da usina (constante dentro de usina × dia) |
+
+  - **Faixas:** a fração é o volume sobre `cap_91d` (p99 da referência nos 91 dias até L).
+    As faixas são sem corte (0), leve (0, k₁], moderado (k₁, k₂] e severo (> k₂), com os
+    limiares de `v3/faixas.json`:
+    - meia-hora: eólica 0,12/0,38 e solar 0,20/0,48;
+    - diário: eólica 0,05/0,16 e solar 0,05/0,14.
+  - **Composição:**
+    - solar: modelo nos três limiares e nos dois níveis;
+    - eólica: modelo só em k₀ ("haverá corte?"). k₁ e k₂ vêm da frequência histórica da
+      usina, porque o modelo não venceu (a intensidade eólica depende do vento do dia-alvo).
+- **Como a UI deve mostrar:**
+  - mostre as probabilidades, não só a faixa mais provável;
+  - mostre a proveniência por limiar;
+  - não leia `p_faixa_dia_sem_corte` como frequência. O k₀ diário ordena bem (AP melhor que o
+    `historico`), mas tem Brier pior, ou seja, é mal calibrado;
+  - na eólica diária, a composição mista tem RPS pior que o `historico` puro (0,161 contra
+    0,155 em jan–ago).
+- **Setembro não foi usado na v3.** A confirmação exige dias novos (após 24/09/2026).

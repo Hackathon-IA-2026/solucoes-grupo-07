@@ -202,3 +202,20 @@ São só 24 dias, então nenhum número isolado é conclusivo.
   irradiância média do estado. Isso é uma interpretação, não algo medido.
 - **Para o pitch:** "com um feed de previsão de vento, o erro de volume eólico do dia seguinte
   cairia até ~24%". É um **teto**: previsões reais têm erro, e o ganho real será menor.
+
+## 7. v3: faixas de volume, sinal de restrição e causa (desenvolvimento, jan–ago/2026)
+
+Protocolo pré-registrado no diário (8/n); resultados em 9/n a 12/n; arquivos em `v3/`.
+
+| Frente | Pergunta | Resultado pela regra (média e ≥ 6/8 meses acima do ruído) |
+|---|---|---|
+| A: faixas relativas de volume | P(fração cortada > k) melhor que a frequência da usina? | **Adotada** em k₀ (duas fontes) e em k₁/k₂ da **solar**, nos dois níveis. AP de "severo" diário na solar: 0,426 contra 0,336. Na eólica, k₁/k₂ ficam com o `historico` |
+| B: regime nacional e grupo de restrição | O AP de ocorrência melhora? | Não adotada: ganha em meses estáveis, perde na virada de fevereiro (−0,06 na eólica) |
+| C: causa | Um modelo vence a moda da usina nas trocas de regime? | Não adotada: no máximo 5/8 meses, sem ganho de acurácia; a causa troca em só 16–17% dos casos |
+
+- **Artefato:** `diario_hgb_v3_2026-08-30`, com manifesto em `modelo-congelado-v3.json`.
+  Ocorrência, volume e causa são os da v1; a v3 acrescenta as colunas `p_faixa_*`.
+- **Contradições registradas:**
+  - o `id_ons` do tm já é o conjunto, então não há agrupamento de conjunto acima dele;
+  - `dsc_restricao` só existe desde 09/2025.
+- **Confirmação:** depende de dias ainda não vistos. Setembro já foi gasto com a v1.

@@ -1709,3 +1709,104 @@ Runner: `scripts/experimentos/frente_a.py`. Arquivos em `v3/`:
 
 Congelar a composição adotada como `diario_hgb_v3` (treino até 30/08), com manifesto e
 colunas `p_faixa_*` no produto e fallback preservado.
+
+## 2026-09-26 - Nova Etapa 2 (12/n): congelamento da v3 e integração das faixas no produto
+
+### Contexto e pergunta
+
+A frente A adotou componentes pela regra (11/n):
+
+- k₀ nas duas fontes;
+- k₁ e k₂ da solar, nos dois níveis.
+
+As frentes B e C não adotaram nada. O protocolo pede congelar o que foi adotado como
+`diario_hgb_v3`, com treino até 30/08, manifesto e produto apontando para a v3 sem perder o
+fallback.
+
+### Fatos e evidências observados
+
+- **Artefato** `diario_hgb_v3_2026-08-30`:
+  - SHA-256 `1b64de92d6420eb56ce872032e4d23580e1228dd9bb509d127c779ff15fc8afd`;
+  - commit da receita `17cf718`;
+  - manifesto em `docs/reports/nova-abordagem/modelo-congelado-v3.json`;
+  - linhas de treino das faixas: meia-hora com 2.675.547 eólicas (sem classificador de k₁ e
+    k₂ servido) e 1.289.184 solares; diário com 55.735 eólicas e 26.858 solares.
+- **Os componentes da v1 dentro da v3 são idênticos aos da v1.** Numa emissão de agosto pelo
+  caminho do produto (t0 = 21/08, corte de `nightly_cutoff` às 20h de 20/08), a diferença
+  máxima de `p_corte` entre a v3 e uma v1 retreinada com a mesma receita foi de 0,0 em 11.232
+  linhas.
+  - O SHA-256 da v1 regenerada nesta máquina (`d4522378…`) difere do artefato de 26/09
+    (`6340240d…`), porque o joblib depende de plataforma e versão. As previsões são o
+    critério.
+- **Paridade entre treino e serviço:** para os dias-alvo 03/08 e 20/08, `features_faixas`
+  (serviço) reproduz o cache v3 (backtest) **exatamente**. Foram 0 divergências em
+  `cap_91d`, `exc_hist_k0..2`, `exc_ult_k0..2` e nos agregados diários, em 7.344 meias-horas
+  eólicas e 3.888 solares por dia.
+- **Composição mista eólica**, medida sem treino novo a partir das previsões fora da amostra:
+  k₀ do modelo, k₁ e k₂ do `historico`, monotonizados.
+  - Meia-hora: RPS de 0,1056, contra 0,1080 do `historico` puro e 0,1086 do modelo puro. AP
+    de k₂ de 0,310, contra 0,306.
+  - Diário: RPS de 0,1614, contra 0,1550 do `historico` puro. É **pior**, porque o k₀ diário
+    do modelo é mal calibrado (Brier de 0,135 contra 0,118). A composição foi medida depois
+    da decisão e não foi pré-registrada, então fica como limitação e não altera a regra.
+- **Correção da entrada 10/n:** a tabela diz que a acurácia da C1 eólica "não é pior
+  (empate)". Na verdade, 0,8248 < 0,8251, e o código a marcou como pior. A decisão não muda,
+  porque a C1 venceu só 3 de 8 meses.
+
+### Interpretação e decisão
+
+- **O que é a v3:** v1 + faixas. Ocorrência, volume, causa, limiares de alerta e `SERVING`
+  continuam os da v1.
+- **Serviço** (`curtamap.previsao.faixas_servico`):
+  - colunas `p_faixa_*`, `faixa_provavel`, `p_faixa_dia_*`, `faixa_provavel_dia`,
+    `tipo_saida_faixas` e `tipo_saida_faixas_dia`;
+  - a proveniência sai por limiar, por exemplo `k0:modelo,k1:historico,k2:historico` na
+    eólica.
+- **`product_predictor()`:** tem preferência explícita por v3, depois v1, depois o baseline.
+  O `model_id` agora vem da versão no metadado, para que um artefato v1 continue se
+  apresentando como v1.
+- **Histórico exigido:** sobe para 130 dias antes do corte, porque o `historico` de faixa
+  usa o `cap_91d` de cada L(d).
+
+### Alternativas consideradas
+
+- **Usar o `cap_91d` de L para todos os dias passados no `historico` de serviço:**
+  descartado. Mudaria a definição avaliada, e a paridade deixaria de ser exata.
+- **Servir só o nível da meia-hora:** descartado. O protocolo trata o nível diário como
+  principal, e ele foi adotado na solar.
+- **Recalibrar o k₀ diário antes de congelar:** não foi pré-registrado. Fica como próximo
+  passo, com dias novos.
+
+### Implementação e validação
+
+- Commits:
+  - `10d66fa`: serviço, testes de fallback, v1 sem faixas, proveniência, soma 1 e vazamento
+    das features de faixa;
+  - `17cf718`: `treinar --faixas`.
+- A suíte completa passa com `PYTHONUTF8=1`. Sem essa variável, o teste já existente
+  `test_feature_inventory` falha no Windows, porque lê um arquivo sem `encoding` (cp1252).
+  Isso não tem relação com a v3.
+- Ruff limpo.
+
+### Limitações e incertezas
+
+- A v3 não foi avaliada em setembro, que está gasto. A confirmação exige dias após
+  24/09/2026.
+- O k₀ diário é mal calibrado: a UI não deve lê-lo como frequência. Na eólica diária, a
+  composição mista tem RPS pior que o `historico` puro.
+- O artefato da v1 de 26/09 não está nesta máquina. A igualdade foi verificada contra uma v1
+  retreinada com a mesma receita.
+
+### Valor para o usuário e para a apresentação
+
+- **Na demonstração:** para cada usina e dia, o painel pode mostrar "chance de corte leve,
+  moderado ou severo", com a origem de cada número.
+- **Na solar:** o número vem do modelo, que vence a regra histórica.
+- **Na eólica:** vem da própria história da usina, com a explicação de que a intensidade
+  depende do vento de amanhã.
+
+### Próximos passos
+
+1. Integrar as colunas novas na interface, carregando 130 dias de histórico.
+2. Confirmar a v3 com dias novos (após 24/09 ou outubro).
+3. Recalibrar o k₀ diário.
