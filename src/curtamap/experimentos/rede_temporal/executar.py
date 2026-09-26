@@ -1,0 +1,166 @@
+"""Executa as dobras do experimento e grava previsões individuais em parquet.
+
+Uso (a partir da raiz do worktree, com `CURTAMAP_DATA_DIR` apontando para os Parquet):
+
+    uv run python -m curtamap.experimentos.rede_temporal.executar hgb \
+        --meses 2026-01 2026-02 --variantes B0_original B1_mudanca
+    uv run python -m curtamap.experimentos.rede_temporal.executar rede \
+        --meses 2026-01 --sementes 0 1 2
+
+Cada arquivo `pred/{mes}_{fonte}.parquet` guarda as linhas avaliadas daquele mês e fonte,
+os rótulos, as colunas dos baselines e uma coluna `p_<candidato>`/`v_<candidato>` por
+candidato. Rodar de novo acrescenta ou substitui colunas; as linhas são sempre as mesmas.
+Os tempos vão para `tempos.jsonl`.
+"""
+
+import argparse
+import json
+import platform
+import time
+from datetime import date, timedelta
+from pathlib import Path
+
+import polars as pl
+
+from curtamap.contracts import SOURCES
+from curtamap.experimentos.rede_temporal import hgb
+from curtamap.experimentos.rede_temporal.dados import (
+    OUTPUT,
+    SEPTEMBER,
+    build_base,
+    fold_cutoff,
+    month_days,
+    without_holdout,
+)
+from curtamap.previsao.calendario import load_calendar
+from curtamap.previsao.features import attach_targets, release_map
+
+KEY = ["fonte", "id_ons", "dia", "slot"]
+KEEP = [
+    *KEY,
+    "id_estado",
+    "idade",
+    "y_corte",
+    "y_volume",
+    "hist_28d",
+    "vol_hist_28d",
+    "cobertura_28d",
+]
+
+
+def target_days(month: date) -> list[date]:
+    days = month_days(month)
+    return without_holdout(days) if month == SEPTEMBER else days
+
+
+def _prediction_path(output: Path, month: date, source: str) -> Path:
+    return output / "pred" / f"{month:%Y-%m}_{source}.parquet"
+
+
+def save_columns(path: Path, rows: pl.DataFrame, columns: dict[str, object]) -> None:
+    """Acrescenta colunas de previsão ao arquivo do mês, conferindo que as linhas batem."""
+    new = rows.select(KEY).with_columns(
+        pl.Series(k, v, dtype=pl.Float64) for k, v in columns.items()
+    )
+    if path.exists():
+        current = pl.read_parquet(path)
+        if current.select(KEY).sort(KEY).equals(rows.select(KEY).sort(KEY)) is False:
+            raise ValueError(f"linhas diferentes das já gravadas em {path}")
+        current = current.drop([c for c in columns if c in current.columns])
+        frame = current.join(new, on=KEY, how="left")
+    else:
+        frame = (
+            rows.select(KEEP)
+            .with_columns(
+                pl.col("hist_28d").fill_null(0.0).cast(pl.Float64).alias("p_historico"),
+                pl.col("vol_hist_28d").fill_null(0.0).cast(pl.Float64).alias("v_historico"),
+            )
+            .join(new, on=KEY, how="left")
+        )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    frame.sort(KEY).write_parquet(path)
+
+
+def log_time(output: Path, record: dict) -> None:
+    record |= {"maquina": platform.processor() or platform.machine()}
+    with (output / "tempos.jsonl").open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(record, ensure_ascii=False, default=str) + "\n")
+
+
+def fold_rows(base: pl.DataFrame, month: date, source: str, calendar, train_days: int):
+    """Linhas de treino (até o corte da dobra) e de avaliação de uma fonte."""
+    cutoff = fold_cutoff(month, calendar)
+    data = base.filter(pl.col("fonte") == source)
+    known = data.filter(pl.col("dia") <= cutoff)
+    train_mapping = release_map(
+        pl.date_range(cutoff - timedelta(days=train_days - 1), cutoff, eager=True).to_list(),
+        calendar,
+    )
+    train = attach_targets(hgb.build_rows(known, train_mapping), known)
+    evaluation = attach_targets(
+        hgb.build_rows(data, release_map(target_days(month), calendar)), data
+    ).filter(pl.col("y_corte").is_not_null())
+    return cutoff, train, evaluation
+
+
+def run_hgb(months: list[date], names: list[str], output: Path) -> None:
+    calendar = load_calendar()
+    base = build_base(output)
+    longest = max(hgb.VARIANTS[n].train_days for n in names)
+    for month in months:
+        for source in SOURCES:
+            started = time.time()
+            cutoff, train, evaluation = fold_rows(base, month, source, calendar, longest)
+            log_time(
+                output,
+                {
+                    "etapa": "linhas",
+                    "mes": month,
+                    "fonte": source,
+                    "segundos": round(time.time() - started, 1),
+                    "linhas_treino": train.height,
+                    "linhas_avaliadas": evaluation.height,
+                },
+            )
+            columns = {}
+            for name in names:
+                started = time.time()
+                model = hgb.fit_variant(train, hgb.VARIANTS[name], cutoff)
+                fit_seconds = time.time() - started
+                started = time.time()
+                p, v = hgb.predict_variant(model, evaluation)
+                columns |= {f"p_{name}": p, f"v_{name}": v}
+                log_time(
+                    output,
+                    {
+                        "etapa": "hgb",
+                        "candidato": name,
+                        "mes": month,
+                        "fonte": source,
+                        "treino_ate": cutoff,
+                        "segundos_treino": round(fit_seconds, 1),
+                        "segundos_inferencia": round(time.time() - started, 2),
+                    },
+                )
+                print(f"{month:%Y-%m} {source} {name}: {fit_seconds:.0f} s", flush=True)
+            save_columns(_prediction_path(output, month, source), evaluation, columns)
+
+
+def _months(values: list[str]) -> list[date]:
+    return [date.fromisoformat(v + "-01") for v in values]
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    sub = parser.add_subparsers(dest="comando", required=True)
+    h = sub.add_parser("hgb")
+    h.add_argument("--meses", nargs="+", required=True)
+    h.add_argument("--variantes", nargs="+", default=list(hgb.VARIANTS))
+    h.add_argument("--saida", type=Path, default=OUTPUT)
+    args = parser.parse_args()
+    if args.comando == "hgb":
+        run_hgb(_months(args.meses), args.variantes, args.saida)
+
+
+if __name__ == "__main__":
+    main()
