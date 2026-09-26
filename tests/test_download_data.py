@@ -32,3 +32,24 @@ def test_plan_rejects_unsafe_remote_paths(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="inseguro"):
         build_download_plan(files, output_dir=tmp_path)
+
+
+def test_plan_accepts_windows_separators_from_gdown(tmp_path: Path) -> None:
+    # No Windows, o gdown lista caminhos com barra invertida.
+    files = [
+        SimpleNamespace(id="ons-1", path=r"Dados - ONS\eolica.parquet"),
+        SimpleNamespace(id="era-1", path=r"ERA5 - Tutorial\tutorial.ipynb"),
+    ]
+
+    plan = build_download_plan(files, output_dir=tmp_path)
+
+    assert [(item.file_id, item.target) for item in plan] == [
+        ("ons-1", tmp_path / "eolica.parquet")
+    ]
+
+
+def test_plan_rejects_unsafe_windows_paths(tmp_path: Path) -> None:
+    files = [SimpleNamespace(id="bad", path=r"Dados - ONS\..\..\fora.parquet")]
+
+    with pytest.raises(ValueError, match="inseguro"):
+        build_download_plan(files, output_dir=tmp_path)

@@ -32,7 +32,8 @@ def build_download_plan(
     plan: list[DownloadItem] = []
 
     for remote in files:
-        remote_path = PurePosixPath(remote.path)
+        # No Windows, o gdown devolve caminhos com barra invertida.
+        remote_path = PurePosixPath(remote.path.replace("\\", "/"))
         if remote_path.is_absolute() or ".." in remote_path.parts:
             raise ValueError(f"Caminho remoto inseguro: {remote.path}")
 
