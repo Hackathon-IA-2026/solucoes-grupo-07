@@ -51,3 +51,11 @@ def test_metrics_compare_model_and_baselines_on_the_same_rows(backtest):
         "cobertura_p10_p90_positivo",
     } <= set(row)
     assert pl.DataFrame(table).height == 2
+
+
+def test_threshold_scores_whole_tie_groups():
+    # O alerta usa p >= limiar, então um limiar inclui o grupo empatado inteiro.
+    # Limiar 0,5 alerta 8 linhas com 2 acertos (F1 = 0,40); limiar 0,9 dá F1 = 0,67.
+    y = np.array([1, 1, 0, 0, 0, 0, 0, 0, 0])
+    p = np.array([0.9, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.1])
+    assert choose_threshold(y, p) == pytest.approx(0.9)

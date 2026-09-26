@@ -112,13 +112,21 @@ def backtest_month(base: pl.DataFrame, month: date, calendar) -> pl.DataFrame:
 
 
 def choose_threshold(y: np.ndarray, p: np.ndarray) -> float:
-    """Limiar que maximiza F1 do alerta; usado só com previsões fora da amostra."""
-    order = np.argsort(-p)
+    """Limiar que maximiza F1 do alerta; usado só com previsões fora da amostra.
+
+    O alerta é `p >= limiar`, então cada limiar inclui o grupo empatado inteiro: o F1 só é
+    avaliado no fim de cada grupo de probabilidades iguais.
+    """
+    order = np.argsort(-p, kind="stable")
+    ranked = p[order]
     hits = np.cumsum(y[order])
-    precision = hits / np.arange(1, len(y) + 1)
+    alerts = np.arange(1, len(y) + 1)
+    group_end = np.append(ranked[1:] != ranked[:-1], True)
+    hits, alerts = hits[group_end], alerts[group_end]
+    precision = hits / alerts
     recall = hits / max(y.sum(), 1)
     f1 = 2 * precision * recall / np.clip(precision + recall, 1e-12, None)
-    return float(p[order][int(np.argmax(f1))])
+    return float(ranked[group_end][int(np.argmax(f1))])
 
 
 def wape(actual: np.ndarray, predicted: np.ndarray) -> float:
