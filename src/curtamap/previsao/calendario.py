@@ -12,6 +12,8 @@ from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
 from pathlib import Path
 
+from curtamap.config import Settings
+
 RELEASE_TIME = time(19, 30)
 EMISSION_TIME = time(20, 0)
 DEFAULT_PATH = Path(__file__).resolve().parents[3] / "configs" / "calendario-2023-2026.json"
@@ -43,7 +45,9 @@ class Calendar:
         return day
 
 
-def load_calendar(path: Path = DEFAULT_PATH) -> Calendar:
+def load_calendar(path: Path | None = None) -> Calendar:
+    """Lê o calendário de `path`, de `CURTAMAP_CALENDAR_PATH` ou de `configs/` do repositório."""
+    path = path or Settings().calendar_path or DEFAULT_PATH
     content = json.loads(Path(path).read_text(encoding="utf-8"))
     entries = [(date.fromisoformat(e["date"]), e["kind"]) for e in content["entries"]]
     years = sorted({day.year for day, _ in entries})

@@ -15,6 +15,8 @@ class Settings(BaseSettings):
 
     data_dir: Path = Path("data")
     model_dir: Path = Path("models")
+    # Calendário de feriados do corte de publicação; vazio usa configs/ do repositório.
+    calendar_path: Path | None = None
 
 
 settings = Settings()

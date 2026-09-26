@@ -73,3 +73,15 @@ def test_custom_calendar_without_holidays_matches_weekend_rule():
 
 def test_nightly_cutoff_of_the_product_uses_the_holiday_calendar():
     assert nightly_cutoff(datetime(2026, 9, 7, 20)) == datetime(2026, 9, 4)
+
+
+def test_calendar_path_can_be_overridden_for_containers(tmp_path, monkeypatch):
+    custom = tmp_path / "cal.json"
+    custom.write_text(
+        '{"entries": [{"date": "2030-01-02", "reason": "x", "kind": "nacional"}]}',
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CURTAMAP_CALENDAR_PATH", str(custom))
+    calendar = load_calendar()
+    assert calendar.is_national_holiday(date(2030, 1, 2))
+    assert calendar.first == date(2030, 1, 1)
