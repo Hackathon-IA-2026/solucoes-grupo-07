@@ -1492,3 +1492,95 @@ e `frente_b_resumo.csv`. Cache: `scripts/experimentos/cache_features_v3.py`.
 ### Próximos passos
 
 Frente A (A0 nos dois níveis) e frente C.
+
+## 2026-09-26 - Nova Etapa 2 (10/n): resultados da v3, frente C (causa)
+
+### Contexto e pergunta
+
+Um modelo vence a moda da usina ao prever as **trocas** de causa (ENE ↔ local) a partir do
+estado do sistema em L? A execução segue o protocolo da entrada 8/n:
+
+- C1: HGB multiclasse sem peso, com as features da v1, a moda em one-hot, `causa_*_91d`, o
+  regime nacional e o grupo de restrição;
+- C2: HGB binário ENE × local; quando o resultado é local, a moda de 91 d entre CNF e REL.
+
+Runner: `scripts/experimentos/frente_c.py`. Arquivos: `v3/frente_c.csv` e
+`v3/frente_c_resumo.csv`.
+
+### Fatos e evidências observados
+
+- **Taxa de troca** (causa real ≠ moda de 28 d da usina, nas linhas com corte): 16,4% na
+  eólica e 17,5% na solar. A persistência de 83% citada no prompt se confirma.
+- **Médias de jan–ago no subconjunto principal** (causa conhecida e corte real; semente 0):
+
+  | Fonte | Preditor | macro-F1 | F1 REL | F1 CNF | F1 ENE | Acurácia | Acurácia na troca |
+  |---|---|---|---|---|---|---|---|
+  | eólica | moda servida | 0,650 | 0,452 | 0,616 | 0,882 | **0,825** | 0 (por construção) |
+  | eólica | HGB v1 | 0,635 | 0,419 | 0,621 | 0,865 | 0,795 | 0,338 |
+  | eólica | C1 | 0,657 | 0,384 | 0,696 | 0,891 | 0,825 | 0,327 |
+  | eólica | C2 | **0,677** | 0,457 | 0,692 | 0,882 | 0,824 | 0,320 |
+  | solar | moda servida | 0,461 | 0,184 | 0,310 | 0,888 | **0,824** | 0 |
+  | solar | HGB v1 | **0,508** | 0,254 | 0,417 | 0,851 | 0,771 | 0,382 |
+  | solar | C1 | 0,483 | 0,172 | 0,396 | 0,882 | 0,813 | 0,310 |
+  | solar | C2 | 0,493 | 0,208 | 0,394 | 0,876 | 0,806 | 0,319 |
+
+  No subconjunto da v1 (toda ordem com causa), os números mudam menos de 0,01. A moda
+  eólica dá 0,648, contra 0,649 no relatório v1.
+- **Decisão pela regra** (meses vencidos acima do ruído das sementes do candidato):
+
+  | Fonte | Candidato | Média | Moda | Meses | Ruído médio | Acurácia não pior? |
+  |---|---|---|---|---|---|---|
+  | eólica | C1 | 0,657 | 0,650 | 3/8 | 0,019 | sim (0,8248 contra 0,8251, empate) |
+  | eólica | C2 | 0,677 | 0,650 | 5/8 | 0,012 | não (0,8235) |
+  | solar | C1 | 0,483 | 0,461 | 5/8 | 0,015 | não (0,813) |
+  | solar | C2 | 0,493 | 0,461 | 5/8 | 0,006 | não (0,806) |
+
+- **Por mês, eólica C2 contra moda:**
+  - ganha em jan (+0,04), fev (+0,04), mar (+0,08), abr (+0,08) e jun (+0,02);
+  - perde em mai (−0,02), jul (−0,01) e ago (−0,02).
+
+### Interpretação e decisão
+
+- **Decisão:** nada é adotado. A moda da usina continua servida nas duas fontes. É o
+  resultado "válido e honesto" previsto no protocolo: a causa é quase determinada pela
+  localização.
+- **Fato:** o ganho de macro-F1 vem das classes minoritárias. Na eólica, o CNF sobe de 0,62
+  para 0,69; o REL e o ENE ficam no nível da moda. O ganho não vem de acertar mais: a
+  acurácia não melhora. O modelo troca erros da classe dominante por acertos nas raras.
+- **Fato:** nas trocas de regime, os modelos acertam de 32% a 38% das vezes, contra 0% da moda
+  por construção. Nas linhas sem troca (83%), porém, erram mais que a moda, e o saldo em
+  acurácia é zero ou negativo.
+- **Interpretação:** existe algum sinal de troca no estado do sistema em L, mas ele é fraco
+  demais para compensar o custo nas linhas estáveis. É coerente com a frente B: o regime do
+  último dia liberado não antecipa bem o regime do dia-alvo.
+- **Múltiplas comparações:** a C2 eólica, melhor de 2, tem +0,027 de macro-F1 e 5/8 meses. É
+  otimista e, ainda assim, não passa.
+- **Observação não pré-registrada:** na solar, o HGB v1 **balanceado** tem macro-F1 de 0,508,
+  contra 0,461 da moda, com acurácia de 0,771 contra 0,824. É a mesma troca de acurácia por
+  classes raras, e o HGB v1 não é candidato nesta frente. Fica registrado como candidato
+  para uma validação futura.
+
+### Alternativas consideradas
+
+- **Limiar de P(ENE) diferente de 0,5 na C2:** não pré-registrado. Escolhê-lo agora nas
+  mesmas dobras seria ajuste pós-resultado.
+- **Adotar a C2 eólica por ter a melhor média:** descartado. Ela falha no critério de meses e
+  piora a acurácia.
+
+### Limitações e incertezas
+
+- O grupo de restrição tem nulo estrutural antes de 09/2025 (contradição 2).
+- O macro-F1 é dominado pelo REL raro, com F1 entre 0,17 e 0,46. Diferenças de 0,02 são da
+  ordem do ruído de semente, que vai de 0,006 a 0,019.
+
+### Valor para o usuário e para a apresentação
+
+- **Para o pitch:** "a causa do corte muda de um dia para o outro em só 16–17% dos casos; a
+  moda recente da usina acerta 82% das causas; nas trocas, nosso melhor modelo acerta cerca de
+  um terço, sem compensar o custo". Isso justifica servir a causa por regra, com proveniência
+  explícita.
+- O resultado reforça o diagnóstico: a causa é propriedade da localização da usina na rede.
+
+### Próximos passos
+
+Concluir a frente A e decidir o que, se algo, vira `diario_hgb_v3`.
