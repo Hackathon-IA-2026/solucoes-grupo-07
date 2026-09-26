@@ -1389,3 +1389,106 @@ de decisão antes de treinar qualquer variante. Nenhum resultado de variante apa
 
 1. Gerar o cache v3.
 2. Executar as frentes B, A e C, com uma entrada de resultados por frente.
+
+## 2026-09-26 - Nova Etapa 2 (9/n): resultados da v3, frente B (regime nacional e grupo de restrição)
+
+### Contexto e pergunta
+
+O AP de ocorrência melhora com sinais mais finos que o estado e legítimos no instante da
+previsão? A execução segue o protocolo da entrada 8/n:
+
+- B0 = v1 de ocorrência, com as sementes 0, 1 e 2;
+- B1 = B0 + regime nacional de ENE;
+- B2 = B1 + grupo de restrição.
+
+Runner: `scripts/experimentos/frente_b.py`. Arquivos: `docs/reports/nova-abordagem/v3/frente_b.csv`
+e `frente_b_resumo.csv`. Cache: `scripts/experimentos/cache_features_v3.py`.
+
+### Fatos e evidências observados
+
+- **Âncora:** a B0 com semente 0, lida do cache v3, reproduz o `ap_modelo` da v1 com
+  diferença de 0,0 nos 16 meses-fonte. As colunas novas não alteraram linhas nem ordem.
+- **Diagnóstico das features** (`nulos_features_*.csv`, `grupos_*.csv`):
+  - **grupos grandes:** de 6 a 25 grupos por mês. A mediana do grupo de cada usina vai de 23
+    a 90 usinas na eólica e de 6 a 53 na solar. Só 1–4% das usinas eólicas e 0–9% das solares
+    estão em grupo unitário, então o nível do grupo **não** repete o da usina;
+  - **grupo nulo:** 100% antes de 09/2025, como previsto (contradição 2), e cerca de 9% das
+    linhas de 2026 nas duas fontes (usinas sem corte local em 91 dias). Há 2.540 linhas eólicas
+    e 3.891 solares desde 12/2025 com ordem local no slot em 91 d, mas sem grupo. Elas vêm de
+    ordens sem corte positivo ou com texto nulo, e são menos de 0,3% das linhas;
+  - **`sin_ene_ultimo` nulo:** em 4% das linhas eólicas de 2026 (29% em fevereiro), porque
+    houve dias L sem nenhuma ordem eólica com causa. As médias de 7 dias nunca são nulas.
+- **AP por mês** (semente 0; o ruído é a amplitude das três sementes da B0):
+
+  | Mês | Eól. B0 | Eól. B1 | Eól. B2 | Ruído eól. | Sol. B0 | Sol. B1 | Sol. B2 | Ruído sol. |
+  |---|---|---|---|---|---|---|---|---|
+  | jan | 0,817 | 0,828 | **0,836** | 0,008 | **0,779** | 0,768 | 0,773 | 0,006 |
+  | fev | **0,569** | 0,503 | 0,508 | 0,020 | **0,611** | 0,574 | 0,577 | 0,006 |
+  | mar | 0,786 | 0,786 | 0,786 | 0,005 | **0,795** | 0,782 | 0,779 | 0,005 |
+  | abr | 0,828 | 0,823 | 0,826 | 0,001 | 0,875 | 0,885 | **0,887** | 0,002 |
+  | mai | 0,811 | 0,827 | **0,841** | 0,004 | 0,870 | **0,881** | 0,877 | 0,005 |
+  | jun | 0,683 | 0,697 | **0,701** | 0,005 | 0,759 | **0,777** | 0,775 | 0,004 |
+  | jul | 0,888 | 0,886 | 0,887 | 0,002 | 0,904 | 0,907 | 0,905 | 0,002 |
+  | ago | 0,921 | 0,923 | 0,922 | 0,000 | **0,908** | 0,902 | 0,905 | 0,002 |
+  | **média** | 0,788 | 0,784 | **0,788** | | **0,813** | 0,810 | 0,810 | |
+
+- **Decisão pela regra** (meses vencidos acima do ruído, de 8):
+
+  | Comparação | Eólica | Solar |
+  |---|---|---|
+  | B1 contra B0 | 4 (média pior) | 4 (média pior) |
+  | B2 contra B0 | 4 (média +0,0004) | 3 (média pior) |
+  | B2 contra B1 | 3 | 1 |
+  | B0 contra `historico` | 8 (0,788 contra 0,740) | 8 (0,813 contra 0,747) |
+
+- **AP médio por idade:** eólica B0 com 0,727 (idade 2), 0,910 (3) e 0,756 (4–7); B2 com
+  0,733, 0,909 e 0,757. Na solar, B0 com 0,737, 0,938 e 0,768; B2 com 0,738, 0,932 e 0,752.
+  Nenhuma variante muda o perfil por idade.
+
+### Interpretação e decisão
+
+- **Decisão:** nada é adotado. A B0 (v1) continua a ocorrência servida, e a A1 não será
+  executada, como pré-registrado.
+- **Fato:** o sinal nacional e o de grupo ajudam em jan, mai e jun na eólica e em abr–jun na
+  solar, com margens de +0,01 a +0,03, acima do ruído. Mas pioram fevereiro nas duas fontes:
+  −0,06 na eólica, três vezes o ruído, e −0,04 na solar.
+- **Interpretação (não medida):** fevereiro é a mudança de regime do ano, com prevalência de
+  15% contra 40% em janeiro. Um sinal de regime do último dia liberado reforça a persistência:
+  quando o regime muda entre L e T, ele empurra o modelo na direção errada. O ganho em meses
+  estáveis e a perda na transição se anulam na média. É o mesmo padrão já medido para o clima
+  de L no H5: persistência que ajuda quando nada muda e atrapalha quando algo muda.
+- **Múltiplas comparações:** a melhor de 2 (B2 na eólica) empata com a B0 na média. Mesmo
+  sem correção, não haveria o que adotar.
+
+### Alternativas consideradas
+
+- Adotar só para mai–ago, onde a B2 vence: descartado. Seria escolher o período depois de
+  ver o resultado.
+- Retreinar com features de tendência do regime: fora do pré-registro e já testado na v2
+  (tendências no volume, dentro do ruído).
+
+### Implementação e validação
+
+- Funções puras em `faixas.py` e `restricoes.py`, com testes de janela exata, nulos, futuro
+  excluído e empates (commit `0b3bf2a`).
+- Cache v3 e runners no commit `22414f4`. Suíte verde e ruff limpo.
+- As previsões das 5 variantes ficam em `data/interim/previsao/v3/pred_b_<fonte>.parquet`,
+  fora do Git. A B0 é o k₀ da frente A.
+
+### Limitações e incertezas
+
+- Na B2, o nulo antes de 09/2025 mistura dois significados (contradição 2). Com mais
+  histórico de `dsc_restricao`, o resultado da B2 pode mudar.
+- A regra conta meses vencidos. Uma variante que ganha pouco em muitos meses e perde muito em
+  um é rejeitada, e isso é intencional: o produto precisa ser robusto na virada de regime.
+
+### Valor para o usuário e para a apresentação
+
+- Reforça a tese do projeto: o gargalo é saber o **nível do dia-alvo**, não descrever melhor
+  o passado. Sinais mais finos do passado ajudam em regime estável e atrapalham na virada.
+- É um resultado negativo honesto, que pode ser citado como "testamos restrição física e
+  regime nacional; não melhoram de forma robusta".
+
+### Próximos passos
+
+Frente A (A0 nos dois níveis) e frente C.
