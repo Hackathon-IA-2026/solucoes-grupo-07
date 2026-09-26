@@ -1183,3 +1183,209 @@ agosto) e grupos com |ρ| > 0,7. Arquivos: `docs/reports/nova-abordagem/v2/spear
   e roda em cerca de 55 min, se for retomado.
 - O ruído de semente na solar não foi medido.
 - Os limiares e o modelo v1 não mudaram, e o handoff continua válido.
+
+## 2026-09-26 - Nova Etapa 2 (8/n): protocolo da v3
+
+### Contexto e pergunta
+
+A equipe pediu três frentes novas sobre a v1 congelada:
+
+- **A:** volume em faixas relativas, com probabilidade calibrada por faixa;
+- **B:** sinal de restrição mais fino que o estado, para o AP de ocorrência;
+- **C:** causa, tentando vencer a moda da usina nas trocas de regime.
+
+Esta entrada é o **pré-registro**. Ela fixa faixas, features, variantes, métricas e regras
+de decisão antes de treinar qualquer variante. Nenhum resultado de variante aparece aqui.
+
+### Fatos e evidências observados (antes de qualquer variante)
+
+- **Snapshot:** os SHA-256 dos 5 Parquet conferem com os do prompt (`a95a1741…`,
+  `c1572983…`, `487050da…`, `b268809c…`, `e2935941…`).
+- **Âncora reproduzida exatamente** a partir do cache v2 regenerado nesta máquina (Windows,
+  12 threads):
+  - B0 do volume eólico: WAPE diário de fevereiro = 1,655084 (esperado 1,655084);
+  - ocorrência v1 (`OCCURRENCE`, `PARAMS`) nas 8 dobras: diferença de AP de **0,0** nos 16
+    meses-fonte contra `ap_modelo` de `metricas_backtest.csv`.
+- **Contradição 1: não existe conjunto acima da entidade do modelo.**
+  - No `*_tm`, que é a base do modelo, o `id_ons` já é o conjunto: 166 dos 180 ids eólicos
+    começam com `CJU` ("CONJ. TERRA SANTA"). Na solar são 83 de 87.
+  - O `*_detail` tem 1.060 usinas eólicas em 180 conjuntos (560 solares em 97), mas só 11
+    ids eólicos do tm (4 solares) aparecem no detail.
+  - 184 dos 198 pares (id, nome) eólicos do tm casam com um `nom_conjuntousina` do detail.
+    Cada entidade do modelo, portanto, já é o seu conjunto.
+  - `conjunto_nivel_*` repetiria `usina_nivel_*`. **Decisão conservadora:** as features de
+    conjunto saem da B1 e da C1. O casamento de nomes não foi tentado, porque só associaria
+    cada entidade a ela mesma.
+- **Contradição 2: `dsc_restricao` só existe a partir de 01/09/2025** nas duas fontes.
+  - Antes disso, o campo é nulo em todas as ordens: 1,39 M de 2,56 M de ordens eólicas com
+    causa têm texto nulo.
+  - As contagens do prompt se confirmam: 5 textos ENE, 58 CNF e 272 REL na eólica. Na solar
+    são 3, 68 e 272.
+  - O regime nacional usa `cod_razaorestricao`, que existe no período todo, então a B1 não
+    é afetada.
+  - Na B2 e no grupo da C1, a janela de 365 dias mistura dois significados de nulo: "antes
+    de 09/2025" e "sem corte local". A dobra de janeiro treina com cerca de 4 meses de grupo
+    preenchido. Isso não é vazamento, mas é uma mudança de regime entre treino e teste, e fica
+    registrado como ressalva da B2.
+- **Normalização de `dsc_restricao`** (`normalizar_restricao`, commit `0b3bf2a`):
+  - cardinalidade dos textos locais (CNF + REL): de 327 para 135 na eólica e de 337 para 169
+    na solar; CNF de 58 para 48 e REL de 272 para 101 na eólica;
+  - os 30 textos mais frequentes de cada fonte foram conferidos à mão. "FLUXO FNESE" reúne 64
+    variantes eólicas de SGI. Nenhum par de restrições fisicamente distintas foi fundido.
+- **Limiares** (`scripts/experimentos/limiares_v3.py`, gravados em
+  `docs/reports/nova-abordagem/v3/faixas.json`). São tercis da fração positiva nos dias-alvo
+  de 2025, com 2 casas. Nenhum colapsou.
+
+  | Nível | Fonte | k₁ | k₂ | Positivos em 2025 |
+  |---|---|---|---|---|
+  | meia-hora | eólica | 0,12 | 0,38 | 959.118 meias-horas |
+  | meia-hora | solar | 0,20 | 0,48 | 247.784 |
+  | diário | eólica | 0,05 | 0,16 | 44.234 dias |
+  | diário | solar | 0,05 | 0,14 | 18.194 |
+
+  - Dias de 2025 excluídos do rótulo diário: 171 na eólica e 134 na solar. Todos têm
+    `cap_91d = 0`, ou seja, referência nula nos 91 dias. Nenhum dia de 2025 no cache tem
+    menos de 48 slots.
+  - Frações de meia-hora acima de 1: 4.855 na eólica e 1.220 na solar (0,2% e 0,1%). Elas
+    ficam na faixa severa, sem truncamento.
+
+### Interpretação e decisão: regras comuns
+
+- **Período:** só as 8 dobras de jan–ago/2026 (`v2_comum.folds`, janela de 365 dias).
+  Setembro de 01 a 24 está gasto e não entra.
+- **Cache v3** (`data/interim/previsao/v3/`): tem exatamente as linhas e a ordem do v2, com
+  colunas a mais. Nenhuma linha é filtrada por `cap_91d` nulo; o nulo fica no rótulo.
+- **Regra de adoção:** a variante vence a referência se ganhar na média das 8 dobras **e** em
+  pelo menos 6 de 8 meses. Uma vitória mensal só conta se a margem superar o ruído daquele
+  mês.
+- **Ruído:** é a maior diferença da métrica entre as sementes 0, 1 e 2.
+  - Quando a referência tem semente (B0, A0 contra A1), o ruído vem das réplicas da
+    referência.
+  - **Quando a referência é determinística** (o `historico` na frente A, a moda na frente C),
+    o ruído é a amplitude entre as sementes 0, 1 e 2 **do próprio candidato**. Sem isso, o
+    ruído valeria zero e a regra ficaria mais frouxa do que a seção 1 pretende.
+  - A comparação usa sempre a semente 0.
+- **Múltiplas comparações:** no máximo 2 variantes por frente e célula. A melhor de 2 nas
+  mesmas dobras é otimista, e isso será dito junto de qualquer conclusão.
+- **Modelos:** `HistGradientBoosting` com os `PARAMS` da v1 (`CAUSE_PARAMS` na causa), sem
+  busca de hiperparâmetros. Linhas ordenadas por `fonte, id_ons, dia, slot`.
+
+### Frente A: faixas de volume
+
+- **Rótulos:**
+  - fração da meia-hora = `y_volume / cap_91d`;
+  - fração diária = energia do dia / (`cap_91d` × 24 h), nula sem os 48 slots;
+  - `cap_91d` = p99 de `val_geracaoreferencia` em (L − 91, L], janela exata mesmo sem dado
+    em L;
+  - faixas: sem corte (0), leve (0, k₁], moderado (k₁, k₂] e severo (> k₂).
+- **Modelos:** um classificador binário por limiar, fonte e nível para P(fração > k).
+  - Na meia-hora, k₀ **reusa** as previsões da B0 com semente 0, sem retreinar.
+  - No diário, k₀ é um classificador diário novo ("algum corte no dia").
+  - Treino e avaliação usam as linhas com fração não nula.
+  - Monotonização por mínimo acumulado: P(>k₂) ≤ P(>k₁) ≤ P(>k₀). As faixas saem por
+    diferença.
+- **Features:**
+  - A0 na meia-hora = `OCCURRENCE` da v1 (14);
+  - A0 no diário = média e máximo nos 48 slots de `hist_7d`, `hist_28d`, `hist_91d`,
+    `ultimo_slot`, `vol_hist_7d` e `vol_hist_28d` (12), mais `usina_nivel_ultimo`,
+    `usina_nivel_7d`, `estado_nivel_ultimo`, `estado_nivel_7d`, `estado_nivel_28d`,
+    `estado_ene_7d`, `idade`, `dia_semana` e `feriado` (9);
+  - A1 = A0 mais as features adotadas na frente B. Só é executada se a B adotar algo.
+- **Baselines nas mesmas linhas:**
+  - `historico`: frequência de fração > k do próprio rótulo nos dias de (L − 28, L], no mesmo
+    slot na meia-hora. Cada dia passado d usa a sua própria definição de rótulo (`cap_91d` de
+    L(d)), então não há vazamento;
+  - `ultimo_dia`: o indicador em L;
+  - para o RPS, as faixas do `historico` obtidas das frequências monotonizadas.
+- **Métricas:**
+  - principal: AP de P(>k) por limiar, fonte e nível;
+  - secundárias: Brier, confiabilidade em 10 bins, RPS das 4 faixas e skill do RPS sobre o
+    `historico`;
+  - operacional: limiar de alerta de "severo" F1-ótimo nas previsões fora da amostra de
+    jan–abr (`choose_threshold`), com recall e precisão em mai–ago.
+  - Não há acurácia de faixa como métrica principal.
+- **Adoção:** cada combinação limiar × fonte × nível é servida pelo modelo se o A0 vencer o
+  `historico` em AP pela regra. A A1 substitui a A0 se vencê-la pela regra, com ruído das
+  sementes da A0.
+
+### Frente B: regime nacional e grupo de restrição
+
+- **Features** (todas até L, janelas exatas):
+  - `sin_ene_ultimo` e `sin_ene_7d`: participação de ENE nas ordens com causa conhecida da
+    mesma fonte no SIN, em L e média diária em (L − 7, L];
+  - `sin_ene_ultimo_total` e `sin_ene_7d_total`: o mesmo, com as duas fontes juntas;
+  - `grupo_restricao`: a restrição normalizada mais frequente da usina nas meias-horas com
+    corte positivo e causa CNF/REL em (L − 91, L]. Empate pela ordem alfabética. Sem corte
+    local, é nulo;
+  - `grupo_nivel_ultimo`, `grupo_nivel_7d` e `grupo_tamanho`: fração das meias-horas cortadas
+    das usinas da mesma fonte e do mesmo grupo (membros definidos em L), em L e média diária
+    em (L − 7, L], e o número de membros.
+- **Variantes:** B0 = v1 de ocorrência (sementes 0, 1 e 2); B1 = B0 + as 4 `sin_*`;
+  B2 = B1 + as 3 `grupo_*`.
+- **Métrica:** AP de ocorrência por fonte, na célula de cada fonte. Também será reportado o AP
+  por idade (2, 3 e 4 a 7 dias).
+- **Adoção:** pela regra, contra a B0. Se as duas vencerem, a B2 só é adotada se também vencer
+  a B1 pela regra; caso contrário, fica a B1.
+- **Diagnósticos obrigatórios:**
+  - taxa de nulos por feature e por mês, inclusive nos meses de treino;
+  - distribuição do tamanho dos grupos. Se a maioria tiver uma só entidade, o nível do grupo
+    repete o da usina e a B2 não tem como ganhar;
+  - verificação de que usinas novas não ficam com nulo por engano.
+
+### Frente C: causa
+
+- **Referências:**
+  - a moda servida: argmax das participações da usina no slot em 28 d, com recurso ao estado
+    em 7 d (`apply_serving`);
+  - o HGB v1 de causa, só reportado.
+- **C1:** HGB multiclasse **sem** peso, com `CAUSE_PARAMS`. Features:
+  - `CAUSE` da v1 (13, já com slot, dia da semana, feriado e idade);
+  - a moda de 28 d em one-hot (3);
+  - `causa_rel_91d`, `causa_cnf_91d` e `causa_ene_91d` (3);
+  - as 4 `sin_*`;
+  - as 3 `grupo_*`;
+  - sem conjunto (contradição 1).
+- **C2:** HGB binário ENE × local, com as mesmas features e sem peso.
+  - P(ENE) ≥ 0,5 → ENE.
+  - Caso contrário, a causa local vem da moda da usina no slot em 91 d entre CNF e REL. Em
+    empate, ou sem histórico, usa-se CNF.
+- **Treino:** as ordens com causa conhecida, como na v1.
+- **Avaliação:**
+  - subconjunto principal: `y_causa` conhecida **e** `y_corte = 1`, como pede o prompt;
+  - o subconjunto da v1 (toda ordem com causa conhecida) é reportado ao lado, para manter a
+    continuidade.
+- **Métricas:**
+  - macro-F1 (REL, CNF, ENE);
+  - F1 por classe;
+  - acurácia;
+  - taxa de troca e acurácia no subconjunto de troca (causa real ≠ moda de 28 d da usina).
+- **Adoção:** vencer a moda servida em macro-F1 pela regra, com ruído das sementes do
+  candidato, **sem piorar** a acurácia média. Se nenhuma vencer, a moda continua servida.
+
+### Alternativas consideradas
+
+- **Conjunto por casamento de nomes:** descartado, porque é degenerado (contradição 1).
+- **Limiares com mais casas:** não foi preciso, porque nenhum colapsou com 2 casas.
+- **Ruído zero para referência determinística:** descartado, porque seria mais frouxo que a
+  regra.
+- **Filtrar do cache as linhas com `cap_91d` nulo:** descartado, porque mudaria a ordem e a
+  amostra de bins do HGB, e a âncora deixaria de valer.
+
+### Limitações e incertezas
+
+- Maio–agosto já foi visto por receitas anteriores. A melhor de 2 é otimista. A adoção
+  final depende de dias ainda não vistos (após 24/09/2026 ou outubro).
+- Nas features diárias, `vol_hist_*` está em MWmed, sem normalização por `cap_91d`, como
+  pede o prompt.
+
+### Valor para o usuário e para a apresentação
+
+- **Disciplina metodológica:** regras escritas antes, contradições registradas e âncora
+  exata.
+- **Explicação do produto:** a entidade publicada pelo ONS já é o conjunto, e isso explica
+  por que "conjunto" não é um agrupamento novo.
+
+### Próximos passos
+
+1. Gerar o cache v3.
+2. Executar as frentes B, A e C, com uma entrada de resultados por frente.
