@@ -53,12 +53,25 @@ def target_days(month: date) -> list[date]:
     return without_holdout(days) if month == SEPTEMBER else days
 
 
-def _prediction_path(output: Path, month: date, source: str) -> Path:
-    return output / "pred" / f"{month:%Y-%m}_{source}.parquet"
+def _prediction_path(output: Path, month: date, source: str, family: str = "") -> Path:
+    prefix = f"{family}_" if family else ""
+    return output / "pred" / f"{prefix}{month:%Y-%m}_{source}.parquet"
 
 
-def save_columns(path: Path, rows: pl.DataFrame, columns: dict[str, object]) -> None:
-    """Acrescenta colunas de previsão ao arquivo do mês, conferindo que as linhas batem."""
+def _wait_for(path: Path, poll_seconds: int = 30) -> None:
+    """A rede usa as linhas avaliadas gravadas pelo HGB; espera o arquivo existir."""
+    while not path.exists():
+        time.sleep(poll_seconds)
+
+
+def save_columns(
+    path: Path, rows: pl.DataFrame, columns: dict[str, object], *, with_base: bool = True
+) -> None:
+    """Acrescenta colunas de previsão ao arquivo do mês, conferindo que as linhas batem.
+
+    `with_base=False` grava só a chave e as colunas (arquivos da rede, separados dos do HGB
+    para que processos paralelos não escrevam no mesmo arquivo).
+    """
     new = rows.select(KEY).with_columns(
         pl.Series(k, v, dtype=pl.Float64) for k, v in columns.items()
     )
@@ -146,6 +159,75 @@ def run_hgb(months: list[date], names: list[str], output: Path) -> None:
             save_columns(_prediction_path(output, month, source), evaluation, columns)
 
 
+NETS = {
+    "C_gru64_k28": {"window_days": 28, "hidden": 64},
+    "C_gru32_k14": {"window_days": 14, "hidden": 32},
+}
+
+
+def run_rede(months: list[date], seeds: list[int], name: str, output: Path) -> None:
+    import torch
+
+    from curtamap.experimentos.rede_temporal import rede
+
+    torch.set_num_threads(6)
+    calendar = load_calendar()
+    config = rede.NetConfig(**NETS[name])
+    started = time.time()
+    tensor = rede.DailyTensor.from_base(build_base(output))
+    log_time(output, {"etapa": "tensor", "segundos": round(time.time() - started, 1)})
+    for month in months:
+        for source in SOURCES:
+            _wait_for(_prediction_path(output, month, source))
+        cutoff = fold_cutoff(month, calendar)
+        history_days = pl.date_range(
+            cutoff - timedelta(days=config.train_days - 1), cutoff, eager=True
+        ).to_list()
+        mapping = release_map(history_days, calendar)
+        targets = release_map(target_days(month), calendar)
+        for seed in seeds:
+            started = time.time()
+            net = rede.fit_net(tensor, mapping, cutoff, config, seed)
+            fit_seconds = time.time() - started
+            for source in SOURCES:
+                rows_path = _prediction_path(output, month, source)
+                _wait_for(rows_path)
+                rows = pl.read_parquet(rows_path).select(KEY)
+                path = _prediction_path(output, month, source, "rede")
+                samples = rows.select("fonte", "id_ons", "dia").unique().join(targets, on="dia")
+                started = time.time()
+                predicted = rede.predict_net(net, tensor, samples)
+                seconds = time.time() - started
+                joined = rows.select(KEY).join(
+                    predicted.with_columns(pl.col("slot").cast(rows["slot"].dtype)),
+                    on=KEY,
+                    how="left",
+                )
+                candidate = f"{name}_s{seed}"
+                save_columns(
+                    path,
+                    rows,
+                    {f"p_{candidate}": joined["p"], f"v_{candidate}": joined["v"]},
+                    with_base=False,
+                )
+                log_time(
+                    output,
+                    {
+                        "etapa": "rede",
+                        "candidato": candidate,
+                        "mes": month,
+                        "fonte": source,
+                        "treino_ate": cutoff,
+                        "segundos_treino": round(fit_seconds, 1),
+                        "segundos_inferencia": round(seconds, 2),
+                        "epocas": net.best_epochs,
+                        "historico": net.history,
+                    },
+                )
+            print(f"{month:%Y-%m} {name} semente {seed}: {fit_seconds:.0f} s, "
+                  f"{net.best_epochs} épocas", flush=True)  # fmt: skip
+
+
 def _months(values: list[str]) -> list[date]:
     return [date.fromisoformat(v + "-01") for v in values]
 
@@ -157,9 +239,16 @@ def main() -> None:
     h.add_argument("--meses", nargs="+", required=True)
     h.add_argument("--variantes", nargs="+", default=list(hgb.VARIANTS))
     h.add_argument("--saida", type=Path, default=OUTPUT)
+    r = sub.add_parser("rede")
+    r.add_argument("--meses", nargs="+", required=True)
+    r.add_argument("--sementes", nargs="+", type=int, default=[0])
+    r.add_argument("--config", choices=list(NETS), default="C_gru64_k28")
+    r.add_argument("--saida", type=Path, default=OUTPUT)
     args = parser.parse_args()
     if args.comando == "hgb":
         run_hgb(_months(args.meses), args.variantes, args.saida)
+    else:
+        run_rede(_months(args.meses), args.sementes, args.config, args.saida)
 
 
 if __name__ == "__main__":
