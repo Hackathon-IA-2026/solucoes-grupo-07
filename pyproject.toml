@@ -24,6 +24,9 @@ dependencies = [
 aws = ["boto3>=1.40"]
 data = ["gdown>=6.4"]
 llm = ["openai>=2.0"]
+experimento = [
+    "torch>=2.4",
+]
 
 [dependency-groups]
 dev = [
