@@ -126,3 +126,19 @@ def test_adjusted_hgb_picks_the_frozen_variant_per_source_and_component() -> Non
 
     assert adjusted["p_B_ajustado"].to_list() == [0.1, 0.4]
     assert adjusted["v_B_ajustado"].to_list() == [3.0, 2.0]
+
+
+def test_diverged_volume_variants_are_detected_in_any_source() -> None:
+    from curtamap.experimentos.rede_temporal.avaliar import diverged_volume
+
+    frame = pl.DataFrame(
+        {
+            "fonte": ["eolica", "eolica", "fotovoltaica", "fotovoltaica"],
+            "y_volume": [100.0, 0.0, 50.0, 0.0],
+            "v_ok": [90.0, 1.0, 40.0, 0.0],
+            "v_grande": [90.0, 1.0, 40.0, 600.0],
+            "v_infinito": [float("inf"), 1.0, 40.0, 0.0],
+        }
+    )
+
+    assert diverged_volume(frame, ["ok", "grande", "infinito"]) == {"grande", "infinito"}

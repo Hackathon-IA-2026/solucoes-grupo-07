@@ -131,12 +131,14 @@ def fold_rows(base: pl.DataFrame, month: date, source: str, calendar, train_days
     return cutoff, train, evaluation
 
 
-def run_hgb(months: list[date], names: list[str], output: Path) -> None:
+def run_hgb(
+    months: list[date], names: list[str], output: Path, sources: tuple[str, ...] = SOURCES
+) -> None:
     calendar = load_calendar()
     base = _base(output, months)
     longest = max(hgb.VARIANTS[n].train_days for n in names)
     for month in months:
-        for source in SOURCES:
+        for source in sources:
             started = time.time()
             cutoff, train, evaluation = fold_rows(base, month, source, calendar, longest)
             log_time(
@@ -254,6 +256,7 @@ def main() -> None:
     h = sub.add_parser("hgb")
     h.add_argument("--meses", nargs="+", required=True)
     h.add_argument("--variantes", nargs="+", default=list(hgb.VARIANTS))
+    h.add_argument("--fontes", nargs="+", default=list(SOURCES), choices=list(SOURCES))
     h.add_argument("--saida", type=Path, default=OUTPUT)
     r = sub.add_parser("rede")
     r.add_argument("--meses", nargs="+", required=True)
@@ -262,7 +265,7 @@ def main() -> None:
     r.add_argument("--saida", type=Path, default=OUTPUT)
     args = parser.parse_args()
     if args.comando == "hgb":
-        run_hgb(_months(args.meses), args.variantes, args.saida)
+        run_hgb(_months(args.meses), args.variantes, args.saida, tuple(args.fontes))
     else:
         run_rede(_months(args.meses), args.sementes, args.config, args.saida)
 

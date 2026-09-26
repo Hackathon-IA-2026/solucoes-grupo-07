@@ -81,6 +81,22 @@ def choose_thresholds(frame: pl.DataFrame, candidates: list[str], *, until: date
     return out
 
 
+def diverged_volume(frame: pl.DataFrame, candidates: list[str], factor: float = 10.0) -> set:
+    """Candidatos com volume não finito ou acima de `factor` × o maior volume real da fonte.
+
+    Emenda de 26/09/2026 ao protocolo: a Poisson do HGB divergiu em algumas variantes; uma
+    receita que diverge em qualquer dobra de qualquer fonte fica inelegível para volume.
+    """
+    out = set()
+    for _, part in frame.partition_by("fonte", as_dict=True).items():
+        limit = factor * part["y_volume"].max()
+        for candidate in candidates:
+            v = part[f"v_{candidate}"]
+            if (~v.is_finite()).any() or v.max() > limit:
+                out.add(candidate)
+    return out
+
+
 def _monthly(table: pl.DataFrame) -> pl.DataFrame:
     return table.filter(pl.col("periodo") != "agregado")
 
@@ -167,9 +183,13 @@ def run_selection(output: Path, report: Path) -> dict:
     table = metric_table(frame, candidates, thresholds)
     report.mkdir(parents=True, exist_ok=True)
     table.write_csv(report / "selecao_metricas.csv")
+    diverged = diverged_volume(frame, HGB_VARIANTS)
+    stable = [v for v in HGB_VARIANTS if v not in diverged]
     choices = {
         "hgb_ocorrencia": select_best(table, HGB_VARIANTS, "ap", higher=True),
-        "hgb_volume": select_best(table, HGB_VARIANTS, "wape_diario", higher=False),
+        "hgb_volume": select_best(table, stable, "wape_diario", higher=False),
+        "hgb_volume_sem_emenda": select_best(table, HGB_VARIANTS, "wape_diario", higher=False),
+        "volume_divergente": sorted(diverged),
         "rede": select_best(
             table.filter(pl.col("fonte") == "eolica"), nets, "wape_diario", higher=False
         ).get("eolica"),

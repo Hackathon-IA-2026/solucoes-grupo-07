@@ -73,3 +73,29 @@ Um candidato só é recomendado para substituir o componente servido se, em mai�
 - não piorar setembro de forma material.
 
 Magnitude, estabilidade entre sementes e custo entram na recomendação escrita.
+
+## Emenda 1 — 26/09/2026, antes de qualquer resultado de mai–ago
+
+**Fato observado na seleção (jan–abr):** o regressor Poisson de volume do HGB divergiu em
+três variantes na fonte solar:
+
+| Variante | Mês | Pico de volume (MWmed) |
+|---|---|---|
+| B3 | fevereiro | 1e283 |
+| B1 | março | 1e139 |
+| B4 | março | 8e8 |
+| B4 | abril | infinito, em quase todas as usinas |
+
+O maior volume real solar observado é da ordem de 800 MWmed. O classificador de ocorrência
+não é afetado.
+
+**Emenda:**
+
+- Uma variante cujo regressor de volume produziu valor não finito, ou acima de 10 vezes o
+  maior volume real da fonte, em qualquer dobra de seleção de qualquer fonte, fica
+  **inelegível para o componente de volume**.
+- **Motivo:** a divergência é propriedade da receita de ajuste (parâmetros e features) e não
+  da fonte. Uma receita que diverge não pode ir a produto.
+- A regra original escolheria B4 para o volume eólico. Isso fica registrado como
+  `hgb_volume_sem_emenda` em `selecao_escolhas.json`.
+- A escolha da ocorrência não muda.
