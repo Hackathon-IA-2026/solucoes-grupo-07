@@ -105,3 +105,29 @@ def test_reserved_period_is_refused() -> None:
 
 def test_empty_history_gives_empty_losses() -> None:
     assert historical_losses(HISTORY.clear(), grain="mes", dimension="causa").is_empty()
+
+
+def test_periods_cut_by_the_loaded_window_are_flagged_partial() -> None:
+    partial = historical_losses(
+        HISTORY,
+        grain="semana",
+        dimension="fonte",
+        window=(datetime(2026, 8, 4), datetime(2026, 8, 12)),
+    )
+    complete = historical_losses(
+        HISTORY,
+        grain="semana",
+        dimension="fonte",
+        window=(datetime(2026, 8, 3), datetime(2026, 8, 17)),
+    )
+
+    assert partial["periodo_parcial"].all()
+    assert not complete["periodo_parcial"].any()
+
+
+def test_month_ending_exactly_at_the_window_end_is_complete() -> None:
+    losses = historical_losses(
+        HISTORY, grain="mes", dimension="fonte", window=(datetime(2026, 8, 1), datetime(2026, 9, 1))
+    )
+
+    assert not losses["periodo_parcial"].any()

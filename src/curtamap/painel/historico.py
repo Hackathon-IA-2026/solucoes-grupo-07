@@ -6,6 +6,8 @@ meias-horas com volume inválido ficam contadas em `janelas_volume_nulo`, nunca 
 como zero.
 """
 
+from datetime import datetime
+
 import polars as pl
 
 from curtamap.contracts import RESERVED_TEST_START
@@ -26,7 +28,14 @@ def _group(dimension: str) -> pl.Expr:
     return pl.col(dimension).fill_null(MISSING)
 
 
-def historical_losses(history: pl.DataFrame, *, grain: str, dimension: str) -> pl.DataFrame:
+def historical_losses(
+    history: pl.DataFrame,
+    *,
+    grain: str,
+    dimension: str,
+    window: tuple[datetime, datetime] | None = None,
+) -> pl.DataFrame:
+    """`window` é o intervalo `[início, fim)` carregado; marca períodos cortados por ele."""
     if grain not in GRAINS:
         raise ValueError(f"grain deve ser um de {tuple(GRAINS)}")
     if dimension not in DIMENSIONS:
@@ -35,13 +44,19 @@ def historical_losses(history: pl.DataFrame, *, grain: str, dimension: str) -> p
         raise ValueError(
             f"histórico inclui o período reservado (a partir de {RESERVED_TEST_START:%d/%m/%Y})"
         )
+    every = GRAINS[grain]
+    start = pl.col("din_instante").dt.truncate(every)
+    partial = pl.lit(None, pl.Boolean)
+    if window is not None:
+        partial = (start < window[0]) | (start.dt.offset_by(every) > window[1])
     return (
         history.filter(pl.col("restricao_registrada"))
         .with_columns(
-            pl.col("din_instante").dt.truncate(GRAINS[grain]).dt.date().alias("periodo"),
+            start.dt.date().alias("periodo"),
             _group(dimension).alias("grupo"),
+            partial.alias("periodo_parcial"),
         )
-        .group_by("periodo", "grupo")
+        .group_by("periodo", "grupo", "periodo_parcial")
         .agg(
             pl.col("energia_mwh").sum(),
             pl.col("corte_positivo").fill_null(False).sum().alias("janelas_com_corte"),
