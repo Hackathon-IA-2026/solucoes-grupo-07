@@ -852,3 +852,72 @@ pergunta, e novas rodadas só aumentariam o risco de sobreajuste às dobras.
 1. Baixar setembro.
 2. Prever sem rótulo.
 3. Avaliar por semana.
+
+## 2026-09-26 - Nova Etapa 2 (4/n): setembro, reprodução para o dashboard e oráculo meteorológico
+
+### Contexto e pergunta
+
+- As escolhas congeladas se sustentam fora da amostra?
+- Quanto valeria uma previsão meteorológica?
+- Além disso, entregar o recorte histórico para o dashboard.
+
+### Fatos e evidências observados
+
+- **Setembro de 2026**, a validação independente, aberta uma única vez depois do commit
+  `7b64b46`:
+  - dados baixados às 06:35 UTC de 26/09, com `Last-Modified` de 25/09 às 22h UTC, cobrindo
+    01 a 24/09 (manifesto em `docs/reports/nova-abordagem/setembro/`);
+  - previsões sem rótulo gravadas antes da avaliação (SHA-256 `b1c8ed21…`);
+  - corte: AP de 0,921 contra 0,899 do `historico` na eólica (vence 3/4 semanas) e de 0,907
+    contra 0,867 na solar (4/4);
+  - volume solar: WAPE 0,607 contra 0,652 e WAPE diário 0,517 contra 0,565;
+  - causa: a moda da usina (servida) teve 0,839 contra 0,765 do modelo na eólica e 0,501
+    contra 0,447 na solar;
+  - alerta com o limiar congelado: recall de 0,94 e 0,90, precisão de 0,82 e 0,81.
+- **Reprodução**, em `data/interim/previsao/reproducao_2026-08-03_2026-08-30.parquet`:
+  - 28 emissões às 20h e 315.072 linhas no contrato, com `observado_*` ao lado;
+  - modelo treinado com rótulos até 30/07;
+  - AP de 0,920 contra 0,904 na eólica e de 0,904 contra 0,865 na solar.
+- **H5, oráculo em mai–ago:**
+  - clima verificado do estado no dia-alvo: AP eólica de 0,826 para 0,872, WAPE diário eólico
+    de 0,711 para 0,540, AP solar de 0,860 para 0,869;
+  - clima de L, que é legítimo: sem ganho.
+
+### Interpretação e decisão
+
+- **Fato:** setembro confirmou as decisões congeladas. **Interpretação:** o ganho da
+  ocorrência é robusto, mas setembro teve prevalência parecida com agosto e não testou uma
+  mudança de regime.
+- **Interpretação:** o gargalo do volume eólico é meteorológico. O H5 quantifica o valor de um
+  feed de previsão de vento como teto, não como garantia.
+- **Decisão:** o clima de L não entra no produto, porque não teve ganho.
+
+### Alternativas consideradas
+
+Usar setembro para ajustar a receita: proibido pelo protocolo e não feito.
+
+### Implementação e validação
+
+- Módulos `setembro`, `reproducao` e `produto`, todos com testes.
+- Script do H5 versionado em `scripts/experimentos/oraculo_h5.py`.
+- Relatório completo em `docs/reports/nova-abordagem/README.md`.
+- Handoff em `docs/handoffs/etapa-2-nova-abordagem-handoff.md`.
+
+### Limitações e incertezas
+
+- Setembro tem só 24 dias.
+- O H5 usa clima verificado e médio por estado. Uma previsão real teria erro, e a
+  granularidade por usina poderia mudar o número.
+
+### Valor para o usuário e para a apresentação
+
+- **Demonstração:** 4 semanas de emissões diárias com a verdade ao lado.
+- **Validação independente:** setembro, publicado depois do snapshot.
+- **"Por que agora" e evolução do produto:** o próximo ganho vem de previsão meteorológica,
+  não de mais complexidade.
+
+### Próximos passos (domingo)
+
+1. Integrar com as Etapas 3 e 4 seguindo o handoff: trava de setembro, 92 dias de histórico
+   e proveniência por componente.
+2. Containerizar com `configs/`, `models/` e `data/raw/`.
