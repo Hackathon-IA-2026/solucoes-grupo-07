@@ -142,3 +142,18 @@ def test_diverged_volume_variants_are_detected_in_any_source() -> None:
     )
 
     assert diverged_volume(frame, ["ok", "grande", "infinito"]) == {"grande", "infinito"}
+
+
+def test_monthly_wins_ignore_floating_point_ties() -> None:
+    table = pl.DataFrame(
+        {
+            "fonte": ["eolica"] * 2,
+            "periodo": ["2026-05-01"] * 2,
+            "candidato": ["c", "ref"],
+            "wape_diario": [0.6110000000000001, 0.611],
+        }
+    )
+
+    wins = monthly_wins(table, "ref", "c", "wape_diario", higher=False)
+
+    assert wins.row(0, named=True)["meses_vencidos"] == 0

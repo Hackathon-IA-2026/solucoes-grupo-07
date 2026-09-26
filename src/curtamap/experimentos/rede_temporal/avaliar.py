@@ -39,6 +39,7 @@ HGB_VARIANTS = [
     "B5_hp_suave",
 ]
 NETS = ["C_gru64_k28", "C_gru32_k14"]
+TIE_TOLERANCE = 1e-6
 
 
 def load_predictions(output: Path, months: list[date]) -> pl.DataFrame:
@@ -121,7 +122,9 @@ def monthly_wins(
         "fonte", "periodo", pl.col(metric).alias("_ref")
     )
     joined = a.join(b, on=["fonte", "periodo"])
-    better = pl.col(metric) > pl.col("_ref") if higher else pl.col(metric) < pl.col("_ref")
+    # Tolerância: somas agrupadas variam na última casa conforme a ordem entre threads.
+    margin = pl.col(metric) - pl.col("_ref")
+    better = margin > TIE_TOLERANCE if higher else margin < -TIE_TOLERANCE
     return (
         joined.group_by("fonte")
         .agg(

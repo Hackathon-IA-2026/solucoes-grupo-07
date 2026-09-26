@@ -219,7 +219,13 @@ def manifest(output: Path, freeze: dict) -> dict:
     }
 
 
-def _plots(table: pl.DataFrame, final: pl.DataFrame, candidates: list[str], report: Path) -> None:
+def _plots(
+    table: pl.DataFrame,
+    final: pl.DataFrame,
+    candidates: list[str],
+    report: Path,
+    scatter: list[str],
+) -> None:
     import matplotlib
 
     matplotlib.use("Agg")
@@ -261,19 +267,11 @@ def _plots(table: pl.DataFrame, final: pl.DataFrame, candidates: list[str], repo
         part = (
             daily.filter(pl.col("fonte") == source)
             .group_by("dia")
-            .agg(
-                pl.col("y_volume").sum() * 0.5,
-                *(
-                    pl.col(f"v_{c}").sum() * 0.5
-                    for c in candidates
-                    if c != "historico" and f"v_{c}" in daily.columns
-                ),
-            )
+            .agg(pl.col("y_volume").sum() * 0.5, *(pl.col(f"v_{c}").sum() * 0.5 for c in scatter))
         )
         top = part["y_volume"].max()
-        for color, c in zip(colors[1:], [c for c in candidates if c != "historico"], strict=False):
-            if f"v_{c}" in part.columns:
-                ax.scatter(part["y_volume"], part[f"v_{c}"], s=10, alpha=0.6, color=color, label=c)
+        for color, c in zip(["#2a78d6", "#1baf7a", "#4a3aa7"], scatter, strict=False):
+            ax.scatter(part["y_volume"], part[f"v_{c}"], s=10, alpha=0.6, color=color, label=c)
         ax.plot([0, top], [0, top], color="#52514e", lw=1, ls="--")
         ax.set_xlabel("energia real do dia na fonte (MWh)")
         ax.set_ylabel("energia prevista (MWh)")
@@ -378,7 +376,10 @@ def run_final(output: Path, report: Path) -> None:
         encoding="utf-8",
     )
     plot_candidates = ["historico", "servido", "B0_original", "B_ajustado", net_name]
-    _plots(table.filter(pl.col("bloco") != "reserva_25_09"), final, plot_candidates, report)
+    scatter = ["servido", "B_ajustado", f"{freeze['rede']}_s{freeze['sementes'][0]}"]
+    _plots(
+        table.filter(pl.col("bloco") != "reserva_25_09"), final, plot_candidates, report, scatter
+    )
     _february_plot(report)
     with pl.Config(tbl_rows=-1, tbl_cols=-1, tbl_width_chars=220, float_precision=4):
         summary = (

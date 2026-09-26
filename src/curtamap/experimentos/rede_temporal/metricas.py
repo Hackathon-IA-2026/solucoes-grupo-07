@@ -50,7 +50,9 @@ def occurrence_metrics(y: np.ndarray, p: np.ndarray, threshold: float) -> dict:
 
 
 def volume_metrics(frame: pl.DataFrame, column: str) -> dict:
-    y = frame["y_volume"].to_numpy().astype(float)
+    # Float64 antes de agregar: somas em Float32 variam com a ordem entre threads.
+    frame = frame.with_columns(pl.col("y_volume", column).cast(pl.Float64))
+    y = frame["y_volume"].to_numpy()
     v = frame[column].to_numpy().astype(float)
     daily = frame.group_by(DAY_KEY).agg(pl.col("y_volume").sum(), pl.col(column).sum())
     y_day, v_day = daily["y_volume"].to_numpy(), daily[column].to_numpy()
