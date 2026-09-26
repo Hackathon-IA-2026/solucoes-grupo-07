@@ -171,6 +171,11 @@ def _volume(frame: pl.DataFrame) -> dict:
         y <= filled["volume_p90_mwmed"].to_numpy()
     )
     out["cobertura_p10_p90"] = float(inside.mean())
+    # Linhas com y = 0 caem sempre em [0, p90]; a cobertura em y > 0 é a informativa.
+    positive = y > 0
+    out["cobertura_p10_p90_positivo"] = (
+        float(inside[positive].mean()) if positive.any() else float("nan")
+    )
     return out
 
 

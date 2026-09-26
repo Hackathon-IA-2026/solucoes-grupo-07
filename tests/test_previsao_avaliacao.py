@@ -43,5 +43,11 @@ def test_metrics_compare_model_and_baselines_on_the_same_rows(backtest):
     for name in ("modelo", "historico", "mesmo_slot_ultimo_dia", "ultimo_valor"):
         assert 0 <= row[f"ap_{name}"] <= 1
     assert row["wape_zero"] == pytest.approx(1.0)
-    assert {"f1_modelo", "f1_usina_28d", "f1_estado_7d", "cobertura_p10_p90"} <= set(row)
+    assert {
+        "f1_modelo",
+        "f1_usina_28d",
+        "f1_estado_7d",
+        "cobertura_p10_p90",
+        "cobertura_p10_p90_positivo",
+    } <= set(row)
     assert pl.DataFrame(table).height == 2

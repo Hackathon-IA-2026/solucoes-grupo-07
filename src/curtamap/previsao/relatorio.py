@@ -105,6 +105,7 @@ def main() -> None:
                 "recall_alerta",
                 "precisao_alerta",
                 "cobertura_p10_p90",
+                "cobertura_p10_p90_positivo",
             )
         )
 
