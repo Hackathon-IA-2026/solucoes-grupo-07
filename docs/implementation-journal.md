@@ -964,3 +964,125 @@ A revisão final encontrou um número errado no diário e um defeito de serviço
 ### Limitações e próximos passos
 
 Nenhuma decisão de modelo mudou. Próximo passo: a integração de domingo.
+
+## 2026-09-26 - Nova Etapa 2 (6/n): limiar com empates e protocolo das melhorias v2
+
+### Contexto e pergunta
+
+A equipe pediu três frentes de melhoria das métricas:
+
+1. corrigir a escolha do limiar de alerta;
+2. selecionar as features por evidência (correlação e importância por permutação em grupos),
+   sem ignorar nenhuma feature disponível;
+3. atacar o volume eólico, cujo sinal de problema mais claro é fevereiro (WAPE diário de
+   1,655 no modelo contra 2,605 no `historico`).
+
+Esta entrada registra a correção do limiar e, **antes de qualquer resultado**, o protocolo
+das frentes 2 e 3.
+
+### Fatos e evidências observados: limiar
+
+- **Defeito:** `choose_threshold` pontuava o F1 em cada posição do ranking, inclusive no
+  meio de um grupo de probabilidades iguais. Mas o alerta é `p >= limiar`, então um limiar
+  inclui o grupo empatado inteiro.
+  - Exemplo sintético (agora em teste): a função escolhia 0,5, cujo F1 real é 0,40,
+    enquanto o limiar 0,9 dá F1 de 0,67.
+- **Correção:** o F1 só é avaliado no fim de cada grupo empatado (commit `020b5ef`).
+- **Efeito nos dados reais: nenhum.** Nas previsões fora da amostra do backtest, o HGB
+  produz probabilidades quase contínuas:
+  - eólica: 440.926 valores distintos em 882.864 linhas de jan–abr;
+  - solar: 214.450 em 428.976.
+
+  Uma única linha estava empatada no limiar escolhido. Os limiares não mudam, nem o de
+  jan–abr nem o final de jan–ago (0,3461 na eólica e 0,3212 na solar).
+- **Validação da escolha:** o limiar escolhido em jan–abr, aplicado a mai–ago, dá F1 de
+  0,792 na eólica e 0,812 na solar. O melhor limiar possível dentro de mai–ago (um teto,
+  inutilizável na prática) daria 0,793 e 0,812. A escolha já estava praticamente no ótimo.
+
+### Interpretação e decisão: limiar
+
+- A correção fica, porque evita que um modelo futuro, com probabilidades mais discretas,
+  sofra o defeito.
+- Não há ganho a relatar nos dados reais, e o modelo congelado v1 não muda.
+
+### Protocolo pré-registrado das frentes 2 e 3
+
+**Período.** Setembro de 1 a 24 já foi aberto para validar a v1 e está **gasto**. Qualquer
+v2 é escolhida apenas nas 8 dobras mensais de jan–ago/2026, com o mesmo protocolo do
+backtest (origem expandindo, emissão das 20h, feriados). Setembro só pode reaparecer como
+checagem de sanidade, marcada como contaminada. A confirmação independente de uma v2 exige
+dias ainda não vistos: o arquivo de setembro do ONS foi atualizado em 26/09, com dias após
+24/09, e depois vem outubro.
+
+**Cache de features.** As features de um dia-alvo T dependem só dos dados até o último dia
+liberado L(T), não da dobra. Por isso, elas são calculadas uma vez para os dias-alvo de
+01/01/2025 a 31/08/2026 e cada dobra é um filtro de linhas. Isso é equivalente ao backtest,
+porque o treino de cada dobra continua limitado a dias-alvo ≤ último dia liberado antes do
+mês.
+
+**Frente 2: correlação e importância por permutação em grupos.**
+
+- **Pool:** todas as colunas que `build_features` produz, e não só as 21 usadas hoje. Isso
+  inclui:
+  - `restricao_hist_28d`, `origem_sis_28d`, `cobertura_28d`;
+  - `causa_*_28d` e `estado_rel_7d`/`estado_cnf_7d`;
+  - `ultimo_valor_corte`/`ultimo_valor_volume`.
+
+  Também entram quatro tendências novas:
+  - `tend_hist` = `hist_7d − hist_28d`;
+  - `tend_estado` = `estado_nivel_7d − estado_nivel_28d`;
+  - `tend_usina` = `usina_nivel_ultimo − usina_nivel_7d`;
+  - `tend_vol` = `vol_hist_7d − vol_hist_28d`.
+- **Correlação:** Spearman entre pares, numa amostra de 300 mil linhas de treino por fonte.
+  Os grupos saem de uma clusterização hierárquica (ligação média) sobre `1 − |ρ|`, com corte
+  em |ρ| > 0,7, decidido agora.
+- **Importância:** um modelo **superconjunto** por fonte, só ocorrência e volume esperado,
+  com os mesmos hiperparâmetros da v1, é treinado em cada uma das 8 dobras. No mês
+  fora da amostra, cada grupo é permutado em conjunto (a mesma permutação de linhas para
+  todas as colunas do grupo), com 3 repetições.
+  - Métricas: queda de AP na ocorrência e aumento da deviance de Poisson no volume, que é o
+    que o modelo otimiza.
+  - O resultado é reportado como média ± desvio entre dobras e número de dobras com
+    importância positiva.
+- **Leitura:** importância é associação no modelo, não causalidade. Ela só **indica**
+  candidatos:
+  - para remoção: grupos com importância ≤ 0 em pelo menos 5 de 8 dobras;
+  - para inclusão: grupos novos com importância > 0 em pelo menos 6 de 8 dobras.
+- **Confirmação:** no máximo 2 conjuntos candidatos por fonte × componente (reduzido e/ou
+  aumentado). Eles são retreinados nas 8 dobras e substituem a v1 só se vencerem na média
+  **e** em pelo menos 6 de 8 meses:
+  - AP na ocorrência;
+  - na eólica, o volume segue a métrica da frente 3.
+
+**Frente 3: volume eólico.** São até 7 variantes do regressor de volume esperado da eólica,
+todas declaradas agora:
+
+| Variante | Mudança |
+|---|---|
+| B0 | v1 (referência) |
+| B1 | + as 4 tendências |
+| B2 | janela de treino de 180 dias |
+| B3 | janela de 90 dias |
+| B4 | peso de recência com meia-vida de 90 dias (janela de 365) |
+| B5 | peso de recência com meia-vida de 30 dias |
+| B6 | B1 combinada com a melhor de B2–B5 pela métrica principal |
+
+- **Métrica principal, escolhida agora:** o **WAPE diário por usina × dia**, que é a unidade
+  de planejamento e a métrica em que fevereiro foi apontado. Secundárias: WAPE da
+  meia-hora, RMSE da meia-hora (métrica adequada para a média) e viés.
+- **Mudança de regra declarada:** a regra da v1 comparava com o melhor baseline **de cada
+  mês**, incluindo o `ultimo_valor`, que vence subestimando a energia (viés de −89% em
+  fevereiro). Para o volume eólico, a comparação passa a ser com o `historico`, que é o
+  componente servido.
+  - O modelo (B0 ou variante) passa a ser servido se vencer o `historico` no WAPE diário na
+    média e em pelo menos 6 de 8 meses, sem viés médio pior.
+  - **Contaminação reconhecida:** já vimos que o B0 vence o `historico` no WAPE diário na
+    média (0,853 contra 0,981). A regra nova foi escolhida sabendo disso, e esse fato será
+    dito junto de qualquer conclusão.
+- **Seleção entre variantes:** a vencedora é a melhor de 7 nas mesmas dobras, o mesmo caso
+  "melhor de N" que fez a tentativa de causa ser rejeitada. Por isso, ela só é adotada se a
+  margem sobre o B0 aparecer em pelo menos 6 de 8 meses. A adoção final continua dependendo
+  de dias novos.
+
+**Versão.** Nada substitui o `diario_hgb_v1` nem o `modelo-congelado.json`. O que for adotado
+vira `diario_hgb_v2`, com manifesto, limiares e reprodução novos, e o handoff é atualizado.
