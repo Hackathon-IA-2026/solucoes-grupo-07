@@ -592,3 +592,83 @@ narrativa de credibilidade: "comparamos com a regra simples que o gerador já po
 2. Dev 2 e Dev 3: abrir as branches a partir do `origin/main` e trabalhar pelos prompts.
 3. Depois da 2C: implementar o preditor escolhido atrás do `Predictor` e trocar na interface.
 4. Corrigir a leitura sem encoding de `test_feature_inventory` num commit próprio.
+
+## 2026-09-26 - Nova Etapa 2 (1/n): recomeço, trava de setembro, calendário e diagnóstico
+
+### Contexto e pergunta
+
+O responsável decidiu refazer a modelagem do zero, sem partir da receita da Etapa 2 anterior
+(só 2 das 6 células usavam modelo, com ganho pequeno sobre o baseline). A pergunta de abertura
+é: **o problema é tão complexo quanto o pipeline anterior (100+ M de linhas, ~50 features,
+picos de 33 GB) sugeria?** O trabalho roda num notebook de 8 GB de RAM e 8 núcleos, sem
+LightGBM, com o `HistGradientBoosting` do scikit-learn, que já é dependência.
+
+### Fatos e evidências observados
+
+- A base compacta (uma linha por usina × meia hora, com os alvos de `derive_targets`) tem
+  7,95 M de linhas na eólica e 2,85 M na solar. O DuckDB a gera em ~2 s, com 1,2 GB de RSS.
+- Com a emissão diária às 20h da véspera, o último dia liberado (L) fica 2 dias antes do
+  dia-alvo (T) em 67% dos dias, 3–4 dias em 30% e até 7 dias perto de feriados.
+- Diagnóstico em jan–ago/2026, com o alvo sendo o corte positivo por usina × meia hora
+  (script exploratório; os números serão refeitos pelo módulo testado):
+
+  | Preditor (mesmas linhas) | AP eólica | AP solar |
+  |---|---|---|
+  | `historico`: frequência da usina no slot, 28 d até L | 0,780 | 0,783 |
+  | mesmo slot do último dia liberado | 0,595 | 0,560 |
+  | oráculo: fração **realizada** de usinas do estado cortadas em T × slot | 0,945 | 0,943 |
+  | oráculo: `historico` × nível estadual diário **realizado** em T | 0,879 | 0,909 |
+
+  Correlação do nível estadual diário entre L e T: 0,57 na eólica e 0,28 na solar.
+- Modelo só do nível diário estadual (HGB com nível em L, médias de 7 e 28 d, fração ENE,
+  idade, dia da semana e feriado nacional; dobras mensais jan–ago/2026): o MAE cai de 0,124
+  para 0,113 na eólica e de 0,092 para 0,082 na solar, contra a média de 28 d. O ganho é real,
+  mas de apenas ~10%.
+
+### Interpretação e decisão
+
+- **Interpretação:** a estrutura do problema é simples. O perfil horário da usina já vem do
+  próprio histórico, e o corte é regional e simultâneo. A parte difícil é o **nível** do
+  dia-alvo, que depende de vento, sol e carga daqui a 2–4 dias, sinais que o dataset não traz
+  como previsão. Sem previsão meteorológica, o teto de ganho sobre o `historico` é limitado.
+  Complexidade de pipeline não compra esse sinal.
+- **Decisão:** manter o desenho pequeno. Uma linha por usina × slot × dia-alvo, emitida uma
+  vez por dia; features indexadas pelo último dia liberado L, nunca por T; poucas features
+  com significado físico ou operacional.
+- **Regra de decisão, registrada antes dos resultados do modelo:** em cada célula
+  (fonte × corte/volume/causa), o modelo só substitui o melhor baseline se vencer nas mesmas
+  linhas na média das dobras mensais jan–ago/2026 **e** em pelo menos 6 dos 8 meses. Caso
+  contrário, a célula usa o melhor baseline, com `tipo_saida = baseline`. Maio–agosto/2026 já
+  foi visto pela receita anterior e aqui é período de desenvolvimento, não teste.
+
+### Alternativas consideradas
+
+- Retomar o pipeline emissão × horizonte: descartado pelo responsável e pelas medições do §2.2
+  do prompt, já que as 48 emissões diárias são redundantes.
+- LightGBM: adiado. Exige libomp no macOS e teve bug com categóricas no volume. O HGB do
+  sklearn basta para começar.
+
+### Implementação e validação
+
+- `RESERVED_TEST_START` passou para 01/09/2026, num commit dedicado. **Atenção na
+  integração:** `etapa-3-recomendacao` e `etapa-4-interface` importam a mesma constante.
+- `curtamap.previsao.calendario` calcula o corte de publicação com o calendário de feriados
+  (todos os tipos, inclusive os do Rio) e oferece a consulta de feriado nacional para a
+  feature de carga baixa. `forecasting.nightly_cutoff` passou a delegar a ele, que vira a
+  fonte única do corte usada pela interface. Os testes cobrem terça, 19h/19h30, sábado,
+  domingo, segunda, o feriado de 07/09/2026 e a falta de cobertura.
+
+### Limitações e incertezas
+
+- Os números acima são exploratórios e usam uma janela de 28 d calculada por `rolling_by` em
+  dias com dado. Serão refeitos pelo módulo testado.
+
+### Valor para o usuário e para a apresentação
+
+É a base da narrativa "problema simples na estrutura, difícil no sinal": o corte é regional e
+previsível no perfil, e o que falta para acertar o nível do dia é previsão do tempo. Isso
+prepara o experimento oráculo (H5), que mede quanto valeria um feed meteorológico.
+
+### Próximos passos
+
+Modelo direto por usina × slot contra os baselines; volume e causa; módulo testado; setembro.
