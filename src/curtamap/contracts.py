@@ -22,9 +22,11 @@ CONTRACT_VERSION = "1"
 TIMEZONE = "America/Sao_Paulo"
 HORIZONS = 48
 STEP = timedelta(minutes=30)
-# Etapa 2A: maio–agosto de 2026 é o teste reservado. Nada do produto (fixtures, demo,
-# números de impacto) pode ler esse período antes de a Etapa 2C liberá-lo.
-RESERVED_TEST_START = datetime(2026, 5, 1)
+# Setembro de 2026 (publicado pelo ONS depois do snapshot do hackathon) é o teste
+# independente da nova Etapa 2. Maio–agosto de 2026, reservado pela Etapa 2A, foi consumido em
+# 25/09/2026 e passou a ser período de desenvolvimento. Nada do produto (fixtures, demo,
+# números de impacto) pode ler setembro antes da validação final congelada.
+RESERVED_TEST_START = datetime(2026, 9, 1)
 
 SOURCES = ("eolica", "fotovoltaica")
 # PAR não tem suporte para aprendizado e DESCONHECIDA não é causa física (protocolo §5.3).

@@ -85,7 +85,7 @@ def _guard_reserved(end: datetime, allow_reserved_test: bool) -> None:
     if end > RESERVED_TEST_START and not allow_reserved_test:
         raise ValueError(
             f"período a partir de {RESERVED_TEST_START:%d/%m/%Y} é o teste reservado; "
-            "só a Etapa 2C pode liberá-lo"
+            "só a validação final congelada pode lê-lo"
         )
 
 

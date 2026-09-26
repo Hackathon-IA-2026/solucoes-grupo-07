@@ -234,7 +234,13 @@ def test_load_history_reads_window_and_derives_targets(tmp_path):
 
 def test_load_history_refuses_reserved_period(tmp_path):
     with pytest.raises(ValueError, match="teste reservado"):
-        load_history(tmp_path, datetime(2026, 4, 1), datetime(2026, 5, 2))
+        load_history(tmp_path, datetime(2026, 8, 1), datetime(2026, 9, 2))
+
+
+def test_reserved_period_is_september_2026_after_may_august_was_consumed():
+    # Maio–agosto/2026 foi consumido pela Etapa 2 anterior em 25/09/2026; setembro de 2026,
+    # publicado depois do snapshot do hackathon, é o novo teste independente.
+    assert datetime(2026, 9, 1) == RESERVED_TEST_START
 
 
 def test_forecast_exposes_observation_used_and_history_coverage():
