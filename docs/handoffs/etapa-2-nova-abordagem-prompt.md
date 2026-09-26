@@ -86,7 +86,11 @@ registre no diário.
      solar ENE 0,48 M, CNF 0,17 M, REL 0,05 M.
 4. **Informação disponível na previsão:** com a publicação diária às 19h30, uma emissão às
    20h do dia D conhece os dados até o fim de D−1 e prevê o dia D+1. A última observação
-   fica, portanto, de 24,5 h a 48,5 h antes de cada janela prevista.
+   fica, portanto, de 24,5 h a 48,5 h antes de cada janela prevista, **em dias úteis**.
+   - Em fins de semana, feriados e segundas de manhã, a defasagem é maior, porque os dados de
+     sábado e domingo só saem no dia útil seguinte. Numa segunda-feira (15/06/2026), a idade
+     da última observação ia de 72,5 h a 88,5 h.
+   - Qualquer feature de defasagem precisa respeitar essa idade variável.
    - **Não há previsão meteorológica** no snapshot. ERA5 e os `*_detail` são dados
      verificados ou reanálise.
    - O ONS publica o mês corrente diariamente: o S3 atualizou `..._2026_09.parquet` em
@@ -210,6 +214,17 @@ registre no diário.
     `docs/target-definition.md`).
   - O histórico usado como feature em setembro pode vir de `data/raw/` até 31/08, mais os
     dias de setembro já liberados em cada emissão.
+- **Trava do período reservado:** a `main` tem `RESERVED_TEST_START = 2026-05-01` em
+  `src/curtamap/contracts.py`, usada por `src/curtamap/forecasting.py` e
+  `tests/test_forecasting.py`. A `etapa-3-recomendacao` também protege a suíte contra esse
+  período.
+  - Esse período foi consumido em 25/09, e o novo teste independente é setembro de 2026.
+  - Atualize a constante (por exemplo, `2026-09-01`) e os testes ou validadores que a usam num
+    commit dedicado e registrado no diário.
+  - Avise essa mudança no handoff de domingo, para a integração com as Etapas 3 e 4.
+  - Sem isso, a sessão falha nos testes ou deixa de usar os dados mais recentes na demonstração.
+- **Poder estatístico de setembro:** são cerca de três semanas. Reporte setembro também semana
+  a semana e não trate um número isolado como conclusivo.
 - **Métricas:** PR-AUC e recall no evento, com calibração (Brier); MAE e WAPE no volume, na
   meia hora e no dia; macro-F1 na causa. Sempre contra os baselines, nas mesmas linhas, com
   quebra por mês.
