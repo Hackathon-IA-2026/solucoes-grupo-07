@@ -107,8 +107,9 @@ cinco células são iguais nas duas leituras.
 
 ## 3. Validação independente: setembro de 2026
 
-- **Protocolo:** receita congelada no commit `7b64b46`, com o manifesto
-  `modelo-congelado.json` (SHA-256 do artefato, limiares e composição).
+- **Protocolo:** o código da receita está no commit `e89be0f` (registrado no manifesto como
+  `commit_receita`). O congelamento documental, com o manifesto `modelo-congelado.json`
+  (SHA-256 do artefato, limiares e composição), está no commit `7b64b46`.
 - **Dados:** baixados depois do congelamento, com o manifesto `setembro/manifesto.json`
   (publicação de 25/09, dias-alvo de 01 a 24/09).
 - **Ordem:** as previsões sem rótulo foram gravadas antes da avaliação, com o hash em
@@ -154,8 +155,10 @@ São só 24 dias, então nenhum número isolado é conclusivo.
   dias.
 - A correlação do nível estadual entre o último dia liberado e o alvo é só 0,57 na eólica e
   0,28 na solar.
-- 14 features e um HGB sem busca de hiperparâmetros capturam o que há de previsível. Mais
-  complexidade de pipeline não traria esse sinal; previsão meteorológica, talvez (seção 6).
+- **Interpretação, não medida:** 14 features e um HGB sem busca de hiperparâmetros parecem
+  capturar a maior parte do que é previsível com os dados liberados. O que foi medido é mais
+  estreito: o clima já liberado não acrescenta nada, e o clima do dia-alvo acrescenta
+  (seção 6). O caminho do ganho é a previsão meteorológica, não mais complexidade de pipeline.
 
 ## 5. Limitações
 
@@ -165,7 +168,9 @@ São só 24 dias, então nenhum número isolado é conclusivo.
   pelo calendário.
 - `p_restricao` e a origem são baselines. A causa servida é baseline. O volume eólico servido
   é baseline.
-- O intervalo p10–p90 é levemente estreito nas meias-horas com corte.
+- O intervalo p10–p90 é levemente estreito nas meias-horas com corte. No volume eólico servido
+  pelo `historico`, a banda é alargada para conter a média servida (ajuste de serviço
+  pós-congelamento, commit `04113b8`, que não altera as métricas).
 - O modelo é treinado em uma janela de 365 dias sem recalibração. A prevalência de setembro
   foi parecida com a de agosto (0,49 contra 0,49 na eólica e 0,30 contra 0,28 na solar), então
   setembro não testou uma mudança de regime.

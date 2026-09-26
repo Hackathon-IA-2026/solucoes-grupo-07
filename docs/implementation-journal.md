@@ -921,3 +921,46 @@ Usar setembro para ajustar a receita: proibido pelo protocolo e não feito.
 1. Integrar com as Etapas 3 e 4 seguindo o handoff: trava de setembro, 92 dias de histórico
    e proveniência por componente.
 2. Containerizar com `configs/`, `models/` e `data/raw/`.
+
+## 2026-09-26 - Nova Etapa 2 (5/n): correções da revisão final
+
+### Contexto e pergunta
+
+A revisão final encontrou um número errado no diário e um defeito de serviço.
+
+### Fatos e evidências observados
+
+- **Correção da entrada 2/n:** ela diz "+0,05 a +0,17 de AP sobre o `historico`". O
+  `metricas_backtest.csv` mostra ganhos mensais de **+0,009 a +0,173**:
+  - na eólica: +0,074, +0,173, +0,031, +0,027, +0,035, +0,020, +0,009 e +0,018;
+  - na solar: de +0,035 a +0,147.
+
+  O ganho médio é de +0,048 na eólica e de +0,066 na solar. A frase "vence em 16 de 16
+  meses-fonte" continua correta. Na eólica, porém, a margem fica entre +0,01 e +0,035 em 6 dos
+  8 meses. **No pitch, use o ganho médio, não a faixa.**
+- Na reprodução de agosto, o volume eólico servido (média de 28 d) ficava acima do p90 do
+  modelo em 0,69% das linhas e abaixo do p10 em 0,15%.
+
+### Interpretação e decisão
+
+- **Decisão:** alargar a banda para conter a média servida. É um ajuste de serviço
+  pós-congelamento. O artefato congelado e as métricas de setembro não mudam, porque
+  `setembro.predict` usa o modelo sem o serviço.
+- **Handoff:** a frase sobre `t0` de manhã foi corrigida. Com `nightly_cutoff`, a idade 1 só
+  aparece se `t0` for o próprio instante da emissão.
+- **Relatório:**
+  - a divulgação de que o `SERVING` foi escolhido com dados que incluem agosto foi
+    acrescentada;
+  - a afirmação "capturam o que há de previsível" foi marcada como interpretação;
+  - o texto agora diferencia o commit do código (`e89be0f`) do commit do congelamento
+    documental (`7b64b46`).
+
+### Implementação e validação
+
+- Commit `04113b8`, com teste de que a média servida fica dentro da banda.
+- Suíte verde, com ruff limpo.
+- A reprodução de agosto será regenerada com o serviço corrigido.
+
+### Limitações e próximos passos
+
+Nenhuma decisão de modelo mudou. Próximo passo: a integração de domingo.

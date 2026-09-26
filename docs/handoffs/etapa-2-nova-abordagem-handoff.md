@@ -27,9 +27,14 @@ diário.
    `ui/operacao.py`). Troque por `corte - timedelta(days=HISTORY_DAYS)`.
 5. **Emissão recomendada:** às 20h de D, com `t0` = 00h de D + 1 e
    `data_cutoff = nightly_cutoff(20h de D)`.
-   - Qualquer `t0` na grade de 30 min funciona. Com `t0` de manhã, a primeira parte do
-     horizonte tem idade de 1 dia, fora do intervalo de treino (2 a 7). É extrapolação,
-     registrada em `idade_informacao_dias`.
+   - Qualquer `t0` na grade de 30 min funciona, e as idades acompanham o corte:
+     - com `t0` às 10h de D, `nightly_cutoff` dá corte em D − 2 (o fim de D − 2), e as idades
+       ficam entre 2 e 3, dentro do intervalo de treino (2 a 7);
+     - a idade 1 aparece se a UI usar o **instante da emissão** (20h de D) como `t0`, porque as
+       meias-horas de D caem com idade 1, fora do treino. Isso é extrapolação, registrada em
+       `idade_informacao_dias`.
+
+     Por isso, use `t0` = 00h de D + 1.
    - `data_cutoff` precisa ser meia-noite.
 6. **Colunas extras no `FORECAST_SCHEMA`** (permitidas pelo contrato):
    - `emitido_em`;
@@ -66,7 +71,7 @@ Observações:
 - O hiperparâmetro `random_state=0` é fixo, mas o HGB com múltiplas threads pode variar no
   último dígito. O SHA-256 do manifesto identifica o artefato gerado em 26/09.
 - `reproducao_2026-08-03_2026-08-30.parquet` fica em `data/interim/previsao/`. O script
-  também salva um modelo `diario_hgb_v1_2026-07-30.joblib`, treinado só com rótulos até 30/07 (último dia liberado na emissão de 02/08). A reprodução tem 28 emissões e 315.072 linhas; AP de agosto de 0,920 (eólica) e 0,904 (solar), contra 0,904 e 0,865 do `historico`.
+  também salva um modelo `diario_hgb_v1_2026-07-30.joblib`, treinado só com rótulos até 30/07 (último dia liberado na emissão de 02/08). Divulgação: o modelo da reprodução não viu agosto, mas a composição `SERVING` (qual componente é modelo ou baseline) foi escolhida com o backtest jan–ago, que inclui agosto. A reprodução tem 28 emissões e 315.072 linhas; AP de agosto de 0,920 (eólica) e 0,904 (solar), contra 0,904 e 0,865 do `historico`.
   `product_predictor()` escolhe o mais recente (`2026-08-30`).
 - `limiares_jan_abr.json` é derivado de `docs/reports/nova-abordagem/limiares.json`
   (chave `jan_abr`).
