@@ -5,6 +5,8 @@ que nenhuma previsão de setembro use no treino um rótulo ainda não publicado.
 alerta por fonte vem das previsões fora da amostra do backtest (`avaliacao`), nunca do treino.
 
 Uso: `uv run python -m curtamap.previsao.treinar --limiares data/interim/previsao/limiares.json`.
+Com `--faixas docs/reports/nova-abordagem/v3/faixas.json`, treina a v3 (`diario_hgb_v3`): os
+mesmos componentes da v1 mais os classificadores de faixa servidos (`faixas_servico`).
 """
 
 import argparse
@@ -19,6 +21,7 @@ import polars as pl
 from curtamap.config import settings
 from curtamap.previsao.avaliacao import FIRST_DAY, load_base
 from curtamap.previsao.calendario import load_calendar
+from curtamap.previsao.faixas_servico import fit_v3
 from curtamap.previsao.features import release_map
 from curtamap.previsao.modelo import fit
 
@@ -30,6 +33,7 @@ def main() -> None:
     parser.add_argument("--limiares", type=Path, required=True)
     parser.add_argument("--saida", type=Path, default=settings.model_dir / "previsao")
     parser.add_argument("--manifesto", type=Path, help="JSON versionado do congelamento")
+    parser.add_argument("--faixas", type=Path, help="limiares congelados da v3 (faixas.json)")
     args = parser.parse_args()
     calendar = load_calendar()
     last_label = release_map([FIRST_FORECAST_DAY], calendar)["ultimo_dia"].item()
@@ -37,14 +41,16 @@ def main() -> None:
     base = load_base(settings.data_dir, datetime.combine(FIRST_FORECAST_DAY, datetime.min.time()))
     base = base.filter(pl.col("dia") <= last_label)
     days = pl.date_range(FIRST_DAY, last_label, eager=True).to_list()
-    model = fit(
-        base,
-        release_map(days, calendar),
-        last_label,
-        dados="data/raw (snapshot do hackathon)",
-        limiares_alerta=thresholds,
-        treinado_em=datetime.now().isoformat(timespec="seconds"),
-    )
+    info = {
+        "dados": "data/raw (snapshot do hackathon)",
+        "limiares_alerta": thresholds,
+        "treinado_em": datetime.now().isoformat(timespec="seconds"),
+    }
+    if args.faixas:
+        faixas = json.loads(args.faixas.read_text(encoding="utf-8"))
+        model = fit_v3(base, release_map(days, calendar), last_label, faixas, calendar, **info)
+    else:
+        model = fit(base, release_map(days, calendar), last_label, **info)
     for source, threshold in thresholds.items():
         model.sources[source].threshold = float(threshold)
     path = model.save(args.saida)
@@ -60,8 +66,11 @@ def main() -> None:
         "servico": model.metadata["servico"],
         "linhas_treino": model.metadata["linhas_treino"],
     }
+    if "faixas" in model.metadata:
+        manifest["faixas"] = model.metadata["faixas"]
     if args.manifesto:
-        args.manifesto.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n")
+        text = json.dumps(manifest, indent=2, ensure_ascii=False) + "\n"
+        args.manifesto.write_text(text, encoding="utf-8")
     print(json.dumps(manifest, indent=2, ensure_ascii=False))
 
 
