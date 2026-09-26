@@ -1103,3 +1103,83 @@ vira `diario_hgb_v2`, com manifesto, limiares e reprodução novos, e o handoff 
   - duas réplicas da B0 com sementes 1 e 2 medem o ruído;
   - uma variante só conta como vitória num mês se a margem sobre a B0 superar a maior
     diferença entre as três réplicas da B0 naquele mês.
+
+## 2026-09-26 - Nova Etapa 2 (7/n): resultados da v2 (correlação e volume eólico) e interrupção
+
+### Contexto e pergunta
+
+Esta entrada executa o protocolo da entrada 6/n. A importância por permutação foi
+interrompida a pedido do responsável: a bateria do notebook estava acabando e a equipe
+decidiu pivotar a recomendação para não depender do volume.
+
+### Fatos e evidências observados
+
+**Correlação de Spearman.** Foram usadas 300 mil linhas de treino por fonte (dobra de
+agosto) e grupos com |ρ| > 0,7. Arquivos: `docs/reports/nova-abordagem/v2/spearman_*.csv`.
+
+- **Perfil do slot:** `hist_7d/28d/91d`, `vol_hist_7d/28d` e `restricao_hist_28d`, com ρ de
+  0,82 a 0,97. Na solar, o grupo absorve ainda `ref_hist_28d`, `origem_sis_28d` e
+  `causa_*_28d`.
+- **Pares quase redundantes:**
+  - `restricao_hist_28d` ~ `hist_28d`: 0,97 na eólica e 0,95 na solar;
+  - `ultimo_slot` ~ `vol_ultimo_slot`: 0,96 e 0,99;
+  - `estado_ene_7d` ~ `estado_cnf_7d`: −0,89 e −0,91;
+  - usina ~ estado no último dia: 0,85 e 0,79.
+- **Pares que não são redundantes:** perfil do slot × nível do estado tem ρ = 0,44 na eólica e
+  0,11 na solar. As quatro tendências novas ficaram isoladas, sem entrar em nenhum grupo.
+- **Feature morta:** `ultimo_valor_*` é constante na solar, porque a última meia-hora de L é
+  noturna.
+- **Nulos:** as features de causa e origem da usina estão nulas em 18% das linhas eólicas e
+  53% das solares. Na correlação, o nulo foi marcado como −1, o que infla parte das ligações.
+
+**Volume eólico, WAPE diário médio de jan–ago.** Arquivos:
+`v2/volume_eolico.csv` e `v2/volume_eolico_resumo.csv`.
+
+| Variante | Média | Fevereiro | Viés | Meses vencendo a B0 acima do ruído |
+|---|---|---|---|---|
+| B0 (v1, semente 0) | 0,853 | 1,655 | −0,5% | — |
+| B0, sementes 1 e 2 | 0,856 e 0,866 | 1,620 e 1,710 | +0,9% e +0,3% | réplicas |
+| B1, tendências | 0,848 | 1,532 | −2,4% | 2 de 8 |
+| B2, janela de 180 d | 0,866 | 1,583 | −15% | 2 de 8 |
+| B3, janela de 90 d | 0,889 | 1,509 | −26% | 3 de 8 |
+| B4, meia-vida de 90 d | 0,871 | 1,740 | −0,3% | 1 de 8 |
+| B5, meia-vida de 30 d | divergiu (previsões da ordem de 10³⁶ em jan) | — | — | 0 de 8 |
+| B6, B1 + B2 | 0,855 | 1,544 | −15% | 3 de 8 |
+| `historico` | 0,981 | 2,605 | +13,8% | — |
+
+- A B0 reproduz a v1 exatamente nos 8 meses.
+- O ruído por mês é a diferença máxima entre as três réplicas da B0. Vai de 0,007 (janeiro) a
+  0,090 (fevereiro).
+- **B0 contra `historico`:** a semente 0 vence em 6 de 8 meses, com média melhor, viés
+  menor e RMSE de 38,9 contra 39,9. As sementes 1 e 2 vencem em só 3 de 8 meses.
+
+**Importância por permutação: parcial, interrompida.** Só o AP base do modelo superconjunto
+(34 colunas) nas dobras eólicas de jan a jun foi registrado: 0,805, 0,570, 0,803, 0,822,
+0,808 e 0,680. Na v1, com 14 features, os valores são 0,817, 0,569, 0,786, 0,828, 0,811 e
+0,683. Nenhuma importância por grupo foi gravada.
+
+### Interpretação e decisão
+
+- **Pela regra pré-registrada, nenhuma variante substitui a B0.** A B1 tem a melhor média,
+  mas dentro do ruído de semente.
+- As tendências e as janelas curtas melhoram fevereiro acima do ruído, o que confirma o
+  sintoma de mudança de regime. Porém, as janelas curtas pioram jun–ago e subestimam a
+  energia em 15% a 26%. Recência agressiva deixa a Poisson do HGB instável (B5).
+- **B0 contra `historico`:** a regra passa na semente 0, mas não é robusta às réplicas. Na
+  eólica, o modelo é claramente melhor em jan, fev e ago e empata nos demais meses. Nenhuma
+  mudança de serviço foi feita: a equipe decidiu pivotar a recomendação para não depender do
+  volume.
+- **Interpretação, não medida:** o superconjunto não melhora o AP de forma consistente sobre
+  a v1 (3 de 6 dobras parciais acima, 3 abaixo). Mais colunas não compram sinal. A v1 continua
+  congelada.
+- **Para o pitch:** o marco que pode ser citado é o volume do modelo contra o `historico`,
+  com WAPE diário de −13% nas duas fontes em jan–ago. Na solar, isso foi confirmado em
+  setembro (0,517 contra 0,565). Na eólica, o ganho se concentra na mudança de regime
+  (fevereiro, −36%), e os demais meses empatam.
+
+### Limitações e próximos passos
+
+- A importância por grupos não foi concluída. O script `importancia_grupos.py` está pronto
+  e roda em cerca de 55 min, se for retomado.
+- O ruído de semente na solar não foi medido.
+- Os limiares e o modelo v1 não mudaram, e o handoff continua válido.
