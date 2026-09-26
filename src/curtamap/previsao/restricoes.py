@@ -85,7 +85,7 @@ def grupo_restricao(eventos: pl.DataFrame, ultimos: Iterable[date]) -> pl.DataFr
 
 def nivel_grupo(base: pl.DataFrame, grupos: pl.DataFrame, ultimos: Iterable[date]) -> pl.DataFrame:
     """Nível do grupo de restrição da usina em L e em 7 dias, com os membros definidos em L."""
-    rows = base.select(*KEY, "dia", "corte")
+    rows = base.select(*KEY, "dia", "corte").sort("dia")
     parts = []
     for last in sorted(set(ultimos)):
         members = grupos.filter(pl.col("ultimo_dia") == last).select(*KEY, "grupo_restricao")
