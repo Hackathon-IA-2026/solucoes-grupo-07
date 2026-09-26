@@ -4,7 +4,13 @@ import polars as pl
 
 from curtamap.contracts import RECOMMENDATION_SCHEMA, validate_recommendations
 from curtamap.painel.exemplo import EXAMPLE_PREFIX, example_recommendations
-from curtamap.painel.rotulos import CAUSE_LABELS, describe_reason
+from curtamap.painel.rotulos import (
+    CAUSE_LABELS,
+    describe_reason,
+    format_mwh,
+    format_number,
+    plural,
+)
 
 T0 = datetime(2026, 8, 20)
 
@@ -31,3 +37,11 @@ def test_labels_cover_every_cause_and_unknown_reasons_fall_back() -> None:
     assert "28 dias" in describe_reason("sem_observacao_valida_no_horario_28d")
     assert describe_reason("codigo_novo") == "codigo_novo"
     assert describe_reason(None) == ""
+
+
+def test_brazilian_number_format() -> None:
+    assert format_number(1234567.891) == "1.234.567,9"
+    assert format_mwh(12.5) == "12,5 MWh"
+    assert format_number(0.0, 0) == "0"
+    assert plural(1, "usina", "usinas") == "1 usina"
+    assert plural(2, "usina", "usinas") == "2 usinas"

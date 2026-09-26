@@ -39,3 +39,17 @@ def describe_reason(code: str | None) -> str:
 
 def cause_label(code: str | None) -> str:
     return CAUSE_LABELS.get(code, code) if code else "indeterminada"
+
+
+def format_number(value: float, decimals: int = 1) -> str:
+    """Número no padrão brasileiro: milhar com ponto e decimal com vírgula."""
+    text = f"{value:,.{decimals}f}"
+    return text.replace(",", "_").replace(".", ",").replace("_", ".")
+
+
+def format_mwh(value: float) -> str:
+    return f"{format_number(value)} MWh"
+
+
+def plural(count: int, singular: str, plural_form: str) -> str:
+    return f"{count} {singular if count == 1 else plural_form}"
