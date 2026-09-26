@@ -94,6 +94,8 @@ def save_columns(
             raise ValueError(f"linhas diferentes das já gravadas em {path}")
         current = current.drop([c for c in columns if c in current.columns])
         frame = current.join(new, on=KEY, how="left")
+    elif not with_base:
+        frame = new
     else:
         frame = (
             rows.select(KEEP)
