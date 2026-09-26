@@ -1,0 +1,14 @@
+{
+  "registrado_em": "2026-09-26, antes das rodadas finais do HGB",
+  "criterio": "médias das 4 dobras jan–abr/2026: AP (ocorrência); WAPE diário (volume), só entre variantes sem divergência (emenda 1)",
+  "hgb_ocorrencia": {"eolica": "B3_recencia60", "fotovoltaica": "B1_mudanca"},
+  "hgb_volume": {"eolica": "B2_janela180", "fotovoltaica": "B5_hp_suave"},
+  "hgb_volume_sem_emenda": {"eolica": "B4_hp_rapido", "fotovoltaica": "B5_hp_suave"},
+  "volume_divergente": ["B1_mudanca", "B3_recencia60", "B4_hp_rapido"],
+  "medias_selecao": {
+    "eolica_ap": {"B0_original": 0.7502, "B3_recencia60": 0.7536, "historico": 0.6738},
+    "eolica_wape_diario": {"B0_original": 0.9956, "B2_janela180": 0.9540, "historico_e_servido": 1.2376},
+    "fotovoltaica_ap": {"B0_original": 0.7649, "B1_mudanca": 0.7665, "historico": 0.6768},
+    "fotovoltaica_wape_diario": {"B0_original_e_servido": 0.7905, "B5_hp_suave": 0.7793, "historico": 0.9279}
+  }
+}
