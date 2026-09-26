@@ -2650,3 +2650,84 @@ receita foram escolhidas olhando V1–V4.
   20h é escolha de demonstração.
 - **Próximos passos (amanhã):** ligar o recorte ao `src/curtamap/app.py` e containerizar.
   Tornar o treino determinístico fica para depois da entrega.
+
+## 26/09/2026 — Revisão do estado e decisão de refazer a Etapa 2 do zero
+
+### Contexto e pergunta
+
+A sessão de 25/09 terminou sem handoff, por uma queda de internet. A pergunta do responsável
+foi: onde paramos, o modelo está utilizável e vale refazer a modelagem com outra abordagem?
+
+### Fatos e evidências observados
+
+- **Nada ficou pela metade:** a última entrada é das 15h de 25/09, a árvore Git estava limpa e
+  a receita congelada já tinha sido confirmada no teste reservado.
+- **Cobertura do modelo:** só 2 das 6 células usam modelo (corte solar e causa eólica); as 4
+  restantes usam baseline. O volume tem WAPE de cerca de 0,7 a 1,0, no modelo e no baseline.
+- **Redundância das emissões** (partições reservadas de 10/06 e 15/06/2026, solar e eólica):
+  - com a publicação diária às 19h30, as emissões de 00h a 19h do mesmo dia têm a mesma
+    informação;
+  - mesmo assim, 95% das features mudam entre elas, porque as janelas de 7 e 28 dias
+    deslizam com `t0` sobre um período sem dados novos;
+  - as 48 emissões diárias não traziam informação nova.
+- **Tamanho real da base** (`data/raw/`):
+  - eólica: 7,95 M linhas e 172 usinas;
+  - solar: 2,85 M linhas e 81 usinas;
+  - os "100+ milhões" vinham da expansão emissão × horizonte e dos `*_detail`.
+- **O corte é regional:** considerando só instantes com pelo menos 5 usinas no estado, o corte
+  positivo acontece com a maioria das usinas do mesmo estado também cortada em:
+  - 86% das meias-horas eólicas (88% do volume);
+  - 92% das solares (93% do volume).
+- **Dados novos:** o ONS já publicou setembro de 2026 no S3 (atualização de 25/09, ~19h) e
+  republicou agosto.
+
+### Interpretação e decisão
+
+- **Interpretação:** a unidade de emissão a cada 30 minutos foi um erro de concepção. Ela
+  multiplicou os dados sem acrescentar informação e explica boa parte da memória, da amostragem
+  e da lentidão da Etapa 2.
+- **Decisão do responsável:**
+  - a receita atual não é suficiente para o pitch;
+  - refazer a Etapa 2 do zero, numa branch nova derivada da `main` (Etapa 1 e contrato), com
+    abordagem nova, reaproveitando só os erros aprendidos;
+  - o trabalho será feito no notebook, no evento presencial, numa sessão limpa.
+- **Premissa mantida:** não supor que o gerador conheça em tempo real o corte da própria usina.
+  O responsável não tem informação para garantir isso.
+- **Dados:** treinar só com os dados do hackathon; setembro do ONS serve apenas como validação
+  final, aberta uma vez.
+
+### Alternativas consideradas
+
+- **Manter a receita e validar em setembro os três modelos que venceram no diagnóstico:** era
+  a recomendação inicial desta sessão. Foi rejeitada pelo responsável, porque o ganho seria
+  pequeno demais para justificar o modelo.
+- **Worktree separado para a branch nova:** descartado. O trabalho acontece no notebook, onde a
+  junção dos experimentos não existe.
+
+### Implementação e validação
+
+- **Prompt da nova sessão:** `docs/handoffs/etapa-2-nova-abordagem-prompt.md`. Ele traz a
+  criação da branch a partir da `main`, os fatos medidos, os erros a evitar, hipóteses de
+  partida (evento regional de cima para baixo, nível diário e perfil intradiário, métrica
+  diária em MWh), a avaliação e a instrução de trabalho contínuo do responsável.
+- **Medições:** consultas DuckDB e Polars ad hoc sobre `data/raw/` e as partições de
+  features; os scripts não foram versionados.
+- **Sem alteração de código:** esta branch não mudou `src/` nem `tests/`.
+
+### Limitações e incertezas
+
+- O critério "maioria das usinas do estado" é uma medida simples de simultaneidade. Ele não
+  prova causalidade nem que a abordagem regional vá prever melhor.
+- Os números da receita anterior foram medidos por emissão de 30 minutos. Não são comparáveis
+  diretamente a um desenho com emissão diária.
+
+### Valor para o usuário e para a apresentação
+
+- **Narrativa de aprendizado:** o primeiro desenho tratava cada meia hora como uma previsão
+  nova. Os dados mostram que a informação chega uma vez por dia e que o corte é regional.
+  Simplificar o problema pode ser o que faltava.
+
+### Próximos passos
+
+- Abrir a sessão limpa no notebook com o prompt e seguir o §0.
+- Esta branch (`etapa-2-experimental`) fica preservada como registro da Etapa 2 anterior.
