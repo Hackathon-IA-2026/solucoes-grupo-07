@@ -25,11 +25,13 @@ import polars as pl
 from curtamap.contracts import SOURCES
 from curtamap.experimentos.rede_temporal import hgb
 from curtamap.experimentos.rede_temporal.dados import (
+    HOLDOUT_DAY,
     OUTPUT,
     SEPTEMBER,
     build_base,
     fold_cutoff,
     month_days,
+    month_key,
     without_holdout,
 )
 from curtamap.previsao.calendario import load_calendar
@@ -49,13 +51,24 @@ KEEP = [
 
 
 def target_days(month: date) -> list[date]:
+    if month == HOLDOUT_DAY:
+        return [HOLDOUT_DAY]
     days = month_days(month)
     return without_holdout(days) if month == SEPTEMBER else days
 
 
+def cutoff_for(month: date, calendar) -> date:
+    """O dia reservado é previsto pelos mesmos modelos da dobra de setembro."""
+    return fold_cutoff(SEPTEMBER if month == HOLDOUT_DAY else month, calendar)
+
+
+def _base(output: Path, months: list[date]) -> pl.DataFrame:
+    return build_base(output, include_holdout=HOLDOUT_DAY in months)
+
+
 def _prediction_path(output: Path, month: date, source: str, family: str = "") -> Path:
     prefix = f"{family}_" if family else ""
-    return output / "pred" / f"{prefix}{month:%Y-%m}_{source}.parquet"
+    return output / "pred" / f"{prefix}{month_key(month)}_{source}.parquet"
 
 
 def _wait_for(path: Path, poll_seconds: int = 30) -> None:
@@ -102,7 +115,7 @@ def log_time(output: Path, record: dict) -> None:
 
 def fold_rows(base: pl.DataFrame, month: date, source: str, calendar, train_days: int):
     """Linhas de treino (até o corte da dobra) e de avaliação de uma fonte."""
-    cutoff = fold_cutoff(month, calendar)
+    cutoff = cutoff_for(month, calendar)
     data = base.filter(pl.col("fonte") == source)
     known = data.filter(pl.col("dia") <= cutoff)
     train_mapping = release_map(
@@ -118,7 +131,7 @@ def fold_rows(base: pl.DataFrame, month: date, source: str, calendar, train_days
 
 def run_hgb(months: list[date], names: list[str], output: Path) -> None:
     calendar = load_calendar()
-    base = build_base(output)
+    base = _base(output, months)
     longest = max(hgb.VARIANTS[n].train_days for n in names)
     for month in months:
         for source in SOURCES:
@@ -174,12 +187,12 @@ def run_rede(months: list[date], seeds: list[int], name: str, output: Path) -> N
     calendar = load_calendar()
     config = rede.NetConfig(**NETS[name])
     started = time.time()
-    tensor = rede.DailyTensor.from_base(build_base(output))
+    tensor = rede.DailyTensor.from_base(_base(output, months))
     log_time(output, {"etapa": "tensor", "segundos": round(time.time() - started, 1)})
     for month in months:
         for source in SOURCES:
             _wait_for(_prediction_path(output, month, source))
-        cutoff = fold_cutoff(month, calendar)
+        cutoff = cutoff_for(month, calendar)
         history_days = pl.date_range(
             cutoff - timedelta(days=config.train_days - 1), cutoff, eager=True
         ).to_list()
@@ -229,7 +242,8 @@ def run_rede(months: list[date], seeds: list[int], name: str, output: Path) -> N
 
 
 def _months(values: list[str]) -> list[date]:
-    return [date.fromisoformat(v + "-01") for v in values]
+    """`AAAA-MM` é uma dobra mensal; `2026-09-25` é o dia reservado."""
+    return [date.fromisoformat(v if len(v) == 10 else v + "-01") for v in values]
 
 
 def main() -> None:

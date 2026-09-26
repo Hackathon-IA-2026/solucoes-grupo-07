@@ -31,6 +31,11 @@ SELECTION_MONTHS = [date(2026, m, 1) for m in range(1, 5)]
 EVALUATION_MONTHS = [date(2026, m, 1) for m in range(5, 9)]
 
 
+def month_key(month: date) -> str:
+    """Nome do bloco nos arquivos: `AAAA-MM`, ou `reserva` para o dia reservado."""
+    return "reserva" if month == HOLDOUT_DAY else f"{month:%Y-%m}"
+
+
 def month_days(month: date, last: date | None = None) -> list[date]:
     following = (month.replace(day=28) + timedelta(days=4)).replace(day=1)
     end = min(following - timedelta(days=1), last) if last else following - timedelta(days=1)
