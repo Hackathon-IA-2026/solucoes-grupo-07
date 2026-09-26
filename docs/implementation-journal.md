@@ -672,3 +672,117 @@ prepara o experimento oráculo (H5), que mede quanto valeria um feed meteorológ
 ### Próximos passos
 
 Modelo direto por usina × slot contra os baselines; volume e causa; módulo testado; setembro.
+
+## 2026-09-26 - Nova Etapa 2 (2/n): backtest jan–ago/2026 e decisão por célula
+
+### Contexto e pergunta
+
+O modelo diário por usina × slot supera os baselines nas mesmas linhas? A regra de decisão
+foi registrada na entrada anterior e implementada em `curtamap.previsao.relatorio` (commit
+`b4aa4a8`) antes de qualquer resultado do backtest oficial.
+
+### Fatos e evidências observados
+
+Backtest de `curtamap.previsao.avaliacao`: 8 dobras mensais, jan–ago/2026, ~3,6 min por dobra
+no notebook de 8 GB, com pico de ~1,5 GB. Métricas em
+`docs/reports/nova-abordagem/metricas_backtest.csv`; decisão em `decisao_celulas.csv`.
+
+| Célula | Modelo (média) | Melhor baseline (média) | Meses vencidos* | Decisão |
+|---|---|---|---|---|
+| Corte eólico, AP | 0,788 | `historico` 0,740 | 8/8 | modelo |
+| Corte solar, AP | 0,813 | `historico` 0,747 | 8/8 | modelo |
+| Volume solar, WAPE meia-hora | 0,851 | `historico` 0,950 | 7/8 | modelo |
+| Volume eólico, WAPE meia-hora | 1,083 | `ultimo_valor` 1,097 | 5/8 | baseline |
+| Causa eólica, macro-F1 | 0,631 | moda da usina 28 d 0,649 | 2/8 | baseline |
+| Causa solar, macro-F1 | 0,504 | moda da usina 28 d 0,462 | 5/8 | baseline |
+
+\* contra o melhor baseline **de cada mês**, que é a leitura operacionalizada no código.
+
+Outros fatos:
+
+- **Brier:** o modelo é melhor que o `historico` na maioria dos meses, mas ligeiramente pior
+  na eólica em março (0,105 contra 0,104) e em junho (0,159 contra 0,152).
+- **Alerta:**
+  - limiar F1-ótimo escolhido fora da amostra em jan–abr: 0,30 na eólica e 0,32 na solar;
+  - com ele, em mai–ago (fora da amostra), o recall vai de 0,73 a 0,95 na eólica e de 0,85 a
+    0,94 na solar, com precisão de 0,58 a 0,82;
+  - em jan–abr, recall e precisão estão dentro da amostra usada na escolha;
+  - limiar final, escolhido com jan–ago: 0,346 na eólica e 0,321 na solar.
+- **Volume:**
+  - o WAPE diário por usina (a métrica de planejamento) também favorece o modelo na solar
+    (0,49–0,78 contra 0,59–0,91 do `historico`, fora fevereiro);
+  - o preditor "zero" tem WAPE 1,0 por construção e vence **todos** os preditores da eólica em
+    fevereiro, março, abril e junho;
+  - WAPE e MAE premiam a mediana, que é zero num alvo inflado de zeros, enquanto a
+    recomendação consome a média (energia esperada);
+  - o viés total do modelo fica entre −26% e +86%. Fevereiro, com pouco corte, é o pior mês
+    para todos os preditores baseados em média.
+- **Intervalo p10–p90:** a cobertura geral de 0,87 a 0,97 é inflada pelas linhas sem corte.
+  Nas meias-horas com corte, ela cai para 0,63–0,79 na eólica e 0,69–0,81 na solar, perto
+  dos 80% nominais.
+
+### Interpretação e decisão
+
+- **Ocorrência (a saída principal):** o ganho é claro e estável. O modelo vence nos 16
+  meses-fonte, com +0,05 a +0,17 de AP sobre o `historico`, e o maior ganho aparece em
+  fevereiro, na mudança de regime.
+- **Composição servida** (`SERVING` em `curtamap/previsao/modelo.py`), com proveniência por
+  linha em `tipo_saida_volume` e `tipo_saida_causa`:
+  - ocorrência: modelo nas duas fontes;
+  - volume solar: modelo;
+  - volume eólico: `historico`;
+  - causa: moda da usina no slot em 28 d, com recurso ao estado em 7 d, nas duas fontes.
+- **Desvio registrado antes de setembro:** ao pé da letra, a regra escolheria `ultimo_valor`
+  para o volume eólico, porque tem a melhor média. Servimos `historico` porque:
+  - a média do `ultimo_valor` só é melhor por causa de fevereiro;
+  - o `historico` o vence em 7/8 meses no WAPE de meia-hora e no diário;
+  - o `ultimo_valor` subestima a energia em 30–98% em todos os meses, o que quebraria a energia
+    em risco da Etapa 3.
+
+  Esse desvio é entre baselines e não infla nenhuma alegação sobre o modelo.
+- **Sensibilidade da regra, só para divulgação:** com um baseline fixo (`historico`) em vez do
+  melhor de cada mês, o volume eólico venceria em 6/8 meses, com margens de 0,002 a 0,07 fora
+  de fevereiro. É um empate técnico. A decisão continua a do código. As outras cinco células
+  não mudam entre as duas leituras.
+- **Não otimizar o volume eólico para WAPE:** ganhar WAPE ali significaria encolher E[v] na
+  direção de zero, o que piora a energia esperada que a recomendação consome.
+
+### Alternativas consideradas
+
+- Reinterpretar a regra depois dos resultados: descartado.
+- Iterar livremente sobre volume e causa: limitado a uma ou duas tentativas **na causa**,
+  todas listadas e feitas antes de abrir setembro.
+
+**Hipótese da tentativa 1, escrita antes de rodar:** o modelo de causa perde para a moda da
+usina porque o `class_weight='balanced'` e as features estaduais diluem o sinal dominante da
+usina. Diagnóstico: um HGB só com as três participações da usina no slot em 28 d e **sem**
+peso balanceado. Se nem ele empatar com a moda, o limite está no aprendiz ou no alvo, e a
+iteração para.
+
+### Implementação e validação
+
+- `apply_serving` com testes: o volume eólico servido é igual a `vol_hist_28d`, a causa
+  servida é o argmax das participações e a proveniência sai por linha.
+- Cobertura p10–p90 em y > 0 acrescentada às métricas.
+- Rótulo semanal de setembro corrigido: o `weekday` do Polars vai de 1 a 7.
+- Suíte completa verde, com ruff limpo.
+
+### Limitações e incertezas
+
+- Maio–agosto/2026 já tinha sido visto pela receita anterior. Aqui é desenvolvimento.
+- O limiar de alerta e a composição foram escolhidos com jan–ago. Só setembro é teste.
+- Os hiperparâmetros foram fixados a priori, sem busca. Pode haver ganho não explorado, e
+  também não há sobreajuste de busca.
+
+### Valor para o usuário e para a apresentação
+
+- **Frase do pitch, sustentada por evidência nas mesmas linhas:** "prevemos na véspera, às
+  20h, em quais meias-horas de amanhã cada usina será cortada, melhor que a frequência
+  histórica da própria usina em 16 de 16 meses-fonte".
+- O volume e a causa ganham honestidade, não número. O painel mostra de onde vem cada
+  componente.
+
+### Próximos passos
+
+Tentativa 1 de causa; congelar o modelo com manifesto; validar em setembro; H5 (oráculo
+meteorológico); relatório e handoff.
