@@ -1,0 +1,25 @@
+{
+  "modelo_id": "diario_hgb_v1_2026-08-30",
+  "artefato": "diario_hgb_v1_2026-08-30.joblib",
+  "sha256": "6340240dd58b7e789da2136e88db8e04919a02128c11dbf149b288d7f619f967",
+  "commit_receita": "e89be0f06e036ec940df7c7ac148cb71eb3a26a8",
+  "treino_ate": "2026-08-30",
+  "limiares_alerta": {
+    "eolica": 0.3461,
+    "fotovoltaica": 0.3212
+  },
+  "servico": {
+    "eolica": {
+      "volume": "historico",
+      "causa": "usina_28d"
+    },
+    "fotovoltaica": {
+      "volume": "modelo",
+      "causa": "usina_28d"
+    }
+  },
+  "linhas_treino": {
+    "eolica": 2714688,
+    "fotovoltaica": 1309584
+  }
+}
