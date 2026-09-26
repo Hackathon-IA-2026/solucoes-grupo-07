@@ -161,6 +161,15 @@ def apply_serving(rows: pl.DataFrame, serving: dict[str, str]) -> pl.DataFrame:
             .otherwise(pl.lit("modelo"))
             .alias("tipo_saida_volume"),
         )
+        # A banda veio dos quantis do modelo; ela precisa conter a média servida.
+        rows = rows.with_columns(
+            pl.min_horizontal("volume_p10_mwmed", "volume_esperado_mwmed").alias(
+                "volume_p10_mwmed"
+            ),
+            pl.max_horizontal("volume_p90_mwmed", "volume_esperado_mwmed").alias(
+                "volume_p90_mwmed"
+            ),
+        )
     else:
         rows = rows.with_columns(pl.lit("modelo").alias("tipo_saida_volume"))
     if serving.get("causa") == "usina_28d":

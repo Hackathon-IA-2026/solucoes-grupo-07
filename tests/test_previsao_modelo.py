@@ -183,3 +183,20 @@ def test_serving_uses_the_winning_baselines_with_provenance(model, history):
         .replace_strict({0: "REL", 1: "CNF", 2: "ENE"})
     ).to_series()
     assert (with_plant["causa_prevista"] == mode).all()
+
+
+def test_served_baseline_volume_stays_inside_the_p10_p90_band():
+    from curtamap.previsao.modelo import apply_serving
+
+    rows = pl.DataFrame(
+        {
+            "volume_esperado_mwmed": [5.0, 5.0],
+            "volume_p10_mwmed": [2.0, 2.0],
+            "volume_p90_mwmed": [8.0, 8.0],
+            "vol_hist_28d": [12.0, 1.0],
+        }
+    )
+    served = apply_serving(rows, {"volume": "historico"})
+    assert served["volume_esperado_mwmed"].to_list() == [12.0, 1.0]
+    assert served["volume_p90_mwmed"].to_list() == [12.0, 8.0]
+    assert served["volume_p10_mwmed"].to_list() == [2.0, 1.0]
