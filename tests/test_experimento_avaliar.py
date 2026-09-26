@@ -103,3 +103,26 @@ def test_error_concentration_ranks_plants_by_absolute_error() -> None:
     assert top["id_ons"].to_list()[0] == "A"
     assert top["parcela_erro"].to_list()[0] == pytest.approx(60 / 80)
     assert np.isclose(top["parcela_acumulada"].to_list()[-1], 1.0)
+
+
+def test_adjusted_hgb_picks_the_frozen_variant_per_source_and_component() -> None:
+    from curtamap.experimentos.rede_temporal.final import adjusted_columns
+
+    frame = pl.DataFrame(
+        {
+            "fonte": ["eolica", "fotovoltaica"],
+            "p_B1": [0.1, 0.2],
+            "p_B3": [0.3, 0.4],
+            "v_B1": [1.0, 2.0],
+            "v_B3": [3.0, 4.0],
+        }
+    )
+    frozen = {
+        "hgb_ocorrencia": {"eolica": "B1", "fotovoltaica": "B3"},
+        "hgb_volume": {"eolica": "B3", "fotovoltaica": "B1"},
+    }
+
+    adjusted = adjusted_columns(frame, frozen)
+
+    assert adjusted["p_B_ajustado"].to_list() == [0.1, 0.4]
+    assert adjusted["v_B_ajustado"].to_list() == [3.0, 2.0]
