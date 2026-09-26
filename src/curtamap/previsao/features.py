@@ -174,10 +174,21 @@ def _plant_table(base: pl.DataFrame) -> pl.DataFrame:
     daily = base.group_by([*KEY, "dia"]).agg(
         pl.col("corte").mean().alias("usina_nivel_ultimo"),
         pl.col("volume").mean().alias("usina_vol_ultimo"),
+        # Baseline "último valor disponível": última meia-hora observada da usina em L.
+        pl.col("corte").sort_by("slot").last().alias("ultimo_valor_corte"),
+        pl.col("volume").sort_by("slot").last().alias("ultimo_valor_volume"),
+        pl.len().alias("_n"),
     )
     return (
         daily.sort([*KEY, "dia"])
-        .with_columns(_rolling("usina_nivel_ultimo", "7d", KEY).alias("usina_nivel_7d"))
+        .with_columns(
+            _rolling("usina_nivel_ultimo", "7d", KEY).alias("usina_nivel_7d"),
+            # Fração das 1.344 meias-horas de (L − 28 d, L] com volume válido.
+            (pl.col("_n").rolling_sum_by("dia", window_size="28d").over(KEY) / (28 * 48))
+            .cast(pl.Float64)
+            .alias("cobertura_28d"),
+        )
+        .drop("_n")
         .rename({"dia": "ultimo_dia"})
     )
 

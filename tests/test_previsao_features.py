@@ -154,3 +154,16 @@ def test_base_from_raw_parquet_via_load_history(tmp_path):
         tmp_path, datetime(2026, 8, 1), datetime(2026, 9, 1), sources=("eolica",)
     )
     assert base_from_history(history).height == 1
+
+
+def test_last_available_value_is_the_last_half_hour_of_the_last_released_day():
+    rows = [
+        _row(datetime(2026, 8, 24, 12), cut=10.0),
+        _row(datetime(2026, 8, 24, 23, 30), cut=4.0),
+        _row(datetime(2026, 8, 25, 23, 30), cut=0.0),  # ainda não liberado
+    ]
+    features = build_features(
+        base_from_history(_history(rows)), release_map([date(2026, 8, 26)], CAL)
+    )
+    assert features["ultimo_valor_corte"].unique().to_list() == [1.0]
+    assert features["ultimo_valor_volume"].unique().to_list() == [4.0]
