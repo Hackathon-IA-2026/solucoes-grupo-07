@@ -115,3 +115,15 @@ def test_existing_vpc_is_used_without_lookup() -> None:
     _, service = build(app)
 
     Template.from_stack(service).resource_count_is("AWS::EC2::VPC", 0)
+
+
+def test_without_alb_the_task_is_exposed_on_8501() -> None:
+    _, service = build(App(context={"semAlb": "true"}))
+    template = Template.from_stack(service)
+
+    template.resource_count_is("AWS::ElasticLoadBalancingV2::LoadBalancer", 0)
+    template.resource_count_is("AWS::ECS::Service", 1)
+    template.has_resource_properties(
+        "AWS::EC2::SecurityGroup",
+        {"SecurityGroupIngress": [Match.object_like({"FromPort": 8501, "ToPort": 8501})]},
+    )

@@ -71,10 +71,12 @@ class AppSettings:
     vpc_id: str | None = None
     availability_zones: tuple[str, ...] = ()
     public_subnet_ids: tuple[str, ...] = ()
+    # Falso só se o ELB não estiver liberado na conta (não consta da lista confirmada).
+    load_balancer: bool = True
 
 
 class AppStack(Stack):
-    """Serviço Fargate com a interface Streamlit atrás de um ALB público."""
+    """Serviço Fargate com a interface Streamlit, atrás de um ALB público ou exposto direto."""
 
     def __init__(
         self,
@@ -95,41 +97,68 @@ class AppStack(Stack):
             retention=logs.RetentionDays.ONE_WEEK,
             removal_policy=RemovalPolicy.DESTROY,
         )
+        task = ecs.FargateTaskDefinition(
+            self, "Tarefa", cpu=settings.cpu, memory_limit_mib=settings.memory_mib
+        )
+        task.add_container(
+            "web",
+            image=ecs.ContainerImage.from_ecr_repository(repository, settings.image_tag),
+            port_mappings=[ecs.PortMapping(container_port=CONTAINER_PORT)],
+            environment={
+                "CURTAMAP_DATA_S3_URI": bucket.s3_url_for_object(DATA_PREFIX),
+                "CURTAMAP_MODEL_S3_URI": bucket.s3_url_for_object(MODEL_PREFIX),
+            },
+            logging=ecs.LogDrivers.aws_logs(stream_prefix="curtamap", log_group=log_group),
+        )
+        bucket.grant_read(task.task_role)
+        common = {
+            "cluster": cluster,
+            "task_definition": task,
+            "desired_count": settings.desired_count,
+            "assign_public_ip": True,
+            "circuit_breaker": ecs.DeploymentCircuitBreaker(rollback=True),
+            # Com uma tarefa só, 100% evita derrubar a demo durante um deploy.
+            "min_healthy_percent": 100,
+            "max_healthy_percent": 200,
+        }
+        if settings.load_balancer:
+            self._behind_alb(common)
+        else:
+            self._public_task(common, vpc)
+        CfnOutput(self, "LogGroup", value=log_group.log_group_name)
+
+    def _behind_alb(self, common: dict) -> None:
         service = ecs_patterns.ApplicationLoadBalancedFargateService(
             self,
             "Servico",
-            cluster=cluster,
-            cpu=settings.cpu,
-            memory_limit_mib=settings.memory_mib,
-            desired_count=settings.desired_count,
             public_load_balancer=True,
-            assign_public_ip=True,
             task_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
-            circuit_breaker=ecs.DeploymentCircuitBreaker(rollback=True),
-            # Com uma tarefa só, 100% evita derrubar a demo durante um deploy.
-            min_healthy_percent=100,
-            max_healthy_percent=200,
             # Tempo para baixar os Parquet do S3 antes do primeiro health check.
             health_check_grace_period=Duration.minutes(5),
             idle_timeout=Duration.minutes(5),
-            task_image_options=ecs_patterns.ApplicationLoadBalancedTaskImageOptions(
-                image=ecs.ContainerImage.from_ecr_repository(repository, settings.image_tag),
-                container_port=CONTAINER_PORT,
-                environment={
-                    "CURTAMAP_DATA_S3_URI": bucket.s3_url_for_object(DATA_PREFIX),
-                    "CURTAMAP_MODEL_S3_URI": bucket.s3_url_for_object(MODEL_PREFIX),
-                },
-                log_driver=ecs.LogDrivers.aws_logs(stream_prefix="curtamap", log_group=log_group),
-            ),
+            **common,
         )
         # O ALB suporta WebSocket; a aderência mantém a sessão do Streamlit na mesma tarefa.
         service.target_group.configure_health_check(
             path=HEALTH_PATH, healthy_http_codes="200", interval=Duration.seconds(30)
         )
         service.target_group.enable_cookie_stickiness(Duration.hours(8))
-        bucket.grant_read(service.task_definition.task_role)
         CfnOutput(self, "Url", value=f"http://{service.load_balancer.load_balancer_dns_name}")
-        CfnOutput(self, "LogGroup", value=log_group.log_group_name)
+
+    def _public_task(self, common: dict, vpc: ec2.IVpc) -> None:
+        """Contingência se o ELB não for liberado: tarefa com IP público na porta 8501.
+
+        O IP muda a cada tarefa nova; docs/deploy.md mostra como consultá-lo.
+        """
+        group = ec2.SecurityGroup(self, "AcessoWeb", vpc=vpc, allow_all_outbound=True)
+        group.add_ingress_rule(ec2.Peer.any_ipv4(), ec2.Port.tcp(CONTAINER_PORT), "Streamlit")
+        ecs.FargateService(
+            self,
+            "Servico",
+            security_groups=[group],
+            vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
+            **common,
+        )
 
     def _vpc(self, settings: AppSettings) -> ec2.IVpc:
         if settings.vpc_id:

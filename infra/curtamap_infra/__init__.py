@@ -22,6 +22,7 @@ def settings_from_context(app: App) -> AppSettings:
         vpc_id=ctx("vpcId") or None,
         availability_zones=_list(ctx("availabilityZones")),
         public_subnet_ids=_list(ctx("publicSubnetIds")),
+        load_balancer=str(ctx("semAlb") or "false").lower() != "true",
     )
 
 
