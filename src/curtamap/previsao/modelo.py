@@ -10,8 +10,11 @@ Componentes, todos treinados só com dias-alvo cujo rótulo já estava liberado:
 - causa condicional ("se houver ordem, qual causa?"): multiclasse REL/CNF/ENE com peso
   balanceado, só em linhas com ordem e causa conhecida.
 
-`p_restricao` e a origem são baselines declarados (frequência da usina no slot em 28 dias),
-não modelos. `p_restricao` nunca fica abaixo de `p_corte`, porque todo corte exige ordem.
+O que é servido por célula está em `SERVING`, decidido pelo backtest: componentes que não
+venceram os baselines são substituídos por eles (`apply_serving`), com proveniência por linha
+em `tipo_saida_volume` e `tipo_saida_causa`. `p_restricao` e a origem são baselines
+declarados (frequência da usina no slot em 28 dias), não modelos. `p_restricao` nunca fica
+abaixo de `p_corte`, porque todo corte exige ordem.
 """
 
 import json
@@ -58,6 +61,14 @@ PARAMS = {
 CAUSE_PARAMS = {**PARAMS, "max_iter": 200, "min_samples_leaf": 100}
 QUANTILES = (0.1, 0.9)
 DEFAULT_THRESHOLD = 0.5
+# Composição servida por célula, decidida pelo backtest jan–ago/2026 com a regra registrada
+# antes dos resultados (docs/reports/nova-abordagem). "modelo" usa o HGB; os demais são
+# baselines: "historico" = volume médio da usina no slot em 28 d; "usina_28d" = participação
+# de cada causa nas ordens da usina no slot em 28 d, com recurso ao estado em 7 d.
+SERVING = {
+    "eolica": {"volume": "historico", "causa": "usina_28d"},
+    "fotovoltaica": {"volume": "modelo", "causa": "usina_28d"},
+}
 # Coluna da classe na ordem de PREDICTABLE_CAUSES.
 _CAUSE_COLUMNS = [f"p_causa_{c.lower()}" for c in PREDICTABLE_CAUSES]
 
@@ -127,6 +138,61 @@ def predict_source(model: SourceModel, rows: pl.DataFrame) -> pl.DataFrame:
     return rows.with_columns(pl.Series(k, v, dtype=pl.Float64) for k, v in columns.items())
 
 
+def apply_serving(rows: pl.DataFrame, serving: dict[str, str]) -> pl.DataFrame:
+    """Substitui componentes do modelo pelos baselines escolhidos para a fonte.
+
+    Acrescenta `tipo_saida_volume` e `tipo_saida_causa` por linha. Sem histórico no slot, o
+    volume volta ao modelo; sem ordens com causa na usina nem no estado, a causa fica nula.
+    """
+    if rows.is_empty():
+        return rows
+    for name in _CAUSE_COLUMNS:
+        if name not in rows.columns:
+            rows = rows.with_columns(pl.lit(None, pl.Float64).alias(name))
+    if serving.get("volume") == "historico":
+        known = pl.col("vol_hist_28d").is_not_null()
+        rows = rows.with_columns(
+            pl.when(known)
+            .then(pl.col("vol_hist_28d").cast(pl.Float64))
+            .otherwise(pl.col("volume_esperado_mwmed"))
+            .alias("volume_esperado_mwmed"),
+            pl.when(known)
+            .then(pl.lit("baseline_historico_28d"))
+            .otherwise(pl.lit("modelo"))
+            .alias("tipo_saida_volume"),
+        )
+    else:
+        rows = rows.with_columns(pl.lit("modelo").alias("tipo_saida_volume"))
+    if serving.get("causa") == "usina_28d":
+        plant = [f"causa_{c.lower()}_28d" for c in PREDICTABLE_CAUSES]
+        state = [f"estado_{c.lower()}_7d" for c in PREDICTABLE_CAUSES]
+        has_plant = pl.all_horizontal(pl.col(c).is_not_null() for c in plant)
+        has_state = pl.all_horizontal(pl.col(c).is_not_null() for c in state)
+        rows = rows.with_columns(
+            *(
+                pl.when(has_plant)
+                .then(pl.col(a))
+                .when(has_state)
+                .then(pl.col(b))
+                .cast(pl.Float64)
+                .alias(name)
+                for name, a, b in zip(_CAUSE_COLUMNS, plant, state, strict=True)
+            ),
+            pl.when(has_plant)
+            .then(pl.lit("baseline_usina_28d"))
+            .when(has_state)
+            .then(pl.lit("baseline_estado_7d"))
+            .alias("tipo_saida_causa"),
+        )
+    else:
+        rows = rows.with_columns(
+            pl.when(pl.col("p_causa_rel").is_not_null())
+            .then(pl.lit("modelo"))
+            .alias("tipo_saida_causa")
+        )
+    return rows
+
+
 @dataclass
 class DailyModel:
     """Modelos por fonte e metadados de rastreabilidade do artefato."""
@@ -184,6 +250,7 @@ def fit(base: pl.DataFrame, mapping: pl.DataFrame, last_label_day: date, **metad
         "parametros_causa": CAUSE_PARAMS,
         "quantis": QUANTILES,
         "semente": SEED,
+        "servico": SERVING,
         **metadata,
     }
     return DailyModel(sources, info)
@@ -251,8 +318,12 @@ class DailyForecaster:
         features = build_features(base, mapping)
         if features.is_empty():
             return validate_forecast(pl.DataFrame(schema=FORECAST_SCHEMA))
+        serving = self.model.metadata.get("servico", SERVING)
         parts = [
-            predict_source(model, features.filter(pl.col("fonte") == source))
+            apply_serving(
+                predict_source(model, features.filter(pl.col("fonte") == source)),
+                serving.get(source, {}),
+            )
             for source, model in self.model.sources.items()
         ]
         predicted = pl.concat([p for p in parts if not p.is_empty()], how="diagonal_relaxed")
@@ -270,9 +341,6 @@ class DailyForecaster:
         threshold = pl.col("fonte").replace_strict(source_threshold, return_dtype=pl.Float64)
         p_corte = pl.col("p_corte").clip(0.0, 1.0)
         expected = pl.col("volume_esperado_mwmed").clip(lower_bound=0.0)
-        for name in _CAUSE_COLUMNS:
-            if name not in rows.columns:
-                rows = rows.with_columns(pl.lit(None, pl.Float64).alias(name))
         frame = rows.with_columns(tau.alias("tau"), horizon.alias("horizonte")).filter(
             pl.col("horizonte").is_between(1, HORIZONS)
         )
@@ -306,7 +374,7 @@ class DailyForecaster:
             .alias("origem_prevista"),
             pl.lit(None, pl.String).alias("motivo_sem_previsao"),
             pl.when(~cause_present)
-            .then(pl.lit("modelo_de_causa_indisponivel_para_a_fonte"))
+            .then(pl.lit("sem_ordem_com_causa_conhecida_usina_28d_estado_7d"))
             .alias("motivo_sem_causa"),
             pl.lit("modelo").alias("tipo_saida"),
             pl.lit(self.model_id).alias("modelo_id"),
@@ -321,6 +389,8 @@ class DailyForecaster:
             pl.lit(emitted_at, pl.Datetime("us")).alias("emitido_em"),
             pl.col("idade").cast(pl.Int16).alias("idade_informacao_dias"),
             pl.col("hist_28d").alias("baseline_historico_28d"),
+            "tipo_saida_volume",
+            "tipo_saida_causa",
         )
         # p_causa_* somam 1 dentro da tolerância; renormaliza contra erro de ponto flutuante.
         total = pl.sum_horizontal(_CAUSE_COLUMNS)

@@ -144,3 +144,42 @@ def test_unknown_history_yields_an_empty_valid_forecast(model):
     empty = _raw(date(2026, 1, 1), date(2026, 1, 2))
     forecast = _predict(model, empty)
     assert forecast.height == 0
+
+
+def test_serving_uses_the_winning_baselines_with_provenance(model, history):
+    from curtamap.previsao.features import build_features
+    from curtamap.previsao.modelo import SERVING, forecast_mapping
+
+    forecast = _predict(model, history)
+    assert SERVING["eolica"]["volume"] == "historico"
+    wind = forecast.filter(pl.col("fonte") == "eolica")
+    solar = forecast.filter(pl.col("fonte") == "fotovoltaica")
+    assert wind["tipo_saida_volume"].unique().to_list() == ["baseline_historico_28d"]
+    assert solar["tipo_saida_volume"].unique().to_list() == ["modelo"]
+    assert set(forecast["tipo_saida_causa"].drop_nulls().unique()) <= {
+        "baseline_usina_28d",
+        "baseline_estado_7d",
+    }
+    base = base_from_history(history.filter(pl.col("din_instante") < CUTOFF))
+    features = build_features(base, forecast_mapping(T0, CUTOFF, CAL)).filter(
+        pl.col("fonte") == "eolica"
+    )
+    joined = wind.with_columns(pl.col("tau").dt.date().alias("dia")).join(
+        features.with_columns(
+            (
+                pl.col("dia").cast(pl.Datetime("us"))
+                + pl.duration(minutes=30 * pl.col("slot").cast(pl.Int64))
+            ).alias("tau")
+        ),
+        on=["fonte", "id_ons", "tau"],
+    )
+    assert joined.height == wind.height
+    assert (joined["volume_esperado_mwmed"] - joined["vol_hist_28d"]).abs().max() < 1e-4
+    with_plant = joined.filter(pl.col("tipo_saida_causa") == "baseline_usina_28d")
+    assert with_plant.height > 0
+    mode = with_plant.select(
+        pl.concat_list("causa_rel_28d", "causa_cnf_28d", "causa_ene_28d")
+        .list.arg_max()
+        .replace_strict({0: "REL", 1: "CNF", 2: "ENE"})
+    ).to_series()
+    assert (with_plant["causa_prevista"] == mode).all()
