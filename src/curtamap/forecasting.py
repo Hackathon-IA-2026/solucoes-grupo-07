@@ -9,9 +9,8 @@ preditor escolhido sem mudar o formato de saída.
 
 Diferenças conscientes em relação ao baseline experimental da Etapa 2:
 
-- a disponibilidade usa `nightly_cutoff`, que só considera fins de semana; feriados do
-  calendário da Etapa 2 ainda não estão no `main`, então o corte é levemente otimista
-  nesses dias;
+- a disponibilidade usa `nightly_cutoff`, que delega ao calendário de feriados de
+  `curtamap.previsao.calendario` (fonte única do corte para todo o produto);
 - não há fallback estatístico regional: sem observação válida no horário, a previsão
   fica nula com motivo explícito, em vez de um número de baixa evidência.
 
@@ -19,7 +18,8 @@ Diferenças conscientes em relação ao baseline experimental da Etapa 2:
 vir de dias diferentes do mesmo horário, sempre dentro da janela de 28 dias.
 """
 
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
+from functools import cache
 from pathlib import Path
 from typing import Protocol
 
@@ -35,11 +35,11 @@ from curtamap.contracts import (
     validate_forecast,
 )
 from curtamap.data_contract import SPECS
+from curtamap.previsao.calendario import Calendar, load_calendar, release_cutoff
 from curtamap.targets import derive_targets
 
 HISTORY_DAYS = 28
 AVAILABILITY_SCENARIO = "noturno_fim_de_semana"
-RELEASE_TIME = timedelta(hours=19, minutes=30)
 ENTITY_ATTRIBUTES = ("nom_usina", "id_estado", "id_subsistema")
 _RAW_COLUMNS = (
     "fonte",
@@ -66,19 +66,14 @@ class Predictor(Protocol):
     ) -> pl.DataFrame: ...
 
 
-def _next_business_day(day: date) -> date:
-    day += timedelta(days=1)
-    while day.weekday() >= 5:
-        day += timedelta(days=1)
-    return day
+@cache
+def _calendar() -> Calendar:
+    return load_calendar()
 
 
 def nightly_cutoff(t0: datetime) -> datetime:
     """Fim do último dia civil liberado até `t0` (lote às 19h30 do dia útil seguinte)."""
-    day = t0.date()
-    while datetime.combine(_next_business_day(day), datetime.min.time()) + RELEASE_TIME > t0:
-        day -= timedelta(days=1)
-    return datetime.combine(day + timedelta(days=1), datetime.min.time())
+    return release_cutoff(t0, _calendar())
 
 
 def _guard_reserved(end: datetime, allow_reserved_test: bool) -> None:
