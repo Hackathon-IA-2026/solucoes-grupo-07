@@ -4,7 +4,7 @@ import polars as pl
 import pytest
 
 from curtamap.contracts import RESERVED_TEST_START
-from curtamap.painel.historico import DIMENSIONS, historical_losses
+from curtamap.painel.historico import DIMENSIONS, OTHERS, fold_small_groups, historical_losses
 from curtamap.targets import derive_targets
 
 
@@ -131,3 +131,33 @@ def test_month_ending_exactly_at_the_window_end_is_complete() -> None:
     )
 
     assert not losses["periodo_parcial"].any()
+
+
+def test_fold_keeps_the_largest_groups_and_sums_the_rest() -> None:
+    losses = pl.DataFrame(
+        {
+            "periodo": [date(2026, 8, 1)] * 4 + [date(2026, 9, 1)],
+            "grupo": ["RN", "BA", "MG", "PI", "PI"],
+            "energia_mwh": [10.0, 8.0, 1.0, 2.0, 50.0],
+            "janelas_com_corte": [1, 1, 1, 1, 1],
+            "janelas_volume_nulo": [0, 0, 1, 0, 0],
+            "usinas": [3, 2, 1, 1, 1],
+            "periodo_parcial": [False] * 5,
+        }
+    )
+
+    folded = fold_small_groups(losses, keep=2)
+
+    # O ranking usa o total do recorte inteiro: PI (52) e RN (10) ficam.
+    assert set(folded["grupo"]) == {"PI", "RN", OTHERS}
+    august = folded.filter(pl.col("periodo") == date(2026, 8, 1))
+    others = august.filter(pl.col("grupo") == OTHERS).row(0, named=True)
+    assert others["energia_mwh"] == pytest.approx(9.0)
+    assert others["janelas_volume_nulo"] == 1
+    assert others["usinas"] == 3
+
+
+def test_fold_without_excess_groups_is_identity() -> None:
+    losses = historical_losses(HISTORY, grain="mes", dimension="causa")
+
+    assert fold_small_groups(losses, keep=10).sort("grupo").equals(losses.sort("grupo"))

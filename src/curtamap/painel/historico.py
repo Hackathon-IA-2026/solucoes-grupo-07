@@ -15,6 +15,7 @@ from curtamap.contracts import RESERVED_TEST_START
 GRAINS = {"semana": "1w", "mes": "1mo"}
 DIMENSIONS = ("causa", "fonte", "id_estado", "id_subsistema", "usina")
 MISSING = "não informado"
+OTHERS = "Outros"
 
 
 def _group(dimension: str) -> pl.Expr:
@@ -63,5 +64,32 @@ def historical_losses(
             pl.col("energia_mwh").is_null().sum().alias("janelas_volume_nulo"),
             pl.struct("fonte", "id_ons").n_unique().alias("usinas"),
         )
+        .sort(["periodo", "energia_mwh", "grupo"], descending=[False, True, False])
+    )
+
+
+def fold_small_groups(losses: pl.DataFrame, *, keep: int) -> pl.DataFrame:
+    """Mantém os `keep` grupos com mais energia no recorte inteiro e soma o resto em "Outros".
+
+    O ranking é global, não por período, para que um grupo não troque de cor entre barras.
+    `usinas` de "Outros" é a soma dos grupos; só é contagem distinta quando os grupos são
+    disjuntos (UF, subsistema, usina).
+    """
+    totals = losses.group_by("grupo").agg(pl.col("energia_mwh").sum())
+    top = totals.sort(["energia_mwh", "grupo"], descending=[True, False]).head(keep)["grupo"]
+    if totals.height <= keep:
+        return losses
+    return (
+        losses.with_columns(
+            pl.when(pl.col("grupo").is_in(top.implode()))
+            .then(pl.col("grupo"))
+            .otherwise(pl.lit(OTHERS))
+        )
+        .group_by("periodo", "grupo")
+        .agg(
+            pl.col("energia_mwh", "janelas_com_corte", "janelas_volume_nulo", "usinas").sum(),
+            pl.col("periodo_parcial").first(),
+        )
+        .select(losses.columns)
         .sort(["periodo", "energia_mwh", "grupo"], descending=[False, True, False])
     )
