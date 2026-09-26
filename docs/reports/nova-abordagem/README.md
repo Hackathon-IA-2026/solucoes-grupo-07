@@ -61,3 +61,114 @@ conta como desenvolvimento.
 de uma célula se vencer na média **e** em pelo menos 6 de 8 meses.
 
 <!-- resultados abaixo -->
+
+## 2. Resultados do backtest (jan–ago/2026, desenvolvimento)
+
+Médias das 8 dobras mensais, nas mesmas linhas. A tabela completa por mês está em
+`metricas_backtest.csv`.
+
+| Célula | Métrica | Modelo | `historico` | Meses vencidos* | Servido |
+|---|---|---|---|---|---|
+| Corte eólico | AP | **0,788** | 0,740 | 8/8 | modelo |
+| Corte solar | AP | **0,813** | 0,747 | 8/8 | modelo |
+| Volume solar | WAPE meia-hora | **0,851** | 0,950 | 7/8 | modelo |
+| Volume eólico | WAPE meia-hora | 1,083 | 1,214 | 5/8 | `historico` (baseline) |
+| Causa eólica | macro-F1 | 0,631 | moda da usina 0,649 | 2/8 | moda da usina (baseline) |
+| Causa solar | macro-F1 | 0,504 | moda da usina 0,462 | 5/8 | moda da usina (baseline) |
+
+\* Contra o melhor baseline **de cada mês**, como a regra foi codificada antes dos resultados.
+Com o `historico` como baseline fixo, o volume eólico venceria em 6/8 meses, com margens de
+0,002 a 0,07 fora de fevereiro, o que é um empate técnico. A decisão não mudou. As outras
+cinco células são iguais nas duas leituras.
+
+**Outras medidas:**
+
+- **Brier:** 0,123 contra 0,128 na eólica e 0,076 contra 0,083 na solar. O modelo fica
+  ligeiramente pior que o `historico` na eólica em março e junho.
+- **Alerta:** com o limiar F1-ótimo escolhido em jan–abr (0,30 na eólica e 0,32 na solar),
+  mai–ago (fora da amostra) teve recall de 0,85 e precisão de 0,72 na eólica, e recall de 0,90
+  e precisão de 0,73 na solar.
+- **WAPE diário** por usina × dia, a métrica de planejamento: 0,853 contra 0,981 na eólica e
+  0,701 contra 0,808 na solar.
+- **Intervalo p10–p90** nas meias-horas com corte: cobertura de 0,72 na eólica e 0,76 na solar,
+  para 80% nominais, ou seja, levemente estreito. Contando as linhas sem corte, a cobertura
+  fica entre 0,87 e 0,97, número inflado e sem valor informativo.
+- **Preditor zero:** tem WAPE 1,0 por construção e vence **todos** os preditores da eólica em
+  fev, mar, abr e jun. O MAE e o WAPE premiam a mediana, que é zero num alvo inflado de zeros,
+  enquanto a recomendação precisa da média (energia esperada). Por isso o volume eólico não
+  foi otimizado para WAPE.
+
+**Tentativa de causa** (hipótese registrada antes, detalhes no diário):
+
+- na eólica, nem o HGB só com as participações da usina empata com a moda (0,638 contra
+  0,649);
+- na solar, uma variante sem peso venceria em 6/8 meses (0,483 contra 0,462), mas foi a melhor
+  de 4 variantes nas mesmas dobras, por isso não foi adotada.
+
+## 3. Validação independente: setembro de 2026
+
+- **Protocolo:** receita congelada no commit `7b64b46`, com o manifesto
+  `modelo-congelado.json` (SHA-256 do artefato, limiares e composição).
+- **Dados:** baixados depois do congelamento, com o manifesto `setembro/manifesto.json`
+  (publicação de 25/09, dias-alvo de 01 a 24/09).
+- **Ordem:** as previsões sem rótulo foram gravadas antes da avaliação, com o hash em
+  `setembro/previsoes.json`.
+- **Histórico usado como feature:** o snapshot até 31/08 mais os dias de setembro já
+  liberados em cada emissão.
+
+Resultado do mês (tabela semanal em `setembro/metricas_setembro.csv`):
+
+| Célula | Modelo | `historico` | Outros baselines | Semanas vencidas |
+|---|---|---|---|---|
+| Corte eólico, AP | **0,921** | 0,899 | mesmo slot 0,766; último valor 0,629 | 3/4 (a perdida por 0,002) |
+| Corte solar, AP | **0,907** | 0,867 | mesmo slot 0,658 | 4/4 |
+| Volume solar, WAPE | **0,607** | 0,652 | mesmo slot 0,799 | 3/4 |
+| Volume solar, WAPE diário | **0,517** | 0,565 | — | 3/4 |
+| Volume eólico (servido `historico`), WAPE | modelo 0,738 | **0,754 servido** | mesmo slot 0,838 | — |
+| Causa eólica, macro-F1 (servida a moda) | modelo 0,765 | moda **0,839** | estado 0,523 | moda 4/4 |
+| Causa solar, macro-F1 (servida a moda) | modelo 0,447 | moda **0,501** | estado 0,321 | moda 2/4 (vence no mês) |
+
+- **Alerta:** com o limiar congelado, o recall foi de 0,94 na eólica e 0,90 na solar, com
+  precisão de 0,82 e 0,81.
+- **Brier:** 0,095 contra 0,095 na eólica e 0,068 contra 0,073 na solar.
+
+**Leitura:** as escolhas congeladas se confirmaram fora da amostra.
+
+- O modelo de ocorrência mantém a vantagem sobre o `historico`.
+- O volume solar do modelo vence.
+- Nas duas células de causa, servir a moda da usina foi a decisão certa no mês. Na solar, ela
+  vence só 2 de 4 semanas.
+- No volume eólico, o modelo teria ficado levemente à frente em setembro (0,738 contra
+  0,754), coerente com o "empate técnico" do backtest.
+
+São só 24 dias, então nenhum número isolado é conclusivo.
+
+## 4. Problema simples ou complexo?
+
+**Estrutura simples e sinal difícil.**
+
+- O perfil horário vem do histórico da usina, e o corte é regional e simultâneo.
+- O oráculo "fração do estado cortada naquele slot" daria AP de 0,94. O "histórico × nível
+  estadual realizado do dia" daria de 0,88 a 0,91.
+- A parte difícil é o **nível do dia-alvo**, que depende de vento, sol e carga daqui a 2–4
+  dias.
+- A correlação do nível estadual entre o último dia liberado e o alvo é só 0,57 na eólica e
+  0,28 na solar.
+- 14 features e um HGB sem busca de hiperparâmetros capturam o que há de previsível. Mais
+  complexidade de pipeline não traria esse sinal; previsão meteorológica, talvez (seção 6).
+
+## 5. Limitações
+
+- Maio a agosto de 2026 foi visto pela receita anterior e aqui é desenvolvimento. Só
+  setembro é teste, com 24 dias.
+- **Não há previsão meteorológica.** O nível do dia é estimado pela persistência regional e
+  pelo calendário.
+- `p_restricao` e a origem são baselines. A causa servida é baseline. O volume eólico servido
+  é baseline.
+- O intervalo p10–p90 é levemente estreito nas meias-horas com corte.
+- O modelo é treinado em uma janela de 365 dias sem recalibração. A prevalência de setembro
+  foi parecida com a de agosto (0,49 contra 0,49 na eólica e 0,30 contra 0,28 na solar), então
+  setembro não testou uma mudança de regime.
+- Usinas novas só recebem previsão depois que o primeiro dia delas é liberado.
+- A disponibilidade simula a publicação do ONS (19h30 do dia útil seguinte) com calendário
+  conservador. Não é a escala real do ONS.
