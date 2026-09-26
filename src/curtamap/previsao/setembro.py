@@ -111,6 +111,11 @@ def predict(model_path: Path, directory: Path = DIRECTORY) -> Path:
     return path
 
 
+def week_start(day: pl.Expr) -> pl.Expr:
+    """Segunda-feira da semana (o `weekday` do Polars vai de 1, segunda, a 7, domingo)."""
+    return day - pl.duration(days=day.dt.weekday() - 1)
+
+
 def evaluate(model_path: Path, directory: Path = DIRECTORY) -> pl.DataFrame:
     model = DailyModel.load(model_path)
     predictions = pl.read_parquet(directory / "previsoes_sem_rotulo.parquet")
@@ -118,9 +123,7 @@ def evaluate(model_path: Path, directory: Path = DIRECTORY) -> pl.DataFrame:
     scored = attach_targets(predictions, truth).filter(pl.col("y_corte").is_not_null())
     thresholds = {s: m.threshold for s, m in model.sources.items()}
     columns = [c for c in KEEP if c in scored.columns]
-    weekly = scored.select(columns).with_columns(
-        (pl.col("dia") - pl.duration(days=pl.col("dia").dt.weekday())).alias("mes")
-    )
+    weekly = scored.select(columns).with_columns(week_start(pl.col("dia")).alias("mes"))
     monthly = scored.select(columns).with_columns(pl.lit(MONTH).alias("mes"))
     table = pl.concat(
         [

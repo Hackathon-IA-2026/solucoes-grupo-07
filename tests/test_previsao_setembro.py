@@ -1,8 +1,8 @@
-from datetime import datetime
+from datetime import date, datetime
 
 import polars as pl
 
-from curtamap.previsao.setembro import read_september
+from curtamap.previsao.setembro import read_september, week_start
 
 
 def _official(path, source, rows):
@@ -43,3 +43,12 @@ def test_current_publication_is_normalized_like_the_snapshot(tmp_path):
     assert frame["rotulo_sem_limite"].to_list() == [False, False, False]
     assert frame["volume_mwmed"].to_list() == [0.0, 20.0, 0.0]
     assert frame.schema["din_instante"] == pl.Datetime("us")
+
+
+def test_weeks_start_on_monday():
+    days = pl.DataFrame({"dia": [date(2026, 9, 1), date(2026, 9, 6), date(2026, 9, 7)]})
+    assert days.select(week_start(pl.col("dia")))["dia"].to_list() == [
+        date(2026, 8, 31),
+        date(2026, 8, 31),
+        date(2026, 9, 7),
+    ]
