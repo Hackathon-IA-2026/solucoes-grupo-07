@@ -1,0 +1,423 @@
+{
+  "commit_base": "7ee94f4",
+  "commit_execucao": "e3441db2cc120921ce2adbff528803d5a6250ecc",
+  "dados": {
+    "constrained_off_eolica_tm.parquet": {
+      "sha256": "487050da7ed2470ec563b96ca88ed620654f43683927cb7b1bb8421323f0734d"
+    },
+    "constrained_off_fotovoltaica_tm.parquet": {
+      "sha256": "e293594146a29b5b78b4837f7618201f15b4e5a9e4ec9de5e7a7c8342db711ec"
+    }
+  },
+  "setembro": {
+    "baixado_em": "2026-09-26T17:49:19+00:00",
+    "arquivos": [
+      {
+        "fonte": "eolica",
+        "url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2026_09.parquet",
+        "last_modified": "Sat, 26 Sep 2026 15:06:07 GMT",
+        "bytes": 3528148,
+        "sha256": "f2a21886a941243b2483a614aae33d021e7bb0ebfac351fae7e7491cc6829732"
+      },
+      {
+        "fonte": "fotovoltaica",
+        "url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2026_09.parquet",
+        "last_modified": "Sat, 26 Sep 2026 15:06:58 GMT",
+        "bytes": 1201260,
+        "sha256": "818c93df602430bf5343a08380d1eecb6d9172bbe0b8449a13a48a57e01a2b45"
+      }
+    ]
+  },
+  "reserva": "2026-09-25",
+  "dobras_selecao": [
+    "2026-01-01",
+    "2026-02-01",
+    "2026-03-01",
+    "2026-04-01"
+  ],
+  "dobras_avaliacao": [
+    "2026-05-01",
+    "2026-06-01",
+    "2026-07-01",
+    "2026-08-01"
+  ],
+  "setembro_bloco": "01–24/09/2026 (não cego)",
+  "congelamento": {
+    "hgb_ocorrencia": {
+      "eolica": "B3_recencia60",
+      "fotovoltaica": "B1_mudanca"
+    },
+    "hgb_volume": {
+      "eolica": "B2_janela180",
+      "fotovoltaica": "B5_hp_suave"
+    },
+    "variantes_hgb": {
+      "B1_mudanca": {
+        "occurrence": [
+          "hist_7d",
+          "hist_28d",
+          "hist_91d",
+          "ultimo_slot",
+          "usina_nivel_ultimo",
+          "usina_nivel_7d",
+          "estado_nivel_ultimo",
+          "estado_nivel_7d",
+          "estado_nivel_28d",
+          "estado_ene_7d",
+          "idade",
+          "dia_semana",
+          "feriado",
+          "slot",
+          "d_hist_7_28",
+          "d_estado_7_28",
+          "d_usina_ult_7",
+          "cobertura_28d",
+          "n_dias_slot_28d"
+        ],
+        "volume": [
+          "hist_7d",
+          "hist_28d",
+          "hist_91d",
+          "ultimo_slot",
+          "usina_nivel_ultimo",
+          "usina_nivel_7d",
+          "estado_nivel_ultimo",
+          "estado_nivel_7d",
+          "estado_nivel_28d",
+          "estado_ene_7d",
+          "idade",
+          "dia_semana",
+          "feriado",
+          "slot",
+          "vol_hist_7d",
+          "vol_hist_28d",
+          "vol_ultimo_slot",
+          "ref_hist_28d",
+          "usina_vol_ultimo",
+          "d_hist_7_28",
+          "d_estado_7_28",
+          "d_usina_ult_7",
+          "cobertura_28d",
+          "n_dias_slot_28d",
+          "d_vol_7_28",
+          "lr_vol_7_28",
+          "vol_std_28d",
+          "cv_vol_28d",
+          "usina_vol_7d",
+          "usina_vol_28d",
+          "lr_usina_vol_7_28"
+        ],
+        "params": {
+          "max_iter": 300,
+          "learning_rate": 0.05,
+          "max_leaf_nodes": 31,
+          "min_samples_leaf": 200,
+          "early_stopping": false,
+          "random_state": 0
+        },
+        "train_days": 365,
+        "half_life": null,
+        "description": "+ mudança, cobertura"
+      },
+      "B2_janela180": {
+        "occurrence": [
+          "hist_7d",
+          "hist_28d",
+          "hist_91d",
+          "ultimo_slot",
+          "usina_nivel_ultimo",
+          "usina_nivel_7d",
+          "estado_nivel_ultimo",
+          "estado_nivel_7d",
+          "estado_nivel_28d",
+          "estado_ene_7d",
+          "idade",
+          "dia_semana",
+          "feriado",
+          "slot",
+          "d_hist_7_28",
+          "d_estado_7_28",
+          "d_usina_ult_7",
+          "cobertura_28d",
+          "n_dias_slot_28d"
+        ],
+        "volume": [
+          "hist_7d",
+          "hist_28d",
+          "hist_91d",
+          "ultimo_slot",
+          "usina_nivel_ultimo",
+          "usina_nivel_7d",
+          "estado_nivel_ultimo",
+          "estado_nivel_7d",
+          "estado_nivel_28d",
+          "estado_ene_7d",
+          "idade",
+          "dia_semana",
+          "feriado",
+          "slot",
+          "vol_hist_7d",
+          "vol_hist_28d",
+          "vol_ultimo_slot",
+          "ref_hist_28d",
+          "usina_vol_ultimo",
+          "d_hist_7_28",
+          "d_estado_7_28",
+          "d_usina_ult_7",
+          "cobertura_28d",
+          "n_dias_slot_28d",
+          "d_vol_7_28",
+          "lr_vol_7_28",
+          "vol_std_28d",
+          "cv_vol_28d",
+          "usina_vol_7d",
+          "usina_vol_28d",
+          "lr_usina_vol_7_28"
+        ],
+        "params": {
+          "max_iter": 300,
+          "learning_rate": 0.05,
+          "max_leaf_nodes": 31,
+          "min_samples_leaf": 200,
+          "early_stopping": false,
+          "random_state": 0
+        },
+        "train_days": 180,
+        "half_life": null,
+        "description": "B1, treino de 180 dias"
+      },
+      "B3_recencia60": {
+        "occurrence": [
+          "hist_7d",
+          "hist_28d",
+          "hist_91d",
+          "ultimo_slot",
+          "usina_nivel_ultimo",
+          "usina_nivel_7d",
+          "estado_nivel_ultimo",
+          "estado_nivel_7d",
+          "estado_nivel_28d",
+          "estado_ene_7d",
+          "idade",
+          "dia_semana",
+          "feriado",
+          "slot",
+          "d_hist_7_28",
+          "d_estado_7_28",
+          "d_usina_ult_7",
+          "cobertura_28d",
+          "n_dias_slot_28d"
+        ],
+        "volume": [
+          "hist_7d",
+          "hist_28d",
+          "hist_91d",
+          "ultimo_slot",
+          "usina_nivel_ultimo",
+          "usina_nivel_7d",
+          "estado_nivel_ultimo",
+          "estado_nivel_7d",
+          "estado_nivel_28d",
+          "estado_ene_7d",
+          "idade",
+          "dia_semana",
+          "feriado",
+          "slot",
+          "vol_hist_7d",
+          "vol_hist_28d",
+          "vol_ultimo_slot",
+          "ref_hist_28d",
+          "usina_vol_ultimo",
+          "d_hist_7_28",
+          "d_estado_7_28",
+          "d_usina_ult_7",
+          "cobertura_28d",
+          "n_dias_slot_28d",
+          "d_vol_7_28",
+          "lr_vol_7_28",
+          "vol_std_28d",
+          "cv_vol_28d",
+          "usina_vol_7d",
+          "usina_vol_28d",
+          "lr_usina_vol_7_28"
+        ],
+        "params": {
+          "max_iter": 300,
+          "learning_rate": 0.05,
+          "max_leaf_nodes": 31,
+          "min_samples_leaf": 200,
+          "early_stopping": false,
+          "random_state": 0
+        },
+        "train_days": 365,
+        "half_life": 60,
+        "description": "B1, peso com meia-vida 60 d"
+      },
+      "B5_hp_suave": {
+        "occurrence": [
+          "hist_7d",
+          "hist_28d",
+          "hist_91d",
+          "ultimo_slot",
+          "usina_nivel_ultimo",
+          "usina_nivel_7d",
+          "estado_nivel_ultimo",
+          "estado_nivel_7d",
+          "estado_nivel_28d",
+          "estado_ene_7d",
+          "idade",
+          "dia_semana",
+          "feriado",
+          "slot",
+          "d_hist_7_28",
+          "d_estado_7_28",
+          "d_usina_ult_7",
+          "cobertura_28d",
+          "n_dias_slot_28d"
+        ],
+        "volume": [
+          "hist_7d",
+          "hist_28d",
+          "hist_91d",
+          "ultimo_slot",
+          "usina_nivel_ultimo",
+          "usina_nivel_7d",
+          "estado_nivel_ultimo",
+          "estado_nivel_7d",
+          "estado_nivel_28d",
+          "estado_ene_7d",
+          "idade",
+          "dia_semana",
+          "feriado",
+          "slot",
+          "vol_hist_7d",
+          "vol_hist_28d",
+          "vol_ultimo_slot",
+          "ref_hist_28d",
+          "usina_vol_ultimo",
+          "d_hist_7_28",
+          "d_estado_7_28",
+          "d_usina_ult_7",
+          "cobertura_28d",
+          "n_dias_slot_28d",
+          "d_vol_7_28",
+          "lr_vol_7_28",
+          "vol_std_28d",
+          "cv_vol_28d",
+          "usina_vol_7d",
+          "usina_vol_28d",
+          "lr_usina_vol_7_28"
+        ],
+        "params": {
+          "max_iter": 500,
+          "learning_rate": 0.05,
+          "max_leaf_nodes": 15,
+          "min_samples_leaf": 1000,
+          "early_stopping": false,
+          "random_state": 0
+        },
+        "train_days": 365,
+        "half_life": null,
+        "description": "B1, 500 it, 15 folhas, msl 1000"
+      }
+    },
+    "rede": "C_gru32_k14",
+    "config_rede": {
+      "window_days": 14,
+      "hidden": 32,
+      "plant_dim": 8,
+      "dropout": 0.1,
+      "volume_weight": 1.0,
+      "learning_rate": 0.002,
+      "batch_size": 512,
+      "max_epochs": 12,
+      "patience": 2,
+      "unknown_plant_rate": 0.1,
+      "train_days": 365,
+      "validation_days": 28,
+      "validation_gap_days": 7
+    },
+    "sementes": [
+      0,
+      1,
+      2
+    ],
+    "limiares": "escolhidos pela função corrigida nas previsões de jan–abr de cada candidato"
+  },
+  "versoes": {
+    "python": "3.12.14",
+    "polars": "1.44.2",
+    "scikit-learn": "1.9.1",
+    "torch": "2.14.0",
+    "numpy": "2.3.5"
+  },
+  "maquina": "Intel64 Family 6 Model 186 Stepping 3, GenuineIntel",
+  "fevereiro": {
+    "parcela_erro_top10_usinas": {
+      "historico": 0.24394986480053665,
+      "B0_original": 0.19599795044986418
+    },
+    "contexto": [
+      {
+        "mes": "2026-01-01",
+        "energia_real_mwh": 2450187.0,
+        "energia_historico_mwh": 2101276.036535544,
+        "energia_B0_mwh": 1923363.2635863854,
+        "prevalencia": 0.4042207896709442,
+        "parcela_sem_historico": 0.0,
+        "cobertura_media": 1.0,
+        "idade_media_dias": 2.5161290322580645,
+        "parcela_idade_4_ou_mais": 0.16129032258064516
+      },
+      {
+        "mes": "2026-02-01",
+        "energia_real_mwh": 502275.6875,
+        "energia_historico_mwh": 1560672.7715134546,
+        "energia_B0_mwh": 933367.6976624937,
+        "prevalencia": 0.15071842074394226,
+        "parcela_sem_historico": 0.0,
+        "cobertura_media": 0.9968002133191121,
+        "idade_media_dias": 2.8574428371441902,
+        "parcela_idade_4_ou_mais": 0.2501166588894074
+      },
+      {
+        "mes": "2026-03-01",
+        "energia_real_mwh": 844268.25,
+        "energia_historico_mwh": 655256.4913482516,
+        "energia_B0_mwh": 770449.5031541659,
+        "prevalencia": 0.26988017559051514,
+        "parcela_sem_historico": 0.0,
+        "cobertura_media": 0.9998644619137977,
+        "idade_media_dias": 2.4838709677419355,
+        "parcela_idade_4_ou_mais": 0.16129032258064516
+      },
+      {
+        "mes": "2026-04-01",
+        "energia_real_mwh": 1404803.75,
+        "energia_historico_mwh": 1058932.6283363553,
+        "energia_B0_mwh": 1245045.664768891,
+        "prevalencia": 0.3440949618816376,
+        "parcela_sem_historico": 0.0,
+        "cobertura_media": 1.0,
+        "idade_media_dias": 2.7666666666666666,
+        "parcela_idade_4_ou_mais": 0.23333333333333334
+      }
+    ]
+  },
+  "limiares_aplicados": {
+    "eolica|historico": 0.3636,
+    "eolica|servido": 0.30245965899278776,
+    "eolica|B0_original": 0.30245965899278776,
+    "eolica|B_ajustado": 0.2859840065328698,
+    "eolica|C_gru32_k14_s0": 0.4003618359565735,
+    "eolica|C_gru32_k14_s1": 0.37767964601516724,
+    "eolica|C_gru32_k14_s2": 0.3743310272693634,
+    "fotovoltaica|historico": 0.3043,
+    "fotovoltaica|servido": 0.32354527415640666,
+    "fotovoltaica|B0_original": 0.32354527415640666,
+    "fotovoltaica|B_ajustado": 0.28848043860606487,
+    "fotovoltaica|C_gru32_k14_s0": 0.3938,
+    "fotovoltaica|C_gru32_k14_s1": 0.33570924401283264,
+    "fotovoltaica|C_gru32_k14_s2": 0.35488811135292053
+  }
+}
