@@ -1584,3 +1584,128 @@ Runner: `scripts/experimentos/frente_c.py`. Arquivos: `v3/frente_c.csv` e
 ### Próximos passos
 
 Concluir a frente A e decidir o que, se algo, vira `diario_hgb_v3`.
+
+## 2026-09-26 - Nova Etapa 2 (11/n): resultados da v3, frente A (faixas relativas de volume)
+
+### Contexto e pergunta
+
+Um classificador por limiar dá uma probabilidade por faixa de corte ("qual a chance de o
+corte ser severo?") melhor que a frequência histórica da própria usina? A execução segue o
+protocolo da entrada 8/n:
+
+- A0 nos dois níveis (usina × dia, que é o principal, e meia-hora), sementes 0, 1 e 2;
+- a A1 não foi executada, porque a frente B não adotou nada.
+
+Runner: `scripts/experimentos/frente_a.py`. Arquivos em `v3/`:
+
+- `frente_a_A0.csv` (AP e Brier por mês, limiar e preditor; RPS por mês);
+- `frente_a_A0_resumo.csv` (decisão);
+- `frente_a_A0_alerta_severo.csv`;
+- `frente_a_A0_confiabilidade.csv` (10 bins, jan–ago juntos).
+
+### Fatos e evidências observados
+
+- **Ruído de semente:**
+  - no nível diário é **exatamente zero**. Com menos de 200 mil linhas de treino, o HGB não
+    subamostra os bins e, sem early stopping, a semente não muda nada;
+  - na meia-hora, o ruído médio de AP vai de 0,004 a 0,015, conforme o limiar.
+- **AP médio de jan–ago** (semente 0, contra o `historico`; meses vencidos acima do ruído):
+
+  | Nível | Fonte | k₀ = 0 | k₁ (leve → moderado) | k₂ (→ severo) |
+  |---|---|---|---|---|
+  | diário | eólica | **0,919** vs 0,880 (7/8) | 0,596 vs **0,610** (3/8) | 0,361 vs **0,378** (2/8) |
+  | diário | solar | **0,928** vs 0,887 (8/8) | **0,740** vs 0,645 (8/8) | **0,426** vs 0,336 (8/8) |
+  | meia-hora | eólica | **0,788** vs 0,740 (8/8) | 0,514 vs **0,520** (2/8) | 0,283 vs **0,306** (2/8) |
+  | meia-hora | solar | **0,813** vs 0,747 (8/8) | **0,648** vs 0,559 (8/8) | **0,416** vs 0,335 (7/8) |
+
+  O baseline `ultimo_dia` fica abaixo dos dois em todas as células (por exemplo, 0,279 no
+  k₂ diário eólico). A prevalência média de "severo" é de 10,4% das meias-horas na eólica e
+  6,4% na solar, e de 21% dos dias eólicos.
+- **AP de k₂ por mês, nível diário:**
+  - solar: modelo acima do `historico` nos 8 meses, com margens de +0,005 (fev) a +0,21 (jul);
+  - eólica: modelo abaixo em fev–jul (−0,01 a −0,09) e acima em jan (+0,09) e ago (+0,01).
+- **Brier:**
+  - meia-hora solar: o modelo vence nos três limiares, em 6 a 8 meses;
+  - eólica: o modelo perde em k₁ e k₂;
+  - k₀ diário, nas duas fontes: o modelo tem AP melhor, mas Brier **pior** (0,135 contra
+    0,118 na eólica). Ele ordena melhor, mas é menos calibrado que a frequência.
+- **RPS das 4 faixas** (skill sobre o `historico` categórico, média de jan–ago):
+  - meia-hora solar: +7,2%, positivo em 7/8 meses;
+  - diário solar: +3,8%, em 6/8;
+  - meia-hora eólica: −0,2%, em 2/8;
+  - diário eólico: −7,9%, em 1/8.
+- **Alerta de "severo"** (limiar F1-ótimo em jan–abr, avaliado em mai–ago):
+
+  | Nível | Fonte | Modelo: recall / precisão | `historico`: recall / precisão |
+  |---|---|---|---|
+  | diário | eólica | 0,56 / 0,56 | 0,78 / 0,48 |
+  | diário | solar | 0,59 / 0,53 | 0,72 / 0,36 |
+  | meia-hora | eólica | 0,50 / 0,44 | 0,75 / 0,38 |
+  | meia-hora | solar | 0,53 / 0,52 | 0,78 / 0,35 |
+
+  O F1 derivado favorece o modelo na solar (0,56 contra 0,48 no diário) e o `historico` na
+  eólica.
+- **Exemplo concreto de saída** (solar, modelo da dobra de agosto, treinado só até julho):
+  - usina `CJU_MGDRC`, dia-alvo 30/08/2026, idade 3 dias, nível diário:
+    - sem corte 0,1%, leve 7,0%, **moderado 55,3%**, severo 37,5%;
+    - `historico` P(>k₀)/P(>k₁)/P(>k₂) = 0,89/0,68/0,29;
+    - **verdade:** fração diária de 0,203, ou seja, **severo** (k₂ = 0,14). O modelo deu 93%
+      para "moderado ou pior", mas a faixa mais provável (moderado) ficou uma abaixo da real;
+  - a mesma usina e o mesmo dia na meia-hora, entre 9h e 16h:
+    - de 9h às 14h, severo é a faixa mais provável (34%–46%) e a verdade é severo (fração de
+      0,52 a 0,74);
+    - às 15h, leve fica com 61% e a verdade é moderado (0,40);
+    - às 15h30, leve fica com 56% e a verdade é leve (0,09);
+  - na eólica, `CJU_CEJAN` em 08/08: severo com 55%, verdade severa (fração de 0,33).
+
+### Interpretação e decisão
+
+- **Pela regra pré-registrada, o modelo é servido nestas células:**
+  - k₀ em todas as células de fonte e nível;
+  - k₁ e k₂ da **solar**, nos dois níveis.
+
+  Na **eólica**, k₁ e k₂ ficam com o `historico`, nos dois níveis. A composição é por limiar,
+  com proveniência por componente.
+- **Interpretação:** é o mesmo quadro do volume da v1.
+  - Na solar, o modelo sabe quanto do dia será cortado: horas de sol, carga e calendário
+    são previsíveis.
+  - Na eólica, a intensidade depende do vento do dia-alvo, e o oráculo H5 já mostrou que o
+    gargalo é meteorológico.
+  - Saber **se** haverá corte (k₀) é regional e persistente, e o modelo vence nas duas fontes.
+- **Faixa mais provável:** é informativa, mas não é a métrica. No exemplo, o modelo põe
+  93% em "moderado ou pior" e a verdade é severo, com a faixa mais provável uma abaixo. O
+  produto deve mostrar as probabilidades, não só a faixa mais provável.
+- **Calibração do k₀ diário:** o Brier pior indica que a probabilidade diária de "algum corte"
+  precisa de recalibração antes de ser mostrada como número. Isso fica como limitação, porque
+  não havia recalibração pré-registrada.
+
+### Alternativas consideradas
+
+- **Servir o modelo também na eólica por ter AP próximo:** descartado. Perde em 6 de 8 meses.
+- **Recalibrar o k₀ diário (isotônica em jan–abr):** não pré-registrado. Fica para a próxima
+  versão, com dias novos.
+- **Faixas em MWh:** descartadas no desenho, porque codificam o tamanho da usina.
+
+### Limitações e incertezas
+
+- Maio–agosto já foi visto por receitas anteriores. Os limiares vêm de 2025 e estão fora das
+  dobras.
+- Vitórias com ruído zero (nível diário) contam qualquer margem positiva. Em fevereiro, o k₂
+  solar diário vence por +0,005, o que é um empate prático.
+- `cap_91d` usa o p99 da referência. Usinas com expansão recente podem ter fração acima de 1
+  por alguns dias (0,1–0,2% das meias-horas de 2025).
+
+### Valor para o usuário e para a apresentação
+
+- **Pitch (solar):** "para cada usina solar, dizemos na véspera a chance de o corte de amanhã
+  ser leve, moderado ou severo, com precisão média 27% maior que a frequência histórica da
+  própria usina no limiar de severo (AP de 0,43 contra 0,34)".
+- **Pitch (eólica):** "sabemos se haverá corte; quanto será cortado depende do vento de
+  amanhã, e sem previsão meteorológica a regra histórica é tão boa quanto o modelo". É o
+  mesmo argumento do H5.
+- O exemplo concreto mostra a saída da recomendação para uma usina, com a verdade ao lado.
+
+### Próximos passos
+
+Congelar a composição adotada como `diario_hgb_v3` (treino até 30/08), com manifesto e
+colunas `p_faixa_*` no produto e fallback preservado.
