@@ -964,3 +964,105 @@ A revisão final encontrou um número errado no diário e um defeito de serviço
 ### Limitações e próximos passos
 
 Nenhuma decisão de modelo mudou. Próximo passo: a integração de domingo.
+
+## 2026-09-26 - Experimento controlado: histórico, HGB ajustado e rede temporal (GRU)
+
+### Contexto e pergunta
+
+Uma rede neural temporal pequena ou ajustes limitados no HGB melhoram a previsão do dia
+seguinte, sobretudo o volume de corte eólico, hoje servido pela média histórica de 28 dias?
+Trabalho isolado na branch `codex/experimento-rede-temporal`, criada de `origin/main`
+(`7ee94f4`) num worktree separado, sem tocar no produto. Relatório completo em
+`docs/reports/experimento-rede-temporal/README.md`.
+
+### Fatos e evidências observados
+
+- **Base:** `origin/etapa-2-nova-abordagem` aponta para o mesmo commit do `main`, e a Etapa 4
+  não altera `previsao/`.
+- **O que o produto faz**, confirmado no código:
+  - emissão às 20h da véspera, 48 meias-horas do dia seguinte;
+  - dados até o último dia liberado, entre 2 e 7 dias antes do alvo;
+  - volume eólico servido = `vol_hist_28d`, com o HGB quando o histórico falta. Isso nunca
+    aconteceu em jan–set.
+- **Controle:** o HGB original reproduz o relatório versionado até a 4ª casa.
+- **Mai–ago** (média mensal do WAPE diário eólico):
+
+  | Candidato | WAPE diário | Vitórias contra o servido |
+  |---|---|---|
+  | Servido | 0,725 | — |
+  | HGB B0 | 0,711 | 3/4 |
+  | HGB ajustado | 0,751 | 1/4 |
+  | GRU (3 sementes) | 0,750 | 2/4 |
+
+  Em setembro (não cego): 0,587, 0,554, 0,618 e 0,632, na mesma ordem.
+- **Divergência:** o regressor Poisson do HGB divergiu (volumes de 1e139 a infinito) em 3
+  variantes com as variáveis novas, na fonte solar.
+- **Limiar:** a correção não muda o limiar escolhido; o arredondamento muda 25 alertas eólicos
+  e 6 solares em mai–set.
+- **Fevereiro:** queda geral do corte eólico no início do mês (502 GWh contra 2,45 TWh em
+  janeiro). As 10 piores usinas somam só 24% do erro; cobertura e idade da informação não
+  explicam.
+
+### Interpretação e decisão
+
+- **Interpretação:** nenhum dos métodos antecipa o nível diário do corte eólico. As previsões
+  diárias ficam comprimidas entre ~30 e 140 GWh, contra 0 a 290 GWh reais. Isso é coerente com
+  o oráculo H5: falta informação meteorológica, não capacidade de modelo.
+- **Rede:** não substituir nenhum componente.
+  - Vence nos meses de corte alto (julho e agosto) e perde em maio e junho.
+  - A variação entre sementes (≈0,03) tem a ordem das diferenças.
+- **Variantes do HGB:** não adotar.
+- **Volume eólico servido:** o HGB B0 atende à regra do protocolo contra o servido, com ganho
+  pequeno. A troca fica como proposta ao responsável, porque contraria a regra da Etapa 2.
+- **Limiar:** adotar a função corrigida por robustez.
+
+### Alternativas consideradas
+
+- **TCN:** descartada a favor da GRU. As sequências têm só 14 a 28 passos diários, e a GRU é
+  mais simples e barata em CPU.
+- **Hurdle probabilidade × condicional:** descartado a favor da Poisson direta, por causa da
+  explosão da Etapa 2 anterior.
+- **Emenda 1 ao protocolo:** tornou inelegível para volume toda receita que divergiu, antes de
+  qualquer resultado de mai–ago. A regra original escolheria B4.
+- **Ensemble de sementes como candidato:** registrado só como sensibilidade (média das
+  métricas), não como modelo.
+
+### Implementação e validação
+
+- **Código:** `src/curtamap/experimentos/rede_temporal/`, com os módulos limiar, métricas,
+  dados, hgb, rede, executar, avaliar e final.
+- **Testes:** `tests/test_experimento_*.py`, 44 testes (suíte completa: 237 aprovados e 1 pulado), cobrindo:
+  - empates e arredondamento do limiar;
+  - vazamento após L;
+  - máscaras de ausência;
+  - mesmo `id_ons` em fontes diferentes;
+  - gravação das previsões;
+  - vitórias com tolerância.
+- **Defeitos encontrados e corrigidos durante a execução:**
+  - gravação da rede sem o ramo de arquivo só com chave;
+  - somas diárias em Float32 que geravam vitórias espúrias.
+- **Artefatos:**
+  - protocolo pré-registrado (`adf2a23`) e congelamento (`e3441db`), ambos antes da avaliação;
+  - métricas, gráficos e manifesto commitados.
+
+### Limitações e incertezas
+
+- Nenhum bloco de avaliação é cego: mai–ago e setembro já tinham sido vistos, e só 25/09 é
+  inédito (um dia).
+- Quatro dobras de avaliação são poucas.
+- A busca de hiperparâmetros e de arquitetura foi pequena.
+- Os custos foram medidos com rodadas paralelas e pausas da máquina; use as medianas.
+
+### Valor para o usuário e para a apresentação
+
+- **Credibilidade:** comparamos com a regra simples e com uma rede neural, com protocolo
+  pré-registrado. O ganho não vem de mais complexidade.
+- **"Por que agora" e próximos passos:** o gargalo é antecipar o nível do dia, e isso pede
+  previsão meteorológica.
+
+### Próximos passos
+
+1. **Responsável:** decidir se o volume eólico servido passa do histórico para o HGB B0.
+2. Levar a função de limiar corrigida para `previsao.avaliacao` num PR próprio.
+3. Com previsão meteorológica disponível, repetir a comparação com a GRU e o HGB como
+   consumidores do mesmo sinal.
