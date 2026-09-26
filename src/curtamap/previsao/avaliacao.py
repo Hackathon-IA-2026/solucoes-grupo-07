@@ -203,7 +203,7 @@ def metrics(predictions: pl.DataFrame, thresholds: dict[str, float]) -> pl.DataF
         rows.append(
             {
                 "fonte": source,
-                "mes": month.isoformat()[:7],
+                "periodo": month.isoformat(),
                 **_occurrence(frame, thresholds.get(source, 0.5)),
                 **_volume(frame),
                 **_cause(frame),
