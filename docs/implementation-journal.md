@@ -1810,3 +1810,14 @@ fallback.
 1. Integrar as colunas novas na interface, carregando 130 dias de histórico.
 2. Confirmar a v3 com dias novos (após 24/09 ou outubro).
 3. Recalibrar o k₀ diário.
+
+### Adendo (mesma sessão)
+
+- **130 dias bastam:** a paridade entre serviço e cache foi refeita com a base restrita a
+  (L − 129, L], que é o histórico que a UI deve carregar. Continuou exata (0 divergências nos
+  dias 03/08 e 20/08, nas duas fontes).
+- **Dias excluídos da avaliação diária em jan–ago/2026** (rótulo diário nulo): 249 de 37.212
+  usina × dia na eólica (6 por terem menos de 48 slots, os demais por `cap_91d = 0`) e 217 de
+  18.723 na solar.
+- **Setembro após 24/09 não foi aberto** nesta sessão. Os poucos dias disponíveis não
+  confirmariam nada e ficariam gastos. A confirmação da v3 continua pendente.
