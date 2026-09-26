@@ -1086,3 +1086,20 @@ todas declaradas agora:
 
 **Versão.** Nada substitui o `diario_hgb_v1` nem o `modelo-congelado.json`. O que for adotado
 vira `diario_hgb_v2`, com manifesto, limiares e reprodução novos, e o handoff é atualizado.
+
+### Adendo ao protocolo (antes dos resultados das variantes)
+
+- **Fato observado:** a B0 lida do cache em outra ordem de linhas **não** reproduziu a v1.
+  Em fevereiro, o WAPE diário foi 1,727, contra 1,655 da v1. Com as linhas ordenadas por
+  `fonte, id_ons, dia, slot`, como em `modelo.fit`, ela reproduz a v1 exatamente
+  (1,655084).
+- **Causa:** acima de 200 mil linhas, o HGB calcula os limites dos bins numa subamostra, que
+  depende da ordem das linhas e da semente.
+- **Consequência:** a ordem das linhas sozinha move o WAPE diário de fevereiro em 0,07.
+  Esse é o ruído do próprio modelo, e diferenças entre variantes menores que ele não
+  significam nada.
+- **Decisão, tomada antes de ver B1–B6:**
+  - o cache passa a ser ordenado como na v1;
+  - duas réplicas da B0 com sementes 1 e 2 medem o ruído;
+  - uma variante só conta como vitória num mês se a margem sobre a B0 superar a maior
+    diferença entre as três réplicas da B0 naquele mês.
