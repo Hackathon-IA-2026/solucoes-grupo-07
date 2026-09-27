@@ -2515,3 +2515,108 @@ JSON numérico e funções públicas. A revisão final repete os quatro comandos
 O valor para o pitch é demonstrar uma decisão rastreável e uma correção adversarial real, sem
 converter cenário em benefício comprovado. Próximos passos: integrar o handoff, realizar entrevistas,
 resolver o contrato separadamente e aguardar a Etapa 2C. Sem push ou merge nesta auditoria.
+
+## 2026-09-27 - Produto final (1/n): integração das etapas e painel do aviso diário
+
+### Contexto e pergunta
+
+Com a premissa fechada (aviso na véspera, sem volume), o responsável pediu três coisas:
+
+- unir na `main` a recomendação (Etapa 3) e a interface da nova abordagem (Etapa 4);
+- adaptar as duas à premissa sem volume;
+- deixar o painel com cara de produto e limpar o código de experimentos.
+
+### Fatos e evidências observados
+
+- **Estado das branches:**
+  - a `etapa-4-interface-nova-abordagem` partia da v1 e desenhava energia e a faixa p10–p90;
+  - a `etapa-3-recomendacao` exigia `energia_esperada_mwh`;
+  - com o preditor atual, todas essas colunas vêm nulas.
+- **Previsões de setembro:** `data/interim/setembro/previsoes_sem_rotulo.parquet` já tinha todas
+  as colunas necessárias para montar o aviso: chance, participação das causas, origem e potencial
+  de referência.
+- **Paridade:** o arquivo de avisos gerado a partir delas reproduz o `p_corte` avaliado com
+  diferença máxima de 0 em 286.080 linhas (25 dias × 240 usinas × 48 meias-horas).
+
+### Interpretação e decisão
+
+- **Merges:** as duas branches entraram com `--no-ff`, preservando o histórico, e em seguida foram
+  adaptadas.
+- **A recomendação virou aviso** (`curtamap.aviso`):
+  - janelas de meias-horas consecutivas em alerta;
+  - horas livres: com previsão, sem alerta e com potencial de geração. Previsão nula nunca conta
+    como livre;
+  - motivo traduzido do Caderno para linguagem simples;
+  - sugestão genérica de preparo. Quando a janela tem 2 h ou mais, ela é indicada como candidata a
+    manutenção curta;
+  - nenhum MWh, R$ ou CO₂.
+- **Acerto exibido:** vem de `configs/desempenho_aviso.json`, com os números medidos em setembro e
+  a sua origem. Ele não é recalculado por usina.
+- **Decisão do responsável sobre a demo:** mostrar os avisos de setembro **sem** o realizado ao
+  lado, porque no uso real o gerador só tem o aviso. Nenhum modelo nem limiar foi ajustado. A
+  guarda do período reservado continua valendo no caminho de previsão ao vivo; setembro é lido
+  só pelo arquivo de avisos, depois da validação encerrada.
+- **O painel virou uma tela única**, que lê avisos já emitidos (`data/processed/avisos.parquet`):
+  - cabeçalho com o aviso das 20h;
+  - cards do portfólio;
+  - faixa de acerto;
+  - mapa usinas × meias-horas (alerta, livre, sem geração), com as vagas divididas entre as fontes;
+  - tabela clicável;
+  - aviso da usina;
+  - rodapé "Sobre este aviso", com fonte, emissão, modelo, acerto e o que o aviso não diz.
+- **Saíram do painel:** a visão tática, a metodologia e o exemplo simulado.
+
+### Alternativas consideradas
+
+- **Rodar o preditor ao vivo sobre snapshot + setembro:** adiado. Seria mais lento para o vídeo e
+  exigiria afrouxar a guarda do período reservado. O arquivo convertido garante que a chance
+  exibida é a mesma que foi validada.
+- **Mostrar o realizado ao lado do aviso:** descartado pelo responsável. Não existe no uso real.
+- **Remover agora as colunas de volume do contrato:** adiado. Mexe no baseline e no modelo
+  congelado a poucas horas do pitch.
+
+### Implementação e validação
+
+- **Testes novos:**
+  - `test_aviso.py` (9);
+  - `test_previsao_avisos.py` (1);
+  - `test_app.py`, reescrito com `AppTest` sobre um arquivo sintético (3).
+- **Suíte completa:** 230 testes aprovados e 3 pulados.
+  - Corrigido também um teste antigo que falhava no Windows porque lia o documento sem declarar
+    UTF-8.
+- **Lint e formatação:** `ruff check` e `ruff format --check` limpos em `src` e `tests`.
+- **Navegador:** o painel foi aberto com Playwright no dia 25/09, nos filtros eólica e solar e
+  com clique na tabela.
+- **Removidos** (recuperáveis pelo histórico, merges `f2f3075` e `ed00a89`):
+  - `recommendation.py`, `assumptions.py`, `configs/premissas`, o contrato de recomendação e
+    seus testes;
+  - `curtamap.painel` e as telas antigas;
+  - `scripts/experimentos/oraculo_h5.py`;
+  - o extra `llm`, que não tinha uso.
+- **Mantidos**, porque reproduzem os números citados no pitch: treino, backtest, setembro,
+  impacto, reprodução, auditoria e o notebook de EDA (este por decisão do responsável).
+- **S3:** a sincronização passa a baixar os avisos para `data/processed`.
+
+### Limitações e incertezas
+
+- **O arquivo cobre só 01 a 25/09/2026.** Para rodar todo dia, falta um job noturno que chame o
+  preditor e acrescente o aviso do dia seguinte. O caminho de previsão existe
+  (`DailyForecaster.predict`), mas não está agendado.
+- **O acerto exibido é o agregado de setembro por fonte**, e não por usina.
+- **As colunas de volume continuam no contrato**, sempre nulas.
+- `AGENTS.md` e `docs/architecture.md` ainda descrevem o escopo com volume.
+
+### Valor para o usuário e para a apresentação
+
+- O vídeo do bloco 4 pode mostrar:
+  - o aviso de um dia real de setembro;
+  - uma solar com janela das 6h às 17h e horas livres ao redor;
+  - o motivo "sobra de energia no sistema";
+  - "8 em 10 horas avisadas tiveram corte".
+
+### Próximos passos
+
+- Gravar o vídeo depois de receber o template dos slides (proporção da tela).
+- Propor as atualizações de `AGENTS.md` e `docs/architecture.md`.
+- Depois do pitch: job noturno de emissão, remoção das colunas de volume do contrato e limpeza da
+  documentação.
