@@ -67,10 +67,7 @@ def _cabecalho(dia: date, emitido) -> None:
         f"""<div class="cm-mast">
 <div class="cm-kicker"><b>CurtaMap</b> &nbsp;·&nbsp; aviso diário de cortes &nbsp;·&nbsp;
 emitido às {emitido:%Hh} de {emitido:%d/%m}</div>
-<h1>{_relativo(dia)}<em>{escape(_dia_titulo(dia))}</em></h1>
-<div class="cm-lede">Em quais horas cada usina deve ser cortada, por qual motivo e quanto
-este aviso costuma acertar. Calculado com os dados públicos do ONS já liberados na noite
-anterior.</div></div>"""
+<h1>{_relativo(dia)}<em>{escape(_dia_titulo(dia))}</em></h1></div>"""
     )
 
 
@@ -119,25 +116,6 @@ def _cards(resumo: pl.DataFrame) -> None:
             texto=True,
         )
         + "</div>"
-    )
-
-
-def _faixa_acerto(fontes: list[str]) -> None:
-    desempenho = carregar_desempenho()
-    blocos = []
-    for fonte in fontes:
-        item = desempenho["fontes"][fonte]
-        blocos.append(
-            f'<div><div class="cm-rotulo">{FONTES[fonte]}</div>'
-            f'<span class="num">{round(item["precisao"] * 10)} em 10</span>'
-            '<div class="t">horas avisadas tiveram corte</div>'
-            f'<span class="num">{item["energia_avisada"]:.0%}</span>'
-            '<div class="t">da energia cortada caiu em horas avisadas</div></div>'
-        )
-    estilo.html(
-        f'<div class="cm-acerto" style="--n:{len(blocos)}"><div><h4>Quanto o aviso acerta</h4>'
-        f'<div class="t">Medido de {escape(desempenho["periodo"])}, com dados que o modelo '
-        f"nunca tinha visto.</div></div>{''.join(blocos)}</div>"
     )
 
 
@@ -277,7 +255,6 @@ def render() -> None:
         _cabecalho(dia, aviso["emitido_em"].max())
     resumo = resumo_usinas(aviso)
     _cards(resumo)
-    _faixa_acerto(fontes)
 
     estilo.html(
         '<div class="cm-secao">Usinas com mais horas em alerta no dia</div>'

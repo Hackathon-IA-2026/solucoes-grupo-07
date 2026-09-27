@@ -26,7 +26,7 @@ _CSS = f"""
 .block-container {{ padding-top: 2.4rem; padding-bottom: 3rem; max-width: 1360px; }}
 /* A Instrument Serif só tem peso 400; um contorno fino da própria cor equivale a um passo
    acima sem o negrito sintético do navegador. */
-.cm-mast h1, .cm-valor, .cm-acerto h4, .cm-acerto .num, .cm-secao, .cm-aviso h3, .cm-hora {{
+.cm-mast h1, .cm-valor, .cm-secao, .cm-aviso h3, .cm-hora {{
   -webkit-text-stroke: 0.6px currentColor; }}
 .cm-kicker {{ font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
   color: {TEXTO_SUAVE}; font-weight: 500; }}
@@ -35,7 +35,6 @@ _CSS = f"""
 .cm-mast h1 {{ font-family: {FONTE_TITULO}; font-weight: 400; font-size: 64px;
   line-height: 1.02; margin: 10px 0 12px; color: {TINTA}; padding: 0; }}
 .cm-mast h1 em {{ color: {ALERTA}; }}
-.cm-lede {{ font-size: 17px; line-height: 1.5; color: {TEXTO_SUAVE}; max-width: 760px; }}
 .cm-stats {{ display: grid; grid-template-columns: repeat(4, 1fr);
   border-bottom: 1px solid {FILETE}; margin: 4px 0 8px; }}
 .cm-stat {{ padding: 18px 22px 20px; border-left: 1px solid {FILETE}; }}
@@ -47,12 +46,6 @@ _CSS = f"""
 .cm-valor small {{ font-size: 22px; color: {TEXTO_SUAVE}; }}
 .cm-valor.texto {{ font-size: 32px; line-height: 1.15; padding-top: 8px; }}
 .cm-nota {{ font-size: 13px; color: {TEXTO_SUAVE}; margin-top: 4px; line-height: 1.4; }}
-.cm-acerto {{ display: grid; grid-template-columns: 1.2fr repeat(var(--n), 1fr); gap: 28px;
-  padding: 18px 0 22px; border-bottom: 1px solid {FILETE}; align-items: start; }}
-.cm-acerto h4 {{ font-family: {FONTE_TITULO}; font-weight: 400; font-size: 28px;
-  margin: 0; padding: 0; color: {TINTA}; }}
-.cm-acerto .num {{ font-family: {FONTE_TITULO}; font-size: 40px; color: {ALERTA}; }}
-.cm-acerto .t {{ font-size: 14px; color: {TEXTO_SUAVE}; line-height: 1.45; }}
 .cm-secao {{ font-family: {FONTE_TITULO}; font-size: 34px; color: {TINTA};
   margin: 30px 0 6px; }}
 .cm-legenda {{ display: flex; gap: 20px; color: {TEXTO_SUAVE}; font-size: 13px;
