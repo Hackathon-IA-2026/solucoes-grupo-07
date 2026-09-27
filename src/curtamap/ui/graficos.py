@@ -7,9 +7,9 @@ from curtamap.ui import estilo
 
 # Metade de baixo da escala: horas livres (verde); metade de cima: alerta (vermelho).
 _ESCALA = [
-    [0.0, "#D5F0EC"],
-    [0.49, "#7FD1C6"],
-    [0.5, "#F9C98F"],
+    [0.0, estilo.LIVRE_CLARO],
+    [0.49, "#A9CDB7"],
+    [0.5, estilo.ALERTA_CLARO],
     [0.75, estilo.ALERTA],
     [1.0, estilo.ALERTA_FORTE],
 ]
@@ -68,8 +68,8 @@ def mapa_portfolio(aviso: pl.DataFrame, ordem: list[tuple[str, str, str]]) -> go
             showscale=False,
             zmin=0,
             zmax=1,
-            xgap=2,
-            ygap=3,
+            xgap=1,
+            ygap=4,
             hovertemplate="<b>%{y}</b><br>%{x} · %{text} · risco de corte %{customdata:.0%}"
             "<extra></extra>",
         )
@@ -97,7 +97,7 @@ def linha_do_dia(usina: pl.DataFrame) -> go.Figure:
             cores.append(estilo.ALERTA)
             estados.append("em alerta")
         elif pot is not None and pot > 0:
-            cores.append(estilo.LIVRE)
+            cores.append("#8DB89F")
             estados.append("livre")
         else:
             cores.append(estilo.SEM_GERACAO)
@@ -107,7 +107,7 @@ def linha_do_dia(usina: pl.DataFrame) -> go.Figure:
         go.Bar(
             x=x,
             y=usina["p_corte"].fill_null(0).to_list(),
-            marker={"color": cores, "cornerradius": 4},
+            marker={"color": cores},
             customdata=estados,
             hovertemplate="%{x} · risco %{y:.0%} · %{customdata}<extra></extra>",
         )
@@ -122,7 +122,7 @@ def linha_do_dia(usina: pl.DataFrame) -> go.Figure:
             annotation_position="top left",
             annotation_font_color=estilo.TEXTO_SUAVE,
         )
-    fig.update_yaxes(range=[0, 1], tickformat=".0%", gridcolor="#E8EDF4", title=None)
+    fig.update_yaxes(range=[0, 1], tickformat=".0%", gridcolor=estilo.FILETE, title=None)
     fig.update_xaxes(
         tickvals=[_rotulo_slot(h) for h in range(1, 49, 4)],
         ticktext=[_HORAS[i] for i in range(0, 24, 2)],

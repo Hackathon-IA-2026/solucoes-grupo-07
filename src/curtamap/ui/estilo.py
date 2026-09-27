@@ -1,78 +1,76 @@
-"""Identidade visual do painel: paleta, CSS e componentes HTML pequenos."""
+"""Identidade visual do painel: editorial, papel e tinta, com uma única cor de alerta."""
 
 from html import escape
 
 import streamlit as st
 
-TINTA = "#0B1F3A"
-TEXTO_SUAVE = "#5B6B82"
-FUNDO = "#F4F7FB"
-ALERTA = "#E4572E"
-ALERTA_FORTE = "#B3193A"
-LIVRE = "#14A89A"
-SEM_GERACAO = "#E3E8EF"
-DESTAQUE = "#F2A541"
-FONTE_TEXTO = "Inter, 'Segoe UI', sans-serif"
+TINTA = "#16181D"
+TEXTO_SUAVE = "#6B6F76"
+PAPEL = "#F7F5F0"
+FILETE = "#DDD8CC"
+ALERTA = "#C4391D"
+ALERTA_CLARO = "#F1C9BC"
+ALERTA_FORTE = "#7A1E0E"
+LIVRE = "#3F7D5C"
+LIVRE_CLARO = "#CFE3D6"
+SEM_GERACAO = "#E9E5DC"
+FONTE_TEXTO = "Geist, 'Helvetica Neue', Arial, sans-serif"
+FONTE_TITULO = "'Instrument Serif', Georgia, serif"
 
 _CSS = f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-[data-testid="stMarkdownContainer"], [data-testid="stMarkdownContainer"] * {{
-  font-family: {FONTE_TEXTO}; }}
-.stApp {{ background: {FUNDO}; }}
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&display=swap');
+[data-testid="stMarkdownContainer"] .cm {{ font-family: {FONTE_TEXTO}; color: {TINTA}; }}
+.stApp {{ background: {PAPEL}; }}
 #MainMenu, footer, header[data-testid="stHeader"] {{ visibility: hidden; height: 0; }}
-.block-container {{ padding-top: 1.2rem; padding-bottom: 2rem; max-width: 1480px; }}
-.cm-topo {{
-  background: linear-gradient(120deg, {TINTA} 0%, #173B6C 60%, #1F5C8F 100%);
-  border-radius: 22px; padding: 26px 32px; color: #fff; margin-bottom: 8px;
-  box-shadow: 0 12px 32px rgba(11, 31, 58, .18);
-}}
-.cm-marca {{ font-size: 15px; letter-spacing: .14em; text-transform: uppercase; opacity: .75;
-  font-weight: 600; }}
-.cm-marca b {{ color: {DESTAQUE}; }}
-.cm-titulo {{ font-size: 34px; font-weight: 800; margin: 6px 0 4px; line-height: 1.15; }}
-.cm-sub {{ font-size: 16px; opacity: .85; }}
-.cm-card {{
-  background: #fff; border-radius: 18px; padding: 18px 22px; height: 100%;
-  box-shadow: 0 4px 18px rgba(11, 31, 58, .07); border: 1px solid #E8EDF4;
-}}
-.cm-rotulo {{ color: {TEXTO_SUAVE}; font-size: 13px; font-weight: 600; text-transform: uppercase;
-  letter-spacing: .06em; }}
-.cm-valor {{ color: {TINTA}; font-size: 34px; font-weight: 800; margin-top: 4px; }}
-.cm-valor small {{ font-size: 16px; font-weight: 600; color: {TEXTO_SUAVE}; }}
-.cm-nota {{ color: {TEXTO_SUAVE}; font-size: 13px; margin-top: 2px; }}
-.cm-secao {{ color: {TINTA}; font-size: 21px; font-weight: 700; margin: 22px 0 8px; }}
-.cm-aviso {{
-  background: #fff; border-radius: 20px; padding: 22px 26px;
-  border-left: 8px solid {ALERTA}; box-shadow: 0 6px 22px rgba(11, 31, 58, .08);
-}}
-.cm-aviso.livre {{ border-left-color: {LIVRE}; }}
-.cm-aviso h3 {{ color: {TINTA}; font-size: 22px; font-weight: 800; margin: 0 0 4px; }}
-.cm-meta {{ color: {TEXTO_SUAVE}; font-size: 14px; margin-bottom: 12px; }}
-.cm-janela {{ display: flex; align-items: baseline; gap: 14px; padding: 10px 0;
-  border-top: 1px solid #EEF2F7; }}
-.cm-hora {{ font-size: 24px; font-weight: 800; color: {ALERTA_FORTE}; min-width: 170px; }}
-.cm-hora.livre {{ color: {LIVRE}; font-size: 18px; min-width: 170px; }}
-.cm-detalhe {{ color: {TINTA}; font-size: 15px; }}
-.cm-detalhe span {{ color: {TEXTO_SUAVE}; }}
-.cm-pill {{ display: inline-block; padding: 3px 12px; border-radius: 999px; font-size: 13px;
-  font-weight: 700; background: #FDECE7; color: {ALERTA_FORTE}; margin-right: 6px; }}
-.cm-pill.livre {{ background: #E3F6F3; color: #0B7A70; }}
-.cm-pill.neutra {{ background: #EEF2F7; color: {TEXTO_SUAVE}; }}
-.cm-acerto {{ background: {TINTA}; color: #fff; border-radius: 18px; padding: 18px 24px;
-  display: grid; grid-template-columns: 1.1fr repeat(var(--n), 1fr); gap: 24px;
-  align-items: center; }}
-.cm-acerto .fonte {{ font-size: 13px; text-transform: uppercase; letter-spacing: .08em;
-  opacity: .7; font-weight: 700; }}
-.cm-acerto b {{ color: {DESTAQUE}; font-size: 26px; font-weight: 800; }}
-.cm-acerto .t {{ font-size: 14px; opacity: .9; }}
-.cm-legenda {{ display: flex; gap: 18px; color: {TEXTO_SUAVE}; font-size: 13px;
-  margin: -4px 0 4px; }}
-.cm-motivo {{ font-size: 21px; line-height: 1.2; display: block; padding: 4px 0; }}
-.cm-legenda i {{ display: inline-block; width: 12px; height: 12px; border-radius: 3px;
-  margin-right: 6px; vertical-align: -1px; }}
-.cm-rodape {{ color: {TEXTO_SUAVE}; font-size: 13px; }}
-div[data-testid="stDataFrame"] {{ border-radius: 14px; overflow: hidden; }}
+.block-container {{ padding-top: 2.4rem; padding-bottom: 3rem; max-width: 1360px; }}
+.cm-kicker {{ font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
+  color: {TEXTO_SUAVE}; font-weight: 500; }}
+.cm-kicker b {{ color: {TINTA}; font-weight: 600; }}
+.cm-mast {{ border-bottom: 1px solid {TINTA}; padding-bottom: 18px; margin-bottom: 6px; }}
+.cm-mast h1 {{ font-family: {FONTE_TITULO}; font-weight: 400; font-size: 64px;
+  line-height: 1.02; margin: 10px 0 12px; color: {TINTA}; padding: 0; }}
+.cm-mast h1 em {{ color: {ALERTA}; }}
+.cm-lede {{ font-size: 17px; line-height: 1.5; color: {TEXTO_SUAVE}; max-width: 760px; }}
+.cm-stats {{ display: grid; grid-template-columns: repeat(4, 1fr);
+  border-bottom: 1px solid {FILETE}; margin: 4px 0 8px; }}
+.cm-stat {{ padding: 18px 22px 20px; border-left: 1px solid {FILETE}; }}
+.cm-stat:first-child {{ border-left: none; padding-left: 0; }}
+.cm-rotulo {{ font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  color: {TEXTO_SUAVE}; font-weight: 500; }}
+.cm-valor {{ font-family: {FONTE_TITULO}; font-size: 54px; line-height: 1.05;
+  margin-top: 6px; color: {TINTA}; }}
+.cm-valor small {{ font-size: 22px; color: {TEXTO_SUAVE}; }}
+.cm-valor.texto {{ font-size: 32px; line-height: 1.15; padding-top: 8px; }}
+.cm-nota {{ font-size: 13px; color: {TEXTO_SUAVE}; margin-top: 4px; line-height: 1.4; }}
+.cm-acerto {{ display: grid; grid-template-columns: 1.2fr repeat(var(--n), 1fr); gap: 28px;
+  padding: 18px 0 22px; border-bottom: 1px solid {FILETE}; align-items: start; }}
+.cm-acerto h4 {{ font-family: {FONTE_TITULO}; font-weight: 400; font-size: 28px;
+  margin: 0; padding: 0; color: {TINTA}; }}
+.cm-acerto .num {{ font-family: {FONTE_TITULO}; font-size: 40px; color: {ALERTA}; }}
+.cm-acerto .t {{ font-size: 14px; color: {TEXTO_SUAVE}; line-height: 1.45; }}
+.cm-secao {{ font-family: {FONTE_TITULO}; font-size: 34px; color: {TINTA};
+  margin: 30px 0 6px; }}
+.cm-legenda {{ display: flex; gap: 20px; color: {TEXTO_SUAVE}; font-size: 13px;
+  margin: 0 0 6px; }}
+.cm-legenda i {{ display: inline-block; width: 10px; height: 10px; margin-right: 7px; }}
+.cm-aviso {{ border-top: 2px solid {TINTA}; padding-top: 14px; }}
+.cm-aviso h3 {{ font-family: {FONTE_TITULO}; font-weight: 400; font-size: 38px;
+  margin: 0; padding: 0; color: {TINTA}; line-height: 1.1; }}
+.cm-meta {{ color: {TEXTO_SUAVE}; font-size: 13px; margin: 4px 0 8px;
+  letter-spacing: .04em; }}
+.cm-janela {{ display: grid; grid-template-columns: 190px 1fr; gap: 18px; padding: 14px 0;
+  border-top: 1px solid {FILETE}; }}
+.cm-hora {{ font-family: {FONTE_TITULO}; font-size: 34px; line-height: 1; color: {ALERTA}; }}
+.cm-hora.livre {{ color: {LIVRE}; font-size: 26px; }}
+.cm-hora.neutra {{ color: {TINTA}; font-size: 26px; }}
+.cm-detalhe {{ font-size: 15px; line-height: 1.5; }}
+.cm-detalhe .s {{ color: {TEXTO_SUAVE}; font-size: 14px; }}
+.cm-tag {{ font-size: 11px; letter-spacing: .12em; text-transform: uppercase; font-weight: 600;
+  color: {ALERTA}; margin-right: 8px; }}
+.cm-tag.livre {{ color: {LIVRE}; }}
+.cm-tag.neutra {{ color: {TEXTO_SUAVE}; }}
+.cm-rodape {{ color: {TEXTO_SUAVE}; font-size: 13px; line-height: 1.6; }}
 </style>
 """
 
@@ -82,12 +80,13 @@ def aplicar() -> None:
 
 
 def html(conteudo: str) -> None:
-    st.markdown(conteudo, unsafe_allow_html=True)
+    st.markdown(f'<div class="cm">{conteudo}</div>', unsafe_allow_html=True)
 
 
-def card(rotulo: str, valor: str, nota: str = "") -> str:
+def stat(rotulo: str, valor: str, nota: str = "", *, texto: bool = False) -> str:
+    classe = "cm-valor texto" if texto else "cm-valor"
     nota_html = f'<div class="cm-nota">{escape(nota)}</div>' if nota else ""
     return (
-        f'<div class="cm-card"><div class="cm-rotulo">{escape(rotulo)}</div>'
-        f'<div class="cm-valor">{valor}</div>{nota_html}</div>'
+        f'<div class="cm-stat"><div class="cm-rotulo">{escape(rotulo)}</div>'
+        f'<div class="{classe}">{valor}</div>{nota_html}</div>'
     )

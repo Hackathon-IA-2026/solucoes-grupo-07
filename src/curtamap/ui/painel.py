@@ -29,11 +29,19 @@ _MOTIVO_CURTO = {
 }
 _FONTES_PLURAL = {"eolica": "eólicas", "fotovoltaica": "solares"}
 _DIAS_SEMANA = ["segunda", "terça", "quarta", "quinta", "sexta", "sábado", "domingo"]
+_MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto",
+          "setembro", "outubro", "novembro", "dezembro"]  # fmt: skip
 _TOP_MAPA = 18
 
 
 def _dia_extenso(dia: date) -> str:
     return f"{_DIAS_SEMANA[dia.weekday()]}, {dia:%d/%m/%Y}"
+
+
+def _dia_titulo(dia: date) -> str:
+    semana = _DIAS_SEMANA[dia.weekday()]
+    semana += "" if dia.weekday() >= 5 else "-feira"
+    return f"{semana}, {dia.day} de {_MESES[dia.month - 1]}"
 
 
 def _horas(valor: float | None) -> str:
@@ -49,12 +57,13 @@ def _nome(row: dict) -> str:
 
 def _cabecalho(dia: date, emitido) -> None:
     estilo.html(
-        f"""<div class="cm-topo">
-  <div class="cm-marca">Curta<b>Map</b> · aviso diário de cortes</div>
-  <div class="cm-titulo">Amanhã, {escape(_dia_extenso(dia))}</div>
-  <div class="cm-sub">Emitido às {emitido:%Hh} de {emitido:%d/%m} com os dados públicos do ONS
-  já liberados. Mostra em quais horas cada usina deve ser cortada, por qual motivo e quanto
-  o aviso costuma acertar.</div></div>"""
+        f"""<div class="cm-mast">
+<div class="cm-kicker"><b>CurtaMap</b> &nbsp;·&nbsp; aviso diário de cortes &nbsp;·&nbsp;
+emitido às {emitido:%Hh} de {emitido:%d/%m}</div>
+<h1>Amanhã, <em>{escape(_dia_titulo(dia))}</em></h1>
+<div class="cm-lede">Em quais horas cada usina deve ser cortada, por qual motivo e quanto
+este aviso costuma acertar. Calculado com os dados públicos do ONS já liberados na noite
+anterior.</div></div>"""
     )
 
 
@@ -85,38 +94,24 @@ def _cards(resumo: pl.DataFrame) -> None:
     motivos = em_alerta["motivo"].drop_nulls()
     motivo = motivos.mode().sort()[0] if motivos.len() else None
     parcela = (motivos == motivo).mean() if motivo else None
-    cols = st.columns(4)
-    cols[0].markdown(
-        estilo.card(
+    estilo.html(
+        '<div class="cm-stats">'
+        + estilo.stat(
             "Usinas em alerta",
             f"{em_alerta.height}<small> de {total}</small>",
             "com pelo menos uma janela de corte provável",
-        ),
-        unsafe_allow_html=True,
-    )
-    cols[1].markdown(
-        estilo.card(
-            "Horas em alerta",
-            _horas(mediana_alerta),
-            "por usina em alerta (mediana)",
-        ),
-        unsafe_allow_html=True,
-    )
-    cols[2].markdown(
-        estilo.card(
-            "Horas livres",
-            _horas(mediana_livre),
-            "com geração e sem alerta, por usina (mediana)",
-        ),
-        unsafe_allow_html=True,
-    )
-    cols[3].markdown(
-        estilo.card(
+        )
+        + estilo.stat("Horas em alerta", _horas(mediana_alerta), "por usina em alerta, mediana")
+        + estilo.stat(
+            "Horas livres", _horas(mediana_livre), "com geração e sem alerta, mediana por usina"
+        )
+        + estilo.stat(
             "Motivo mais frequente",
-            f'<span class="cm-motivo">{escape(MOTIVOS.get(motivo, "—"))}</span>',
+            escape(MOTIVOS.get(motivo, "—")),
             f"na janela principal de {parcela:.0%} das usinas em alerta" if motivo else "",
-        ),
-        unsafe_allow_html=True,
+            texto=True,
+        )
+        + "</div>"
     )
 
 
@@ -126,16 +121,16 @@ def _faixa_acerto(fontes: list[str]) -> None:
     for fonte in fontes:
         item = desempenho["fontes"][fonte]
         blocos.append(
-            f'<div><div class="fonte">{FONTES[fonte]}</div>'
-            f'<b>{round(item["precisao"] * 10)} em 10</b> <span class="t">horas avisadas '
-            f'tiveram corte</span><br><b>{item["energia_avisada"]:.0%}</b> <span class="t">'
-            "da energia cortada caiu em horas avisadas</span></div>"
+            f'<div><div class="cm-rotulo">{FONTES[fonte]}</div>'
+            f'<span class="num">{round(item["precisao"] * 10)} em 10</span>'
+            '<div class="t">horas avisadas tiveram corte</div>'
+            f'<span class="num">{item["energia_avisada"]:.0%}</span>'
+            '<div class="t">da energia cortada caiu em horas avisadas</div></div>'
         )
     estilo.html(
-        f'<div class="cm-acerto" style="--n:{len(blocos)}"><div class="t">'
-        '<b style="font-size:17px">Quanto o aviso acerta</b><br>'
-        f"medido de {escape(desempenho['periodo'])}, com dados que o modelo nunca tinha "
-        f"visto</div>{''.join(blocos)}</div>"
+        f'<div class="cm-acerto" style="--n:{len(blocos)}"><div><h4>Quanto o aviso acerta</h4>'
+        f'<div class="t">Medido de {escape(desempenho["periodo"])}, com dados que o modelo '
+        f"nunca tinha visto.</div></div>{''.join(blocos)}</div>"
     )
 
 
@@ -188,44 +183,43 @@ def _detalhe(aviso: pl.DataFrame, usina: dict) -> None:
     local = " · ".join(
         x for x in (FONTES[usina["fonte"]], usina.get("id_estado"), usina.get("id_subsistema")) if x
     )
-    classe = "" if janelas.height else " livre"
     partes = [
-        f'<div class="cm-aviso{classe}"><h3>{escape(_nome(usina))}</h3>',
+        f'<div class="cm-aviso"><h3>{escape(_nome(usina))}</h3>',
         f'<div class="cm-meta">{escape(local)} · código ONS {escape(usina["id_ons"])}</div>',
     ]
     if usina["status"] == STATUS_SEM_PREVISAO:
         partes.append(
-            '<span class="cm-pill neutra">sem previsão</span> Não há histórico recente '
+            '<span class="cm-tag neutra">sem previsão</span> Não há histórico recente '
             "suficiente desta usina para emitir o aviso."
         )
     elif not janelas.height:
         partes.append(
-            '<span class="cm-pill livre">sem alerta</span> Nenhuma hora com corte provável amanhã.'
+            '<span class="cm-tag livre">sem alerta</span> Nenhuma hora com corte provável amanhã.'
         )
     for janela in janelas.iter_rows(named=True):
         partes.append(
-            f'<div class="cm-janela"><div class="cm-hora">'
+            '<div class="cm-janela"><div class="cm-hora">'
             f"{formatar_janela(janela['inicio'], janela['fim'])}</div>"
-            f'<div class="cm-detalhe"><span class="cm-pill">risco de até '
-            f"{janela['chance_max']:.0%}</span> "
+            '<div class="cm-detalhe"><span class="cm-tag">risco até '
+            f"{janela['chance_max']:.0%}</span>"
             f"{escape(motivo_texto(janela['causa'], janela['origem']))}"
-            f"<br><span>{escape(sugestao(janela['horas']))}</span></div></div>"
+            f'<br><span class="s">{escape(sugestao(janela["horas"]))}</span></div></div>'
         )
     if livres.height:
         texto = ", ".join(
             formatar_janela(r["inicio"], r["fim"]) for r in livres.iter_rows(named=True)
         )
         partes.append(
-            f'<div class="cm-janela"><div class="cm-hora livre">Horas livres</div>'
-            f'<div class="cm-detalhe">{escape(texto)}<br><span>Geração esperada sem '
-            "alerta de corte.</span></div></div>"
+            '<div class="cm-janela"><div class="cm-hora livre">Horas livres</div>'
+            f'<div class="cm-detalhe">{escape(texto)}<br><span class="s">Geração esperada '
+            "sem alerta de corte.</span></div></div>"
         )
     partes.append(
-        f'<div class="cm-janela"><div class="cm-hora livre" style="color:{estilo.TINTA}">'
-        f'Acerto</div><div class="cm-detalhe">De cada 10 horas avisadas nas usinas '
+        '<div class="cm-janela"><div class="cm-hora neutra">Acerto</div>'
+        '<div class="cm-detalhe">De cada 10 horas avisadas nas usinas '
         f"{_FONTES_PLURAL[usina['fonte']]}, {round(desempenho['precisao'] * 10)} tiveram "
-        f"corte.<br><span>O motivo vem das ordens desta usina, neste horário, nas últimas "
-        "4 semanas.</span></div></div></div>"
+        'corte.<br><span class="s">O motivo vem das ordens desta usina, neste horário, nas '
+        "últimas 4 semanas.</span></div></div></div>"
     )
     estilo.html("".join(partes))
     st.plotly_chart(graficos.linha_do_dia(linhas), width="stretch")
@@ -278,14 +272,14 @@ def render() -> None:
         _cabecalho(dia, aviso["emitido_em"].max())
     resumo = resumo_usinas(aviso)
     _cards(resumo)
-    st.write("")
     _faixa_acerto(fontes)
 
     estilo.html(
         '<div class="cm-secao">Usinas com mais horas em alerta amanhã</div>'
-        '<div class="cm-legenda"><span><i style="background:#E4572E"></i>em alerta</span>'
-        '<span><i style="background:#7FD1C6"></i>livre</span>'
-        '<span><i style="background:#E3E8EF"></i>sem geração prevista</span></div>'
+        f'<div class="cm-legenda"><span><i style="background:{estilo.ALERTA}"></i>em alerta'
+        f'</span><span><i style="background:{estilo.LIVRE_CLARO}"></i>livre</span>'
+        f'<span><i style="background:{estilo.SEM_GERACAO}"></i>sem geração prevista</span>'
+        "</div>"
     )
     # Vagas divididas entre as fontes escolhidas, para o mapa não mostrar só uma delas.
     em_alerta = resumo.filter(pl.col("status") == STATUS_ALERTA)
@@ -299,7 +293,10 @@ def render() -> None:
 
     esquerda, direita = st.columns([1.15, 1], gap="large")
     with esquerda:
-        estilo.html('<div class="cm-secao">Portfólio · clique numa usina</div>')
+        estilo.html(
+            '<div class="cm-secao">Portfólio</div>'
+            '<div class="cm-legenda">Clique numa usina para ver o aviso dela.</div>'
+        )
         escolhida = _tabela(resumo)
     with direita:
         estilo.html('<div class="cm-secao">Aviso da usina</div>')
