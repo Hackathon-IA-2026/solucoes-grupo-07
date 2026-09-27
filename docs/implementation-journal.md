@@ -2095,3 +2095,200 @@ Decisões do responsável:
   responsável.
 - Depois da final, o responsável pretende remover do repositório a maior parte dos documentos
   de diário e apoio, deixando na `main` só o projeto.
+## 2026-09-26 - Etapa 4 (nova abordagem): interface de decisão D+1 e preparação do deploy
+
+### Contexto e pergunta
+
+A interface anterior (`etapa-4-interface`) estava desatualizada em relação ao `main`: ela
+assumia o teste reservado em maio e 28 dias de histórico, e não sabia do modelo diário da nova
+Etapa 2. O responsável pediu uma reconstrução do zero, na branch
+`etapa-4-interface-nova-abordagem`. As perguntas foram:
+
+- como abrir o dashboard com a decisão do gerador (quais usinas, quando, quanto, por quê e o
+  que fazer), e não com métricas do modelo;
+- como fazer isso sem depender de qual preditor gerou a previsão;
+- como deixar o deploy da AWS pronto sem passos ocultos.
+
+### Fatos e evidências observados
+
+- **Prazo do teste reservado:** `RESERVED_TEST_START` no `main` é **01/09/2026**, não 01/05
+  como dizia o prompt da etapa (mudança da nova Etapa 2, commit `8633122`). A interface usa a
+  constante, então a última emissão oferecida é 31/08/2026 00:00, com as 24 h terminando
+  antes de setembro.
+- **Download no Windows:** o `download_data` terminava sem baixar nada nem avisar. O `gdown`
+  lista os caminhos com `\`, e o `PurePosixPath` não os separava. Corrigido com teste (commit
+  `8b96281`).
+- **Desempenho com dados reais** (t0 = 25/08/2026 00:00, corte em 24/08):
+  - leitura de 92 dias (1.028.304 linhas) em 0,4 s;
+  - previsão em 1,1 s com o modelo diário e 0,2 s com o baseline (11.328 linhas, 236 usinas);
+  - 6 meses de histórico observado (2.021.712 linhas, ~196 MB) em 0,5 s;
+  - pico de memória do processo Streamlit de ~2,1 GB com o modelo e a visão tática de 6 meses.
+- **Emissão de 31/08/2026 00:00** (dados liberados até 28/08):
+  - com o modelo diário (treinado localmente com os limiares `final_jan_ago`): 231 de 236
+    usinas em alerta e 163.653 MWh de energia em risco nas janelas em alerta. Maior risco:
+    CONJ. CAJU (RN), 5.953 MWh a partir de 00:00, causa provável CNF, p(corte) média de 86%;
+  - com o baseline: 224 de 236 usinas em alerta e 100.175 MWh. A mesma usina lidera, com
+    4.853 MWh.
+  - Esses números **não foram comparados com o observado**: são só o que a tela mostra.
+- **Fusos de `gerado_em` diferentes:** o baseline grava hora local sem fuso e o modelo diário,
+  UTC sem fuso (`datetime.now(UTC)` em `previsao/modelo.py`). O contrato fala em horário de
+  Brasília. Num contêiner na AWS, que roda em UTC, o baseline também passaria a gravar UTC.
+- **Proveniência por componente** na emissão de 31/08 (modelo): volume de 7.344 janelas vem
+  do baseline histórico de 28 dias e de 3.984 do modelo; a causa vem sempre de baseline (usina
+  em 28 dias ou estado em 7 dias). Isso bate com o `SERVING` do handoff.
+- O ambiente de desenvolvimento não tinha Docker, WSL, Node nem `uv`. Instalei `uv` (pip,
+  escopo do usuário) e Node 24 LTS portátil com checagem de SHA-256, mais `pnpm` 10. Docker
+  exige administrador e ficou de fora.
+- A lista de serviços confirmados em `aws-environment.md` **não inclui Elastic Load
+  Balancing**.
+
+### Interpretação e decisão
+
+- **Separação estrita entre cálculo e desenho.**
+  - `src/curtamap/painel/` (sem Streamlit, com testes) calcula:
+    - limites de emissão;
+    - ranking, filtros e perfil das 48 janelas;
+    - proveniência;
+    - perdas históricas;
+    - totais e resumo em texto;
+    - rótulos e formatos numéricos.
+  - `src/curtamap/ui/` só desenha.
+  - O `app.py` configura a página, calcula o contexto comum (emissão e previsão em cache) e
+    registra as três telas com `st.navigation`.
+- **Preditor:** a interface chama `product_predictor()` (handoff da nova Etapa 2): usa o
+  modelo mais recente em `models/previsao/` ou, sem artefato, o baseline. Ela não sabe qual
+  dos dois veio. O histórico carregado é `HISTORY_DAYS` = 92 dias.
+- **Selo em todas as telas:** amarelo para "preditor provisório (baseline)" e azul para
+  "modelo treinado", com a proveniência por componente.
+- **Regras de exibição que viraram código testado:**
+  - Energia em risco = soma da energia esperada das janelas em alerta, a mesma regra dos
+    episódios da Etapa 3.
+  - Alerta com volume desconhecido deixa a energia da usina desconhecida. Usina sem nenhuma
+    janela prevista fica "sem evidência", com o motivo, e fora das somas. Usina sem alerta,
+    mas com previsão, tem zero **conhecido**.
+  - Causa provável = a causa com mais energia nas janelas em alerta, com uma marca de "causa
+    mista" quando há mais de uma. Não é eleição de causa dominante para a recomendação, que
+    segue as regras da Etapa 3.
+  - Confiança = p(corte) médio nas janelas em alerta. Com o baseline, a coluna é omitida,
+    porque 0 ou 1 não é confiança.
+  - Visão tática: só meias-horas com limitação; volume inválido é contado à parte; períodos
+    cortados pela janela ficam translúcidos; recortes com muitos grupos juntam o resto em
+    "Outros", pelo total do recorte inteiro, para que a cor siga o grupo.
+- **Fuso de `gerado_em`:** a interface passa `generated_at` em horário de Brasília aos dois
+  preditores. `modelo.py` e `forecasting.py` são do responsável e não foram alterados.
+- **Recomendações:** até a Etapa 3 chegar ao `main`, o painel de ações usa três linhas
+  escritas à mão, `simulado` no contrato, com usinas fictícias `EXEMPLO-*` que nunca casam
+  com uma usina real e um aviso "EXEMPLO SIMULADO" na tela. A coluna "Ação sugerida" do
+  ranking mostra "aguarda Etapa 3". Quando o módulo real chegar, só
+  `ui/dados.recommendations_for` muda, para `build_recommendations(forecast)`.
+- **Deploy:**
+  - Dockerfile com `uv` e o lock congelado;
+  - dados e modelo baixados do S3 na inicialização (`curtamap.s3_sync`);
+  - CDK em Python, no extra `infra`, com duas pilhas. As restrições de IAM são testadas no
+    template;
+  - variante sem ALB (`-c semAlb=true`), porque o ELB não está confirmado.
+
+### Alternativas consideradas
+
+- **Reaproveitar a branch `etapa-4-interface`:** descartada a pedido do responsável.
+- **`url_path` na página padrão:** o Streamlit ignora; a página inicial fica na raiz.
+- **Juntar as recomendações de exemplo às usinas reais do ranking:** descartada. Números
+  simulados ao lado de usinas reais pareceriam reais.
+- **Script shell de inicialização:** trocado por um `CMD` direto. Com `autocrlf=true`, um
+  `.sh` extraído no Windows chegaria à imagem com CRLF.
+- **`cdk bootstrap` com o sintetizador padrão:** descartado. O bootstrap cria papéis passados
+  ao CloudFormation, o que o ambiente não permite. O `BootstraplessSynthesizer` exige
+  pilhas sem assets, e a imagem vai ao ECR pelo Docker.
+- **`Vpc.from_lookup`:** descartado, porque exigiria credenciais no `synth`. A VPC existente
+  entra por contexto, e sem ela a pilha cria uma VPC pública sem NAT.
+- **Camada LLM do assistente:** adiada. O resumo em texto é determinístico e testado; um
+  provedor (Bedrock ou NIM) ficaria atrás de uma interface, desligado por padrão, e ainda não
+  foi implementado.
+
+### Implementação e validação
+
+- TDD em todos os módulos de `painel/`, em `s3_sync` e no download do Windows: os testes
+  foram escritos antes, com falha de coleta ou de asserção confirmada. Os casos cobrem:
+  - limites de emissão;
+  - mesmo `id_ons` em fontes diferentes;
+  - usina sem evidência;
+  - alerta com volume nulo;
+  - atributos nulos nos filtros;
+  - período reservado;
+  - períodos parciais;
+  - chaves S3 inseguras.
+- `tests/test_app.py` usa o `AppTest` do Streamlit:
+  - sem dados, a tela mostra instruções e nenhuma métrica;
+  - com dados reais, cada tela renderiza sem exceção e com o selo;
+  - a Operação abre com "Usinas em risco" e "Energia em risco".
+- `tests/test_infra.py` (precisa do Node) verifica:
+  - nenhuma Lambda ou recurso customizado;
+  - todos os papéis assumidos só por `ecs-tasks`;
+  - porta 8501, health check `/_stcore/health`, bucket privado e logs de 7 dias;
+  - nenhum parâmetro de bootstrap;
+  - região fora do hackathon recusada;
+  - VPC existente sem lookup;
+  - variante sem ALB.
+- `pnpm dlx aws-cdk@2 synth` roda sem credenciais, com e sem `semAlb`. Templates: 18 kB (app)
+  e 4 kB (base), abaixo do limite de 51.200 bytes para deploy sem bucket.
+- Verificação visual com o Streamlit rodando de verdade, capturada com o Playwright (Edge
+  headless), com o modelo (porta 8501) e sem ele (porta 8502, `CURTAMAP_MODEL_DIR` vazio).
+  As capturas mostraram três problemas, todos corrigidos:
+  - legenda sobre o título;
+  - datas em inglês;
+  - "Page not found" na URL da página padrão.
+- **Fluxo da demo:**
+  1. A barra lateral escolhe o dia e a hora de t0 (padrão 31/08/2026 00:00).
+  2. O selo diz modelo ou baseline e até quando os dados estavam liberados.
+  3. Os quatro números do topo: usinas em risco, energia em risco, primeiro alerta e usinas
+     sem evidência.
+  4. O "Resumo do dia" em texto.
+  5. O ranking, que pode ser filtrado por fonte, UF e subsistema.
+  6. O perfil das 48 janelas da usina escolhida: energia com p10–p90 e p(corte) com o limiar,
+     em gráficos separados.
+  7. As ações, que por enquanto são o exemplo simulado.
+  8. A Visão tática: 6 meses de perdas observadas por causa.
+  9. A tela de Metodologia e limites.
+- Suíte completa: **277 testes aprovados** com `PYTHONUTF8=1` e Node no PATH. Sem o Node, os
+  8 testes de infraestrutura são pulados. Sem `PYTHONUTF8=1`, `test_feature_inventory` falha
+  por encoding (defeito anterior, já registrado). `ruff check` e `ruff format --check` estão
+  limpos.
+
+### Limitações e incertezas
+
+- `docker build` e `docker run` **não foram executados** (sem Docker na máquina). Há testes
+  estáticos do Dockerfile, e o `CMD` foi exercitado fora do contêiner.
+- `cdk deploy` sem bootstrap e a criação de VPC e ALB na conta do evento são **hipóteses**.
+  `docs/deploy.md` traz um plano B para cada caso.
+- A demo local sem rede não foi testada com o Wi-Fi desligado.
+- Em agosto de 2026, quase todas as usinas ficam em alerta (231 de 236 na emissão de 31/08).
+  **Interpretação:** em mês de corte generalizado, o status "em risco" discrimina pouco e o
+  que ordena a decisão é a energia e a janela. Não foi medido se a ordenação por energia
+  prevista acerta a ordem observada.
+- O modelo local foi treinado nesta máquina. O SHA-256 não foi comparado com o do manifesto
+  versionado, e o HGB pode variar no último dígito.
+- A agregação tática é mínima; a da Etapa 3 (`summarize_history`) ainda recusa datas a
+  partir de maio e precisará seguir a nova trava.
+
+### Valor para o usuário e para a apresentação
+
+- **Solução/demonstração:** o gerador abre a tela e vê primeiro a decisão ("231 usinas em
+  alerta; a de maior risco é a CONJ. CAJU, a partir de 00:00, por CNF"), com o caminho até a
+  proveniência a um clique.
+- **Credibilidade:** o selo e a tela de metodologia deixam explícito o que é modelo, o que é
+  baseline e o que é exemplo simulado. Nulo nunca vira zero.
+- **Implantação:** a infraestrutura respeita as restrições de IAM da conta por construção, com
+  testes, e existe uma demo local que não depende da AWS.
+
+### Próximos passos
+
+1. **Responsável:**
+   - revisar o PR da branch `etapa-4-interface-nova-abordagem`;
+   - decidir se `generated_at` entra no protocolo `Predictor` e se o modelo e o baseline devem
+     gravar `gerado_em` em horário de Brasília.
+2. **Etapa 3:** ao integrar, trocar `recommendations_for` por `build_recommendations` e
+   remover o aviso de exemplo; atualizar a trava de maio em `summarize_history`.
+3. **Sábado:** seguir `docs/deploy.md`, começando por `docker build` e `docker run`.
+4. **Sexta:** ensaiar a demo com a rede desligada.
+5. **Opcional:** provedor LLM atrás de interface, desligado por padrão, que só reescreve o
+   resumo determinístico.

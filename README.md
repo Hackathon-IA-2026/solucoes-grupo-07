@@ -10,7 +10,11 @@ Protótipo para antecipar cortes de geração eólica e solar, explicar a causa 
 
 ## Estado atual
 
-O repositório contém a base técnica inicial. Ainda não há dataset versionado nem modelo treinado; qualquer número mostrado no app nesta fase é identificado como demonstrativo.
+A interface em Streamlit tem três telas: **Operação D+1** (usinas em risco nas próximas 24 h,
+perfil das 48 janelas e ações), **Visão tática** (perdas observadas) e **Metodologia e
+limites**. Ela usa o modelo diário em `models/previsao/`, quando existe, ou o preditor
+provisório (baseline), sempre com um selo que diz qual dos dois. As recomendações ainda são
+um exemplo simulado e rotulado até a Etapa 3 chegar ao `main`.
 
 As decisões e perguntas em aberto estão em [docs/architecture.md](docs/architecture.md). O caminho de implementação está em [docs/roadmap.md](docs/roadmap.md).
 
@@ -19,7 +23,7 @@ As decisões e perguntas em aberto estão em [docs/architecture.md](docs/archite
 - Python 3.12 e `uv`
 - Polars, DuckDB e Parquet para processamento
 - scikit-learn e modelos tabulares candidatos para experimentação
-- Streamlit como protótipo atual; React/Vite + FastAPI em avaliação para a interface final
+- Streamlit para a interface (telas em `src/curtamap/ui/`, cálculos testados em `src/curtamap/painel/`)
 - AWS com infraestrutura como código para build, execução, dados, modelos e observabilidade
 - Bedrock ou NVIDIA NIM como camada opcional de explicação em linguagem natural
 
@@ -31,17 +35,21 @@ As decisões e perguntas em aberto estão em [docs/architecture.md](docs/archite
 - Espaço em disco compatível com os Parquet escolhidos
 - Python 3.12, instalado automaticamente pelo `uv` quando necessário
 
-Docker e AWS CLI não são necessários para o desenvolvimento local inicial. Eles serão documentados quando a infraestrutura AWS for implementada.
+Docker, Node/pnpm e AWS CLI só são necessários para o deploy; veja [docs/deploy.md](docs/deploy.md).
 
 ## Como executar
 
 ```bash
-uv sync --dev
+uv sync --extra data --dev
 cp .env.example .env
+uv run python -m curtamap.download_data     # Parquet do ONS em data/raw/
 uv run streamlit run src/curtamap/app.py
 ```
 
-As integrações opcionais podem ser instaladas com `uv sync --extra data --extra llm --extra aws --dev`.
+Sem os Parquet, a interface mostra como obtê-los em vez de números. O modelo diário é
+opcional (treino em [docs/deploy.md](docs/deploy.md), seção 1).
+
+As integrações opcionais podem ser instaladas com `uv sync --extra data --extra llm --extra aws --extra infra --dev`.
 
 Validações:
 
