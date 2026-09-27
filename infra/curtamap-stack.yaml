@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CurtaMap - Deploy Streamlit no ECS Fargate sem IAM (Zero PassRole)"
+
+Parameters:
+  ImageUri:
+    Type: String
+    Description: "URI da imagem publica no Docker Hub (ex: seu-usuario/curtamap:latest)"
+
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: "VPC existente (Default VPC)"
+
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: "Subnets publicas existentes separadas por virgula"
+
+Resources:
+  CurtamapCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: "curtamap-cluster"
+
+  CurtamapTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: "curtamap-task"
+      RequiresCompatibilities:
+        - "FARGATE"
+      Cpu: "1024"
+      Memory: "4096"
+      NetworkMode: "awsvpc"
+      ContainerDefinitions:
+        - Name: "curtamap-app"
+          Image: !Ref ImageUri
+          PortMappings:
+            - ContainerPort: 8501
+              HostPort: 8501
+              Protocol: tcp
+
+  CurtamapService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: "curtamap-service"
+      Cluster: !Ref CurtamapCluster
+      TaskDefinition: !Ref CurtamapTaskDefinition
+      LaunchType: "FARGATE"
+      DesiredCount: 1
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: "ENABLED"
+          Subnets: !Ref SubnetIds
+
+Outputs:
+  ClusterName:
+    Description: "Nome do Cluster ECS"
+    Value: !Ref CurtamapCluster

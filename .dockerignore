@@ -1,6 +1,13 @@
-# Dados, modelos e artefatos locais nunca entram na imagem.
-data/
-models/
+# Só o modelo servido e os avisos emitidos entram na imagem; o resto é local.
+data/*
+!data/processed/
+data/processed/*
+!data/processed/avisos.parquet
+models/*
+!models/previsao/
+models/previsao/*
+!models/previsao/diario_ocorrencia_v1_2026-08-30.joblib
+!models/previsao/diario_ocorrencia_v1_2026-08-30.json
 .venv/
 .git/
 .env

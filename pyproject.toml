@@ -18,15 +18,11 @@ dependencies = [
   "pydantic-settings>=2.10",
   "scikit-learn>=1.7",
   "streamlit>=1.49",
+  "tzdata>=2024.1",
 ]
 
 [project.optional-dependencies]
-aws = ["boto3>=1.40"]
 data = ["gdown>=6.4"]
-infra = [
-    "aws-cdk-lib>=2.200",
-    "constructs>=10.4",
-]
 
 [dependency-groups]
 dev = [

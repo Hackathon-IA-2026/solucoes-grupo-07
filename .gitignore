@@ -20,6 +20,8 @@ models/*
 models/previsao/*
 !models/previsao/diario_ocorrencia_v1_2026-08-30.joblib
 !models/previsao/diario_ocorrencia_v1_2026-08-30.json
+# Exceção: avisos já emitidos (2,6 MB), base da imagem que a rotina diária completa.
+!data/processed/avisos.parquet
 
 # Artefatos locais
 .streamlit/secrets.toml

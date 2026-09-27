@@ -13,7 +13,7 @@ Aviso diário de cortes para usinas eólicas e solares. Toda noite, às 20h, mos
 - **Modelo:** um classificador por fonte (`diario_ocorrencia_v1`) calcula a chance de corte por usina e meia-hora do dia seguinte, com os dados do ONS liberados até a emissão das 20h.
 - **Motivo:** vem da regra do histórico da usina (ordens das últimas 4 semanas naquele horário).
 - **Painel:** tela única que lê os avisos já emitidos (`data/processed/avisos.parquet`). Mostra as janelas em alerta, as horas livres, o motivo e o acerto medido fora da amostra em setembro de 2026.
-- **Demonstração:** os avisos exibidos são os de 01 a 25/09/2026, emitidos às 20h da véspera. De 01 a 24/09 o risco é o mesmo usado na validação; o de 25/09 foi emitido, mas ainda não tinha rótulo quando a validação foi feita. O painel não mostra o que aconteceu depois, como no uso real.
+- **Avisos:** de 01 a 25/09/2026 vêm da validação (mesmo risco que produziu o acerto medido). A partir de 26/09, a rotina diária baixa a publicação do ONS e emite ao vivo, às 20h da véspera. O painel não mostra o que aconteceu depois, como no uso real.
 - **O que o aviso não diz:** quanto será cortado, quanto isso custa e se a ordem será mantida.
 
 As decisões e perguntas em aberto estão em [docs/architecture.md](docs/architecture.md). O caminho de implementação está em [docs/roadmap.md](docs/roadmap.md).
@@ -52,7 +52,25 @@ uv run streamlit run src/curtamap/app.py
 
 Sem o arquivo de avisos, o painel mostra como gerá-lo em vez de números.
 
-As integrações opcionais podem ser instaladas com `uv sync --extra data --extra aws --extra infra --dev`.
+A rotina diária (baixa o ONS às 19h30 e emite o aviso de amanhã às 20h, horário de Brasília):
+
+```bash
+uv run python -m curtamap.previsao.ao_vivo --uma-vez   # emite os dias pendentes agora
+uv run python -m curtamap.previsao.ao_vivo --loop      # fica rodando, como no contêiner
+```
+
+## Deploy (AWS)
+
+A imagem leva o modelo servido e os avisos já emitidos, e roda a rotina diária ao lado do
+painel. Não precisa de credenciais nem de volume:
+
+```bash
+docker build -t <usuario>/curtamap:latest .
+docker push <usuario>/curtamap:latest
+```
+
+O template `infra/curtamap-stack.yaml` sobe a imagem pública no ECS Fargate (sem papel
+IAM), com IP público na porta 8501. Parâmetros: `ImageUri`, `VpcId` e `SubnetIds`.
 
 Validações:
 
