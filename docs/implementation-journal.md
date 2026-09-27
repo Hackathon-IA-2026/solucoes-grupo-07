@@ -2027,3 +2027,71 @@ A extração, as alternativas e a comparação estão em `docs/posicionamento-pi
 - Montar o roteiro de 5 minutos em cinco linhas, com os números marcados como medidos,
   referência externa ou cenário.
 - Redesenhar o painel Streamlit sem volume, se houver tempo antes das 15h.
+
+## 2026-09-27 - Posicionamento do pitch (2/n): premissa fechada e roteiro enxuto
+
+### Contexto e pergunta
+
+A premissa do produto (`docs/premissa-produto.md`) tinha três perguntas abertas: a persona, a
+categoria e as horas livres. Faltava também transformar o posicionamento num roteiro de palco.
+
+### Fatos e evidências observados
+
+- Não houve análise nova. Os números vêm de `docs/reports/pitch-impacto/README.md`, de
+  `docs/reports/nova-abordagem/README.md` e do Caderno.
+- A cobertura de 96–97% da energia cortada foi medida só em setembro de 2026. A frase anterior
+  do dinheiro ("quase toda essa perda") a estendia aos R$ 6,5 bi de 2025.
+
+### Interpretação e decisão
+
+Decisões do responsável:
+
+- **Persona:** as equipes que operam e mantêm as usinas. Assim, a cena da manutenção pertence
+  à mesma pessoa.
+- **Categoria:** "aviso diário de cortes". A previsão do tempo fica só como analogia falada.
+- **Horas livres:** entram como detalhe da tela, e não na promessa.
+- **"Com IA" saiu da frase.** O diferencial é a entrega com motivo e índice de acerto.
+- **O dinheiro vai em duas frases separadas:** R$ 6,5 bi em 2025 **[externo]** e 97% em
+  setembro **[medido]**.
+- **Pitch enxuto, na estrutura da mentoria.** A tentativa de prever o volume, o teste de clima,
+  a comparação com o histórico e a lista longa de próximos passos saem do palco. Terminar
+  antes dos 5 minutos é intencional.
+- **Demonstração:** um vídeo pré-gravado do dashboard, dentro do Canva, que permite vídeo.
+  Depende de reformular o painel sem volume.
+
+### Alternativas consideradas
+
+- **Quem administra a usina como persona:** descartada. Ela puxa a pergunta "quanto
+  economizo?", e esse número não existe.
+- **"Previsão do tempo dos cortes" como categoria:** descartada. Convida a pergunta "vocês usam
+  previsão do tempo?".
+- **Contar a evolução do volume no pitch:** descartada pelo responsável, porque desvia o foco.
+
+### Implementação e validação
+
+- Criado `docs/roteiro-pitch.md`: 8 blocos, cerca de 3 minutos, com os números marcados.
+- `docs/premissa-produto.md` atualizado: estado, frase de posicionamento e decisões de 27/09.
+- Não houve mudança de código.
+
+### Limitações e incertezas
+
+- Todas as dores e usos continuam hipóteses, porque não houve conversa com uma usina.
+- Resposta a "o operador do sistema já não avisa?": a reescrita proposta, que não afirma o que
+  o ONS deixa de fazer, **não foi decidida**.
+- Seção "quem paga": também **não foi decidida**.
+- O cenário da manutenção é retrospectivo, e a regra do teto é hipótese.
+
+### Valor para o usuário e para a apresentação
+
+- O roteiro tem uma dor, cinco números e uma cena.
+- Cada frase com número tem origem rastreável e está marcada.
+
+### Próximos passos
+
+- Reformular o painel sem volume: janelas, chance, motivo, índice de acerto e horas livres.
+- Gravar o vídeo do dashboard.
+- Montar os slides no Canva a partir do roteiro, com o template da organização.
+- Atualizar `AGENTS.md` e `docs/architecture.md` para o escopo sem volume, com aprovação do
+  responsável.
+- Depois da final, o responsável pretende remover do repositório a maior parte dos documentos
+  de diário e apoio, deixando na `main` só o projeto.

@@ -1,6 +1,6 @@
 # Premissa do produto CurtaMap
 
-Data: 27/09/2026. **Estado: rascunho para validação do responsável.** Depende do
+Data: 27/09/2026. **Estado: fechada em 27/09 pelo responsável; o roteiro do palco está em `docs/roteiro-pitch.md`.** Depende do
 posicionamento decidido em `docs/posicionamento-pitch.md` (P1 com a cena do P2) e dos números
 de `docs/reports/pitch-impacto/README.md`.
 
@@ -15,10 +15,10 @@ Legenda dos números:
 
 ## 1. A frase de posicionamento
 
-> **Para** as equipes que operam usinas eólicas e solares, **que** hoje só descobrem um corte
-> de geração quando a ordem chega, **o CurtaMap é** um aviso diário com inteligência
-> artificial **que**, toda noite, mostra em quais horas do dia seguinte cada usina deve ser
-> cortada, por qual motivo e quanto esse aviso costuma acertar.
+> **Para** as equipes que operam e mantêm usinas eólicas e solares, **que** hoje só descobrem
+> o corte quando a ordem chega, **o CurtaMap é** um aviso diário de cortes **que**, toda noite,
+> mostra em quais horas do dia seguinte cada usina deve ser cortada, por qual motivo e quanto
+> esse aviso costuma acertar.
 
 **Teste de repetição:** quem ouvir deve conseguir dizer "é uma previsão do tempo, só que dos
 cortes de energia, para a usina se preparar".
@@ -146,10 +146,18 @@ Próximos passos, em ordem de valor:
 | "E sem previsão do tempo?" | Hoje o aviso usa só dados já publicados. Medimos que o clima é a próxima alavanca |
 | "Por que o motivo não é previsto por IA?" | Testamos, e a regra do histórico acertou mais. Preferimos o que é melhor e explicável |
 
-## 8. Em aberto
+## 8. Decisões de 27/09
 
-- Validar o uso com qualquer pessoa do setor antes da final, se possível.
-- Escolher o nome da categoria ("aviso diário", "previsão do tempo dos cortes", "agenda de
-  cortes").
-- Decidir se o dashboard aparece no pitch. Se aparecer, precisa mostrar as janelas, as horas
-  livres, o motivo e o índice de acerto, sem energia nem banda p10–p90.
+- **Persona do palco:** as equipes que operam e mantêm a usina. A geradora dona do portfólio
+  é quem paga e aparece só se perguntarem **[hipótese]**.
+- **Categoria:** "aviso diário de cortes". "Como a previsão do tempo, só que dos cortes" é a
+  analogia falada, e não a categoria.
+- **"Com inteligência artificial" saiu da frase.** O diferencial é o aviso pronto, com motivo
+  e acerto à vista. A IA aparece no bloco da solução.
+- **Horas livres:** detalhe da tela, fora da promessa.
+- **Dinheiro em duas frases**, sem estender a 2025 a cobertura medida em setembro:
+  - "O corte custou cerca de R$ 6,5 bilhões em 2025" **[externo]**;
+  - "Em setembro, 97% da energia cortada caiu em horas avisadas na véspera" **[medido]**.
+- **Pitch enxuto:** a história da tentativa de prever o volume (seção 6) e o teste de clima
+  ficam fora do palco. Servem só para responder perguntas.
+- **Demonstração:** vídeo pré-gravado do dashboard, depois da reformulação sem volume.
