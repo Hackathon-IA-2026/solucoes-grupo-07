@@ -1,5 +1,10 @@
 # Handoff da nova Etapa 2 para a integração de domingo (27/09/2026)
 
+> **Atualização de 26/09 (fim do dia):** o produto foi reduzido à previsão de ocorrência com
+> causa histórica, sem volume nem faixas. Leia primeiro a seção 6 e
+> `docs/decisao-foco-ocorrencia-causa.md`. As seções 1 a 5 ficam como registro. Onde elas
+> falam de volume, faixas, `diario_hgb_v1/v3` ou 130 dias de histórico, vale a seção 6.
+
 Branch: `etapa-2-nova-abordagem`, criada a partir de `origin/main`. O merge em `main` não foi
 feito, porque depende de pedido do responsável. Os resultados estão em
 `docs/reports/nova-abordagem/README.md`; a narrativa, nas entradas "Nova Etapa 2 (1/n…)" do
@@ -144,3 +149,36 @@ Resultados e decisões nas entradas "Nova Etapa 2 (8/n)" a "(12/n)" do diário. 
   - na eólica diária, a composição mista tem RPS pior que o `historico` puro (0,161 contra
     0,155 em jan–ago).
 - **Setembro não foi usado na v3.** A confirmação exige dias novos (após 24/09/2026).
+
+## 6. Foco em ocorrência e causa histórica (26/09, fim do dia)
+
+Decisão e motivos em `docs/decisao-foco-ocorrencia-causa.md`. A seção 5 está descontinuada.
+
+- **Preditor:** `product_predictor()` serve só `diario_ocorrencia_v1_*`. Artefatos
+  `diario_hgb_v1/v3` são ignorados. Sem artefato, volta ao `SameSlotRecentBaseline`.
+- **Saídas:**
+  - `p_corte`, `alerta` e `limiar_alerta` vêm do modelo, com os mesmos limiares da v1;
+  - `p_causa_*` e `causa_prevista` vêm do histórico, com `tipo_saida_causa`;
+  - `p_restricao` e `origem_prevista` são baselines, como antes;
+  - volume e energia ficam nulos, com `tipo_saida_volume = "nao_previsto"`.
+- **Contrato:** volume nulo não exige mais `motivo_sem_previsao`. A ausência de previsão é
+  só `p_corte` nulo.
+- **Histórico exigido:** `HISTORY_DAYS` = 92.
+- **Artefato:** `models/previsao/diario_ocorrencia_v1_2026-08-30.joblib`, com manifesto em
+  `docs/reports/nova-abordagem/modelo-congelado-ocorrencia.json`. Para regenerar (cerca de
+  1 min):
+
+  ```bash
+  uv run python -m curtamap.previsao.treinar --limiares data/interim/previsao/limiares.json \
+    --manifesto docs/reports/nova-abordagem/modelo-congelado-ocorrencia.json
+  ```
+
+- **Reprodução para o dashboard:** o comando da seção 2 continua válido e agora gera
+  previsões sem volume.
+- **Integração:** as Etapas 3 e 4 precisam deixar de depender de energia e da banda p10–p90.
+  A lista de arquivos está na seção 5 do documento de decisão.
+- **Recuperação:** tag `arquivo/etapa-2-v3-faixas` para a v3 e commit `7ee94f4` para a v1
+  com volume.
+- **Atenção ao relatório:** rodar `relatorio` com saída em `docs/reports/nova-abordagem`
+  sobrescreve `metricas_backtest.csv` e `decisao_celulas.csv` sem as colunas de volume e do
+  modelo de causa, que são a evidência da v1. Grave novas execuções em uma subpasta.

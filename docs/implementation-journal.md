@@ -1821,3 +1821,105 @@ fallback.
   18.723 na solar.
 - **Setembro após 24/09 não foi aberto** nesta sessão. Os poucos dias disponíveis não
   confirmariam nada e ficariam gastos. A confirmação da v3 continua pendente.
+
+## 2026-09-26 - Nova Etapa 2 (13/n): foco em ocorrência e causa histórica, sem volume
+
+### Contexto e pergunta
+
+Depois da v2 e da v3, o responsável avaliou que as tentativas de melhorar causa, regime e
+volume não compensaram. Só as faixas trouxeram algum ganho, em recortes específicos e de forma
+pouco confiável. A pergunta desta sessão foi o que fazer com o código e os commits da v2/v3,
+e como deixar a branch pronta para um produto que use só "quando" (ocorrência) e "por quê"
+(causa histórica). Também era preciso descobrir em que estado a `main` recebeu os pushes
+feitos por engano.
+
+### Fatos e evidências observados
+
+- Todos os commits da v2 e da v3 já estavam no `origin/etapa-2-nova-abordagem`. A única
+  mudança pendente era `experiments/`: 473 MB da antiga Etapa 2B, com parquets brutos e logs
+  de execução.
+- `origin/main` = `7ee94f4`, que é ancestral desta branch. A `main` tem a nova Etapa 2 até a
+  v1 (volume p10–p90 e causa pela moda) e nada da v2/v3.
+- A correção `020b5ef` (limiar com empates) não mudou `limiares.json` (diff vazio entre
+  `7ee94f4` e HEAD).
+- O modelo só de ocorrência, retreinado com o mesmo snapshot, usou as mesmas linhas de treino
+  da v3 (2.714.688 eólicas e 1.309.584 solares). Em 22.656 linhas dos dias-alvo 25 e 26/08,
+  a diferença máxima de `p_corte` contra o classificador de ocorrência do artefato v3 foi 0,
+  e os alertas foram idênticos.
+- Na Etapa 3, `recommendation.py` exige `energia_esperada_mwh` não nula nos alertas. Na
+  Etapa 4, o painel ordena por energia e desenha a banda p10–p90.
+
+### Interpretação e decisão
+
+- **Registrar, e não desfazer.** Apagar os commits exigiria reset e force-push, destruiria
+  a evidência citada no diário e contrariaria o diário append-only. Os experimentos
+  fracassados sustentam o pitch ("testamos e não superou o histórico"). A v3 foi preservada
+  na tag local `arquivo/etapa-2-v3-faixas`, e o código foi removido com commits novos.
+- **Produto:**
+  - o artefato `diario_ocorrencia_v1` tem só o classificador de ocorrência;
+  - a causa é sempre a moda histórica da usina, com recurso ao estado;
+  - o volume não é previsto.
+  - O contrato passou a aceitar volume nulo com `p_corte` preenchido.
+- **Registro honesto:** o volume solar do modelo vencia o baseline (WAPE de 0,851 contra
+  0,950 em jan–ago; 0,607 contra 0,652 em setembro). O descarte é escolha de produto, não
+  falha medida.
+- `experiments/` foi ignorado com o mesmo bloco da `etapa-2-experimental`, para evitar
+  conflito. Nada foi apagado do disco.
+- A `main` não foi tocada. Levar esta branch até ela resolve a limpeza.
+
+### Alternativas consideradas
+
+- **Reset para `7ee94f4` com force-push:** descartada, porque perde o registro.
+- **Manter as colunas de volume preenchidas pelo `historico`:** descartada. Seria voltar a
+  servir volume por outro caminho.
+- **Remover as colunas de volume do `FORECAST_SCHEMA` já nesta branch:** adiada para a
+  integração. Hoje as Etapas 3 e 4 importam o esquema, e removê-las quebraria as duas.
+- **Reusar o nome `diario_hgb_v1`:** descartada. Esse nome e o SHA-256 pertencem ao manifesto
+  validado em setembro.
+
+### Implementação e validação
+
+Commits, em ordem:
+
+1. `chore`: ignora `experiments/`;
+2. `refactor`: remove as faixas, as restrições e os runners v2/v3;
+3. `feat`: contrato com volume opcional;
+4. `feat`: modelo só de ocorrência com causa histórica;
+5. `docs`: esta documentação.
+
+- Suíte: 197 testes verdes (contagem do relatório JUnit). `ruff check` e `ruff format --check` limpos, com
+  `PYTHONUTF8=1`. Sem ele, `test_feature_inventory` falha por leitura em cp1252 no Windows.
+  É problema de ambiente, anterior a esta sessão.
+- Os testes novos cobrem: volume e energia nulos com `tipo_saida_volume = nao_previsto`;
+  artefato só com `occurrence` e `threshold`; causa igual à moda de 28 d; artefatos antigos
+  não servidos; contrato com volume nulo válido; backtest e relatório sem métricas de volume
+  e sem modelo de causa.
+- O treino levou 49 s. O manifesto está em
+  `docs/reports/nova-abordagem/modelo-congelado-ocorrencia.json`.
+
+### Limitações e incertezas
+
+- As métricas de ocorrência citadas vêm do backtest e de setembro da v1. Elas valem por
+  paridade exata, e não por nova execução.
+- A tag de arquivo ainda não foi enviada ao remoto.
+- A recomendação e o painel ainda dependem de volume nas branches das Etapas 3 e 4.
+- O significado operacional de `REL`, `CNF` e `ENE` para a recomendação ainda precisa ser
+  confirmado no Caderno.
+
+### Valor para o usuário e para a apresentação
+
+- **Solução:** duas informações simples e confiáveis ("amanhã, entre 11h e 15h, alta
+  chance de corte; a causa típica nesta usina é ENE") viram uma agenda de decisão para o
+  gerador.
+- **Evidência:** AP melhor que o histórico em 8 de 8 meses, confirmado em setembro, com
+  recall de alerta de 0,90 a 0,94.
+- **Limitação a assumir:** o CurtaMap não estima MWh. Qualquer valor em R$ ou CO₂ é cenário
+  declarado.
+
+### Próximos passos
+
+- Enviar a branch e a tag ao remoto, com autorização do responsável.
+- Levar a branch à `main`.
+- Redesenhar a recomendação (Etapa 3) e o painel (Etapa 4) sem volume. Depois disso,
+  remover as colunas de volume do contrato.
+- Regerar a reprodução de agosto para o dashboard com o novo artefato.
