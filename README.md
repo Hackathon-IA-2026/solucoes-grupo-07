@@ -68,3 +68,18 @@ O diretório é ignorado pelo Git. Consulte [data/README.md](data/README.md) par
 ## Licença
 
 MIT. Consulte [LICENSE](LICENSE).
+
+## Entrega alternativa: quando, causa histórica e decisão em reais
+
+A branch `codex/alertas-impacto-negocio` traz uma demonstração histórica focada em
+alertas e avaliação de horários de manutenção flexível, sem previsão de volume.
+A causa é contexto histórico observado, não saída do modelo de ocorrência.
+
+```bash
+uv run streamlit run src/curtamap/alertas_app.py
+```
+
+Veja os [resultados, perdas e recomendação do pivô](docs/reports/alertas/README.md) e o
+[passo a passo de reprodução](docs/reports/alertas/COMO-RODAR.md). O cenário solar teve
+diferença média favorável em agosto; a eólica perdeu para a referência de menor geração
+histórica. Valores em reais são contrafactuais sobre dados ONS/CCEE, não economia realizada.

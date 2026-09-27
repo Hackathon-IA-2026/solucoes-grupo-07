@@ -1821,3 +1821,96 @@ fallback.
   18.723 na solar.
 - **Setembro após 24/09 não foi aberto** nesta sessão. Os poucos dias disponíveis não
   confirmariam nada e ficariam gastos. A confirmação da v3 continua pendente.
+
+## 2026-09-26 — Pivô para quando agir, causa histórica e cenário financeiro
+
+### Contexto e pergunta
+
+O usuário pediu fetch de todas as branches, continuidade a partir de `fd0a70b`, prioridade
+em uma entrega útil sem novos experimentos de volume e, depois, um pivô explícito para
+“quando e causa”, reconhecendo que a causa não é prevista pela IA. Também autorizou
+commit e push em uma branch nova, sem interferir no trabalho paralelo.
+
+### Fatos e evidências
+
+- `git fetch --all --prune` atualizou as referências. A pasta original estava na branch de
+  recomendação com arquivos modificados e não rastreados. Foi preservada. Um worktree
+  separado começou em `codex/melhoria-previsao` e o pivô segue em
+  `codex/alertas-impacto-negocio`, a partir da branch remota indicada no prompt.
+- As bases reais já estavam disponíveis. Os hashes das duas principais conferem com a
+  auditoria anterior. Não havia modelos treinados locais. Arquivos complementares do
+  pacote não foram encontrados; os relatórios e o histórico remoto continham a receita.
+- CPU Ryzen 5 4600G, 16 GB de RAM (aproximadamente 5 GB livres), 27 GB livres em disco.
+  Limites de duas threads, 3 GiB privados e 20 minutos por fonte. A primeira tentativa
+  eólica foi interrompida pelo monitor; a projeção das colunas antes das junções reduziu
+  memória sem mudar resultados. O monitor considera filhos do launcher Python do Windows.
+- Reprodução de agosto: 227.660 linhas eólicas e 121.200 solares, AP/Brier idênticos aos
+  relatórios anteriores, com rótulos de treino até 30/07 e limiares de janeiro–abril.
+  AP eólica 0,920994 e solar 0,907713. Nenhum ganho novo de previsão foi anunciado.
+- O PLD horário de 2026 foi baixado da interface pública CCEE. A API e o download por
+  terminal foram bloqueados; o navegador público funcionou normalmente. Hash, recurso,
+  licença e transformações estão em `docs/reports/alertas/manifesto.json`.
+- Contrafactual pré-especificado: manutenção flexível de 2h entre 08h e 18h, afetando 10%
+  da geração, horário escolhido pela maior média de P(corte), sem ler geração/PLD futuros.
+  O custo posterior usa geração observada × 0,5h × fração × PLD horário do submercado.
+- Solar: 2.525 oportunidades; diferença média de +R$ 265,43 contra 08h–10h,
+  +R$ 49,41 contra frequência histórica de corte e +R$ 244,14 contra menor geração
+  histórica. Nesta última comparação, 1.338 melhores, 1.103 piores e 84 empates; mediana
+  +R$ 19,41. Uma das seis semanas/blocos teve diferença média negativa.
+- Eólica: 4.741 de 4.743 oportunidades comparáveis. Diferença média de −R$ 75,40 contra
+  menor geração histórica, com piora nos seis blocos semanais. Logo, alerta bom não
+  demonstrou ser regra de manutenção boa nessa fonte.
+
+### Interpretação e decisão
+
+A direção de negócio recomendada é um piloto supervisionado de agenda flexível solar:
+“tenho uma intervenção necessária amanhã; qual janela merece discussão com a operação?”.
+A causa é distribuição histórica de ordens dos 28 dias publicados, com tamanho da amostra
+e corte temporal. Não recebe rótulo de previsão nem é inferida pelo classificador.
+
+O resultado financeiro é uma simulação retrospectiva sobre insumos reais. A soma das
+alternativas usina/dia não é economia mensal: não se presume manutenção diária em toda
+usina. Não foi comprovado ganho causal em operação nem renda contratual. Manter eólica
+como radar; não adotar a regra de manutenção baseada somente no alerta para essa fonte.
+
+### Alternativas consideradas
+
+Novos modelos de volume, GRU e ajuste de limiares foram adiados conforme orientação.
+Armazenamento, resposta da demanda e ressarcimento exigem dados/contratos e pressupostos
+não demonstrados aqui. EPE foi consultada como contexto de oferta/expansão e INPE/SONDA
+como dados ambientais observados; nenhum dado dessas fontes foi apresentado como previsão
+meteorológica histórica disponível às 20h. Prioridade foi integrar ONS e CCEE com uma
+conta rastreável e uma decisão pequena.
+
+### Implementação e validação
+
+- `previsao.alertas`: reprodução isolada do componente de ocorrência, ranking por janelas,
+  métricas com cobertura e contagens, manifestos e artefatos individuais locais.
+- `alertas_negocio`: causa histórica, escolha de janela, comparação com três baselines,
+  PLD observado e sensibilidades de R$ 50/100/200 por MWh.
+- `alertas_app`: painel explícito com 48 meias-horas, exportação CSV, proveniência,
+  distribuição de causas e custo contrafactual. Exibe perdas e a não adoção para eólica.
+- Testes Red-Green para contrato, nulos, limites, não vazamento, equivalência do classificador,
+  projeção de features, custo em meia-hora/fração, preços duplicados, contexto da causa,
+  ausência total de evidência financeira e tela Streamlit. Correção de leitura UTF-8
+  em um teste antigo que falhava no Windows.
+- Dados ONS, CSV CCEE, modelos e previsões individuais ficam ignorados pelo Git.
+  Relatórios pequenos, comandos e manifesto são versionados. UI conferida no navegador
+  com dados reais das duas fontes, inclusive um caso solar de diferença negativa.
+
+### Limitações, valor para apresentação e próximos passos
+
+Um mês de desenvolvimento, com oportunidades correlacionadas e sem agenda real de cliente.
+A parada proporcional não representa redistribuição física do corte; não inclui custos
+de equipe, clima, autorização, contratos, compensações ou alternativa noturna.
+A tela não autoriza intervenção nem despacho. O padrão `product_predictor()` permanece
+preservado; integração da equipe pode aproveitar o adaptador após revisão.
+
+A apresentação pode mostrar uma decisão, a evidência que a motivou e uma conferência em
+reais, inclusive quando falha. Próximo passo: obter agenda real de um gerador solar,
+congelar critérios e acompanhar intervenções em período ainda não observado, comparando
+com a prática real do cliente. Relatório e roteiro em `docs/reports/alertas/README.md`.
+
+Validação final desta entrada: 256 testes passaram, 1 pulado (reexecução da EDA sem
+Parquet em `data/raw` deste worktree); lint e formatação passaram. As reproduções reais
+usaram explicitamente os arquivos preservados no checkout vizinho.

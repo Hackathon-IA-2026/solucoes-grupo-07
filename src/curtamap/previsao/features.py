@@ -252,8 +252,14 @@ def _asof(grid: pl.DataFrame, table: pl.DataFrame, by: list[str]) -> pl.DataFram
     )
 
 
-def build_features(base: pl.DataFrame, mapping: pl.DataFrame) -> pl.DataFrame:
-    """Grade entidade × dia-alvo × 48 slots com as features até o último dia liberado."""
+def build_features(
+    base: pl.DataFrame, mapping: pl.DataFrame, *, feature_columns: list[str] | None = None
+) -> pl.DataFrame:
+    """Grade entidade × dia-alvo × 48 slots com features até o último dia liberado.
+
+    `feature_columns` projeta as tabelas antes das junções para limitar a memória de
+    consumidores que usam só ocorrência. O padrão preserva todas as colunas existentes.
+    """
     horizon = base.filter(
         pl.col("dia") <= mapping["ultimo_dia"].max(),
         pl.col("dia") > mapping["ultimo_dia"].min() - timedelta(days=ENTITY_LOOKBACK_DAYS + 1),
@@ -262,9 +268,19 @@ def build_features(base: pl.DataFrame, mapping: pl.DataFrame) -> pl.DataFrame:
         return pl.DataFrame()
     slots = pl.DataFrame({"slot": pl.int_range(0, 48, eager=True).cast(pl.Int8)})
     grid = mapping.join(_entities(horizon, mapping), on="ultimo_dia").join(slots, how="cross")
-    grid = _asof(grid, _slot_table(horizon), SLOT_KEY)
-    grid = _asof(grid, _plant_table(horizon), KEY)
-    grid = _asof(grid, _state_table(horizon), STATE_KEY)
+
+    def selected(table: pl.DataFrame, keys: list[str]) -> pl.DataFrame:
+        if feature_columns is None:
+            return table
+        return table.select(
+            *keys,
+            "ultimo_dia",
+            *(c for c in table.columns if c in feature_columns and c not in keys),
+        )
+
+    grid = _asof(grid, selected(_slot_table(horizon), SLOT_KEY), SLOT_KEY)
+    grid = _asof(grid, selected(_plant_table(horizon), KEY), KEY)
+    grid = _asof(grid, selected(_state_table(horizon), STATE_KEY), STATE_KEY)
     return grid.sort([*KEY, "dia", "slot"])
 
 
