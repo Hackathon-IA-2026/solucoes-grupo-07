@@ -72,7 +72,7 @@ def test_forecast_honours_contract_with_48_horizons_per_entity(model, history):
     assert validate_forecast(forecast).equals(forecast)
     assert forecast.height == len(PLANTS) * HORIZONS
     assert forecast["tipo_saida"].unique().to_list() == ["modelo"]
-    assert forecast["modelo_id"].unique().to_list() == ["diario_hgb_v1_2026-05-15"]
+    assert forecast["modelo_id"].unique().to_list() == ["diario_ocorrencia_v1_2026-05-15"]
     assert forecast["corte_dados"].unique().to_list() == [CUTOFF]
     assert forecast["emitido_em"].unique().to_list() == [datetime(2026, 5, 26, 20)]
     assert forecast["idade_informacao_dias"].unique().to_list() == [2]
@@ -146,25 +146,34 @@ def test_unknown_history_yields_an_empty_valid_forecast(model):
     assert forecast.height == 0
 
 
-def test_serving_uses_the_winning_baselines_with_provenance(model, history):
+def test_product_forecasts_only_occurrence_and_leaves_volume_empty(model, history):
+    forecast = _predict(model, history)
+    assert set(model.sources["eolica"].__dict__) == {"occurrence", "threshold"}
+    for name in (
+        "volume_condicional_mwmed",
+        "volume_esperado_mwmed",
+        "energia_esperada_mwh",
+        "volume_p10_mwmed",
+        "volume_p90_mwmed",
+    ):
+        assert forecast[name].null_count() == forecast.height
+    assert forecast["tipo_saida_volume"].unique().to_list() == ["nao_previsto"]
+    assert forecast["motivo_sem_previsao"].null_count() == forecast.height
+    assert forecast["p_corte"].null_count() == 0
+
+
+def test_cause_is_the_plant_mode_in_28_days_with_provenance(model, history):
     from curtamap.previsao.features import build_features
-    from curtamap.previsao.modelo import SERVING, forecast_mapping
+    from curtamap.previsao.modelo import forecast_mapping
 
     forecast = _predict(model, history)
-    assert SERVING["eolica"]["volume"] == "historico"
-    wind = forecast.filter(pl.col("fonte") == "eolica")
-    solar = forecast.filter(pl.col("fonte") == "fotovoltaica")
-    assert wind["tipo_saida_volume"].unique().to_list() == ["baseline_historico_28d"]
-    assert solar["tipo_saida_volume"].unique().to_list() == ["modelo"]
     assert set(forecast["tipo_saida_causa"].drop_nulls().unique()) <= {
         "baseline_usina_28d",
         "baseline_estado_7d",
     }
     base = base_from_history(history.filter(pl.col("din_instante") < CUTOFF))
-    features = build_features(base, forecast_mapping(T0, CUTOFF, CAL)).filter(
-        pl.col("fonte") == "eolica"
-    )
-    joined = wind.with_columns(pl.col("tau").dt.date().alias("dia")).join(
+    features = build_features(base, forecast_mapping(T0, CUTOFF, CAL))
+    joined = forecast.with_columns(pl.col("tau").dt.date().alias("dia")).join(
         features.with_columns(
             (
                 pl.col("dia").cast(pl.Datetime("us"))
@@ -173,8 +182,7 @@ def test_serving_uses_the_winning_baselines_with_provenance(model, history):
         ),
         on=["fonte", "id_ons", "tau"],
     )
-    assert joined.height == wind.height
-    assert (joined["volume_esperado_mwmed"] - joined["vol_hist_28d"]).abs().max() < 1e-4
+    assert joined.height == forecast.height
     with_plant = joined.filter(pl.col("tipo_saida_causa") == "baseline_usina_28d")
     assert with_plant.height > 0
     mode = with_plant.select(
@@ -183,20 +191,3 @@ def test_serving_uses_the_winning_baselines_with_provenance(model, history):
         .replace_strict({0: "REL", 1: "CNF", 2: "ENE"})
     ).to_series()
     assert (with_plant["causa_prevista"] == mode).all()
-
-
-def test_served_baseline_volume_stays_inside_the_p10_p90_band():
-    from curtamap.previsao.modelo import apply_serving
-
-    rows = pl.DataFrame(
-        {
-            "volume_esperado_mwmed": [5.0, 5.0],
-            "volume_p10_mwmed": [2.0, 2.0],
-            "volume_p90_mwmed": [8.0, 8.0],
-            "vol_hist_28d": [12.0, 1.0],
-        }
-    )
-    served = apply_serving(rows, {"volume": "historico"})
-    assert served["volume_esperado_mwmed"].to_list() == [12.0, 1.0]
-    assert served["volume_p90_mwmed"].to_list() == [12.0, 8.0]
-    assert served["volume_p10_mwmed"].to_list() == [2.0, 1.0]

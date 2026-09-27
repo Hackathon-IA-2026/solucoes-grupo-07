@@ -1,10 +1,9 @@
 """Resume o backtest: métricas por mês, limiar de alerta e decisão por célula.
 
-Regra registrada no diário antes dos resultados: o modelo substitui o melhor baseline de uma
-célula (fonte × corte/volume/causa) se vencer na média das dobras **e** em pelo menos 6 de 8
-meses, nas mesmas linhas. Métrica de decisão: AP (corte), WAPE da meia-hora (volume) e
-macro-F1 (causa). O volume "zero" é reportado como referência, mas não conta como baseline
-de decisão, porque não produz energia em risco para a recomendação.
+Regra registrada no diário antes dos resultados: o modelo de ocorrência substitui o melhor
+baseline de uma fonte se vencer em AP na média das dobras **e** em pelo menos 6 de 8 meses,
+nas mesmas linhas. Volume e causa não são modelos no produto (26/09/2026); o macro-F1 das
+causas históricas (usina 28 d e estado 7 d) continua reportado.
 
 O limiar de alerta é escolhido nas previsões fora da amostra de jan–abr e verificado em
 mai–ago. O limiar final (para o modelo congelado) usa jan–ago inteiro.
@@ -23,8 +22,6 @@ from curtamap.previsao.avaliacao import choose_threshold, metrics
 
 CELLS = {
     "corte": ("ap", ["historico", "mesmo_slot_ultimo_dia", "ultimo_valor"], True),
-    "volume": ("wape", ["historico", "mesmo_slot_ultimo_dia", "ultimo_valor"], False),
-    "causa": ("f1", ["usina_28d", "estado_7d"], True),
 }
 MIN_WINS = 6
 
@@ -92,10 +89,8 @@ def main() -> None:
     with pl.Config(tbl_rows=-1, tbl_cols=-1, tbl_width_chars=250, float_precision=3):
         print(limiares)
         print(decision)
-        for prefix in ("ap_", "brier_", "wape_", "wape_diario_", "vies_", "f1_", "mae_"):
+        for prefix in ("ap_", "brier_", "f1_"):
             columns = [c for c in table.columns if c.startswith(prefix)]
-            if prefix == "wape_":
-                columns = [c for c in columns if not c.startswith("wape_diario_")]
             print(table.select("fonte", "periodo", *columns))
         print(
             table.select(
@@ -104,8 +99,6 @@ def main() -> None:
                 "prevalencia",
                 "recall_alerta",
                 "precisao_alerta",
-                "cobertura_p10_p90",
-                "cobertura_p10_p90_positivo",
             )
         )
 

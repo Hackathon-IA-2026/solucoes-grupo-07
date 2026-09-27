@@ -5,14 +5,9 @@ import polars as pl
 import pytest
 from test_previsao_modelo import _raw
 
-from curtamap.previsao.avaliacao import backtest_month, choose_threshold, metrics, wape
+from curtamap.previsao.avaliacao import backtest_month, choose_threshold, metrics
 from curtamap.previsao.calendario import load_calendar
 from curtamap.previsao.features import base_from_history
-
-
-def test_wape_is_absolute_error_over_actual_total():
-    assert wape(np.array([10.0, 0.0]), np.array([5.0, 5.0])) == pytest.approx(1.0)
-    assert np.isnan(wape(np.zeros(2), np.ones(2)))
 
 
 def test_threshold_maximizes_f1():
@@ -42,14 +37,8 @@ def test_metrics_compare_model_and_baselines_on_the_same_rows(backtest):
     row = table.row(0, named=True)
     for name in ("modelo", "historico", "mesmo_slot_ultimo_dia", "ultimo_valor"):
         assert 0 <= row[f"ap_{name}"] <= 1
-    assert row["wape_zero"] == pytest.approx(1.0)
-    assert {
-        "f1_modelo",
-        "f1_usina_28d",
-        "f1_estado_7d",
-        "cobertura_p10_p90",
-        "cobertura_p10_p90_positivo",
-    } <= set(row)
+    assert {"f1_usina_28d", "f1_estado_7d", "recall_alerta", "precisao_alerta"} <= set(row)
+    assert not any(c.startswith(("wape_", "mae_", "cobertura_p10", "f1_modelo")) for c in row)
     assert pl.DataFrame(table).height == 2
 
 

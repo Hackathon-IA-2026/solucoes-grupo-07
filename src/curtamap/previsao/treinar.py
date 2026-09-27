@@ -61,7 +61,8 @@ def main() -> None:
         "linhas_treino": model.metadata["linhas_treino"],
     }
     if args.manifesto:
-        args.manifesto.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n")
+        text = json.dumps(manifest, indent=2, ensure_ascii=False) + "\n"
+        args.manifesto.write_text(text, encoding="utf-8")
     print(json.dumps(manifest, indent=2, ensure_ascii=False))
 
 

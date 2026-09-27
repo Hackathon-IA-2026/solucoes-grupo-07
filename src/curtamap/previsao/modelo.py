@@ -1,20 +1,16 @@
-"""Modelo diário: HistGradientBoosting por fonte sobre as features de `features.py`.
+"""Modelo diário: HistGradientBoosting de ocorrência por fonte sobre as features de `features.py`.
 
-Componentes, todos treinados só com dias-alvo cujo rótulo já estava liberado:
+O produto prevê só **quando** haverá corte (`p_corte`), treinado apenas com dias-alvo cujo
+rótulo já estava liberado. Volume e causa não são modelos (decisão de 26/09/2026,
+`docs/decisao-foco-ocorrencia-causa.md`):
 
-- ocorrência (`p_corte`): classificador binário do corte positivo;
-- volume esperado: regressão Poisson direta de E[volume], sem o produto P × condicional que
-  explodiu na Etapa 2 anterior;
-- volume condicional: Poisson só nas meias-horas com corte;
-- p10/p90: regressão quantílica do volume;
-- causa condicional ("se houver ordem, qual causa?"): multiclasse REL/CNF/ENE com peso
-  balanceado, só em linhas com ordem e causa conhecida.
+- causa: participação de cada causa nas ordens da usina no slot em 28 dias, com recurso ao
+  estado em 7 dias (`attach_cause_baseline`), com proveniência em `tipo_saida_causa`;
+- volume: não é previsto; as colunas de volume do contrato ficam nulas e
+  `tipo_saida_volume` é `nao_previsto`.
 
-O que é servido por célula está em `SERVING`, decidido pelo backtest: componentes que não
-venceram os baselines são substituídos por eles (`apply_serving`), com proveniência por linha
-em `tipo_saida_volume` e `tipo_saida_causa`. `p_restricao` e a origem são baselines
-declarados (frequência da usina no slot em 28 dias), não modelos. `p_restricao` nunca fica
-abaixo de `p_corte`, porque todo corte exige ordem.
+`p_restricao` e a origem são baselines declarados (frequência da usina no slot em 28 dias).
+`p_restricao` nunca fica abaixo de `p_corte`, porque todo corte exige ordem.
 """
 
 import json
@@ -25,7 +21,7 @@ from pathlib import Path
 import joblib
 import numpy as np
 import polars as pl
-from sklearn.ensemble import HistGradientBoostingClassifier, HistGradientBoostingRegressor
+from sklearn.ensemble import HistGradientBoostingClassifier
 
 from curtamap.contracts import (
     FORECAST_SCHEMA,
@@ -38,15 +34,13 @@ from curtamap.contracts import (
 )
 from curtamap.previsao.calendario import Calendar, load_calendar
 from curtamap.previsao.features import (
-    CAUSE,
     OCCURRENCE,
-    VOLUME,
     attach_targets,
     base_from_history,
     build_features,
 )
 
-MODEL_VERSION = "diario_hgb_v1"
+MODEL_VERSION = "diario_ocorrencia_v1"
 AVAILABILITY_SCENARIO = "diario_20h_dia_util_feriados"
 TRAIN_DAYS = 365
 SEED = 0
@@ -58,17 +52,7 @@ PARAMS = {
     "early_stopping": False,
     "random_state": SEED,
 }
-CAUSE_PARAMS = {**PARAMS, "max_iter": 200, "min_samples_leaf": 100}
-QUANTILES = (0.1, 0.9)
 DEFAULT_THRESHOLD = 0.5
-# Composição servida por célula, decidida pelo backtest jan–ago/2026 com a regra registrada
-# antes dos resultados (docs/reports/nova-abordagem). "modelo" usa o HGB; os demais são
-# baselines: "historico" = volume médio da usina no slot em 28 d; "usina_28d" = participação
-# de cada causa nas ordens da usina no slot em 28 d, com recurso ao estado em 7 d.
-SERVING = {
-    "eolica": {"volume": "historico", "causa": "usina_28d"},
-    "fotovoltaica": {"volume": "modelo", "causa": "usina_28d"},
-}
 # Coluna da classe na ordem de PREDICTABLE_CAUSES.
 _CAUSE_COLUMNS = [f"p_causa_{c.lower()}" for c in PREDICTABLE_CAUSES]
 
@@ -80,126 +64,54 @@ def _matrix(frame: pl.DataFrame, columns: list[str]) -> np.ndarray:
 @dataclass
 class SourceModel:
     occurrence: HistGradientBoostingClassifier
-    volume: HistGradientBoostingRegressor
-    conditional: HistGradientBoostingRegressor
-    quantiles: dict[float, HistGradientBoostingRegressor]
-    cause: HistGradientBoostingClassifier | None
     threshold: float = DEFAULT_THRESHOLD
 
 
 def fit_source(rows: pl.DataFrame) -> SourceModel:
-    """Treina os componentes de uma fonte com linhas de `attach_targets`."""
+    """Treina o classificador de ocorrência de uma fonte com linhas de `attach_targets`."""
     labelled = rows.filter(pl.col("y_corte").is_not_null())
     occurrence = HistGradientBoostingClassifier(**PARAMS).fit(
         _matrix(labelled, OCCURRENCE), labelled["y_corte"].to_numpy()
     )
-    x_volume, y_volume = _matrix(labelled, VOLUME), labelled["y_volume"].to_numpy()
-    volume = HistGradientBoostingRegressor(loss="poisson", **PARAMS).fit(x_volume, y_volume)
-    positive = labelled.filter(pl.col("y_volume") > 0)
-    conditional = HistGradientBoostingRegressor(loss="poisson", **PARAMS).fit(
-        _matrix(positive, VOLUME), positive["y_volume"].to_numpy()
-    )
-    quantiles = {
-        q: HistGradientBoostingRegressor(loss="quantile", quantile=q, **PARAMS).fit(
-            x_volume, y_volume
-        )
-        for q in QUANTILES
-    }
-    with_cause = labelled.filter(pl.col("y_causa").is_not_null())
-    cause = None
-    if with_cause["y_causa"].n_unique() == len(PREDICTABLE_CAUSES):
-        cause = HistGradientBoostingClassifier(class_weight="balanced", **CAUSE_PARAMS).fit(
-            _matrix(with_cause, CAUSE), with_cause["y_causa"].to_numpy()
-        )
-    return SourceModel(occurrence, volume, conditional, quantiles, cause)
+    return SourceModel(occurrence)
 
 
 def predict_source(model: SourceModel, rows: pl.DataFrame) -> pl.DataFrame:
-    """Colunas de previsão para as linhas de `build_features` de uma fonte."""
+    """`p_corte` para as linhas de `build_features` de uma fonte."""
     if rows.is_empty():
         return rows
-    x_volume = _matrix(rows, VOLUME)
-    low = np.clip(model.quantiles[QUANTILES[0]].predict(x_volume), 0, None)
-    high = np.clip(model.quantiles[QUANTILES[1]].predict(x_volume), 0, None)
-    expected = model.volume.predict(x_volume)
-    columns = {
-        "p_corte": model.occurrence.predict_proba(_matrix(rows, OCCURRENCE))[:, 1],
-        "volume_esperado_mwmed": expected,
-        "volume_condicional_mwmed": model.conditional.predict(x_volume),
-        # Quantis de modelos separados podem cruzar; o intervalo precisa conter a média.
-        "volume_p10_mwmed": np.minimum(np.minimum(low, high), expected),
-        "volume_p90_mwmed": np.maximum(np.maximum(low, high), expected),
-    }
-    if model.cause is not None:
-        proba = model.cause.predict_proba(_matrix(rows, CAUSE))
-        order = [list(model.cause.classes_).index(c) for c in PREDICTABLE_CAUSES]
-        for name, index in zip(_CAUSE_COLUMNS, order, strict=True):
-            columns[name] = proba[:, index]
-    return rows.with_columns(pl.Series(k, v, dtype=pl.Float64) for k, v in columns.items())
+    p_corte = model.occurrence.predict_proba(_matrix(rows, OCCURRENCE))[:, 1]
+    return rows.with_columns(pl.Series("p_corte", p_corte, dtype=pl.Float64))
 
 
-def apply_serving(rows: pl.DataFrame, serving: dict[str, str]) -> pl.DataFrame:
-    """Substitui componentes do modelo pelos baselines escolhidos para a fonte.
+def attach_cause_baseline(rows: pl.DataFrame) -> pl.DataFrame:
+    """Causa pela participação nas ordens da usina em 28 d, com recurso ao estado em 7 d.
 
-    Acrescenta `tipo_saida_volume` e `tipo_saida_causa` por linha. Sem histórico no slot, o
-    volume volta ao modelo; sem ordens com causa na usina nem no estado, a causa fica nula.
+    Acrescenta `p_causa_*` e `tipo_saida_causa`; sem ordens com causa na usina nem no estado,
+    a causa fica nula.
     """
     if rows.is_empty():
         return rows
-    for name in _CAUSE_COLUMNS:
-        if name not in rows.columns:
-            rows = rows.with_columns(pl.lit(None, pl.Float64).alias(name))
-    if serving.get("volume") == "historico":
-        known = pl.col("vol_hist_28d").is_not_null()
-        rows = rows.with_columns(
-            pl.when(known)
-            .then(pl.col("vol_hist_28d").cast(pl.Float64))
-            .otherwise(pl.col("volume_esperado_mwmed"))
-            .alias("volume_esperado_mwmed"),
-            pl.when(known)
-            .then(pl.lit("baseline_historico_28d"))
-            .otherwise(pl.lit("modelo"))
-            .alias("tipo_saida_volume"),
-        )
-        # A banda veio dos quantis do modelo; ela precisa conter a média servida.
-        rows = rows.with_columns(
-            pl.min_horizontal("volume_p10_mwmed", "volume_esperado_mwmed").alias(
-                "volume_p10_mwmed"
-            ),
-            pl.max_horizontal("volume_p90_mwmed", "volume_esperado_mwmed").alias(
-                "volume_p90_mwmed"
-            ),
-        )
-    else:
-        rows = rows.with_columns(pl.lit("modelo").alias("tipo_saida_volume"))
-    if serving.get("causa") == "usina_28d":
-        plant = [f"causa_{c.lower()}_28d" for c in PREDICTABLE_CAUSES]
-        state = [f"estado_{c.lower()}_7d" for c in PREDICTABLE_CAUSES]
-        has_plant = pl.all_horizontal(pl.col(c).is_not_null() for c in plant)
-        has_state = pl.all_horizontal(pl.col(c).is_not_null() for c in state)
-        rows = rows.with_columns(
-            *(
-                pl.when(has_plant)
-                .then(pl.col(a))
-                .when(has_state)
-                .then(pl.col(b))
-                .cast(pl.Float64)
-                .alias(name)
-                for name, a, b in zip(_CAUSE_COLUMNS, plant, state, strict=True)
-            ),
+    plant = [f"causa_{c.lower()}_28d" for c in PREDICTABLE_CAUSES]
+    state = [f"estado_{c.lower()}_7d" for c in PREDICTABLE_CAUSES]
+    has_plant = pl.all_horizontal(pl.col(c).is_not_null() for c in plant)
+    has_state = pl.all_horizontal(pl.col(c).is_not_null() for c in state)
+    return rows.with_columns(
+        *(
             pl.when(has_plant)
-            .then(pl.lit("baseline_usina_28d"))
+            .then(pl.col(a))
             .when(has_state)
-            .then(pl.lit("baseline_estado_7d"))
-            .alias("tipo_saida_causa"),
-        )
-    else:
-        rows = rows.with_columns(
-            pl.when(pl.col("p_causa_rel").is_not_null())
-            .then(pl.lit("modelo"))
-            .alias("tipo_saida_causa")
-        )
-    return rows
+            .then(pl.col(b))
+            .cast(pl.Float64)
+            .alias(name)
+            for name, a, b in zip(_CAUSE_COLUMNS, plant, state, strict=True)
+        ),
+        pl.when(has_plant)
+        .then(pl.lit("baseline_usina_28d"))
+        .when(has_state)
+        .then(pl.lit("baseline_estado_7d"))
+        .alias("tipo_saida_causa"),
+    )
 
 
 @dataclass
@@ -253,13 +165,9 @@ def fit(base: pl.DataFrame, mapping: pl.DataFrame, last_label_day: date, **metad
         "janela_treino_dias": TRAIN_DAYS,
         "linhas_treino": {s: rows.filter(pl.col("fonte") == s).height for s in sources},
         "features_ocorrencia": OCCURRENCE,
-        "features_volume": VOLUME,
-        "features_causa": CAUSE,
         "parametros": PARAMS,
-        "parametros_causa": CAUSE_PARAMS,
-        "quantis": QUANTILES,
         "semente": SEED,
-        "servico": SERVING,
+        "servico": {"ocorrencia": "modelo", "causa": "usina_28d", "volume": "nao_previsto"},
         **metadata,
     }
     return DailyModel(sources, info)
@@ -327,12 +235,8 @@ class DailyForecaster:
         features = build_features(base, mapping)
         if features.is_empty():
             return validate_forecast(pl.DataFrame(schema=FORECAST_SCHEMA))
-        serving = self.model.metadata.get("servico", SERVING)
         parts = [
-            apply_serving(
-                predict_source(model, features.filter(pl.col("fonte") == source)),
-                serving.get(source, {}),
-            )
+            attach_cause_baseline(predict_source(model, features.filter(pl.col("fonte") == source)))
             for source, model in self.model.sources.items()
         ]
         predicted = pl.concat([p for p in parts if not p.is_empty()], how="diagonal_relaxed")
@@ -349,7 +253,7 @@ class DailyForecaster:
         top_cause = pl.concat_list(_CAUSE_COLUMNS).list.arg_max()
         threshold = pl.col("fonte").replace_strict(source_threshold, return_dtype=pl.Float64)
         p_corte = pl.col("p_corte").clip(0.0, 1.0)
-        expected = pl.col("volume_esperado_mwmed").clip(lower_bound=0.0)
+        no_volume = pl.lit(None, pl.Float64)
         frame = rows.with_columns(tau.alias("tau"), horizon.alias("horizonte")).filter(
             pl.col("horizonte").is_between(1, HORIZONS)
         )
@@ -365,11 +269,12 @@ class DailyForecaster:
             p_corte.alias("p_corte"),
             threshold.alias("limiar_alerta"),
             (p_corte >= threshold).alias("alerta"),
-            pl.col("volume_condicional_mwmed").clip(lower_bound=0.0),
-            expected.alias("volume_esperado_mwmed"),
-            (expected * 0.5).alias("energia_esperada_mwh"),
-            pl.col("volume_p10_mwmed").clip(lower_bound=0.0),
-            pl.col("volume_p90_mwmed").clip(lower_bound=0.0),
+            # Volume não é previsto: as colunas do contrato ficam nulas.
+            no_volume.alias("volume_condicional_mwmed"),
+            no_volume.alias("volume_esperado_mwmed"),
+            no_volume.alias("energia_esperada_mwh"),
+            no_volume.alias("volume_p10_mwmed"),
+            no_volume.alias("volume_p90_mwmed"),
             pl.when(cause_present)
             .then(top_cause.replace_strict(dict(enumerate(PREDICTABLE_CAUSES))))
             .alias("causa_prevista"),
@@ -398,7 +303,7 @@ class DailyForecaster:
             pl.lit(emitted_at, pl.Datetime("us")).alias("emitido_em"),
             pl.col("idade").cast(pl.Int16).alias("idade_informacao_dias"),
             pl.col("hist_28d").alias("baseline_historico_28d"),
-            "tipo_saida_volume",
+            pl.lit("nao_previsto").alias("tipo_saida_volume"),
             "tipo_saida_causa",
         )
         # p_causa_* somam 1 dentro da tolerância; renormaliza contra erro de ponto flutuante.
