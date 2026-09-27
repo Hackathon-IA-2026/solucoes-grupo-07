@@ -1,4 +1,4 @@
-"""Contratos de saída entre previsão, recomendação e interface — versão 1.
+"""Contrato de saída entre a previsão e o aviso — versão 1.
 
 O contrato fixa o formato, não o modelo. A semântica segue o protocolo experimental da
 Etapa 2A (`docs/experimental-protocol.md`, na branch `etapa-2-experimental`). Qualquer
@@ -31,7 +31,6 @@ RESERVED_TEST_START = datetime(2026, 9, 1)
 SOURCES = ("eolica", "fotovoltaica")
 # PAR não tem suporte para aprendizado e DESCONHECIDA não é causa física (protocolo §5.3).
 PREDICTABLE_CAUSES = ("REL", "CNF", "ENE")
-RECOMMENDATION_CAUSES = ("REL", "CNF", "ENE", "PAR")
 ORIGINS = ("LOC", "SIS")
 OUTPUT_KINDS = ("modelo", "baseline", "simulado")
 
@@ -74,26 +73,6 @@ FORECAST_SCHEMA = pl.Schema(
         # Fração das 1.344 meias-horas dos 28 dias antes do corte presentes para a entidade.
         "cobertura_historico": pl.Float64,
         "gerado_em": _TS,
-    }
-)
-
-RECOMMENDATION_SCHEMA = pl.Schema(
-    {
-        "fonte": pl.String,
-        "id_ons": pl.String,
-        "t0": _TS,
-        "inicio": _TS,
-        "fim": _TS,
-        "causa_base": pl.String,
-        "acao_codigo": pl.String,
-        "acao_descricao": pl.String,
-        "energia_em_risco_mwh": pl.Float64,
-        "energia_recuperavel_mwh": pl.Float64,
-        "valor_estimado_brl": pl.Float64,
-        "co2_evitado_t": pl.Float64,
-        "premissas_versao": pl.String,
-        "tipo_saida": pl.String,
-        "modelo_id": pl.String,
     }
 )
 
@@ -248,39 +227,4 @@ def validate_forecast(frame: pl.DataFrame) -> pl.DataFrame:
         "causa_prevista não é a de maior p_causa_*",
     )
     _require(frame, _outside("origem_prevista", ORIGINS), f"origem_prevista fora de {ORIGINS}")
-    return frame
-
-
-def validate_recommendations(frame: pl.DataFrame) -> pl.DataFrame:
-    """Valida recomendações.
-
-    Valor e CO2 são cenários e podem ser nulos quando falta premissa com fonte. `causa_base`
-    nula significa causa indeterminada, que a recomendação deve declarar como tal.
-    """
-    _check_schema(frame, RECOMMENDATION_SCHEMA)
-    _check_key(frame, ["fonte", "id_ons", "t0", "inicio", "acao_codigo"])
-    col = pl.col
-    _require(frame, _outside("fonte", SOURCES), f"fonte fora de {SOURCES}")
-    _require(frame, _outside("tipo_saida", OUTPUT_KINDS), f"tipo_saida fora de {OUTPUT_KINDS}")
-    _require(frame, col("tipo_saida").is_null(), "tipo_saida nulo")
-    _require(frame, _not_blank("modelo_id"), "modelo_id vazio")
-    _require(frame, _not_blank("premissas_versao"), "premissas_versao vazia")
-    _require(frame, _not_blank("acao_descricao"), "acao_descricao vazia")
-    _require(
-        frame,
-        _outside("causa_base", RECOMMENDATION_CAUSES),
-        f"causa_base fora de {RECOMMENDATION_CAUSES}",
-    )
-    _require(frame, col("fim").is_null() | (col("fim") <= col("inicio")), "fim ≤ inicio")
-    _require(frame, col("inicio") < col("t0"), "inicio anterior a t0")
-    for name in ("energia_em_risco_mwh", "energia_recuperavel_mwh"):
-        _require(frame, col(name).is_null(), f"{name} nulo")
-    for name in ("energia_em_risco_mwh", "energia_recuperavel_mwh", "co2_evitado_t"):
-        _require(frame, _bad_number(name, lower=0.0), f"{name} negativo ou não finito")
-    _require(frame, _bad_number("valor_estimado_brl"), "valor_estimado_brl não finito")
-    _require(
-        frame,
-        col("energia_recuperavel_mwh") > col("energia_em_risco_mwh") + _TOLERANCE,
-        "energia_recuperavel_mwh maior que energia_em_risco_mwh",
-    )
     return frame

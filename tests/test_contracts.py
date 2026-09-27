@@ -6,10 +6,8 @@ import pytest
 from curtamap.contracts import (
     FORECAST_SCHEMA,
     HORIZONS,
-    RECOMMENDATION_SCHEMA,
     ContractError,
     validate_forecast,
-    validate_recommendations,
 )
 
 T0 = datetime(2025, 3, 10, 10, 0)
@@ -52,28 +50,6 @@ def _forecast_row(horizonte: int = 1, **overrides) -> dict:
 
 def _forecast(*rows: dict) -> pl.DataFrame:
     return pl.DataFrame(list(rows) or [_forecast_row()], schema=FORECAST_SCHEMA)
-
-
-def _recommendation(**overrides) -> pl.DataFrame:
-    row = {
-        "fonte": "eolica",
-        "id_ons": "BAUSI1",
-        "t0": T0,
-        "inicio": T0,
-        "fim": T0 + timedelta(hours=2),
-        "causa_base": "ENE",
-        "acao_codigo": "ARMAZENAR",
-        "acao_descricao": "Deslocar energia para armazenamento.",
-        "energia_em_risco_mwh": 40.0,
-        "energia_recuperavel_mwh": 10.0,
-        "valor_estimado_brl": None,
-        "co2_evitado_t": None,
-        "premissas_versao": "premissas_v0",
-        "tipo_saida": "simulado",
-        "modelo_id": "baseline_mesmo_horario_recente_v1",
-    }
-    row.update(overrides)
-    return pl.DataFrame([row], schema=RECOMMENDATION_SCHEMA)
 
 
 def test_valid_forecast_is_returned_unchanged():
@@ -203,26 +179,6 @@ def test_model_id_is_required():
         validate_forecast(_forecast(_forecast_row(modelo_id="")))
 
 
-def test_valid_recommendation_passes():
-    frame = _recommendation()
-    assert validate_recommendations(frame).equals(frame)
-
-
-def test_recoverable_energy_cannot_exceed_energy_at_risk():
-    with pytest.raises(ContractError, match="energia_recuperavel_mwh"):
-        validate_recommendations(_recommendation(energia_recuperavel_mwh=41.0))
-
-
-def test_recommendation_requires_assumptions_version():
-    with pytest.raises(ContractError, match="premissas_versao"):
-        validate_recommendations(_recommendation(premissas_versao=None))
-
-
-def test_recommendation_window_must_be_ordered():
-    with pytest.raises(ContractError, match="fim"):
-        validate_recommendations(_recommendation(fim=T0))
-
-
 @pytest.mark.parametrize(
     ("overrides", "column"),
     [
@@ -239,13 +195,3 @@ def test_recommendation_window_must_be_ordered():
 def test_null_or_incoherent_fields_are_rejected(overrides, column):
     with pytest.raises(ContractError, match=column):
         validate_forecast(_forecast(_forecast_row(**overrides)))
-
-
-@pytest.mark.parametrize("column", ["energia_em_risco_mwh", "energia_recuperavel_mwh"])
-def test_recommendation_energy_is_required(column):
-    with pytest.raises(ContractError, match=column):
-        validate_recommendations(_recommendation(**{column: None}))
-
-
-def test_recommendation_may_state_unknown_cause():
-    assert validate_recommendations(_recommendation(causa_base=None)).height == 1
