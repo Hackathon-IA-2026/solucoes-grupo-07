@@ -3,7 +3,7 @@
 import plotly.graph_objects as go
 import polars as pl
 
-from curtamap.ui import estilo
+from zelo.ui import estilo
 
 # Metade de baixo da escala: horas livres (verde); metade de cima: alerta (vermelho).
 _ESCALA = [

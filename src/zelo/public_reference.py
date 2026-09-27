@@ -7,9 +7,9 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 from pathlib import Path
 
-from curtamap.audit import connect, literal, records, sha256
-from curtamap.data_contract import SPECS
-from curtamap.targets import BLANKS_SQL, target_sql
+from zelo.audit import connect, literal, records, sha256
+from zelo.data_contract import SPECS
+from zelo.targets import BLANKS_SQL, target_sql
 
 DATASETS = {"eolica": "restricao_coff_eolica_usi", "fotovoltaica": "restricao_coff_fotovoltaica"}
 

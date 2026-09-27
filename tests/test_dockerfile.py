@@ -28,7 +28,7 @@ def test_only_the_served_model_and_the_notices_enter_the_image() -> None:
 
 def test_image_pins_the_lock_and_runs_the_daily_routine() -> None:
     assert "pip install --no-cache-dir -r requirements.txt" in DOCKERFILE
-    assert "python -m curtamap.previsao.ao_vivo --loop" in DOCKERFILE
+    assert "python -m zelo.previsao.ao_vivo --loop" in DOCKERFILE
     assert "COPY .streamlit/" in DOCKERFILE and "COPY configs/" in DOCKERFILE
     requisitos = (ROOT / "requirements.txt").read_text(encoding="utf-8")
     assert "scikit-learn==" in requisitos and "tzdata==" in requisitos

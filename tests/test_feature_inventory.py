@@ -3,8 +3,8 @@ from pathlib import Path
 
 import polars as pl
 
-from curtamap.data_contract import SPECS
-from curtamap.targets import derive_targets
+from zelo.data_contract import SPECS
+from zelo.targets import derive_targets
 
 INVENTORY = Path(__file__).parents[1] / "docs" / "feature-inventory.md"
 CLASSES = {

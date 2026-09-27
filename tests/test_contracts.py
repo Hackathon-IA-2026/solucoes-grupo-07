@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import polars as pl
 import pytest
 
-from curtamap.contracts import (
+from zelo.contracts import (
     FORECAST_SCHEMA,
     HORIZONS,
     ContractError,

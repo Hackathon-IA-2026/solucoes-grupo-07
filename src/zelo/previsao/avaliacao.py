@@ -15,7 +15,7 @@ modelo de causa da v1 estão em `docs/reports/nova-abordagem/metricas_backtest.c
 "Mesmo horário do dia anterior" (T − 1) não é baseline possível: na emissão das 20h, T − 1
 nunca está liberado (idade mínima de 2 dias). A cobertura é 0% e isso é reportado assim.
 
-Uso: `uv run python -m curtamap.previsao.avaliacao 2026-01 2026-08`.
+Uso: `uv run python -m zelo.previsao.avaliacao 2026-01 2026-08`.
 """
 
 import argparse
@@ -28,17 +28,17 @@ import numpy as np
 import polars as pl
 from sklearn.metrics import average_precision_score, brier_score_loss, f1_score
 
-from curtamap.config import settings
-from curtamap.contracts import PREDICTABLE_CAUSES, SOURCES
-from curtamap.forecasting import load_history
-from curtamap.previsao.calendario import load_calendar
-from curtamap.previsao.features import (
+from zelo.config import settings
+from zelo.contracts import PREDICTABLE_CAUSES, SOURCES
+from zelo.forecasting import load_history
+from zelo.previsao.calendario import load_calendar
+from zelo.previsao.features import (
     attach_targets,
     base_from_history,
     build_features,
     release_map,
 )
-from curtamap.previsao.modelo import fit, predict_source
+from zelo.previsao.modelo import fit, predict_source
 
 FIRST_DAY = date(2023, 10, 1)
 _CAUSE_SHARES = [f"causa_{c.lower()}_28d" for c in PREDICTABLE_CAUSES]

@@ -3,11 +3,11 @@ from datetime import date, datetime
 import polars as pl
 from test_previsao_modelo import _raw
 
-from curtamap.contracts import HORIZONS, validate_forecast
-from curtamap.previsao.calendario import load_calendar
-from curtamap.previsao.features import base_from_history, release_map
-from curtamap.previsao.modelo import fit
-from curtamap.previsao.reproducao import replay
+from zelo.contracts import HORIZONS, validate_forecast
+from zelo.previsao.calendario import load_calendar
+from zelo.previsao.features import base_from_history, release_map
+from zelo.previsao.modelo import fit
+from zelo.previsao.reproducao import replay
 
 CAL = load_calendar()
 

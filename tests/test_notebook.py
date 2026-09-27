@@ -4,7 +4,7 @@ import nbformat
 import pytest
 from nbclient import NotebookClient
 
-from curtamap.data_contract import SPECS
+from zelo.data_contract import SPECS
 
 ROOT = Path(__file__).parents[1]
 NOTEBOOK = ROOT / "notebooks" / "01_eda_fundamentos_dados.ipynb"

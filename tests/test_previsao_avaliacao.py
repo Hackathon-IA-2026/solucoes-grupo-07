@@ -5,9 +5,9 @@ import polars as pl
 import pytest
 from test_previsao_modelo import _raw
 
-from curtamap.previsao.avaliacao import backtest_month, choose_threshold, metrics
-from curtamap.previsao.calendario import load_calendar
-from curtamap.previsao.features import base_from_history
+from zelo.previsao.avaliacao import backtest_month, choose_threshold, metrics
+from zelo.previsao.calendario import load_calendar
+from zelo.previsao.features import base_from_history
 
 
 def test_threshold_maximizes_f1():

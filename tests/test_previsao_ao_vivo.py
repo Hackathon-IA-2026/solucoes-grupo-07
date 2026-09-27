@@ -3,7 +3,7 @@ from datetime import date, datetime, timedelta
 import polars as pl
 import pytest
 
-from curtamap.previsao.ao_vivo import (
+from zelo.previsao.ao_vivo import (
     anexar,
     corte_efetivo,
     dias_pendentes,
@@ -11,7 +11,7 @@ from curtamap.previsao.ao_vivo import (
     proximo_horario,
     url_publicacao,
 )
-from curtamap.previsao.calendario import load_calendar
+from zelo.previsao.calendario import load_calendar
 
 
 def test_url_segue_o_padrao_do_ons():

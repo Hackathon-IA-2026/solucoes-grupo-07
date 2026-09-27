@@ -25,7 +25,7 @@ ls data/raw   # precisam existir os cinco Parquet do hackathon (ver §2, item 1)
 - Faça o commit do calendário e deste prompt, em commits separados, como primeiros commits da
   branch.
 - Se faltar algum Parquet em `data/raw/`, baixe com
-  `uv sync --extra data --dev && uv run python -m curtamap.download_data` (ver
+  `uv sync --extra data --dev && uv run python -m zelo.download_data` (ver
   `data/README.md`).
 - Acrescente dependências (por exemplo, LightGBM) com `uv add` só se decidir usá-las.
 - Meça a RAM e o disco livre do notebook antes de dimensionar qualquer treino.
@@ -34,7 +34,7 @@ ls data/raw   # precisam existir os cinco Parquet do hackathon (ver §2, item 1)
 
 ## 1. Missão
 
-Você vai refazer a modelagem do CurtaMap (Etapa 2) **do zero**, com um ângulo novo, num único
+Você vai refazer a modelagem do Zelo (Etapa 2) **do zero**, com um ângulo novo, num único
 dia de trabalho contínuo (sábado, 26/09/2026). Domingo é o dia de unir as partes, containerizar
 e apresentar. Ao fim de hoje, o produto precisa de um preditor melhor que o atual, avaliado
 com honestidade e entregue no contrato de saída que as Etapas 3 e 4 já consomem.
@@ -66,7 +66,7 @@ registre no diário.
    - os `*_detail` (63 M e 19 M linhas) trazem vento e irradiância **verificados** por
      usina, que não são previsão;
    - `constrained_off_eolica_fotovoltaica_tm.parquet` também existe (ver
-     `src/curtamap/data_contract.py`).
+     `src/zelo/data_contract.py`).
 
    Os "100+ milhões" da Etapa 2 anterior vinham da expansão artificial em emissão ×
    horizonte, não dos dados.
@@ -122,7 +122,7 @@ registre no diário.
 
 ## 3. O que reaproveitar (Etapa 1 consolidada) e o que entregar
 
-- **Alvo:** `docs/target-definition.md` e `src/curtamap/targets.py` (`derive_targets`,
+- **Alvo:** `docs/target-definition.md` e `src/zelo/targets.py` (`derive_targets`,
   testado).
   - Volume = máx(referência − geração, 0) quando há limitação; energia = MWmed × 0,5.
   - O corte positivo é a ocorrência principal.
@@ -131,11 +131,11 @@ registre no diário.
   - Causa só existe sob limitação (`REL`, `CNF`, `ENE`); `PAR` não tem suporte e
     `DESCONHECIDA` não é causa.
 - **Auditoria e contrato de dados:** `docs/reports/stage1/audit.md`, `docs/data-contract.md`,
-  `src/curtamap/data_contract.py`.
+  `src/zelo/data_contract.py`.
 - **Calendário e feriados:** `configs/calendario-2023-2026.json` (§0).
-- **Preditor provisório:** `src/curtamap/forecasting.py` (mesmo horário recente) já gera o
+- **Preditor provisório:** `src/zelo/forecasting.py` (mesmo horário recente) já gera o
   contrato. Serve de referência de formato e de baseline.
-- **Contrato de saída obrigatório:** `FORECAST_SCHEMA` em `src/curtamap/contracts.py` da
+- **Contrato de saída obrigatório:** `FORECAST_SCHEMA` em `src/zelo/contracts.py` da
   `main`, idêntico ao da branch `etapa-3-recomendacao`.
   - A unidade é `fonte + id_ons + t0 + horizonte` (1..48, meia hora). Uma emissão diária
     atende ao contrato.
@@ -147,7 +147,7 @@ registre no diário.
 - **Não reaproveite** nada da Etapa 2 anterior. Os erros que importam estão resumidos no §4.
   Consulte `origin/etapa-2-experimental` só se precisar do detalhe de um erro específico. O
   diário completo está lá, em `docs/implementation-journal.md`; o da `main` vai só até a
-  Etapa 1 e o plano paralelo. Crie um módulo novo, por exemplo `src/curtamap/previsao/`.
+  Etapa 1 e o plano paralelo. Crie um módulo novo, por exemplo `src/zelo/previsao/`.
 
 ## 4. Erros aprendidos (não repita)
 
@@ -215,7 +215,7 @@ registre no diário.
   - O histórico usado como feature em setembro pode vir de `data/raw/` até 31/08, mais os
     dias de setembro já liberados em cada emissão.
 - **Trava do período reservado:** a `main` tem `RESERVED_TEST_START = 2026-05-01` em
-  `src/curtamap/contracts.py`, usada por `src/curtamap/forecasting.py` e
+  `src/zelo/contracts.py`, usada por `src/zelo/forecasting.py` e
   `tests/test_forecasting.py`. A `etapa-3-recomendacao` também protege a suíte contra esse
   período.
   - Esse período foi consumido em 25/09, e o novo teste independente é setembro de 2026.

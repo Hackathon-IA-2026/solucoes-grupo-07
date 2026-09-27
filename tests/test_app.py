@@ -7,7 +7,7 @@ import polars as pl
 import pytest
 from streamlit.testing.v1 import AppTest
 
-from curtamap.ui import painel
+from zelo.ui import painel
 
 T0 = datetime(2026, 9, 10)
 
@@ -48,7 +48,7 @@ def _arquivo(path: Path) -> Path:
 def _render(path: str) -> None:
     from pathlib import Path
 
-    from curtamap.ui import dados, painel
+    from zelo.ui import dados, painel
 
     dados.ARCHIVE_OVERRIDE = Path(path)
     painel.render()
@@ -69,18 +69,18 @@ def test_sem_arquivo_mostra_instrucao_em_vez_de_numeros(tmp_path: Path) -> None:
         _render, args=(str(tmp_path / "ausente.parquet"),), default_timeout=60
     ).run()
     assert not app.exception
-    assert "curtamap.previsao.avisos" in app.error[0].value
+    assert "zelo.previsao.avisos" in app.error[0].value
 
 
 def test_fontes_do_painel_cobrem_as_do_contrato() -> None:
-    from curtamap.contracts import SOURCES
+    from zelo.contracts import SOURCES
 
     assert set(painel.FONTES) == set(SOURCES)
 
 
 @pytest.fixture(autouse=True)
 def _limpa_cache():
-    from curtamap.ui import dados
+    from zelo.ui import dados
 
     yield
     dados.ARCHIVE_OVERRIDE = None

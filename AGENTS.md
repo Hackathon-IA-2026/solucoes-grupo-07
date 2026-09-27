@@ -2,13 +2,13 @@
 
 ## Objetivo do projeto
 
-Construir o CurtaMap, um protótipo para o desafio de curtailment do Hackathon IA COPPE 2026. O sistema deve antecipar cortes de geração eólica e solar, diagnosticar a causa provável e transformar o resultado em uma recomendação rastreável para o gerador.
+Construir o Zelo, um protótipo para o desafio de curtailment do Hackathon IA COPPE 2026. O sistema deve antecipar cortes de geração eólica e solar, diagnosticar a causa provável e transformar o resultado em uma recomendação rastreável para o gerador.
 
-CurtaMap é o nome de trabalho adotado em todo o repositório. O nome do produto ainda não é definitivo e poderá ser substituído globalmente no futuro.
+Zelo é o nome de trabalho adotado em todo o repositório. O nome do produto ainda não é definitivo e poderá ser substituído globalmente no futuro.
 
 ## Fonte de verdade
 
-- A proposta funcional vigente e o briefing do CurtaMap fornecido pela equipe, consolidado em `docs/architecture.md`.
+- A proposta funcional vigente e o briefing do Zelo fornecido pela equipe, consolidado em `docs/architecture.md`.
 - O Caderno de Desafios e Dados define o contexto e as restricoes oficiais.
 - O pitch do Ideathon serve como compromisso de coerencia, nao como especificacao imutavel.
 - Nao invente resultados, metricas, acesso a infraestrutura ou regras da organizacao. Marque hipoteses e dados simulados de forma visivel.
@@ -47,7 +47,7 @@ O usuario principal e o gerador eolico/solar. Analises para investidores e carga
 
 ## Estrutura esperada
 
-- `src/curtamap/`: código de produto e domínio.
+- `src/zelo/`: código de produto e domínio.
 - `tests/`: testes unitarios e de contratos de dados.
 - `data/`: apenas documentacao e diretorios locais ignorados pelo Git.
 - `models/`: artefatos locais ignorados pelo Git.
@@ -59,7 +59,7 @@ O usuario principal e o gerador eolico/solar. Analises para investidores e carga
 uv sync --dev
 # Quando uma integracao for realmente usada:
 uv sync --extra data --extra llm --extra aws --dev
-uv run streamlit run src/curtamap/app.py
+uv run streamlit run src/zelo/app.py
 uv run pytest
 uv run ruff check .
 uv run ruff format --check .

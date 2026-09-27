@@ -4,8 +4,8 @@ from pathlib import Path
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from curtamap.audit import audit_directory, audit_file, compare_main_integrated
-from curtamap.data_contract import MAIN_SCHEMA, SPECS, schema_issues
+from zelo.audit import audit_directory, audit_file, compare_main_integrated
+from zelo.data_contract import MAIN_SCHEMA, SPECS, schema_issues
 
 
 def write_main(path: Path, rows: list[dict]) -> Path:
@@ -134,7 +134,7 @@ def test_identity_drift_counts_change_between_null_and_value(tmp_path):
 
 
 def test_detail_comparison_reports_join_multiplicity(tmp_path):
-    from curtamap.audit import compare_detail
+    from zelo.audit import compare_detail
 
     t = datetime(2024, 1, 1)
     main = write_main(

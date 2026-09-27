@@ -9,7 +9,7 @@ as métricas. Nenhum modelo nem limiar é ajustado.
 O arquivo não traz o que aconteceu depois. O painel mostra só o que se sabia às 20h da
 véspera, como no uso real.
 
-Uso: `uv run python -m curtamap.previsao.avisos --modelo models/previsao/<artefato>.joblib`.
+Uso: `uv run python -m zelo.previsao.avisos --modelo models/previsao/<artefato>.joblib`.
 """
 
 import argparse
@@ -18,13 +18,13 @@ from pathlib import Path
 
 import polars as pl
 
-from curtamap.config import settings
-from curtamap.contracts import SOURCES
-from curtamap.data_contract import SPECS
-from curtamap.forecasting import ENTITY_ATTRIBUTES
-from curtamap.previsao.calendario import EMISSION_TIME
-from curtamap.previsao.modelo import DailyForecaster, DailyModel
-from curtamap.previsao.setembro import DIRECTORY, read_september
+from zelo.config import settings
+from zelo.contracts import SOURCES
+from zelo.data_contract import SPECS
+from zelo.forecasting import ENTITY_ATTRIBUTES
+from zelo.previsao.calendario import EMISSION_TIME
+from zelo.previsao.modelo import DailyForecaster, DailyModel
+from zelo.previsao.setembro import DIRECTORY, read_september
 
 ARCHIVE = settings.data_dir / "processed" / "avisos.parquet"
 _KEY = ["fonte", "id_ons"]

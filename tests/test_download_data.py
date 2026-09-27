@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from curtamap.download_data import build_download_plan
+from zelo.download_data import build_download_plan
 
 
 def test_plan_selects_only_ons_files_by_default(tmp_path: Path) -> None:

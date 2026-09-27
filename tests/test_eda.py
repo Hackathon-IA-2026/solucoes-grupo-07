@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
-from curtamap.audit import connect
-from curtamap.eda import aggregate_table, concentration, episode_tables
+from zelo.audit import connect
+from zelo.eda import aggregate_table, concentration, episode_tables
 
 
 def events(con, rows):
@@ -62,7 +62,7 @@ def test_aggregate_does_not_turn_unknown_energy_into_zero():
 
 
 def test_episode_duration_distribution_uses_same_breaks():
-    from curtamap.eda import episode_durations
+    from zelo.eda import episode_durations
 
     t = datetime(2025, 1, 1)
     with connect() as con:
@@ -85,7 +85,7 @@ def test_episode_duration_distribution_uses_same_breaks():
 
 
 def test_same_time_previous_day_persistence_requires_observed_pair():
-    from curtamap.eda import daily_persistence
+    from zelo.eda import daily_persistence
 
     t = datetime(2025, 1, 1, 10)
     day = timedelta(days=1)

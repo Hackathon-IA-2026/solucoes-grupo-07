@@ -12,8 +12,8 @@ Registre origem, data de download, checksum e periodo de cada arquivo. Na base i
 
 ```bash
 uv sync --extra data --dev
-uv run python -m curtamap.download_data --list
-uv run python -m curtamap.download_data
+uv run python -m zelo.download_data --list
+uv run python -m zelo.download_data
 ```
 
 O comando padrão baixa somente os Parquet do ONS. Arquivos existentes são preservados para evitar transferências e sobrescritas acidentais.
@@ -21,8 +21,8 @@ O comando padrão baixa somente os Parquet do ONS. Arquivos existentes são pres
 ## Auditoria do snapshot
 
 ```bash
-uv run python -m curtamap.audit
-uv run python -m curtamap.audit --strict
+uv run python -m zelo.audit
+uv run python -m zelo.audit --strict
 ```
 
 O segundo comando retorna código 1 quando há achados. Consulte o
@@ -33,7 +33,7 @@ em `docs/reports/stage1/`; a auditoria nunca modifica os cinco arquivos originai
 
 ```bash
 # Baixa os Parquet mensais atuais do ONS em data/interim/official/ (ignorado pelo Git)
-uv run python -m curtamap.public_reference
+uv run python -m zelo.public_reference
 # Executa a EDA do início ao fim (também coberta por tests/test_notebook.py)
 uv run jupyter execute --inplace notebooks/01_eda_fundamentos_dados.ipynb
 uv run pytest tests/test_notebook.py

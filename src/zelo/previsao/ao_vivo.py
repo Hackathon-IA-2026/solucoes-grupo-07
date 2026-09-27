@@ -12,7 +12,7 @@ Ao ligar, ela emite os dias que faltam no arquivo (até `LIMITE_RECUPERACAO`), e
 contêiner reiniciado se recompõe sozinho. A validação de setembro está encerrada, por isso
 este caminho lê dados posteriores a `RESERVED_TEST_START`; nenhum modelo é retreinado.
 
-Uso: `uv run python -m curtamap.previsao.ao_vivo --uma-vez` (ou `--loop` no contêiner).
+Uso: `uv run python -m zelo.previsao.ao_vivo --uma-vez` (ou `--loop` no contêiner).
 """
 
 import argparse
@@ -26,14 +26,14 @@ from zoneinfo import ZoneInfo
 
 import polars as pl
 
-from curtamap.config import settings
-from curtamap.contracts import SOURCES, TIMEZONE
-from curtamap.forecasting import _RAW_COLUMNS
-from curtamap.previsao.avisos import ARCHIVE, entity_attributes
-from curtamap.previsao.calendario import EMISSION_TIME, Calendar, emission_cutoff, load_calendar
-from curtamap.previsao.modelo import DailyForecaster, DailyModel
-from curtamap.previsao.produto import HISTORY_DAYS, latest_model_path
-from curtamap.targets import derive_targets
+from zelo.config import settings
+from zelo.contracts import SOURCES, TIMEZONE
+from zelo.forecasting import _RAW_COLUMNS
+from zelo.previsao.avisos import ARCHIVE, entity_attributes
+from zelo.previsao.calendario import EMISSION_TIME, Calendar, emission_cutoff, load_calendar
+from zelo.previsao.modelo import DailyForecaster, DailyModel
+from zelo.previsao.produto import HISTORY_DAYS, latest_model_path
+from zelo.targets import derive_targets
 
 URL = (
     "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_{fonte}_tm/"

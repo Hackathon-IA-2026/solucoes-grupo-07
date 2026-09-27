@@ -1,13 +1,13 @@
 # Números de apoio ao pitch: perda avisada e manutenção remarcada
 
-Análise de 27/09/2026. Código: `src/curtamap/previsao/impacto.py`, com testes em
+Análise de 27/09/2026. Código: `src/zelo/previsao/impacto.py`, com testes em
 `tests/test_impacto.py`. Os arquivos gerados nesta pasta são
 `camada1_cobertura.csv`, `camada3_manutencao.csv` e `manifesto.json`.
 
 ```bash
-uv run python -m curtamap.previsao.setembro baixar
-uv run python -m curtamap.previsao.setembro prever --modelo models/previsao/diario_ocorrencia_v1_2026-08-30.joblib
-uv run python -m curtamap.previsao.impacto --modelo models/previsao/diario_ocorrencia_v1_2026-08-30.joblib
+uv run python -m zelo.previsao.setembro baixar
+uv run python -m zelo.previsao.setembro prever --modelo models/previsao/diario_ocorrencia_v1_2026-08-30.joblib
+uv run python -m zelo.previsao.impacto --modelo models/previsao/diario_ocorrencia_v1_2026-08-30.joblib
 ```
 
 ## Protocolo e reprodução
@@ -80,7 +80,7 @@ Todas são declaradas. Nenhuma foi medida.
   - **Hipótese operacional da segunda regra:** a ordem do ONS fixa um teto, e a usina só perde
     o que a capacidade restante não alcança. Não sabemos se o teto seria redistribuído.
 - **Estratégias.** Todas usam só a informação da emissão das 20h. Empate: o bloco mais cedo.
-  - **CurtaMap:** o bloco com a maior probabilidade média de corte.
+  - **Zelo:** o bloco com a maior probabilidade média de corte.
   - **`historico`:** o bloco com a maior frequência de corte em 28 dias. É a mesma ideia de
     produto, sem o modelo.
   - **Menor potencial:** o bloco com a menor geração de referência média em 28 dias.
@@ -93,12 +93,12 @@ Todas são declaradas. Nenhuma foi medida.
 Perda média da parada, em MWh por intervenção, com a parada de 10%. As outras frações estão
 no CSV.
 
-| Fonte | Fixo 08h | Menor potencial | `historico` | **CurtaMap** | Oráculo |
+| Fonte | Fixo 08h | Menor potencial | `historico` | **Zelo** | Oráculo |
 |---|---|---|---|---|---|
 | Eólica (3.654) | 3,95 | 4,19 | 1,89 | **1,76** | 0,53 |
 | Solar (1.986) | 14,43 | 12,68 | 8,62 | **9,99** | 1,49 |
 
-Redução da perda com o CurtaMap:
+Redução da perda com o Zelo:
 
 | Fonte | f | vs. fixo 08h | vs. menor potencial | vs. `historico` | Melhor / pior (vs. menor potencial) |
 |---|---|---|---|---|---|
@@ -120,15 +120,15 @@ porque o bloco das 08h também é cortado.
   - Na eólica, a perda cai mais da metade contra as referências ingênuas, em todas as
     frações.
   - Na solar, a queda é de 20–30% nas frações pequenas.
-- **Fato:** contra o `historico`, que é a mesma ideia sem modelo, o CurtaMap quase empata na
+- **Fato:** contra o `historico`, que é a mesma ideia sem modelo, o Zelo quase empata na
   eólica (−5% a −9%) e **perde na solar** (+1% a +26%).
   - **O valor desta camada vem do perfil de corte da usina, e não da IA.**
-- **Na solar com parada de 50%, o CurtaMap perde para o menor potencial.**
+- **Na solar com parada de 50%, o Zelo perde para o menor potencial.**
   - **Hipótese:** com paradas grandes, a folga sob o teto deixa de absorver a parada, e passa
     a importar parar quando há pouca geração.
 - **A regra de escolha não foi alterada** para corrigir a solar. Isso seria calibrar no
   teste.
-- **Sobre o teto do oráculo:** na eólica, com f = 10%, o CurtaMap captura 66% da economia que
+- **Sobre o teto do oráculo:** na eólica, com f = 10%, o Zelo captura 66% da economia que
   seria possível com informação perfeita (vs. menor potencial). O oráculo usa o futuro e
   **não** é "recuperável até".
 

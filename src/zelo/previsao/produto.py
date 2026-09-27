@@ -7,10 +7,10 @@ O histórico passado a `predict` precisa cobrir `HISTORY_DAYS` dias antes do cor
 
 from pathlib import Path
 
-from curtamap.config import settings
-from curtamap.forecasting import Predictor, SameSlotRecentBaseline
-from curtamap.previsao.features import ENTITY_LOOKBACK_DAYS
-from curtamap.previsao.modelo import MODEL_VERSION, DailyForecaster, DailyModel
+from zelo.config import settings
+from zelo.forecasting import Predictor, SameSlotRecentBaseline
+from zelo.previsao.features import ENTITY_LOOKBACK_DAYS
+from zelo.previsao.modelo import MODEL_VERSION, DailyForecaster, DailyModel
 
 # Janela mais longa das features (91 dias) mais o último dia liberado.
 HISTORY_DAYS = ENTITY_LOOKBACK_DAYS + 1

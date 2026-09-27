@@ -1,4 +1,4 @@
-# Roadmap do CurtaMap
+# Roadmap do Zelo
 
 Este roadmap indica direção e critérios de passagem. Ele não fixa algoritmos, telas ou serviços antes de termos evidência suficiente.
 

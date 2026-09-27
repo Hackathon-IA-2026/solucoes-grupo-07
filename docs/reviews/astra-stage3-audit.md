@@ -1,4 +1,4 @@
-# Auditoria adversarial da Etapa 3 — CurtaMap
+# Auditoria adversarial da Etapa 3 — Zelo
 
 Data: 23/09/2026. Entrega auditada: `origin/etapa-3-recomendacao`, commit `ff8461b`.
 Branch de trabalho: `auditoria-etapa-3-astra`. Sem merge, push ou alteração de
@@ -42,7 +42,7 @@ comparação com `origin/main`, criação da branch sobre a entrega remota. Comm
 
 Leitura integral de `AGENTS.md`, `docs/parallel-plan.md`, `architecture.md`, `roadmap.md`,
 `target-definition.md`, `pitch-notes.md`, `recommendation-rules.md`, `configs/premissas/v1.json`,
-`src/curtamap/{contracts,forecasting,targets,recommendation,app}.py`,
+`src/zelo/{contracts,forecasting,targets,recommendation,app}.py`,
 `tests/test_{recommendation,contracts}.py`; leitura das últimas entradas do diário (linhas
 505–695 da entrega original). Inspecionados ainda os testes de previsão/notebook e os pontos
 de leitura dos módulos legados. Estatísticas antigas nos documentos não foram recalculadas
@@ -92,7 +92,7 @@ P1 compromete resultado/proteção ou narrativa central; P2 compromete robustez/
 
 | ID / severidade | Evidência técnica e consequência | Tratamento |
 |---|---|---|
-| D1 / P1 | Original `src/curtamap/recommendation.py:155`: `min(total, potência × duração)` permite usar potência ociosa de uma janela em outra. Contraprova 99/1 MWh → carga máxima 16, não 30 MWh | Corrigido em `recommendation.py:152`: perfil de 30 min, passado por `build_recommendations:248`; exemplo real corrigido |
+| D1 / P1 | Original `src/zelo/recommendation.py:155`: `min(total, potência × duração)` permite usar potência ociosa de uma janela em outra. Contraprova 99/1 MWh → carga máxima 16, não 30 MWh | Corrigido em `recommendation.py:152`: perfil de 30 min, passado por `build_recommendations:248`; exemplo real corrigido |
 | D2 / P1 | Original `recommendation.py:54` e `:135`: valida só versão; energia negativa pode produzir recuperação negativa; eficiência inválida, NaN, preço/fator negativo e cenários faltantes entram no cálculo | `assumptions.py:11`, `:39`, `:63` e `recommendation.py:161`: rejeição explícita antes de calcular; rejeição de overflow |
 | D3 / P1 | Original `recommendation.py:149`: bateria incompleta vira recuperação zero; original `:267`: Polars soma nulos como zero e oculta total parcial | Cenário com valor nulo justificado continua nulo; construção recusa energia indeterminada (`:272`). Resumo preserva total nulo e expõe subtotal/contagens (`:298`) |
 | D4 / P1 | Original `recommendation.py:73` aceita previsão externa no período reservado; validação de contrato não barra datas. Original `tests/test_forecasting.py:192` liberava explicitamente o teste; `tests/test_notebook.py:14`/`:27` abria/executava EDA integral | Guardas locais em `recommendation.py:78`; suíte legada isolada antes de executar. Restrição não universal: ver §4 |
@@ -277,7 +277,7 @@ cenários e resumo tático. Premissas em arquivos versionados. Existem somente e
 fluxo de trabalho regional LOC/SIS, diferenças detalhadas por fonte, validação com profissionais,
 simulação operacional de SOC/descarga e escolha econômica real. Nenhum serviço BESS/ONS é acionado.
 
-`src/curtamap/app.py:28` cria três abas, mas `:32`, `:40`, `:48` ainda mostram texto preparatório.
+`src/zelo/app.py:28` cria três abas, mas `:32`, `:40`, `:48` ainda mostram texto preparatório.
 Não chama previsão, recomendação ou resumo; contar Parquet não valida seu conteúdo. Nada disso
 foi alterado nesta auditoria. A interface de outra branch não foi auditada.
 
@@ -286,9 +286,9 @@ foi alterado nesta auditoria. A interface de outra branch não foi auditada.
 ```python
 from datetime import datetime, timedelta
 import polars as pl
-from curtamap.config import settings
-from curtamap.forecasting import load_history, nightly_cutoff, SameSlotRecentBaseline
-from curtamap.recommendation import (
+from zelo.config import settings
+from zelo.forecasting import load_history, nightly_cutoff, SameSlotRecentBaseline
+from zelo.recommendation import (
     build_recommendations,
     group_risk_windows,
     impact_sensitivity,
@@ -457,7 +457,7 @@ regulatória publicada após maio não se confunde com dados de geração reserv
 - Documentação desta auditoria: registro numérico/fontes, corrigendas no pitch/regras e diário
   append-only. O commit documental é identificável no histórico da branch.
 
-Arquivos de implementação/teste: `src/curtamap/assumptions.py`, `recommendation.py`,
+Arquivos de implementação/teste: `src/zelo/assumptions.py`, `recommendation.py`,
 `configs/premissas/v2.json`, `tests/test_recommendation.py`, `test_recommendation_adversarial.py`,
 `test_forecasting.py`, `test_notebook.py`. Documentos: este relatório, `stage3-evidence.json`,
 `docs/recommendation-rules.md`, `docs/pitch-notes.md`, `docs/implementation-journal.md`.

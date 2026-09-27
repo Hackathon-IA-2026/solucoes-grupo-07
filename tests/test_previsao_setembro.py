@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 import polars as pl
 
-from curtamap.previsao.setembro import read_september, week_start
+from zelo.previsao.setembro import read_september, week_start
 
 
 def _official(path, source, rows):

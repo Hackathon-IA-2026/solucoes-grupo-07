@@ -3,15 +3,15 @@ from datetime import date, datetime, timedelta
 import polars as pl
 import pytest
 
-from curtamap.forecasting import load_history
-from curtamap.previsao.calendario import load_calendar
-from curtamap.previsao.features import (
+from zelo.forecasting import load_history
+from zelo.previsao.calendario import load_calendar
+from zelo.previsao.features import (
     FEATURES,
     base_from_history,
     build_features,
     release_map,
 )
-from curtamap.targets import derive_targets
+from zelo.targets import derive_targets
 
 CAL = load_calendar()
 RAW_TYPES = {

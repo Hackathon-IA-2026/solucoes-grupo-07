@@ -1,6 +1,6 @@
 import polars as pl
 
-from curtamap.previsao.relatorio import decide
+from zelo.previsao.relatorio import decide
 
 
 def _table(model_ap, base_ap):

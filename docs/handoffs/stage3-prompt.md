@@ -1,6 +1,6 @@
 # Prompt autossuficiente para a Etapa 3 — recomendação e impacto
 
-Você vai implementar a Etapa 3 do CurtaMap: transformar a previsão de curtailment em uma
+Você vai implementar a Etapa 3 do Zelo: transformar a previsão de curtailment em uma
 recomendação rastreável para o gerador eólico/solar, com estimativa de energia recuperável,
 valor financeiro e CO2 evitado **como cenários com premissas visíveis**, nunca como garantia.
 
@@ -8,14 +8,14 @@ valor financeiro e CO2 evitado **como cenários com premissas visíveis**, nunca
 
 Leia integralmente: `AGENTS.md`, `docs/parallel-plan.md`, `docs/architecture.md`,
 `docs/roadmap.md` (seção 3), `docs/target-definition.md`, `docs/pitch-notes.md`,
-`src/curtamap/contracts.py`, `src/curtamap/forecasting.py` e `src/curtamap/targets.py`.
+`src/zelo/contracts.py`, `src/zelo/forecasting.py` e `src/zelo/targets.py`.
 Leia também as últimas entradas de `docs/implementation-journal.md`.
 
 Trabalhe na branch `etapa-3-recomendacao`, criada a partir do `origin/main` atualizado.
 Faça commits atômicos em português (Conventional Commits) e push da branch. Não faça merge no
 `main`: a integração é por Pull Request revisado pelo responsável.
 
-Para ter dados reais: `uv sync --extra data --dev` e `uv run python -m curtamap.download_data`.
+Para ter dados reais: `uv sync --extra data --dev` e `uv run python -m zelo.download_data`.
 
 ## O que já existe e não deve ser alterado sem combinar
 
@@ -27,15 +27,15 @@ Para ter dados reais: `uv sync --extra data --dev` e `uv run python -m curtamap.
   você produzir deve passar por `validate_recommendations`.
 - `SameSlotRecentBaseline`: o preditor provisório, com dados reais. O modelo definitivo da
   Etapa 2 vai substituí-lo depois, com o mesmo formato. Seu código não pode depender de qual
-  preditor gerou a previsão, nem importar `curtamap.experimental`.
+  preditor gerou a previsão, nem importar `zelo.experimental`.
 
 Se precisar de uma coluna nova no contrato, pare e proponha ao responsável um PR pequeno e
-separado em `contracts.py`. Não altere `src/curtamap/app.py`: a interface é de outro
+separado em `contracts.py`. Não altere `src/zelo/app.py`: a interface é de outro
 desenvolvedor, que vai consumir a sua saída pelo contrato.
 
 ## Entregas
 
-1. **Regras causa → ação** (`docs/recommendation-rules.md` + `src/curtamap/recommendation.py`).
+1. **Regras causa → ação** (`docs/recommendation-rules.md` + `src/zelo/recommendation.py`).
    Regras explícitas e determinísticas, não aprendidas. Para cada causa (`REL`, `CNF`, `ENE`,
    `PAR` e causa desconhecida/nula), diga que ações o gerador pode tomar, com que antecedência,
    e quais limites operacionais e regulatórios existem. Diferencie eólica e solar e, quando

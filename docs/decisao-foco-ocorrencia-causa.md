@@ -5,7 +5,7 @@ das Etapas 2, 3 e 4 na `main`.
 
 ## 1. A decisão em uma frase
 
-O CurtaMap deixa de prever volume e deixa de tentar um modelo de causa. O produto passa a
+O Zelo deixa de prever volume e deixa de tentar um modelo de causa. O produto passa a
 servir duas informações: **quando** haverá corte, dada pela probabilidade por usina e meia-hora
 para o dia seguinte, e **por quê**, dada pela causa provável tirada do histórico da usina. O
 esforço seguinte vai para a **experiência de produto e a recomendação** construídas sobre
@@ -46,7 +46,7 @@ Leitura da equipe (decisão, não medida):
   - Manifesto: `docs/reports/nova-abordagem/modelo-congelado-ocorrencia.json`.
   - Artefato: `models/previsao/diario_ocorrencia_v1_2026-08-30.joblib`, fora do Git.
   - Regeneração em cerca de 1 min:
-    `uv run python -m curtamap.previsao.treinar --limiares data/interim/previsao/limiares.json --manifesto docs/reports/nova-abordagem/modelo-congelado-ocorrencia.json`.
+    `uv run python -m zelo.previsao.treinar --limiares data/interim/previsao/limiares.json --manifesto docs/reports/nova-abordagem/modelo-congelado-ocorrencia.json`.
 - **Paridade verificada:** o `p_corte` do novo artefato é idêntico, com diferença máxima de 0
   e alertas iguais, ao do classificador de ocorrência do artefato v3 em dois dias-alvo de
   agosto (25 e 26/08; 22.656 linhas). Por isso as métricas de ocorrência do backtest e de setembro valem

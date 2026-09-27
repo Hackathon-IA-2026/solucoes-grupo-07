@@ -2,9 +2,9 @@
 
 from pathlib import Path
 
-from curtamap.audit import connect, literal, records
-from curtamap.data_contract import SPECS
-from curtamap.targets import target_sql
+from zelo.audit import connect, literal, records
+from zelo.data_contract import SPECS
+from zelo.targets import target_sql
 
 
 def aggregate_table(con, dimensions: list[str], where: str = "true") -> list[dict]:

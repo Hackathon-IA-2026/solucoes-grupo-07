@@ -10,7 +10,7 @@ preditor escolhido sem mudar o formato de saída.
 Diferenças conscientes em relação ao baseline experimental da Etapa 2:
 
 - a disponibilidade usa `nightly_cutoff`, que delega ao calendário de feriados de
-  `curtamap.previsao.calendario` (fonte única do corte para todo o produto);
+  `zelo.previsao.calendario` (fonte única do corte para todo o produto);
 - não há fallback estatístico regional: sem observação válida no horário, a previsão
   fica nula com motivo explícito, em vez de um número de baixa evidência.
 
@@ -25,7 +25,7 @@ from typing import Protocol
 
 import polars as pl
 
-from curtamap.contracts import (
+from zelo.contracts import (
     FORECAST_SCHEMA,
     HORIZONS,
     PREDICTABLE_CAUSES,
@@ -34,9 +34,9 @@ from curtamap.contracts import (
     STEP,
     validate_forecast,
 )
-from curtamap.data_contract import SPECS
-from curtamap.previsao.calendario import Calendar, load_calendar, release_cutoff
-from curtamap.targets import derive_targets
+from zelo.data_contract import SPECS
+from zelo.previsao.calendario import Calendar, load_calendar, release_cutoff
+from zelo.targets import derive_targets
 
 HISTORY_DAYS = 28
 AVAILABILITY_SCENARIO = "noturno_fim_de_semana"

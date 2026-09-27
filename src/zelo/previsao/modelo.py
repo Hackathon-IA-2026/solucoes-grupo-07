@@ -23,7 +23,7 @@ import numpy as np
 import polars as pl
 from sklearn.ensemble import HistGradientBoostingClassifier
 
-from curtamap.contracts import (
+from zelo.contracts import (
     FORECAST_SCHEMA,
     HORIZONS,
     PREDICTABLE_CAUSES,
@@ -32,8 +32,8 @@ from curtamap.contracts import (
     STEP,
     validate_forecast,
 )
-from curtamap.previsao.calendario import Calendar, load_calendar
-from curtamap.previsao.features import (
+from zelo.previsao.calendario import Calendar, load_calendar
+from zelo.previsao.features import (
     OCCURRENCE,
     attach_targets,
     base_from_history,

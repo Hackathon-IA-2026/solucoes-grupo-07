@@ -1,6 +1,6 @@
 # Prompt autossuficiente para a Etapa 4 (interface) e a preparação da Etapa 5 (AWS)
 
-Você vai construir a interface do CurtaMap em **Streamlit** e, na quinta-feira (24/09), preparar
+Você vai construir a interface do Zelo em **Streamlit** e, na quinta-feira (24/09), preparar
 localmente o deploy da Etapa 5. O usuário principal é o **gerador eólico/solar**. O dashboard
 abre com a decisão que ele precisa tomar, não com a acurácia do modelo: usinas em risco,
 janela, MWh, causa, confiança e ação sugerida.
@@ -9,14 +9,14 @@ janela, MWh, causa, confiança e ação sugerida.
 
 Leia integralmente: `AGENTS.md`, `docs/parallel-plan.md`, `docs/architecture.md`,
 `docs/roadmap.md` (seções 4 e 5), `docs/aws-environment.md`, `docs/pitch-notes.md`,
-`src/curtamap/contracts.py`, `src/curtamap/forecasting.py` e o `src/curtamap/app.py` atual.
+`src/zelo/contracts.py`, `src/zelo/forecasting.py` e o `src/zelo/app.py` atual.
 Leia também as últimas entradas de `docs/implementation-journal.md`.
 
 Trabalhe na branch `etapa-4-interface`, criada a partir do `origin/main` atualizado. Faça commits
 atômicos em português (Conventional Commits) e push da branch. Não faça merge no `main`: a
 integração é por Pull Request revisado pelo responsável.
 
-Para ter dados reais: `uv sync --extra data --dev` e `uv run python -m curtamap.download_data`.
+Para ter dados reais: `uv sync --extra data --dev` e `uv run python -m zelo.download_data`.
 
 ## Contratos que a interface consome
 
@@ -25,7 +25,7 @@ Para ter dados reais: `uv sync --extra data --dev` e `uv run python -m curtamap.
   Polars no formato `FORECAST_SCHEMA`, com 48 janelas por usina. Carregar 28 dias leva menos
   de 1 s. O preditor definitivo da Etapa 2 vai substituir este depois, com o mesmo formato. A
   interface não pode depender de qual preditor gerou a previsão, nem importar
-  `curtamap.experimental`.
+  `zelo.experimental`.
 - **Atributos das usinas:** `known_entities(history, corte)` devolve nome, UF e subsistema.
 - **Recomendação:** `RECOMMENDATION_SCHEMA`. O módulo que gera recomendações está sendo feito em
   paralelo por outro desenvolvedor (branch `etapa-3-recomendacao`). Até ele chegar ao `main`,
@@ -40,7 +40,7 @@ da Etapa 3.
 ## Entregas da Etapa 4 (terça a quinta)
 
 1. **Estrutura multipágina** com `st.navigation`. O `app.py` só configura a página e registra
-   as telas. Cada tela fica em um módulo próprio (por exemplo `src/curtamap/ui/`).
+   as telas. Cada tela fica em um módulo próprio (por exemplo `src/zelo/ui/`).
    **A interface só desenha.** Qualquer cálculo reaproveitável vai para funções testadas fora da
    UI. Use `st.cache_data` para histórico e previsão.
 2. **Operação D+1.** Seletor de emissão `t0` (data e hora na grade de 30 minutos). Ranking de
@@ -68,7 +68,7 @@ manuais ocultos:
 
 1. `Dockerfile` (Python 3.12 + `uv`) que roda o Streamlit na porta 8501, com health check em
    `/_stcore/health`. Os dados não entram na imagem: são montados ou baixados de S3 na
-   inicialização, via `CURTAMAP_DATA_DIR`. Teste `docker build` e `docker run` localmente.
+   inicialização, via `ZELO_DATA_DIR`. Teste `docker build` e `docker run` localmente.
 2. `infra/` com um app CDK mínimo: ECR, ECS Fargate atrás de um ALB (que suporta websockets),
    S3 para dados e CloudWatch Logs. Rode a CLI do CDK com `pnpm dlx aws-cdk` (nunca `npx`).
    `cdk synth` deve funcionar sem credenciais. Respeite as restrições de IAM de
@@ -89,7 +89,7 @@ manuais ocultos:
 - Antes de cada commit: `uv run pytest`, `uv run ruff check .` e `uv run ruff format --check .`.
   No Windows, se `tests/test_feature_inventory.py` falhar por encoding, rode com
   `PYTHONUTF8=1`: é um problema conhecido e anterior a esta etapa.
-- Verifique a interface rodando de verdade (`uv run streamlit run src/curtamap/app.py`), não só
+- Verifique a interface rodando de verdade (`uv run streamlit run src/zelo/app.py`), não só
   pelos testes.
 
 ## Encerramento

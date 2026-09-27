@@ -41,7 +41,7 @@ Este documento registra apenas capacidades e restrições úteis ao desenvolvime
 
 O catálogo informado inclui famílias Anthropic Claude, Amazon Nova, OpenAI GPT, xAI Grok, Moonshot Kimi, DeepSeek, Writer, TwelveLabs e Amazon Titan Embeddings. A disponibilidade real depende do identificador de inferência e de seu prefixo `us.` ou `global.`; a aplicação deve tratar indisponibilidade como uma condição normal e possuir fallback.
 
-Nenhum modelo generativo será acoplado ao domínio. O CurtaMap deve escolher um provedor por configuração e continuar funcional sem essa camada.
+Nenhum modelo generativo será acoplado ao domínio. O Zelo deve escolher um provedor por configuração e continuar funcional sem essa camada.
 
 ## Hipótese inicial de implantação
 

@@ -1,4 +1,4 @@
-# CurtaMap
+# Zelo
 
 > O nome do produto ainda não é definitivo.
 
@@ -23,7 +23,7 @@ As decisões e perguntas em aberto estão em [docs/architecture.md](docs/archite
 - Python 3.12 e `uv`
 - Polars, DuckDB e Parquet para processamento
 - scikit-learn e modelos tabulares candidatos para experimentação
-- Streamlit para a interface (telas em `src/curtamap/ui/`, cálculos testados em `src/curtamap/painel/`)
+- Streamlit para a interface (telas em `src/zelo/ui/`, cálculos testados em `src/zelo/painel/`)
 - AWS com infraestrutura como código para build, execução, dados, modelos e observabilidade
 - Bedrock ou NVIDIA NIM como camada opcional de explicação em linguagem natural
 
@@ -42,12 +42,12 @@ Docker, Node/pnpm e AWS CLI só são necessários para o deploy; veja [docs/depl
 ```bash
 uv sync --extra data --dev
 cp .env.example .env
-uv run python -m curtamap.download_data                      # Parquet do ONS em data/raw/
-uv run python -m curtamap.previsao.treinar --limiares data/interim/previsao/limiares.json   --manifesto docs/reports/nova-abordagem/modelo-congelado-ocorrencia.json
-uv run python -m curtamap.previsao.setembro baixar           # publicação de setembro
-uv run python -m curtamap.previsao.setembro prever --modelo models/previsao/<artefato>.joblib
-uv run python -m curtamap.previsao.avisos --modelo models/previsao/<artefato>.joblib
-uv run streamlit run src/curtamap/app.py
+uv run python -m zelo.download_data                      # Parquet do ONS em data/raw/
+uv run python -m zelo.previsao.treinar --limiares data/interim/previsao/limiares.json   --manifesto docs/reports/nova-abordagem/modelo-congelado-ocorrencia.json
+uv run python -m zelo.previsao.setembro baixar           # publicação de setembro
+uv run python -m zelo.previsao.setembro prever --modelo models/previsao/<artefato>.joblib
+uv run python -m zelo.previsao.avisos --modelo models/previsao/<artefato>.joblib
+uv run streamlit run src/zelo/app.py
 ```
 
 Sem o arquivo de avisos, o painel mostra como gerá-lo em vez de números.
@@ -55,8 +55,8 @@ Sem o arquivo de avisos, o painel mostra como gerá-lo em vez de números.
 A rotina diária (baixa o ONS às 19h30 e emite o aviso de amanhã às 20h, horário de Brasília):
 
 ```bash
-uv run python -m curtamap.previsao.ao_vivo --uma-vez   # emite os dias pendentes agora
-uv run python -m curtamap.previsao.ao_vivo --loop      # fica rodando, como no contêiner
+uv run python -m zelo.previsao.ao_vivo --uma-vez   # emite os dias pendentes agora
+uv run python -m zelo.previsao.ao_vivo --loop      # fica rodando, como no contêiner
 ```
 
 ## Deploy (AWS)
@@ -66,10 +66,10 @@ painel. Não precisa de credenciais nem de volume:
 
 ```bash
 # O Fargate da stack roda em x86: em Mac com chip Apple, gere a imagem para linux/amd64.
-docker buildx build --platform linux/amd64 -t <usuario>/curtamap:latest --push .
+docker buildx build --platform linux/amd64 -t <usuario>/zelo:latest --push .
 ```
 
-O template `infra/curtamap-stack.yaml` sobe a imagem pública no ECS Fargate (sem papel
+O template `infra/zelo-stack.yaml` sobe a imagem pública no ECS Fargate (sem papel
 IAM), com IP público na porta 8501. Parâmetros: `ImageUri`, `VpcId` e `SubnetIds`.
 
 Validações:
@@ -86,8 +86,8 @@ As bases oficiais podem ser listadas e baixadas automaticamente da pasta públic
 
 ```bash
 uv sync --extra data --dev
-uv run python -m curtamap.download_data --list
-uv run python -m curtamap.download_data
+uv run python -m zelo.download_data --list
+uv run python -m zelo.download_data
 ```
 
 Por padrão, o script baixa somente os cinco Parquet do ONS para `data/raw/`. Use `--include-tutorials` para incluir também o material ERA5. Downloads existentes são preservados; use `--force` apenas quando quiser substituí-los.

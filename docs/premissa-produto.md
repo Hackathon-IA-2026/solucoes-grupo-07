@@ -1,4 +1,4 @@
-# Premissa do produto CurtaMap
+# Premissa do produto Zelo
 
 Data: 27/09/2026. **Estado: fechada em 27/09 pelo responsável; o roteiro do palco está em `docs/roteiro-pitch.md`.** Depende do
 posicionamento decidido em `docs/posicionamento-pitch.md` (P1 com a cena do P2) e dos números
@@ -16,7 +16,7 @@ Legenda dos números:
 ## 1. A frase de posicionamento
 
 > **Para** as equipes que operam e mantêm usinas eólicas e solares, **que** hoje só descobrem
-> o corte quando a ordem chega, **o CurtaMap é** um aviso diário de cortes **que**, toda noite,
+> o corte quando a ordem chega, **o Zelo é** um aviso diário de cortes **que**, toda noite,
 > mostra em quais horas do dia seguinte cada usina deve ser cortada, por qual motivo e quanto
 > esse aviso costuma acertar.
 
@@ -28,7 +28,7 @@ cortes de energia, para a usina se preparar".
 - **Quem:** a equipe que opera uma ou várias usinas eólicas ou solares. Na prática, a sala de
   operação e quem planeja o dia seguinte (manutenção, turno, comunicação interna)
   **[hipótese]**. Não conversamos com operadores reais.
-- **Quando:** às 20h, na noite anterior. É a hora em que o CurtaMap emite o aviso, com os
+- **Quando:** às 20h, na noite anterior. É a hora em que o Zelo emite o aviso, com os
   dados que o ONS já publicou. O uso de fato acontece na manhã seguinte, no planejamento do
   dia.
 - **Qual é a dor, em uma frase:** "o corte chega sem aviso, e a gente só reage".
@@ -80,7 +80,7 @@ O "aviso das 20h" tem uma linha por usina, para o dia seguinte:
 
 - O pitch liga o produto ao tamanho da perda **sem prometer recuperá-la**:
   > "O corte custou cerca de R$ 6,5 bilhões em 2025. Quase toda essa perda acontece em horas
-  > que o CurtaMap avisa na noite anterior."
+  > que o Zelo avisa na noite anterior."
 - A cena da manutenção mostra que o aviso vira decisão.
 - Nenhum valor de economia anual é anunciado.
 
@@ -140,8 +140,8 @@ Próximos passos, em ordem de valor:
 | Pergunta provável | Resposta |
 |---|---|
 | "O ONS já não faz isso?" | O ONS opera o sistema e publica o corte depois. Não entrega ao gerador um aviso por usina na noite anterior |
-| "Se eu olhar o histórico da usina, não consigo o mesmo?" | O histórico é o nosso ponto de partida. O modelo o supera em todos os meses, e o CurtaMap entrega isso pronto, todo dia, com motivo e índice de acerto |
-| "Vocês evitam o corte?" | Não. O corte é uma decisão do operador do sistema. O CurtaMap tira a surpresa, para a usina se preparar |
+| "Se eu olhar o histórico da usina, não consigo o mesmo?" | O histórico é o nosso ponto de partida. O modelo o supera em todos os meses, e o Zelo entrega isso pronto, todo dia, com motivo e índice de acerto |
+| "Vocês evitam o corte?" | Não. O corte é uma decisão do operador do sistema. O Zelo tira a surpresa, para a usina se preparar |
 | "Quanto o gerador economiza?" | Depende da decisão. No exemplo da manutenção, a parada remarcada perdeu mais da metade menos energia na eólica em setembro. Não anunciamos um total anual porque não conhecemos a agenda real de cada gerador |
 | "E sem previsão do tempo?" | Hoje o aviso usa só dados já publicados. Medimos que o clima é a próxima alavanca |
 | "Por que o motivo não é previsto por IA?" | Testamos, e a regra do histórico acertou mais. Preferimos o que é melhor e explicável |

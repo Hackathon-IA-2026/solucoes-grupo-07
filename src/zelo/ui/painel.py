@@ -6,7 +6,7 @@ from html import escape
 import polars as pl
 import streamlit as st
 
-from curtamap.aviso import (
+from zelo.aviso import (
     MOTIVOS,
     STATUS_ALERTA,
     STATUS_SEM_PREVISAO,
@@ -18,8 +18,8 @@ from curtamap.aviso import (
     resumo_usinas,
     sugestao,
 )
-from curtamap.previsao.ao_vivo import agora_brasilia
-from curtamap.ui import dados, estilo, graficos
+from zelo.previsao.ao_vivo import agora_brasilia
+from zelo.ui import dados, estilo, graficos
 
 FONTES = {"eolica": "Eólica", "fotovoltaica": "Solar"}
 _MOTIVO_CURTO = {
@@ -65,7 +65,7 @@ def _nome(row: dict) -> str:
 def _cabecalho(dia: date, emitido) -> None:
     estilo.html(
         f"""<div class="cm-mast">
-<div class="cm-kicker"><b>CurtaMap</b> &nbsp;·&nbsp; aviso diário de cortes &nbsp;·&nbsp;
+<div class="cm-kicker"><b>Zelo</b> &nbsp;·&nbsp; aviso diário de cortes &nbsp;·&nbsp;
 emitido às {emitido:%Hh} de {emitido:%d/%m}</div>
 <h1>{_relativo(dia)}<em>{escape(_dia_titulo(dia))}</em></h1></div>"""
     )
@@ -238,7 +238,7 @@ def render() -> None:
     if dados.arquivo_ausente():
         st.error(
             "Nenhum aviso emitido encontrado em `data/processed/avisos.parquet`. Gere o arquivo "
-            "com `uv run python -m curtamap.previsao.avisos --modelo "
+            "com `uv run python -m zelo.previsao.avisos --modelo "
             "models/previsao/<artefato>.joblib`. O painel não mostra números simulados."
         )
         return

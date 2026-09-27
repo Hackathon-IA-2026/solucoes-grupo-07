@@ -9,7 +9,7 @@ O limiar de alerta é escolhido nas previsões fora da amostra de jan–abr e ve
 mai–ago. O limiar final (para o modelo congelado) usa jan–ago inteiro.
 
 Uso:
-`uv run python -m curtamap.previsao.relatorio data/interim/previsao docs/reports/nova-abordagem`.
+`uv run python -m zelo.previsao.relatorio data/interim/previsao docs/reports/nova-abordagem`.
 """
 
 import argparse
@@ -18,7 +18,7 @@ from pathlib import Path
 
 import polars as pl
 
-from curtamap.previsao.avaliacao import choose_threshold, metrics
+from zelo.previsao.avaliacao import choose_threshold, metrics
 
 CELLS = {
     "corte": ("ap", ["historico", "mesmo_slot_ultimo_dia", "ultimo_valor"], True),

@@ -4,7 +4,7 @@ O rótulo mais recente usado é o último dia liberado na emissão que prevê 01
 que nenhuma previsão de setembro use no treino um rótulo ainda não publicado. O limiar de
 alerta por fonte vem das previsões fora da amostra do backtest (`avaliacao`), nunca do treino.
 
-Uso: `uv run python -m curtamap.previsao.treinar --limiares data/interim/previsao/limiares.json`.
+Uso: `uv run python -m zelo.previsao.treinar --limiares data/interim/previsao/limiares.json`.
 """
 
 import argparse
@@ -16,11 +16,11 @@ from pathlib import Path
 
 import polars as pl
 
-from curtamap.config import settings
-from curtamap.previsao.avaliacao import FIRST_DAY, load_base
-from curtamap.previsao.calendario import load_calendar
-from curtamap.previsao.features import release_map
-from curtamap.previsao.modelo import fit
+from zelo.config import settings
+from zelo.previsao.avaliacao import FIRST_DAY, load_base
+from zelo.previsao.calendario import load_calendar
+from zelo.previsao.features import release_map
+from zelo.previsao.modelo import fit
 
 FIRST_FORECAST_DAY = date(2026, 9, 1)
 

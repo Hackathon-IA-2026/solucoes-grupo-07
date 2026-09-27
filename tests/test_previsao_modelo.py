@@ -3,11 +3,11 @@ from datetime import date, datetime, timedelta
 import polars as pl
 import pytest
 
-from curtamap.contracts import HORIZONS, validate_forecast
-from curtamap.previsao.calendario import load_calendar
-from curtamap.previsao.features import base_from_history, release_map
-from curtamap.previsao.modelo import DailyForecaster, DailyModel, fit, training_rows
-from curtamap.targets import derive_targets
+from zelo.contracts import HORIZONS, validate_forecast
+from zelo.previsao.calendario import load_calendar
+from zelo.previsao.features import base_from_history, release_map
+from zelo.previsao.modelo import DailyForecaster, DailyModel, fit, training_rows
+from zelo.targets import derive_targets
 
 CAL = load_calendar()
 START = date(2026, 3, 1)
@@ -163,8 +163,8 @@ def test_product_forecasts_only_occurrence_and_leaves_volume_empty(model, histor
 
 
 def test_cause_is_the_plant_mode_in_28_days_with_provenance(model, history):
-    from curtamap.previsao.features import build_features
-    from curtamap.previsao.modelo import forecast_mapping
+    from zelo.previsao.features import build_features
+    from zelo.previsao.modelo import forecast_mapping
 
     forecast = _predict(model, history)
     assert set(forecast["tipo_saida_causa"].drop_nulls().unique()) <= {

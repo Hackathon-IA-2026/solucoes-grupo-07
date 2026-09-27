@@ -24,8 +24,8 @@ from pathlib import Path
 import polars as pl
 from sklearn.metrics import average_precision_score
 
-from curtamap.previsao.modelo import DailyModel
-from curtamap.previsao.setembro import DIRECTORY, read_september
+from zelo.previsao.modelo import DailyModel
+from zelo.previsao.setembro import DIRECTORY, read_september
 
 KEY = ["fonte", "id_ons", "dia"]
 BLOCK = 4  # meias-horas: 2 h
@@ -105,7 +105,7 @@ def coverage(scored: pl.DataFrame, thresholds: dict[str, float]) -> pl.DataFrame
 def block_table(scored: pl.DataFrame, fraction: float) -> pl.DataFrame:
     """Uma linha por usina × dia × início de bloco completo dentro da janela."""
     frame = scored.sort([*KEY, "slot"]).with_columns(stop_loss_mwh(fraction).alias("perda"))
-    columns = {"p_corte": "curtamap", "hist_28d": "historico", "ref_hist_28d": "potencial"}
+    columns = {"p_corte": "zelo", "hist_28d": "historico", "ref_hist_28d": "potencial"}
     shifted = [
         pl.col(c).shift(-k).over(KEY).alias(f"{c}_{k}")
         for c in [*columns, "perda", "slot"]
@@ -146,7 +146,7 @@ def choose(blocks: pl.DataFrame, thresholds: dict[str, float]) -> pl.DataFrame:
         )
 
     result = (
-        pick("curtamap", True, "curtamap")
+        pick("zelo", True, "zelo")
         .join(pick("historico", True, "historico"), on=KEY)
         .join(pick("potencial", False, "menor_potencial"), on=KEY)
         .join(pick("perda", False, "oraculo"), on=KEY)
@@ -168,19 +168,19 @@ def choose(blocks: pl.DataFrame, thresholds: dict[str, float]) -> pl.DataFrame:
         # Política do produto: só sugere remarcar quando há alerta na janela; senão, mantém
         # a regra simples de menor potencial.
         pl.when(pl.col("dia_com_alerta"))
-        .then(pl.col("curtamap"))
+        .then(pl.col("zelo"))
         .otherwise(pl.col("menor_potencial"))
-        .alias("curtamap_so_alerta")
+        .alias("zelo_so_alerta")
     )
 
 
 def summarize(choices: pl.DataFrame, fraction: float) -> pl.DataFrame:
-    """Economia média do CurtaMap contra cada referência, em MWh por intervenção."""
+    """Economia média do Zelo contra cada referência, em MWh por intervenção."""
     rows = []
     references = ["fixo_08h", "historico", "menor_potencial"]
     for source, frame in sorted(choices.partition_by("fonte", as_dict=True).items()):
         for subset, part in [("todos", frame), ("dias_com_alerta", frame.filter("dia_com_alerta"))]:
-            for strategy in ["curtamap", "curtamap_so_alerta"]:
+            for strategy in ["zelo", "zelo_so_alerta"]:
                 for reference in references:
                     saving = part[reference] - part[strategy]
                     rows.append(
@@ -245,7 +245,7 @@ def main() -> None:
         print(result["camada1"])
         print(
             result["camada3"].filter(
-                (pl.col("fracao_parada") == 0.10) & (pl.col("estrategia") == "curtamap")
+                (pl.col("fracao_parada") == 0.10) & (pl.col("estrategia") == "zelo")
             )
         )
 

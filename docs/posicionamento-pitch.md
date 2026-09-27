@@ -1,4 +1,4 @@
-# Posicionamento do CurtaMap sem volume: mentoria, dores e alternativas
+# Posicionamento do Zelo sem volume: mentoria, dores e alternativas
 
 Data: 26/09/2026. **Estado: decidido em 27/09 — P1 com a cena do P2** (ver diário, Posicionamento 1/n,
 e números em `docs/reports/pitch-impacto/README.md`).
@@ -9,7 +9,7 @@ Material usado:
 - transcrição parcial de uma conversa com um investidor de startups (26/09, começa no meio);
 - Caderno de Desafios e Dados;
 - critérios de avaliação da banca;
-- pitch do Ideathon (`01-curtamap.txt`);
+- pitch do Ideathon (`01-zelo.txt`);
 - `docs/decisao-foco-ocorrencia-causa.md`, `docs/pitch-notes.md` e
   `docs/reports/nova-abordagem/README.md`.
 
@@ -140,7 +140,7 @@ pessoas são citadas pelo papel.
 Rascunho da equipe na sessão, reconstituído da transcrição:
 
 > "Para usinas geradoras de energia eólica ou solar, que necessitam de previsibilidade do
-> corte de energia, nosso CurtaMap é um sistema de IA que entrega uma recomendação que permite
+> corte de energia, nosso Zelo é um sistema de IA que entrega uma recomendação que permite
 > agir de forma preventiva, evitando o corte."
 
 **Interpretação (minha):**
@@ -189,7 +189,7 @@ Ele abordou a equipe sem aviso e a transcrição começa no meio da conversa. Tr
   é jogada fora.
 - **O que é arriscado:** "2% do PIB" e "conta de luz mais barata" seriam impacto que **não
   causamos nem medimos**.
-  - O CurtaMap não reduz o corte, então não barateia a conta.
+  - O Zelo não reduz o corte, então não barateia a conta.
   - Usar esse enquadramento como promessa contradiz a regra de não inventar.
 - **Dado relevante para a competição:** há outras equipes na mesma dor do gerador. O
   diferencial precisa ser nítido (seção 4).
@@ -296,7 +296,7 @@ Todos os enunciados seguem o modelo da mentoria e evitam jargão.
 ### P1. "Previsão do tempo dos cortes", um aviso diário para a operação
 
 > **Para** as equipes que operam usinas eólicas e solares, **que** hoje só descobrem um corte
-> de geração quando a ordem chega, **o CurtaMap é** um aviso diário com inteligência
+> de geração quando a ordem chega, **o Zelo é** um aviso diário com inteligência
 > artificial **que** toda noite mostra em quais horas do dia seguinte cada usina deve ser
 > cortada, por qual motivo, e quanto esse aviso costuma acertar.
 
@@ -311,7 +311,7 @@ Todos os enunciados seguem o modelo da mentoria e evitam jargão.
 ### P2. Agenda de manutenção nas horas de corte
 
 > **Para** as equipes de manutenção de usinas eólicas e solares, **que** perdem geração toda
-> vez que param uma máquina, **o CurtaMap é** uma agenda diária **que** aponta as horas de
+> vez que param uma máquina, **o Zelo é** uma agenda diária **que** aponta as horas de
 > amanhã em que parar custa menos, porque a usina já seria cortada nesse horário.
 
 - **Dor:** toda parada custa energia vendida.
@@ -329,7 +329,7 @@ Todos os enunciados seguem o modelo da mentoria e evitam jargão.
 ### P3. Radar do portfólio
 
 > **Para** quem administra várias usinas eólicas e solares, **que** não consegue acompanhar
-> todas ao mesmo tempo, **o CurtaMap é** um radar diário **que** ordena as usinas pela chance
+> todas ao mesmo tempo, **o Zelo é** um radar diário **que** ordena as usinas pela chance
 > de corte amanhã e mostra o motivo típico de cada uma.
 
 - **Dor:** atenção limitada diante de dezenas de ativos.
@@ -344,7 +344,7 @@ Todos os enunciados seguem o modelo da mentoria e evitam jargão.
 ### P4. Aviso com motivo, uma resposta diferente para cada causa
 
 > **Para** usinas eólicas e solares, **que** recebem cortes por motivos diferentes e tratam
-> todos do mesmo jeito, **o CurtaMap é** um aviso diário **que** diz não só quando o corte deve
+> todos do mesmo jeito, **o Zelo é** um aviso diário **que** diz não só quando o corte deve
 > vir, mas por que ele costuma acontecer naquela usina, e o que isso sugere fazer.
 
 - **Dor:** o Caderno diz que causas diferentes exigem respostas diferentes.
@@ -397,7 +397,7 @@ As notas são qualitativas (alto, médio ou baixo) e não uma pontuação calcul
 - **P3 e P4 viram recursos da tela**, e não promessas: o ranking de usinas e a frase do
   motivo.
 - **Contexto social, conforme o investidor:** abrir com a energia limpa jogada fora (dado
-  nosso) e o custo estimado (referência externa). **Nunca** dizer que o CurtaMap reduz esse
+  nosso) e o custo estimado (referência externa). **Nunca** dizer que o Zelo reduz esse
   número.
 
 ### O papel da IA, dito com honestidade

@@ -44,7 +44,7 @@ Os oito negativos solares ocorrem sem limitação e não alteram o alvo zero.
 ## Validação pública independente do arquivo tratado
 
 ```bash
-uv run python -m curtamap.public_reference
+uv run python -m zelo.public_reference
 uv run pytest tests/test_targets.py tests/test_public_reference.py
 ```
 

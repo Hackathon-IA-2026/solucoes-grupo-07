@@ -96,7 +96,7 @@ def download(plan: Sequence[DownloadItem], *, force: bool = False) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Baixa as bases oficiais do CurtaMap.")
+    parser = argparse.ArgumentParser(description="Baixa as bases oficiais do Zelo.")
     parser.add_argument("--output", type=Path, default=Path("data/raw"))
     parser.add_argument("--include-tutorials", action="store_true")
     parser.add_argument("--list", action="store_true", dest="list_only")

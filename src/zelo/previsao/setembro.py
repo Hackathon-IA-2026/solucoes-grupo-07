@@ -22,19 +22,19 @@ from pathlib import Path
 
 import polars as pl
 
-from curtamap.config import settings
-from curtamap.contracts import SOURCES
-from curtamap.forecasting import _RAW_COLUMNS
-from curtamap.previsao.avaliacao import KEEP, load_base, metrics
-from curtamap.previsao.calendario import load_calendar
-from curtamap.previsao.features import (
+from zelo.config import settings
+from zelo.contracts import SOURCES
+from zelo.forecasting import _RAW_COLUMNS
+from zelo.previsao.avaliacao import KEEP, load_base, metrics
+from zelo.previsao.calendario import load_calendar
+from zelo.previsao.features import (
     attach_targets,
     base_from_history,
     build_features,
     release_map,
 )
-from curtamap.previsao.modelo import DailyModel, predict_source
-from curtamap.targets import derive_targets
+from zelo.previsao.modelo import DailyModel, predict_source
+from zelo.targets import derive_targets
 
 URL = (
     "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_{fonte}_tm/"

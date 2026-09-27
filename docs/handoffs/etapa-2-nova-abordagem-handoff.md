@@ -12,23 +12,23 @@ diário.
 
 ## 1. Mudanças que afetam as Etapas 3 e 4
 
-1. **`RESERVED_TEST_START` agora é `2026-09-01`** (`src/curtamap/contracts.py`, commit
+1. **`RESERVED_TEST_START` agora é `2026-09-01`** (`src/zelo/contracts.py`, commit
    `8633122`).
    - `etapa-3-recomendacao` (`recommendation.py`, testes do período reservado) e
      `etapa-4-interface` (`ui/operacao.py` limita `t0 <= 2026-04-30`) importam essa constante.
    - Ao integrar, os seletores de data e os testes que assumiam maio precisam aceitar datas até
      31/08/2026.
 2. **`nightly_cutoff` usa o calendário de feriados**
-   (`curtamap.previsao.calendario`, `configs/calendario-2023-2026.json`).
+   (`zelo.previsao.calendario`, `configs/calendario-2023-2026.json`).
    - O corte fica igual ou mais conservador que antes, e nunca mais otimista.
-   - No container, copie `configs/` ou defina `CURTAMAP_CALENDAR_PATH`.
+   - No container, copie `configs/` ou defina `ZELO_CALENDAR_PATH`.
    - O calendário cobre só 2023–2026. Datas fora desse intervalo levantam `ValueError`.
-3. **Novo preditor do produto:** use `curtamap.previsao.produto.product_predictor()`.
+3. **Novo preditor do produto:** use `zelo.previsao.produto.product_predictor()`.
    - Ela devolve o `DailyForecaster` com o modelo mais recente em `models/previsao/`.
    - Sem artefato, devolve o `SameSlotRecentBaseline`.
    - A interface `predict(history, t0, data_cutoff)` é a mesma do `Predictor`.
 4. **Histórico exigido:** o preditor novo precisa de `HISTORY_DAYS` dias antes do corte: 92
-   na v1 e **130 na v3** (ver seção 5). Importe a constante de `curtamap.previsao.produto`.
+   na v1 e **130 na v3** (ver seção 5). Importe a constante de `zelo.previsao.produto`.
    A interface carrega hoje só 28 (`inicio = corte - timedelta(days=28)` em
    `ui/operacao.py`). Troque por `corte - timedelta(days=HISTORY_DAYS)`.
 5. **Emissão recomendada:** às 20h de D, com `t0` = 00h de D + 1 e
@@ -60,16 +60,16 @@ diário.
 ```bash
 uv sync --dev
 # Backtest jan–ago/2026 (~30 min, pico de ~1,5 GB) e resumo com decisão por célula e limiares
-uv run python -m curtamap.previsao.avaliacao 2026-01 2026-08
-uv run python -m curtamap.previsao.relatorio data/interim/previsao docs/reports/nova-abordagem
+uv run python -m zelo.previsao.avaliacao 2026-01 2026-08
+uv run python -m zelo.previsao.relatorio data/interim/previsao docs/reports/nova-abordagem
 # Modelo congelado do produto (~4 min): models/previsao/diario_hgb_v1_2026-08-30.joblib
-uv run python -m curtamap.previsao.treinar --limiares data/interim/previsao/limiares.json \
+uv run python -m zelo.previsao.treinar --limiares data/interim/previsao/limiares.json \
   --manifesto docs/reports/nova-abordagem/modelo-congelado.json
 # Reprodução histórica para o dashboard (4 semanas de ago/2026, emissões diárias às 20h)
-uv run python -m curtamap.previsao.reproducao 2026-08-03 2026-08-30 \
+uv run python -m zelo.previsao.reproducao 2026-08-03 2026-08-30 \
   --limiares data/interim/previsao/limiares_jan_abr.json
 # Validação de setembro (já executada uma vez; não reabrir para ajustar a receita)
-uv run python -m curtamap.previsao.setembro baixar|prever|avaliar --modelo <joblib>
+uv run python -m zelo.previsao.setembro baixar|prever|avaliar --modelo <joblib>
 ```
 
 Observações:
@@ -84,7 +84,7 @@ Observações:
 
 ## 3. Containerização
 
-- A imagem precisa de `configs/` (ou de `CURTAMAP_CALENDAR_PATH`), `data/raw/` montado e
+- A imagem precisa de `configs/` (ou de `ZELO_CALENDAR_PATH`), `data/raw/` montado e
   `models/previsao/*.joblib` montado ou gerado no build.
 - O treino roda em ~4 min num notebook de 8 GB.
 - O scikit-learn precisa ser a mesma versão do `uv.lock`, porque o artefato é joblib.
@@ -116,7 +116,7 @@ Resultados e decisões nas entradas "Nova Etapa 2 (8/n)" a "(12/n)" do diário. 
   Para regenerar (~6 min):
 
   ```bash
-  uv run python -m curtamap.previsao.treinar --limiares data/interim/previsao/limiares.json     --faixas docs/reports/nova-abordagem/v3/faixas.json     --manifesto docs/reports/nova-abordagem/modelo-congelado-v3.json
+  uv run python -m zelo.previsao.treinar --limiares data/interim/previsao/limiares.json     --faixas docs/reports/nova-abordagem/v3/faixas.json     --manifesto docs/reports/nova-abordagem/modelo-congelado-v3.json
   ```
 
   `data/interim/previsao/limiares.json` é a chave `final_jan_ago` de
@@ -169,7 +169,7 @@ Decisão e motivos em `docs/decisao-foco-ocorrencia-causa.md`. A seção 5 está
   1 min):
 
   ```bash
-  uv run python -m curtamap.previsao.treinar --limiares data/interim/previsao/limiares.json \
+  uv run python -m zelo.previsao.treinar --limiares data/interim/previsao/limiares.json \
     --manifesto docs/reports/nova-abordagem/modelo-congelado-ocorrencia.json
   ```
 

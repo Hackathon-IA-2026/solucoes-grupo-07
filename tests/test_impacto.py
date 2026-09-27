@@ -3,7 +3,7 @@ from datetime import date
 import polars as pl
 import pytest
 
-from curtamap.previsao.impacto import (
+from zelo.previsao.impacto import (
     FIRST_START,
     LAST_START,
     block_table,
@@ -65,17 +65,17 @@ def test_blocos_so_dentro_da_janela_e_completos():
     assert blocks.height == LAST_START - FIRST_START + 1
 
 
-def test_curtamap_escolhe_o_bloco_em_alerta_e_poupa_energia():
+def test_zelo_escolhe_o_bloco_em_alerta_e_poupa_energia():
     cut = {22, 23, 24, 25}
     p = [0.9 if s in cut else 0.05 for s in range(48)]
     choices = choose(block_table(_day(p, cut), 0.1), {"eolica": 0.3})
     row = choices.row(0, named=True)
-    assert row["inicio_curtamap"] == 22
-    assert row["curtamap"] == 0.0
+    assert row["inicio_zelo"] == 22
+    assert row["zelo"] == 0.0
     assert row["oraculo"] == 0.0
     assert row["fixo_08h"] == pytest.approx(4 * 10 * 0.5)
     assert row["dia_com_alerta"]
-    assert row["curtamap_so_alerta"] == 0.0
+    assert row["zelo_so_alerta"] == 0.0
 
 
 def test_sem_alerta_politica_mantem_menor_potencial():
@@ -83,7 +83,7 @@ def test_sem_alerta_politica_mantem_menor_potencial():
     choices = choose(block_table(_day(p, set()), 0.1), {"eolica": 0.3})
     row = choices.row(0, named=True)
     assert not row["dia_com_alerta"]
-    assert row["curtamap_so_alerta"] == row["menor_potencial"]
+    assert row["zelo_so_alerta"] == row["menor_potencial"]
 
 
 def test_cobertura_pondera_por_energia_e_conta_sem_previsao_como_nao_avisada():

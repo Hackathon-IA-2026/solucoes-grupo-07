@@ -1,4 +1,4 @@
-# Direção técnica inicial do CurtaMap
+# Direção técnica inicial do Zelo
 
 ## Decisao de produto
 
@@ -37,7 +37,7 @@ O problema central é uma série temporal tabular, grande, desbalanceada e com n
 
 ## IA generativa: Bedrock e NVIDIA NIM
 
-O uso recomendado é limitado a uma explicação curta para o cartão de cada usina, um assistente contextual e perguntas sobre resultados já calculados. O provedor deve ser intercambiável e desativável; o valor central do CurtaMap não pode depender de um LLM.
+O uso recomendado é limitado a uma explicação curta para o cartão de cada usina, um assistente contextual e perguntas sobre resultados já calculados. O provedor deve ser intercambiável e desativável; o valor central do Zelo não pode depender de um LLM.
 
 O ambiente oferece um catálogo amplo no Bedrock, enquanto o NVIDIA Build/NIM continua interessante pelo patrocínio e pela API compatível com OpenAI. A escolha entre ambos será feita por um teste pequeno de qualidade em português, latência, estabilidade e facilidade de integração. Não há motivo para integrar dois provedores ao MVP apenas por disponibilidade.
 

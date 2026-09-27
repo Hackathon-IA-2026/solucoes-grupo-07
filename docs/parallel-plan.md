@@ -3,7 +3,7 @@
 ## Por que dá para paralelizar agora
 
 As etapas 3 a 6 não dependem de qual modelo a Etapa 2C vai escolher. Elas dependem só do
-**formato da saída**, que está fixado em [`src/curtamap/contracts.py`](../src/curtamap/contracts.py):
+**formato da saída**, que está fixado em [`src/zelo/contracts.py`](../src/zelo/contracts.py):
 
 - `FORECAST_SCHEMA`: uma linha por `fonte + id_ons + t0 + horizonte` (48 janelas de 30 min),
   com probabilidades, volume, causa, motivo de ausência e proveniência;
@@ -11,7 +11,7 @@ As etapas 3 a 6 não dependem de qual modelo a Etapa 2C vai escolher. Elas depen
   das premissas.
 
 Enquanto a 2C não decide, o produto usa `SameSlotRecentBaseline`
-([`src/curtamap/forecasting.py`](../src/curtamap/forecasting.py)): repete o mesmo horário do
+([`src/zelo/forecasting.py`](../src/zelo/forecasting.py)): repete o mesmo horário do
 dia disponível mais recente, até 28 dias. Ele usa dados reais e aparece marcado como
 `baseline`. Quando o modelo escolhido existir, só o preditor muda; recomendação e interface
 continuam iguais. Se a 2C concluir que o baseline é a melhor opção, nada muda.
@@ -34,7 +34,7 @@ fecha no presencial.
 2. **Contrato:** mudanças em `contracts.py` só por um PR pequeno e separado, combinado com o
    responsável antes. Adicionar coluna opcional é barato; renomear ou mudar tipo quebra os
    outros.
-3. **Donos de arquivo:** `src/curtamap/app.py` e a interface são do Dev 3.
+3. **Donos de arquivo:** `src/zelo/app.py` e a interface são do Dev 3.
    `recommendation`/impacto são do Dev 2. `contracts.py` e `forecasting.py`, do responsável.
 4. **Teste reservado:** nenhum dado com `din_instante >= 2026-05-01` pode ser lido, exibido ou
    usado em demo, fixture ou número de impacto antes de a Etapa 2C liberar. O código já recusa
@@ -52,7 +52,7 @@ fecha no presencial.
 git clone https://github.com/Hackathon-IA-2026/solucoes-grupo-07.git
 cd solucoes-grupo-07
 uv sync --extra data --dev
-uv run python -m curtamap.download_data     # baixa os Parquet para data/raw/
+uv run python -m zelo.download_data     # baixa os Parquet para data/raw/
 
 # Início do trabalho
 git switch main && git pull

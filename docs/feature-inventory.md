@@ -1,7 +1,7 @@
 # Inventário de campos contra vazamento temporal — Etapa 1
 
 Este documento classifica **todos** os campos dos cinco Parquet do snapshot, os campos
-extras da publicação atual do ONS e as colunas derivadas por `curtamap.targets`. O teste
+extras da publicação atual do ONS e as colunas derivadas por `zelo.targets`. O teste
 `tests/test_feature_inventory.py` falha se algum campo do contrato ou do alvo não estiver
 classificado aqui, ou se aparecer uma classe fora da lista abaixo.
 
@@ -90,7 +90,7 @@ Os campos cadastrais comuns (`id_subsistema`, `id_estado`, `nom_usina`, `id_ons`
 | `nom_pontoconexao` | auxiliar | exibição | Idem. |
 | `nom_agenteoperador` | auxiliar | exibição | Idem. |
 
-## Colunas derivadas pelo alvo (`curtamap.targets`)
+## Colunas derivadas pelo alvo (`zelo.targets`)
 
 | Campo | Classe | Uso permitido | Justificativa |
 |---|---|---|---|

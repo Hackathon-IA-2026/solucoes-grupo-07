@@ -1,10 +1,10 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "CurtaMap - Deploy Streamlit no ECS Fargate sem IAM (Zero PassRole)"
+Description: "Zelo - Deploy Streamlit no ECS Fargate sem IAM (Zero PassRole)"
 
 Parameters:
   ImageUri:
     Type: String
-    Description: "URI da imagem publica no Docker Hub (ex: seu-usuario/curtamap:latest)"
+    Description: "URI da imagem publica no Docker Hub (ex: seu-usuario/zelo:latest)"
 
   VpcId:
     Type: AWS::EC2::VPC::Id
@@ -15,34 +15,34 @@ Parameters:
     Description: "Subnets publicas existentes separadas por virgula"
 
 Resources:
-  CurtamapCluster:
+  ZeloCluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: "curtamap-cluster"
+      ClusterName: "zelo-cluster"
 
-  CurtamapTaskDefinition:
+  ZeloTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: "curtamap-task"
+      Family: "zelo-task"
       RequiresCompatibilities:
         - "FARGATE"
       Cpu: "1024"
       Memory: "4096"
       NetworkMode: "awsvpc"
       ContainerDefinitions:
-        - Name: "curtamap-app"
+        - Name: "zelo-app"
           Image: !Ref ImageUri
           PortMappings:
             - ContainerPort: 8501
               HostPort: 8501
               Protocol: tcp
 
-  CurtamapService:
+  ZeloService:
     Type: AWS::ECS::Service
     Properties:
-      ServiceName: "curtamap-service"
-      Cluster: !Ref CurtamapCluster
-      TaskDefinition: !Ref CurtamapTaskDefinition
+      ServiceName: "zelo-service"
+      Cluster: !Ref ZeloCluster
+      TaskDefinition: !Ref ZeloTaskDefinition
       LaunchType: "FARGATE"
       DesiredCount: 1
       NetworkConfiguration:
@@ -53,4 +53,4 @@ Resources:
 Outputs:
   ClusterName:
     Description: "Nome do Cluster ECS"
-    Value: !Ref CurtamapCluster
+    Value: !Ref ZeloCluster

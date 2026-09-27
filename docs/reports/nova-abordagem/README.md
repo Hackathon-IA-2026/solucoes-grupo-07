@@ -2,8 +2,8 @@
 
 Relatório da modelagem refeita do zero em 26/09/2026. Os números vêm de
 `metricas_backtest.csv`, `decisao_celulas.csv` e `limiares.json` (nesta pasta), gerados por
-`uv run python -m curtamap.previsao.relatorio data/interim/previsao docs/reports/nova-abordagem`
-sobre o backtest `uv run python -m curtamap.previsao.avaliacao 2026-01 2026-08`.
+`uv run python -m zelo.previsao.relatorio data/interim/previsao docs/reports/nova-abordagem`
+sobre o backtest `uv run python -m zelo.previsao.avaliacao 2026-01 2026-08`.
 
 ## 1. Desenho
 

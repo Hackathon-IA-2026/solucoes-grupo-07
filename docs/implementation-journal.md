@@ -1,4 +1,4 @@
-# Diário de implementação do CurtaMap
+# Diário de implementação do Zelo
 
 Registro cronológico das evidências, decisões, aprendizados e limitações produzidos durante o projeto. Este documento complementa o histórico do Git: os commits mostram a mudança; o diário explica o raciocínio e seu significado para o usuário e para a apresentação.
 
@@ -20,7 +20,7 @@ Era necessário preparar um repositório reproduzível e obter as bases oficiais
 
 - Adotar Python 3.12 e `uv` para um ambiente reproduzível.
 - Manter os dados em `data/raw/`, ignorados pelo Git.
-- Automatizar descoberta e download com um módulo do próprio pacote CurtaMap.
+- Automatizar descoberta e download com um módulo do próprio pacote Zelo.
 - Preservar arquivos existentes por padrão e exigir `--force` para substituição intencional.
 
 ### Alternativas consideradas
@@ -31,7 +31,7 @@ Era necessário preparar um repositório reproduzível e obter as bases oficiais
 
 ### Implementação e validação
 
-- Criado `curtamap.download_data` com modos de listagem, download e inclusão opcional dos tutoriais.
+- Criado `zelo.download_data` com modos de listagem, download e inclusão opcional dos tutoriais.
 - O desenvolvimento seguiu Red-Green-Refactor; os testes revelaram e corrigiram inicialmente um problema de empacotamento do módulo.
 - A listagem remota confirmou os cinco Parquet esperados.
 
@@ -42,7 +42,7 @@ Era necessário preparar um repositório reproduzível e obter as bases oficiais
 
 ### Valor para o usuário e para a apresentação
 
-A aquisição reproduzível demonstra que o CurtaMap pode ser reconstruído a partir de dados públicos e rastreáveis, fortalecendo a credibilidade técnica e a possibilidade de evolução além do protótipo.
+A aquisição reproduzível demonstra que o Zelo pode ser reconstruído a partir de dados públicos e rastreáveis, fortalecendo a credibilidade técnica e a possibilidade de evolução além do protótipo.
 
 ### Próximos passos
 
@@ -524,7 +524,7 @@ retrabalho quando ela sair?
 
 ### Interpretação e decisão
 
-- O formato da saída foi fixado antes do modelo em `src/curtamap/contracts.py`
+- O formato da saída foi fixado antes do modelo em `src/zelo/contracts.py`
   (`FORECAST_SCHEMA`, `RECOMMENDATION_SCHEMA` e validadores). Causa e previsão podem ser nulas,
   sempre com motivo, para que uma inelegibilidade decidida na 2C não mude o contrato.
 - O preditor provisório é o baseline "mesmo horário mais recente disponível, até 28 dias"
@@ -652,7 +652,7 @@ LightGBM, com o `HistGradientBoosting` do scikit-learn, que já é dependência.
 
 - `RESERVED_TEST_START` passou para 01/09/2026, num commit dedicado. **Atenção na
   integração:** `etapa-3-recomendacao` e `etapa-4-interface` importam a mesma constante.
-- `curtamap.previsao.calendario` calcula o corte de publicação com o calendário de feriados
+- `zelo.previsao.calendario` calcula o corte de publicação com o calendário de feriados
   (todos os tipos, inclusive os do Rio) e oferece a consulta de feriado nacional para a
   feature de carga baixa. `forecasting.nightly_cutoff` passou a delegar a ele, que vira a
   fonte única do corte usada pela interface. Os testes cobrem terça, 19h/19h30, sábado,
@@ -678,12 +678,12 @@ Modelo direto por usina × slot contra os baselines; volume e causa; módulo tes
 ### Contexto e pergunta
 
 O modelo diário por usina × slot supera os baselines nas mesmas linhas? A regra de decisão
-foi registrada na entrada anterior e implementada em `curtamap.previsao.relatorio` (commit
+foi registrada na entrada anterior e implementada em `zelo.previsao.relatorio` (commit
 `b4aa4a8`) antes de qualquer resultado do backtest oficial.
 
 ### Fatos e evidências observados
 
-Backtest de `curtamap.previsao.avaliacao`: 8 dobras mensais, jan–ago/2026, ~3,6 min por dobra
+Backtest de `zelo.previsao.avaliacao`: 8 dobras mensais, jan–ago/2026, ~3,6 min por dobra
 no notebook de 8 GB, com pico de ~1,5 GB. Métricas em
 `docs/reports/nova-abordagem/metricas_backtest.csv`; decisão em `decisao_celulas.csv`.
 
@@ -726,7 +726,7 @@ Outros fatos:
 - **Ocorrência (a saída principal):** o ganho é claro e estável. O modelo vence nos 16
   meses-fonte, com +0,05 a +0,17 de AP sobre o `historico`, e o maior ganho aparece em
   fevereiro, na mudança de regime.
-- **Composição servida** (`SERVING` em `curtamap/previsao/modelo.py`), com proveniência por
+- **Composição servida** (`SERVING` em `zelo/previsao/modelo.py`), com proveniência por
   linha em `tipo_saida_volume` e `tipo_saida_causa`:
   - ocorrência: modelo nas duas fontes;
   - volume solar: modelo;
@@ -833,7 +833,7 @@ pergunta, e novas rodadas só aumentariam o risco de sobreajuste às dobras.
 ### Implementação e validação
 
 - `treinar.py` grava o manifesto.
-- O calendário aceita `CURTAMAP_CALENDAR_PATH`, para o container.
+- O calendário aceita `ZELO_CALENDAR_PATH`, para o container.
 - Suíte verde.
 
 ### Limitações e incertezas
@@ -1757,7 +1757,7 @@ fallback.
 
 - **O que é a v3:** v1 + faixas. Ocorrência, volume, causa, limiares de alerta e `SERVING`
   continuam os da v1.
-- **Serviço** (`curtamap.previsao.faixas_servico`):
+- **Serviço** (`zelo.previsao.faixas_servico`):
   - colunas `p_faixa_*`, `faixa_provavel`, `p_faixa_dia_*`, `faixa_provavel_dia`,
     `tipo_saida_faixas` e `tipo_saida_faixas_dia`;
   - a proveniência sai por limiar, por exemplo `k0:modelo,k1:historico,k2:historico` na
@@ -1913,7 +1913,7 @@ Commits, em ordem:
   gerador.
 - **Evidência:** AP melhor que o histórico em 8 de 8 meses, confirmado em setembro, com
   recall de alerta de 0,90 a 0,94.
-- **Limitação a assumir:** o CurtaMap não estima MWh. Qualquer valor em R$ ou CO₂ é cenário
+- **Limitação a assumir:** o Zelo não estima MWh. Qualquer valor em R$ ou CO₂ é cenário
   declarado.
 
 ### Próximos passos
@@ -1961,7 +1961,7 @@ A extração, as alternativas e a comparação estão em `docs/posicionamento-pi
   - **camada 3** (cenário de manutenção de 2 h a 10%, retrospectivo):
     - na eólica, a perda cai 58% contra o menor potencial e 55% contra o fixo 08h;
     - na solar, cai 21% e 31%;
-    - contra o `historico`, o CurtaMap fica em −7% na eólica e **+16% na solar** (pior).
+    - contra o `historico`, o Zelo fica em −7% na eólica e **+16% na solar** (pior).
 
 ### Interpretação e decisão
 
@@ -1993,7 +1993,7 @@ A extração, as alternativas e a comparação estão em `docs/posicionamento-pi
 
 ### Implementação e validação
 
-- Módulo `curtamap.previsao.impacto` com 10 testes:
+- Módulo `zelo.previsao.impacto` com 10 testes:
   - regra da perda sob teto e sem teto;
   - fração inválida;
   - janela e blocos completos;
@@ -2145,14 +2145,14 @@ Etapa 2. O responsável pediu uma reconstrução do zero, na branch
 ### Interpretação e decisão
 
 - **Separação estrita entre cálculo e desenho.**
-  - `src/curtamap/painel/` (sem Streamlit, com testes) calcula:
+  - `src/zelo/painel/` (sem Streamlit, com testes) calcula:
     - limites de emissão;
     - ranking, filtros e perfil das 48 janelas;
     - proveniência;
     - perdas históricas;
     - totais e resumo em texto;
     - rótulos e formatos numéricos.
-  - `src/curtamap/ui/` só desenha.
+  - `src/zelo/ui/` só desenha.
   - O `app.py` configura a página, calcula o contexto comum (emissão e previsão em cache) e
     registra as três telas com `st.navigation`.
 - **Preditor:** a interface chama `product_predictor()` (handoff da nova Etapa 2): usa o
@@ -2183,7 +2183,7 @@ Etapa 2. O responsável pediu uma reconstrução do zero, na branch
   `ui/dados.recommendations_for` muda, para `build_recommendations(forecast)`.
 - **Deploy:**
   - Dockerfile com `uv` e o lock congelado;
-  - dados e modelo baixados do S3 na inicialização (`curtamap.s3_sync`);
+  - dados e modelo baixados do S3 na inicialização (`zelo.s3_sync`);
   - CDK em Python, no extra `infra`, com duas pilhas. As restrições de IAM são testadas no
     template;
   - variante sem ALB (`-c semAlb=true`), porque o ELB não está confirmado.
@@ -2232,7 +2232,7 @@ Etapa 2. O responsável pediu uma reconstrução do zero, na branch
 - `pnpm dlx aws-cdk@2 synth` roda sem credenciais, com e sem `semAlb`. Templates: 18 kB (app)
   e 4 kB (base), abaixo do limite de 51.200 bytes para deploy sem bucket.
 - Verificação visual com o Streamlit rodando de verdade, capturada com o Playwright (Edge
-  headless), com o modelo (porta 8501) e sem ele (porta 8502, `CURTAMAP_MODEL_DIR` vazio).
+  headless), com o modelo (porta 8501) e sem ele (porta 8502, `ZELO_MODEL_DIR` vazio).
   As capturas mostraram três problemas, todos corrigidos:
   - legenda sobre o título;
   - datas em inglês;
@@ -2347,7 +2347,7 @@ coordenação ou estudo em MWh. Preço ou carbono ausente produz nulo.
 
 ### 5. Implementação e validação
 
-O ciclo TDD começou com falha de importação de `curtamap.recommendation`. Os testes foram escritos
+O ciclo TDD começou com falha de importação de `zelo.recommendation`. Os testes foram escritos
 antes para episódio único, continuidade, janela sem alerta, fontes iguais com o mesmo `id_ons`,
 causa nula, energia nula, todas as causas inclusive PAR, premissas ausentes, limite da recuperação,
 proveniência e resumo tático semanal/mensal. Depois foram implementados:
@@ -2380,7 +2380,7 @@ função tática recusa explicitamente qualquer linha a partir de 01/05/2026.
 O gerador recebe uma janela, uma ação compatível com a causa, a antecedência e os limites que
 precisa conferir. O pitch ganha um exemplo auditável em que 148,14 MWh em risco não viram uma
 promessa: o cenário limita a 51–54 MWh e mostra a origem de cada número. Isso materializa a tese
-do CurtaMap: IA prevê; regras e premissas visíveis transformam previsão em decisão responsável.
+do Zelo: IA prevê; regras e premissas visíveis transformam previsão em decisão responsável.
 
 ### 8. Próximos passos
 
@@ -2542,7 +2542,7 @@ Com a premissa fechada (aviso na véspera, sem volume), o responsável pediu tr�
 
 - **Merges:** as duas branches entraram com `--no-ff`, preservando o histórico, e em seguida foram
   adaptadas.
-- **A recomendação virou aviso** (`curtamap.aviso`):
+- **A recomendação virou aviso** (`zelo.aviso`):
   - janelas de meias-horas consecutivas em alerta;
   - horas livres: com previsão, sem alerta e com potencial de geração. Previsão nula nunca conta
     como livre;
@@ -2590,7 +2590,7 @@ Com a premissa fechada (aviso na véspera, sem volume), o responsável pediu tr�
 - **Removidos** (recuperáveis pelo histórico, merges `f2f3075` e `ed00a89`):
   - `recommendation.py`, `assumptions.py`, `configs/premissas`, o contrato de recomendação e
     seus testes;
-  - `curtamap.painel` e as telas antigas;
+  - `zelo.painel` e as telas antigas;
   - `scripts/experimentos/oraculo_h5.py`;
   - o extra `llm`, que não tinha uso.
 - **Mantidos**, porque reproduzem os números citados no pitch: treino, backtest, setembro,
@@ -2664,7 +2664,7 @@ hackathon.
 ### Implementação e validação
 
 - **Módulo e testes:**
-  - `curtamap.previsao.ao_vivo`, com 9 testes: URL, meses, corte com atraso, pendentes, próximo
+  - `zelo.previsao.ao_vivo`, com 9 testes: URL, meses, corte com atraso, pendentes, próximo
     horário e anexação;
   - `test_dockerfile.py`, reescrito.
 - **Suíte completa:** 225 testes aprovados e 2 pulados. `ruff` limpo.
@@ -2691,3 +2691,38 @@ hackathon.
 - Construir e publicar a imagem.
 - Aplicar a stack e testar a URL pública.
 - Atualizar `docs/deploy.md`, que ainda descreve o S3 e o CDK.
+
+## 2026-09-27 - Produto final (3/n): o produto passa a se chamar Zelo
+
+### Contexto e pergunta
+
+O nome de trabalho foi trocado pelo responsável. O `AGENTS.md` já previa uma troca global. A
+pergunta era como fazer isso a menos de uma hora do prazo do código sem quebrar o modelo nem o
+deploy.
+
+### Fatos e evidências observados
+
+- **Ocorrências:** havia 501, em 85 arquivos: `curtamap` (397), `CurtaMap` (86), `CURTAMAP` (12)
+  e `Curtamap` (6).
+- **Modelo:** o artefato foi salvo com `joblib`, e o pickle guarda o caminho do módulo
+  `…previsao.modelo`. Ao renomear o pacote, o arquivo antigo não carregaria mais.
+
+### Interpretação e decisão
+
+- **Troca completa:** o nome mudou em todo o repositório: pacote Python (`src/zelo`), variáveis de
+  ambiente (`ZELO_*`), Dockerfile, template CloudFormation (`infra/zelo-stack.yaml`, com cluster e
+  serviço `zelo-*`), testes, documentação e o próprio diário.
+- **Modelo:** o mesmo objeto foi regravado para o novo caminho de módulo, sem retreino.
+  - O manifesto guarda os dois SHA-256: o original e o novo.
+
+### Implementação e validação
+
+- **Paridade:** o aviso de 27/09, emitido de novo com o artefato regravado, teve `p_corte`
+  idêntico ao do arquivo de avisos (diferença máxima de 0 em 11.520 meias-horas).
+- **Verificações:** `uv lock` e `requirements.txt` foram regenerados. Testes, `ruff check` e
+  `ruff format --check` passaram limpos.
+
+### Limitações e incertezas
+
+- **Stack já implantada:** se a equipe já tiver subido a stack com o nome antigo, o novo template
+  cria recursos com outros nomes. É preciso apagar a stack antiga ou subir uma nova.

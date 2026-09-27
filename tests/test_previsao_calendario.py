@@ -2,8 +2,8 @@ from datetime import date, datetime
 
 import pytest
 
-from curtamap.forecasting import nightly_cutoff
-from curtamap.previsao.calendario import (
+from zelo.forecasting import nightly_cutoff
+from zelo.previsao.calendario import (
     Calendar,
     emission_cutoff,
     load_calendar,
@@ -81,7 +81,7 @@ def test_calendar_path_can_be_overridden_for_containers(tmp_path, monkeypatch):
         '{"entries": [{"date": "2030-01-02", "reason": "x", "kind": "nacional"}]}',
         encoding="utf-8",
     )
-    monkeypatch.setenv("CURTAMAP_CALENDAR_PATH", str(custom))
+    monkeypatch.setenv("ZELO_CALENDAR_PATH", str(custom))
     calendar = load_calendar()
     assert calendar.is_national_holiday(date(2030, 1, 2))
     assert calendar.first == date(2030, 1, 1)

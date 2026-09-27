@@ -4,7 +4,7 @@ import duckdb
 import polars as pl
 import pytest
 
-from curtamap.targets import derive_targets, target_sql
+from zelo.targets import derive_targets, target_sql
 
 CASES = [
     (None, 20.0, 5.0, None, None, False, 0.0, None, False),

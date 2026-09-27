@@ -3,11 +3,11 @@ from datetime import date
 import polars as pl
 from test_previsao_modelo import _raw
 
-from curtamap.forecasting import SameSlotRecentBaseline
-from curtamap.previsao.calendario import load_calendar
-from curtamap.previsao.features import base_from_history, release_map
-from curtamap.previsao.modelo import DailyForecaster, fit
-from curtamap.previsao.produto import HISTORY_DAYS, latest_model_path, product_predictor
+from zelo.forecasting import SameSlotRecentBaseline
+from zelo.previsao.calendario import load_calendar
+from zelo.previsao.features import base_from_history, release_map
+from zelo.previsao.modelo import DailyForecaster, fit
+from zelo.previsao.produto import HISTORY_DAYS, latest_model_path, product_predictor
 
 
 def test_without_a_trained_model_the_product_falls_back_to_the_baseline(tmp_path):

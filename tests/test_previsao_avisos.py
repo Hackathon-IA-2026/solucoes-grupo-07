@@ -3,9 +3,9 @@ from types import SimpleNamespace
 
 import polars as pl
 
-from curtamap.contracts import validate_forecast
-from curtamap.previsao.avisos import build_archive
-from curtamap.previsao.modelo import DailyForecaster
+from zelo.contracts import validate_forecast
+from zelo.previsao.avisos import build_archive
+from zelo.previsao.modelo import DailyForecaster
 
 
 def _rows(dia: date, ultimo: date, fonte: str, id_ons: str) -> list[dict]:

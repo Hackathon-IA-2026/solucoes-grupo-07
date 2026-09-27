@@ -22,8 +22,8 @@ from datetime import date, timedelta
 
 import polars as pl
 
-from curtamap.contracts import PREDICTABLE_CAUSES
-from curtamap.previsao.calendario import Calendar, emission_cutoff
+from zelo.contracts import PREDICTABLE_CAUSES
+from zelo.previsao.calendario import Calendar, emission_cutoff
 
 KEY = ["fonte", "id_ons"]
 SLOT_KEY = [*KEY, "slot"]

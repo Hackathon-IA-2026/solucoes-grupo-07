@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
 from pathlib import Path
 
-from curtamap.config import Settings
+from zelo.config import Settings
 
 RELEASE_TIME = time(19, 30)
 EMISSION_TIME = time(20, 0)
@@ -46,7 +46,7 @@ class Calendar:
 
 
 def load_calendar(path: Path | None = None) -> Calendar:
-    """Lê o calendário de `path`, de `CURTAMAP_CALENDAR_PATH` ou de `configs/` do repositório."""
+    """Lê o calendário de `path`, de `ZELO_CALENDAR_PATH` ou de `configs/` do repositório."""
     path = path or Settings().calendar_path or DEFAULT_PATH
     content = json.loads(Path(path).read_text(encoding="utf-8"))
     entries = [(date.fromisoformat(e["date"]), e["kind"]) for e in content["entries"]]

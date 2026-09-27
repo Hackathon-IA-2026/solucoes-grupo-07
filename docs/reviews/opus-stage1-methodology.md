@@ -71,7 +71,7 @@ modo somente leitura constam do comando registrado acima. O revisor não editou 
 | 8 | Detail × principais sem multiplicar linhas | **Aceita** | `duplicated_join_rows` foi adicionado e testado; resultado 0 no snapshot. |
 | 9 | Causa sem limite como categoria própria | **Aceita** | `rotulo_sem_limite` é separado de `razao_desconhecida`/`origem_desconhecida`; `''` não conta como rótulo. |
 | 10 | Estabilidade do `id_ons` | **Aceita** | `identity_drift`, agora sensível a `NULL`. Uma renomeação de código foi encontrada só na publicação atual (`BA4ECLA` → `CJU_BA4ECLA`). |
-| 11 | Painel fixo definido antes dos resultados | **Aceita** | Regra codificada em `curtamap.eda` (cobertura completa abr–ago nos 3 anos e volume válido) e descrita como retrospectiva. |
+| 11 | Painel fixo definido antes dos resultados | **Aceita** | Regra codificada em `zelo.eda` (cobertura completa abr–ago nos 3 anos e volume válido) e descrita como retrospectiva. |
 | 12 | Episódios: lacuna zero e troca de entidade | **Aceita** | Testes em `tests/test_eda.py` cobrem lacuna, zero, desconhecido, entidade e fonte. |
 | 13 | Latência de publicação e as-of dos baselines | **Aceita (Etapa 2)** | `docs/feature-inventory.md` exige latência declarada e cenários conservadores. As revisões medidas reforçam o risco. |
 | 14 | Configuração DuckDB e quantis aproximados | **Parcialmente aceita** | `memory_limit`, `threads` e `preserve_insertion_order` estão explícitos; os quantis estão marcados como aproximados. `temp_directory` fica no padrão do DuckDB (`.tmp/`, ignorado pelo Git). |

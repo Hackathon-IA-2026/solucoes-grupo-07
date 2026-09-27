@@ -1,6 +1,6 @@
 import duckdb
 
-from curtamap.public_reference import validate_official_formula
+from zelo.public_reference import validate_official_formula
 
 
 def test_official_comparison_keeps_null_coverage_and_detects_difference():
@@ -25,8 +25,8 @@ def test_reference_totals_compare_all_dimensions(tmp_path):
     import pyarrow.parquet as pq
     from test_audit import write_main
 
-    from curtamap.data_contract import SPECS
-    from curtamap.public_reference import compare_reference
+    from zelo.data_contract import SPECS
+    from zelo.public_reference import compare_reference
 
     manifest = []
     for source in ["eolica", "fotovoltaica"]:
@@ -46,7 +46,7 @@ def test_reference_totals_compare_all_dimensions(tmp_path):
 
 
 def test_incomplete_reference_is_not_an_equivalent_total():
-    from curtamap.public_reference import comparison_delta
+    from zelo.public_reference import comparison_delta
 
     assert comparison_delta(
         {"mwh": 10.0, "unknown": 0, "rows": 2}, {"mwh": 1.0, "unknown": 1, "rows": 2}
@@ -59,8 +59,8 @@ def test_incomplete_reference_is_not_an_equivalent_total():
 def test_row_level_revision_check_separates_missing_rows_and_changed_values():
     from datetime import datetime
 
-    from curtamap.public_reference import revision_check
-    from curtamap.targets import target_sql
+    from zelo.public_reference import revision_check
+    from zelo.targets import target_sql
 
     t = datetime(2024, 1, 1)
     with duckdb.connect() as con:

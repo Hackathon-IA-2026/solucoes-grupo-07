@@ -29,7 +29,7 @@ outra emissão `t0` inicia novo episódio. `fim` é o limite direito exclusivo d
 alerta com energia nula em vez de produzir uma soma parcial.
 
 Se todas as janelas do episódio tiverem a mesma causa não nula, ela vira `causa_base`. Se houver
-causa nula ou mudança de causa, `causa_base` fica nula: o CurtaMap não elege uma causa dominante.
+causa nula ou mudança de causa, `causa_base` fica nula: o Zelo não elege uma causa dominante.
 Isso é conservador porque o próprio ONS registra que a classificação pode mudar ao longo do dia.
 
 ## Matriz causa → ação
@@ -40,12 +40,12 @@ Isso é conservador porque o próprio ONS registra que a classificação pode mu
 | CNF | `COORDENAR_OPERACAO`: alinhar centro de operação e, se possível, deslocar manutenção flexível | Assim que o alerta surgir; revalidar a cada mensagem. Em solar, a janela útil termina com a irradiância; em eólica, o recurso pode persistir à noite | Segurança elétrica prevalece. Não há recuperação autônoma nem receita pressuposta | Limite é fato ONS; deslocar manutenção é hipótese a validar com o gerador |
 | ENE | `AVALIAR_ARMAZENAMENTO`: simular carga de bateria e descarga posterior | Antes de `inicio`, usando a antecedência exibida. Solar tende a concentrar oportunidade diurna; eólica pode incluir noite | Só vale com bateria instalada/habilitada, potência, capacidade e estado de carga disponíveis, conexão e comando compatíveis. A descarga futura também precisa ser possível | Existência de armazenamento como flexibilidade é fato setorial; uso atrás desta recomendação é cenário |
 | PAR | `REVISAR_PARECER_ACESSO`: conferir limite e priorizar estudo de conexão/reforço | No planejamento e antes da janela; não é correção em tempo real | A limitação consta do parecer de acesso. O cenário de recuperação imediata é zero até existir solução aprovada | Definição é fato ONS; escolha de priorização é decisão de produto |
-| nula/desconhecida | `VALIDAR_CAUSA`: confirmar a mensagem do ONS antes de qualquer resposta específica | Imediatamente, mostrando explicitamente “causa indeterminada” | Proibido inferir causa pelo volume, fonte ou origem | Decisão conservadora do CurtaMap |
+| nula/desconhecida | `VALIDAR_CAUSA`: confirmar a mensagem do ONS antes de qualquer resposta específica | Imediatamente, mostrando explicitamente “causa indeterminada” | Proibido inferir causa pelo volume, fonte ou origem | Decisão conservadora do Zelo |
 
 Para REL, a [REN ANEEL nº 1.030/2022](https://www2.aneel.gov.br/cedoc/ren20221030.html) e o
 procedimento do ONS delimitam o tratamento do constrained-off e da apuração. A NT do ONS informa
 que, para pagamento de ESS pela CCEE, a geração de referência final é calculada para eventos REL.
-Logo, o CurtaMap nunca aplica PLD diretamente para afirmar ressarcimento.
+Logo, o Zelo nunca aplica PLD diretamente para afirmar ressarcimento.
 
 ## Origem LOC/SIS
 
@@ -113,7 +113,7 @@ durante as duas horas, a sensibilidade mostra:
 
 Ele pode decidir reservar capacidade e pedir validação operacional; não pode concluir que os
 54 MWh serão recuperados, vendidos ao PLD, ressarcidos ou certificados como redução de emissões.
-O CurtaMap também não garante que a causa continuará ENE, que haverá espaço para descarga futura
+O Zelo também não garante que a causa continuará ENE, que haverá espaço para descarga futura
 ou que esse conjunto do ONS corresponda a uma única usina física. O valor para o pitch é mostrar
 a passagem rastreável de previsão → regra → premissa → cenário → limite, sem transformar hipótese
 em promessa.

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from curtamap.config import Settings
+from zelo.config import Settings
 
 
 def test_default_paths_are_local() -> None:

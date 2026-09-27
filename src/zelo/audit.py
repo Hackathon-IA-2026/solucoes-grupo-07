@@ -12,8 +12,8 @@ import duckdb
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from curtamap.data_contract import SPECS, DatasetSpec, schema_issues
-from curtamap.download_data import DATASET_FOLDER_URL
+from zelo.data_contract import SPECS, DatasetSpec, schema_issues
+from zelo.download_data import DATASET_FOLDER_URL
 
 NULL_TOKEN = "'<NULL>'"
 

@@ -4,21 +4,21 @@
 
 ```bash
 uv sync --dev
-uv run python -m curtamap.audit
+uv run python -m zelo.audit
 # Para CI: gera o relatório e retorna 1 se houver achados ou arquivo ausente.
-uv run python -m curtamap.audit --strict
+uv run python -m zelo.audit --strict
 uv run pytest tests/test_audit.py
 ```
 
 A execução lê os cinco Parquet em `data/raw/` sem modificá-los. Produz
 [`audit.json`](reports/stage1/audit.json) e [`audit.md`](reports/stage1/audit.md).
 O JSON contém SHA-256, tamanho, schema, versão do DuckDB e data da execução.
-A pasta de origem é a mesma registrada em `curtamap.download_data`. Não se infere
+A pasta de origem é a mesma registrada em `zelo.download_data`. Não se infere
 a data do download original pelo mtime. A auditoria custa alguns minutos localmente;
 usa quatro threads e limite de memória DuckDB de 4 GB (não é limite do RSS do processo).
 Comparações de multiconjuntos são particionadas por mês para reduzir spill em disco.
 
-O contrato `src/curtamap/data_contract.py` descreve o **snapshot tratado do hackathon**,
+O contrato `src/zelo/data_contract.py` descreve o **snapshot tratado do hackathon**,
 não promete equivalência de schema com futuras publicações do ONS. Colunas ausentes,
 extras ou com tipo diferente bloqueiam a análise daquele arquivo; os demais arquivos
 continuam sendo auditados. Arquivos ausentes/corrompidos viram estados estruturados.
@@ -88,7 +88,7 @@ resumidos da EDA são versionados.
 
 ## Revisão independente — 19/09/2026 (segunda passagem)
 
-Reexecução completa de `python -m curtamap.audit` após as correções abaixo. Os números da
+Reexecução completa de `python -m zelo.audit` após as correções abaixo. Os números da
 seção anterior se mantiveram.
 
 - **Mudança de identidade com `NULL`.** Antes, `count(DISTINCT ...)` ignorava trocas

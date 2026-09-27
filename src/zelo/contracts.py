@@ -4,7 +4,7 @@ O contrato fixa o formato, não o modelo. A semântica segue o protocolo experim
 Etapa 2A (`docs/experimental-protocol.md`, na branch `etapa-2-experimental`). Qualquer
 preditor (baseline hoje, modelo escolhido na Etapa 2C depois) deve produzir
 `FORECAST_SCHEMA`; recomendação e dashboard consomem só esse formato e nunca importam
-`curtamap.experimental`.
+`zelo.experimental`.
 
 Unidade da previsão: `fonte + id_ons + t0 + horizonte`, com `tau = t0 + (h - 1) × 30 min`
 referente ao intervalo semiaberto `[tau, tau + 30 min)`. Timestamps são ingênuos, em horário
@@ -26,7 +26,7 @@ STEP = timedelta(minutes=30)
 # independente da nova Etapa 2, encerrado e congelado. Maio–agosto de 2026, reservado pela
 # Etapa 2A, foi consumido em 25/09/2026. A guarda continua valendo na previsão ao vivo; depois
 # da validação (27/09/2026), o único caminho do produto que lê setembro é o arquivo de avisos
-# (`curtamap.previsao.avisos`), que converte as previsões avaliadas sem repontuar.
+# (`zelo.previsao.avisos`), que converte as previsões avaliadas sem repontuar.
 RESERVED_TEST_START = datetime(2026, 9, 1)
 
 SOURCES = ("eolica", "fotovoltaica")

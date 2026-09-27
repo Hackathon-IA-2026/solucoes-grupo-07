@@ -6,7 +6,7 @@ Este arquivo preserva material de negócio ao longo do desenvolvimento. Atualize
 
 1. **Problema:** qual perda concreta o gerador enfrenta e como ela aparece nos dados?
 2. **Por que agora:** o que mudou em escala, dados, regulação ou tecnologia?
-3. **Solução:** como o CurtaMap transforma antecipação em decisão?
+3. **Solução:** como o Zelo transforma antecipação em decisão?
 4. **Papel da IA:** onde ela é indispensável e onde usamos regras determinísticas?
 5. **Impacto:** quais MWh, reais e emissões podem ser afetados, sob quais premissas?
 6. **Credibilidade:** quais resultados, limitações e capacidades da equipe sustentam a proposta?
@@ -110,7 +110,7 @@ Para cada decisão relevante, anote:
 | Valor: R$ 2.988,60 / R$ 16.755,66 / R$ 40.593,42 | **Cenário financeiro**, energia recuperável × proxies de PLD; não receita, ressarcimento ou liquidação | CCEE: R$ 58,60 / 310,29 / 751,73 por MWh; premissas v1 |
 | CO₂ indicativo: 10,9446 / 22,2732 / 31,2120 tCO₂ | **Cenário climático**, não redução certificada | MCTI: margem de operação 2025 baixa/média/alta; premissas v1 |
 
-Mensagem recomendada no palco: **“O CurtaMap não promete recuperar 148 MWh. Ele mostra que, sob
+Mensagem recomendada no palco: **“O Zelo não promete recuperar 148 MWh. Ele mostra que, sob
 um ativo e regras explícitas, até 51–54 MWh entram no cenário; o gerador vê exatamente de onde
 vieram preço, carbono, eficiência e limites.”**
 
@@ -145,6 +145,6 @@ diferença. Mostramos as premissas e o que o operador ainda precisa confirmar.�
 
 Se for exibido dinheiro ou carbono, os avisos devem aparecer junto ao número. Não somar cenários
 de episódios como operação factível. O direito financeiro do agente depende de apuração,
-contrato, período e regulação; não é produzido pelo CurtaMap. Nenhum especialista foi entrevistado
+contrato, período e regulação; não é produzido pelo Zelo. Nenhum especialista foi entrevistado
 nesta auditoria. A qualidade preditiva depende da Etapa 2C e a integração visual da Etapa 4.
 O [relatório](reviews/astra-stage3-audit.md) registra as lacunas e o roteiro de validação humana.

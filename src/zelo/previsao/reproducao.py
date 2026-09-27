@@ -5,7 +5,7 @@ os dados liberados até então, no `FORECAST_SCHEMA` e com colunas extras `obser
 modelo é treinado só com rótulos anteriores ao recorte, como teria estado em produção.
 O arquivo fica fora do Git e é regenerável por este script.
 
-Uso: `uv run python -m curtamap.previsao.reproducao 2026-08-03 2026-08-30`.
+Uso: `uv run python -m zelo.previsao.reproducao 2026-08-03 2026-08-30`.
 """
 
 import argparse
@@ -15,13 +15,13 @@ from pathlib import Path
 
 import polars as pl
 
-from curtamap.config import settings
-from curtamap.contracts import validate_forecast
-from curtamap.forecasting import load_history
-from curtamap.previsao.avaliacao import FIRST_DAY, load_base
-from curtamap.previsao.calendario import EMISSION_TIME, emission_cutoff, load_calendar
-from curtamap.previsao.features import ENTITY_LOOKBACK_DAYS, release_map
-from curtamap.previsao.modelo import DailyForecaster, DailyModel, fit
+from zelo.config import settings
+from zelo.contracts import validate_forecast
+from zelo.forecasting import load_history
+from zelo.previsao.avaliacao import FIRST_DAY, load_base
+from zelo.previsao.calendario import EMISSION_TIME, emission_cutoff, load_calendar
+from zelo.previsao.features import ENTITY_LOOKBACK_DAYS, release_map
+from zelo.previsao.modelo import DailyForecaster, DailyModel, fit
 
 TRUTH = {
     "corte_positivo": "observado_corte",

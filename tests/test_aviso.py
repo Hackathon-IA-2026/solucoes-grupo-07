@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import polars as pl
 import pytest
 
-from curtamap.aviso import (
+from zelo.aviso import (
     STATUS_ALERTA,
     STATUS_SEM_ALERTA,
     STATUS_SEM_PREVISAO,

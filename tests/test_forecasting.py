@@ -3,14 +3,14 @@ from datetime import datetime, timedelta
 import polars as pl
 import pytest
 
-from curtamap.contracts import HORIZONS, RESERVED_TEST_START, validate_forecast
-from curtamap.forecasting import (
+from zelo.contracts import HORIZONS, RESERVED_TEST_START, validate_forecast
+from zelo.forecasting import (
     SameSlotRecentBaseline,
     known_entities,
     load_history,
     nightly_cutoff,
 )
-from curtamap.targets import derive_targets
+from zelo.targets import derive_targets
 
 T0 = datetime(2025, 3, 11, 10, 0)  # terça-feira
 CUTOFF = datetime(2025, 3, 10)  # fim de domingo, liberado segunda às 19h30

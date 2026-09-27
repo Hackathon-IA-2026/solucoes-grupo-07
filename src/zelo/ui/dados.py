@@ -6,7 +6,7 @@ from pathlib import Path
 import polars as pl
 import streamlit as st
 
-from curtamap.previsao.avisos import ARCHIVE
+from zelo.previsao.avisos import ARCHIVE
 
 # Só para testes: aponta o painel para outro arquivo de avisos.
 ARCHIVE_OVERRIDE: Path | None = None
