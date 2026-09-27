@@ -1,0 +1,39 @@
+{
+  "modelo": "diario_ocorrencia_v1_2026-08-30",
+  "limiares": {
+    "eolica": 0.3461,
+    "fotovoltaica": 0.3212
+  },
+  "dias_alvo": "2026-09-01 a 2026-09-24",
+  "setembro": {
+    "baixado_em": "2026-09-27T03:05:47+00:00",
+    "arquivos": [
+      {
+        "fonte": "eolica",
+        "url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_eolica_tm/RESTRICAO_COFF_EOLICA_2026_09.parquet",
+        "last_modified": "Sat, 26 Sep 2026 22:06:00 GMT",
+        "bytes": 3528003,
+        "sha256": "af05bc9304497ce40c21343be867e9349f9a5fdbf60bf2e52c025f7be6588128"
+      },
+      {
+        "fonte": "fotovoltaica",
+        "url": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/restricao_coff_fotovoltaica_tm/RESTRICAO_COFF_FOTOVOLTAICA_2026_09.parquet",
+        "last_modified": "Sat, 26 Sep 2026 22:06:40 GMT",
+        "bytes": 1201260,
+        "sha256": "818c93df602430bf5343a08380d1eecb6d9172bbe0b8449a13a48a57e01a2b45"
+      }
+    ]
+  },
+  "janela": "blocos de 2 h com in\u00edcio entre 06h00 e 16h00",
+  "fracoes_parada": [
+    0.05,
+    0.1,
+    0.25,
+    0.5
+  ],
+  "precos_cenario_rs_mwh": [
+    100.0,
+    200.0,
+    300.0
+  ]
+}

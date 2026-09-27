@@ -1923,3 +1923,107 @@ Commits, em ordem:
 - Redesenhar a recomendação (Etapa 3) e o painel (Etapa 4) sem volume. Depois disso,
   remover as colunas de volume do contrato.
 - Regerar a reprodução de agosto para o dashboard com o novo artefato.
+
+## 2026-09-27 - Posicionamento do pitch (1/n): aviso na véspera, manutenção como cena e números de apoio
+
+### Contexto e pergunta
+
+A final é em 27/09, às 15h, com um pitch de 5 minutos. Sem previsão de volume, o produto
+precisava de um posicionamento e de números que o sustentem, sem inventar valor. Material
+usado:
+
+- a transcrição da mentoria de pitch e a de uma conversa com um investidor de startups;
+- o Caderno de Desafios;
+- os critérios da banca;
+- o pitch do Ideathon.
+
+A extração, as alternativas e a comparação estão em `docs/posicionamento-pitch.md`.
+
+### Fatos e evidências observados
+
+- **Mentoria:** a frase de posicionamento no modelo "Para / que / nosso / é / que", a
+  história em cinco linhas, abrir com um dado e ter uma dor só. A crítica central dela foi
+  "qual é o diferencial de vocês? Não está claro para mim".
+- **Critérios:** Impacto vale 30% e pede resultados mensuráveis. A rastreabilidade aparece
+  citada junto com a Taesa.
+- **Rascunho da equipe na mentoria:** terminava em "evitando o corte". O corte é uma ordem do
+  ONS, e o produto não o evita.
+- **Análise nova** (`docs/reports/pitch-impacto/`), em setembro (01–24/09), com previsões
+  regeneradas do modelo congelado:
+  - reprodução conferida: AP de 0,9215 e 0,9074, recall de 0,94 e 0,90, precisão de 0,82 e
+    0,81;
+  - **camada 1:** 97,2% (eólica) e 96,4% (solar) da energia cortada caíram em meias-horas
+    avisadas na véspera.
+    - Taxa de alerta: 56% das meias-horas na eólica e 64% das horas com potencial na solar.
+    - O `historico`, com o mesmo número de alertas, cobre 97,4% e 94,8%.
+  - **contexto:** a usina solar média ficou cortada em 7,2 das 12,4 horas com sol, e a
+    eólica em 11,7 h por dia;
+  - **camada 3** (cenário de manutenção de 2 h a 10%, retrospectivo):
+    - na eólica, a perda cai 58% contra o menor potencial e 55% contra o fixo 08h;
+    - na solar, cai 21% e 31%;
+    - contra o `historico`, o CurtaMap fica em −7% na eólica e **+16% na solar** (pior).
+
+### Interpretação e decisão
+
+- **Posicionamento decidido pelo responsável:** P1 com a cena do P2. A promessa é o aviso na
+  véspera, por usina e meia-hora, com motivo e índice de acerto. A cena é a manutenção
+  remarcada para horas de corte.
+- **Interpretação dos números:**
+  - a perda é muito previsível, e a prática de remarcar funciona;
+  - as duas coisas vêm do perfil de corte da usina, e o `historico` as captura quase igual;
+  - a contribuição medida da IA continua restrita ao ganho consistente de AP.
+  - Isso reforça que o diferencial deve ser a entrega pronta e transparente, e não a
+    precisão.
+- **Valor financeiro:** só como ilustração por intervenção e com preço assumido (cerca de
+  R$ 490 a R$ 200/MWh na eólica). Nenhum total anual ou nacional, porque a frequência de
+  intervenções flexíveis é desconhecida.
+- **"Recuperável até X" pelo oráculo:** descartado como número de palco, porque usa o futuro.
+- **Pedido do responsável:** menos foco em valores que não conseguimos garantir.
+
+### Alternativas consideradas
+
+- **Multiplicar a fração avisada pelos R$ 6,5 bi** (Volt Robotics, via Caderno) para
+  anunciar "R$ Y bi chegam avisados": possível como combinação declarada. Não é mérito do
+  modelo, e o risco de ser lido como "recuperamos R$ Y bi" é alto. Fica a critério do
+  roteiro.
+- **Escolher o bloco por perda esperada**, para corrigir a solar: descartado. Seria calibrar
+  no teste.
+- **Usar o PLD da CCEE** (branch exploratória `codex/alertas-impacto-negocio`): descartado.
+  É base não validada pela equipe.
+
+### Implementação e validação
+
+- Módulo `curtamap.previsao.impacto` com 10 testes:
+  - regra da perda sob teto e sem teto;
+  - fração inválida;
+  - janela e blocos completos;
+  - escolha com empate e política só com alerta;
+  - cobertura ponderada por energia;
+  - controle do `historico`.
+- `ruff check` e `ruff format --check` limpos nos arquivos novos.
+- Os artefatos de setembro foram rebaixados: a publicação do ONS de 26/09, com novos SHA-256.
+
+### Limitações e incertezas
+
+- São 24 dias de um mês com corte quase diário. Não houve teste de significância.
+- A regra do teto é hipótese. A frequência real de manutenção flexível é desconhecida.
+- Não houve nenhuma conversa com gerador. Todas as dores são hipóteses de uso.
+
+### Valor para o usuário e para a apresentação
+
+- **Problema:** "a usina solar média passou 7 das 12 horas de sol cortada em setembro" é um
+  dado medido e simples.
+- **Solução:** "quase toda a energia cortada cai nas horas que avisamos na noite anterior; 8
+  em cada 10 horas avisadas se confirmam".
+- **Cena:** remarcar a manutenção para as horas avisadas reduziu a perda da parada em mais da
+  metade na eólica, em cenário retrospectivo.
+- **Credibilidade:** mostrar que um método simples (o histórico) já faz boa parte disso, e
+  dizer que nós entregamos esse método pronto, medido e melhorado onde medimos.
+
+### Próximos passos
+
+- Desenvolver a premissa do produto: persona, momento de uso, o que a tela mostra às 20h e o
+  que a equipe faz.
+- Montar o roteiro de 5 minutos em cinco linhas, com os números marcados como medidos,
+  referência externa ou cenário.
+- Redesenhar o painel Streamlit sem volume, se houver tempo antes das 15h.
