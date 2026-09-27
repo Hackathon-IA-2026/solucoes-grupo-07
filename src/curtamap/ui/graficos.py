@@ -70,7 +70,7 @@ def mapa_portfolio(aviso: pl.DataFrame, ordem: list[tuple[str, str, str]]) -> go
             zmax=1,
             xgap=2,
             ygap=3,
-            hovertemplate="<b>%{y}</b><br>%{x} · %{text} · chance de corte %{customdata:.0%}"
+            hovertemplate="<b>%{y}</b><br>%{x} · %{text} · risco de corte %{customdata:.0%}"
             "<extra></extra>",
         )
     )
@@ -109,7 +109,7 @@ def linha_do_dia(usina: pl.DataFrame) -> go.Figure:
             y=usina["p_corte"].fill_null(0).to_list(),
             marker={"color": cores, "cornerradius": 4},
             customdata=estados,
-            hovertemplate="%{x} · chance %{y:.0%} · %{customdata}<extra></extra>",
+            hovertemplate="%{x} · risco %{y:.0%} · %{customdata}<extra></extra>",
         )
     )
     limiar = usina["limiar_alerta"].drop_nulls()

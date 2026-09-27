@@ -156,7 +156,7 @@ def _tabela(resumo: pl.DataFrame) -> dict | None:
         )
         .alias("Janela principal"),
         pl.col("motivo").replace_strict(_MOTIVO_CURTO, default="—").alias("Motivo típico"),
-        pl.col("chance_max").alias("Chance máxima"),
+        pl.col("chance_max").alias("Risco máximo"),
         pl.col("horas_livres").alias("Horas livres"),
     )
     evento = st.dataframe(
@@ -169,13 +169,13 @@ def _tabela(resumo: pl.DataFrame) -> dict | None:
         column_config={
             "Horas em alerta": st.column_config.NumberColumn(format="%.1f h"),
             "Horas livres": st.column_config.NumberColumn(format="%.1f h"),
-            "Chance máxima": st.column_config.ProgressColumn(
+            "Risco máximo": st.column_config.ProgressColumn(
                 format="percent", min_value=0.0, max_value=1.0
             ),
         },
     )
     linhas = evento.selection.rows if evento else []
-    indice = linhas[0] if linhas else 0
+    indice = linhas[0] if linhas and linhas[0] < resumo.height else 0
     return resumo.row(indice, named=True) if resumo.height else None
 
 
@@ -206,7 +206,7 @@ def _detalhe(aviso: pl.DataFrame, usina: dict) -> None:
         partes.append(
             f'<div class="cm-janela"><div class="cm-hora">'
             f"{formatar_janela(janela['inicio'], janela['fim'])}</div>"
-            f'<div class="cm-detalhe"><span class="cm-pill">chance de até '
+            f'<div class="cm-detalhe"><span class="cm-pill">risco de até '
             f"{janela['chance_max']:.0%}</span> "
             f"{escape(motivo_texto(janela['causa'], janela['origem']))}"
             f"<br><span>{escape(sugestao(janela['horas']))}</span></div></div>"
@@ -244,7 +244,9 @@ def _rodape(aviso: pl.DataFrame, resumo: pl.DataFrame) -> None:
 <b>Fonte:</b> dados abertos do ONS sobre restrição de geração eólica e solar
 (constrained-off), por usina e meia-hora.<br>
 <b>Emissão:</b> {info[0]:%d/%m/%Y %H:%M}, com dados liberados até {liberado:%d/%m/%Y}.
-Modelo <code>{escape(info[2])}</code>, que calcula a chance de corte; o motivo é a regra do
+Modelo <code>{escape(info[2])}</code>, que calcula o risco de corte
+(um índice que ordena as horas; o número validado é o
+acerto "8 em 10"); o motivo é a regra do
 histórico da usina.<br>
 <b>Acerto:</b> medido em {escape(desempenho["periodo"])}, por usina e meia-hora
 ({escape(desempenho["origem"])}).<br>
