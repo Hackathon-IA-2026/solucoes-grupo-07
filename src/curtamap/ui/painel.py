@@ -18,6 +18,7 @@ from curtamap.aviso import (
     resumo_usinas,
     sugestao,
 )
+from curtamap.previsao.ao_vivo import agora_brasilia
 from curtamap.ui import dados, estilo, graficos
 
 FONTES = {"eolica": "Eólica", "fotovoltaica": "Solar"}
@@ -44,6 +45,12 @@ def _dia_titulo(dia: date) -> str:
     return f"{semana}, {dia.day} de {_MESES[dia.month - 1]}"
 
 
+def _relativo(dia: date) -> str:
+    """Prefixo do título: "Amanhã, " ou "Hoje, " conforme o relógio de Brasília."""
+    hoje = agora_brasilia().date()
+    return {hoje + timedelta(days=1): "Amanhã, ", hoje: "Hoje, "}.get(dia, "")
+
+
 def _horas(valor: float | None) -> str:
     if valor is None:
         return "—"
@@ -60,7 +67,7 @@ def _cabecalho(dia: date, emitido) -> None:
         f"""<div class="cm-mast">
 <div class="cm-kicker"><b>CurtaMap</b> &nbsp;·&nbsp; aviso diário de cortes &nbsp;·&nbsp;
 emitido às {emitido:%Hh} de {emitido:%d/%m}</div>
-<h1>Amanhã, <em>{escape(_dia_titulo(dia))}</em></h1>
+<h1>{_relativo(dia)}<em>{escape(_dia_titulo(dia))}</em></h1>
 <div class="cm-lede">Em quais horas cada usina deve ser cortada, por qual motivo e quanto
 este aviso costuma acertar. Calculado com os dados públicos do ONS já liberados na noite
 anterior.</div></div>"""
@@ -193,9 +200,7 @@ def _detalhe(aviso: pl.DataFrame, usina: dict) -> None:
             "suficiente desta usina para emitir o aviso."
         )
     elif not janelas.height:
-        partes.append(
-            '<span class="cm-tag livre">sem alerta</span> Nenhuma hora com corte provável amanhã.'
-        )
+        partes.append('<span class="cm-tag livre">sem alerta</span> Sem corte provável neste dia.')
     for janela in janelas.iter_rows(named=True):
         partes.append(
             '<div class="cm-janela"><div class="cm-hora">'
@@ -275,7 +280,7 @@ def render() -> None:
     _faixa_acerto(fontes)
 
     estilo.html(
-        '<div class="cm-secao">Usinas com mais horas em alerta amanhã</div>'
+        '<div class="cm-secao">Usinas com mais horas em alerta no dia</div>'
         f'<div class="cm-legenda"><span><i style="background:{estilo.ALERTA}"></i>em alerta'
         f'</span><span><i style="background:{estilo.LIVRE_CLARO}"></i>livre</span>'
         f'<span><i style="background:{estilo.SEM_GERACAO}"></i>sem geração prevista</span>'
