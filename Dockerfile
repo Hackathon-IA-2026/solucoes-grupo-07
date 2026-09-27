@@ -5,7 +5,7 @@
 # Não precisa de credenciais AWS nem de volume; se o contêiner reiniciar, a rotina emite de
 # novo os dias que faltarem.
 #
-#   docker build -t curtamap .
+#   docker buildx build --platform linux/amd64 -t <usuario>/curtamap:latest --push .
 #   docker run --rm -p 8501:8501 curtamap
 
 FROM python:3.12-slim

@@ -65,8 +65,8 @@ A imagem leva o modelo servido e os avisos já emitidos, e roda a rotina diária
 painel. Não precisa de credenciais nem de volume:
 
 ```bash
-docker build -t <usuario>/curtamap:latest .
-docker push <usuario>/curtamap:latest
+# O Fargate da stack roda em x86: em Mac com chip Apple, gere a imagem para linux/amd64.
+docker buildx build --platform linux/amd64 -t <usuario>/curtamap:latest --push .
 ```
 
 O template `infra/curtamap-stack.yaml` sobe a imagem pública no ECS Fargate (sem papel
