@@ -21,6 +21,12 @@ from curtamap.aviso import (
 from curtamap.ui import dados, estilo, graficos
 
 FONTES = {"eolica": "Eólica", "fotovoltaica": "Solar"}
+_MOTIVO_CURTO = {
+    "ENE": "sobra de energia",
+    "CNF": "limite da rede",
+    "REL": "rede externa",
+    "MISTA": "variados",
+}
 _FONTES_PLURAL = {"eolica": "eólicas", "fotovoltaica": "solares"}
 _DIAS_SEMANA = ["segunda", "terça", "quarta", "quinta", "sexta", "sábado", "domingo"]
 _TOP_MAPA = 18
@@ -149,14 +155,7 @@ def _tabela(resumo: pl.DataFrame) -> dict | None:
             return_dtype=pl.String,
         )
         .alias("Janela principal"),
-        pl.struct("motivo", "origem")
-        .map_elements(
-            lambda r: (
-                motivo_texto(r["motivo"], r["origem"]).split(" · ")[0] if r["motivo"] else "—"
-            ),
-            return_dtype=pl.String,
-        )
-        .alias("Motivo típico"),
+        pl.col("motivo").replace_strict(_MOTIVO_CURTO, default="—").alias("Motivo típico"),
         pl.col("chance_max").alias("Chance máxima"),
         pl.col("horas_livres").alias("Horas livres"),
     )
