@@ -242,6 +242,29 @@ class DailyForecaster:
         predicted = pl.concat([p for p in parts if not p.is_empty()], how="diagonal_relaxed")
         return self._to_contract(predicted, t0, data_cutoff, generated_at, emitted_at)
 
+    def from_rows(
+        self,
+        rows: pl.DataFrame,
+        t0: datetime,
+        data_cutoff: datetime,
+        *,
+        generated_at: datetime | None = None,
+        emitted_at: datetime | None = None,
+    ) -> pl.DataFrame:
+        """Contrato a partir de linhas já pontuadas (features + `p_corte`), sem repontuar.
+
+        Serve para publicar avisos já emitidos (por exemplo, os da validação de setembro)
+        com o `p_corte` exatamente igual ao avaliado.
+        """
+        scored = pl.concat(
+            [
+                attach_cause_baseline(rows.filter(pl.col("fonte") == source))
+                for source in self.model.sources
+            ],
+            how="diagonal_relaxed",
+        )
+        return self._to_contract(scored, t0, data_cutoff, generated_at, emitted_at)
+
     def _to_contract(self, rows, t0, data_cutoff, generated_at, emitted_at) -> pl.DataFrame:
         source_threshold = {s: m.threshold for s, m in self.model.sources.items()}
         tau = pl.col("dia").cast(pl.Datetime("us")) + pl.duration(
@@ -303,6 +326,7 @@ class DailyForecaster:
             pl.lit(emitted_at, pl.Datetime("us")).alias("emitido_em"),
             pl.col("idade").cast(pl.Int16).alias("idade_informacao_dias"),
             pl.col("hist_28d").alias("baseline_historico_28d"),
+            pl.col("ref_hist_28d").cast(pl.Float64).alias("potencial_referencia_mwmed"),
             pl.lit("nao_previsto").alias("tipo_saida_volume"),
             "tipo_saida_causa",
         )
