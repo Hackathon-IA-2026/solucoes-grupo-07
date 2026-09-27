@@ -85,13 +85,13 @@ def test_sync_from_env_is_a_no_op_without_uris(tmp_path: Path) -> None:
 
 
 def test_sync_from_env_places_data_and_models(tmp_path: Path) -> None:
-    client = FakeS3({"dados/raw/x.parquet": b"x", "modelos/previsao/m.joblib": b"m"})
+    client = FakeS3({"dados/processed/avisos.parquet": b"x", "modelos/previsao/m.joblib": b"m"})
     env = {
-        "CURTAMAP_DATA_S3_URI": "s3://b/dados/raw/",
+        "CURTAMAP_DATA_S3_URI": "s3://b/dados/processed/",
         "CURTAMAP_MODEL_S3_URI": "s3://b/modelos/previsao/",
     }
 
     sync_from_env(env, data_dir=tmp_path / "data", model_dir=tmp_path / "models", client=client)
 
-    assert (tmp_path / "data" / "raw" / "x.parquet").exists()
+    assert (tmp_path / "data" / "processed" / "avisos.parquet").exists()
     assert (tmp_path / "models" / "previsao" / "m.joblib").exists()

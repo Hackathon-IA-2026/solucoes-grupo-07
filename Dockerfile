@@ -1,7 +1,7 @@
 # CurtaMap: interface Streamlit na porta 8501.
 #
 # Dados e modelos NÃO entram na imagem. Na inicialização, `curtamap.s3_sync` baixa
-# CURTAMAP_DATA_S3_URI -> $CURTAMAP_DATA_DIR/raw e CURTAMAP_MODEL_S3_URI ->
+# CURTAMAP_DATA_S3_URI -> $CURTAMAP_DATA_DIR/processed (avisos emitidos) e CURTAMAP_MODEL_S3_URI ->
 # $CURTAMAP_MODEL_DIR/previsao, se definidos; sem eles, monte os diretórios como volume.
 #
 #   docker build -t curtamap .

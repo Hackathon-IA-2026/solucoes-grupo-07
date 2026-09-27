@@ -2,7 +2,7 @@
 
 Os Parquet e o modelo nunca entram na imagem. Com `CURTAMAP_DATA_S3_URI` e
 `CURTAMAP_MODEL_S3_URI` definidos, o conteúdo desses prefixos vai para
-`CURTAMAP_DATA_DIR/raw` e `CURTAMAP_MODEL_DIR/previsao`. Sem as variáveis, nada acontece:
+`CURTAMAP_DATA_DIR/processed` e `CURTAMAP_MODEL_DIR/previsao`. Sem as variáveis, nada acontece:
 os dados podem vir de um volume montado. Arquivos com o mesmo tamanho não são baixados de
 novo. Uso: `python -m curtamap.s3_sync`.
 """
@@ -72,7 +72,7 @@ def sync(uri: str, dest: Path, *, client=None) -> list[Path]:
 def sync_from_env(
     env: Mapping[str, str], *, data_dir: Path, model_dir: Path, client=None
 ) -> list[Path]:
-    targets = {DATA_ENV: Path(data_dir) / "raw", MODEL_ENV: Path(model_dir) / "previsao"}
+    targets = {DATA_ENV: Path(data_dir) / "processed", MODEL_ENV: Path(model_dir) / "previsao"}
     written = []
     for name, dest in targets.items():
         if env.get(name):

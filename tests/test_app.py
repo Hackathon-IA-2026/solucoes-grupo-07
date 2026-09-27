@@ -1,67 +1,86 @@
-"""Fumaça da interface com `AppTest`: cada tela renderiza sem exceção.
+"""Fumaça da interface com `AppTest`: a tela renderiza sem exceção e sem números simulados."""
 
-Com os Parquet do ONS em `data/raw`, as telas rodam sobre dados reais; sem eles, só o
-aviso de dados ausentes é verificado.
-"""
-
+from datetime import datetime, timedelta
 from pathlib import Path
 
+import polars as pl
 import pytest
 from streamlit.testing.v1 import AppTest
 
-from curtamap.config import settings
-from curtamap.ui import dados
+from curtamap.ui import painel
 
-APP = str(Path(__file__).parents[1] / "src" / "curtamap" / "app.py")
-HAS_DATA = not dados.missing_files()
-needs_data = pytest.mark.skipif(not HAS_DATA, reason="Parquet do ONS ausentes em data/raw")
+T0 = datetime(2026, 9, 10)
 
 
-def _page(module: str) -> None:
-    # Mesmo roteiro do app.py, para uma tela só (páginas registradas por função).
-    import importlib
+def _arquivo(path: Path) -> Path:
+    rows = []
+    for fonte, id_ons, nome in (
+        ("eolica", "E1", "Usina Vento"),
+        ("fotovoltaica", "S1", "Usina Sol"),
+    ):
+        for h in range(1, 49):
+            alerta = 22 <= h <= 30
+            rows.append(
+                {
+                    "fonte": fonte,
+                    "id_ons": id_ons,
+                    "nom_usina": nome,
+                    "id_estado": "RN",
+                    "id_subsistema": "NE",
+                    "t0": T0,
+                    "horizonte": h,
+                    "tau": T0 + (h - 1) * timedelta(minutes=30),
+                    "p_corte": 0.9 if alerta else 0.1,
+                    "limiar_alerta": 0.33,
+                    "alerta": alerta,
+                    "causa_prevista": "ENE",
+                    "origem_prevista": "SIS",
+                    "potencial_referencia_mwmed": 20.0 if 12 <= h <= 36 else 0.0,
+                    "emitido_em": T0 - timedelta(hours=4),
+                    "corte_dados": T0 - timedelta(days=1),
+                    "modelo_id": "teste",
+                }
+            )
+    pl.DataFrame(rows).write_parquet(path)
+    return path
 
-    from curtamap.ui import contexto
 
-    context = contexto.load()
-    contexto.store(context)
-    if context is not None:
-        contexto.seal(context)
-        importlib.import_module(module).render()
+def _render(path: str) -> None:
+    from pathlib import Path
 
+    from curtamap.ui import dados, painel
 
-def _run_page(module: str) -> AppTest:
-    app = AppTest.from_function(_page, args=(module,), default_timeout=180)
-    return app.run()
+    dados.ARCHIVE_OVERRIDE = Path(path)
+    painel.render()
 
 
-def test_missing_data_shows_instructions_instead_of_numbers(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    monkeypatch.setattr(settings, "data_dir", tmp_path)
-
-    app = AppTest.from_file(APP, default_timeout=60).run()
-
+def test_painel_renderiza_o_aviso_do_dia(tmp_path: Path) -> None:
+    arquivo = _arquivo(tmp_path / "avisos.parquet")
+    app = AppTest.from_function(_render, args=(str(arquivo),), default_timeout=60).run()
     assert not app.exception
-    assert any("Dados do ONS ausentes" in e.value for e in app.error)
-    assert not app.metric
+    texto = " ".join(m.value for m in app.markdown)
+    assert "Usina Vento" in texto and "10h30 às 15h" in texto
+    assert "sobra de energia no sistema" in texto
+    assert "Horas livres" in texto
 
 
-@needs_data
-def test_operation_page_opens_with_the_decision() -> None:
-    app = AppTest.from_file(APP, default_timeout=180).run()
-
-    assert not app.exception, app.exception
-    assert app.title[0].value == "Operação D+1"
-    assert [m.label for m in app.metric][:2] == ["Usinas em risco", "Energia em risco (24 h)"]
-    assert any("EXEMPLO SIMULADO" in w.value for w in app.warning)
-    assert any("t0" in s.value for s in [*app.warning, *app.info])
+def test_sem_arquivo_mostra_instrucao_em_vez_de_numeros(tmp_path: Path) -> None:
+    app = AppTest.from_function(
+        _render, args=(str(tmp_path / "ausente.parquet"),), default_timeout=60
+    ).run()
+    assert not app.exception
+    assert "curtamap.previsao.avisos" in app.error[0].value
 
 
-@needs_data
-@pytest.mark.parametrize("module", ["curtamap.ui.tatica", "curtamap.ui.metodologia"])
-def test_other_pages_render_with_the_seal(module: str) -> None:
-    app = _run_page(module)
+def test_fontes_do_painel_cobrem_as_do_contrato() -> None:
+    from curtamap.contracts import SOURCES
 
-    assert not app.exception, app.exception
-    assert any("t0" in s.value for s in [*app.warning, *app.info])
+    assert set(painel.FONTES) == set(SOURCES)
+
+
+@pytest.fixture(autouse=True)
+def _limpa_cache():
+    from curtamap.ui import dados
+
+    yield
+    dados.ARCHIVE_OVERRIDE = None

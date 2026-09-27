@@ -1,160 +1,132 @@
-"""Figuras Plotly. Cor segue a entidade (estado da janela, causa), nunca a posição.
-
-Paleta de referência validada para daltonismo; estados e causas sempre têm rótulo na
-legenda ou no tooltip, nunca só a cor. Energia e probabilidade ficam em gráficos
-separados, sem eixo duplo.
-"""
+"""Gráficos do painel: mapa do portfólio e linha do dia de uma usina."""
 
 import plotly.graph_objects as go
 import polars as pl
 
-from curtamap.contracts import STEP
-from curtamap.painel.historico import MISSING, OTHERS
-from curtamap.painel.ranking import STATUS_ALERT, STATUS_NO_ALERT, STATUS_NO_EVIDENCE
+from curtamap.ui import estilo
 
-STATUS_COLORS = {STATUS_ALERT: "#d03b3b", STATUS_NO_ALERT: "#9ec5f4"}
-NO_EVIDENCE_FILL = "rgba(137, 135, 129, 0.18)"
-CAUSE_COLORS = {
-    "ENE": "#2a78d6",
-    "CNF": "#eb6834",
-    "REL": "#1baf7a",
-    "PAR": "#eda100",
-    "DESCONHECIDA": "#898781",
-}
-SERIES = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7"]
-NEUTRAL = "#898781"
-_HOUR_FORMAT = "%H:%M<br>%d/%m"
-_LAYOUT = {
-    "margin": {"l": 10, "r": 10, "t": 50, "b": 10},
-    "hovermode": "x unified",
-    "showlegend": True,
-    # Legenda abaixo do gráfico, para não disputar espaço com o título.
-    "legend": {"orientation": "h", "yanchor": "top", "y": -0.18, "x": 0},
-    "bargap": 0.15,
-}
+# Metade de baixo da escala: horas livres (verde); metade de cima: alerta (vermelho).
+_ESCALA = [
+    [0.0, "#D5F0EC"],
+    [0.49, "#7FD1C6"],
+    [0.5, "#F9C98F"],
+    [0.75, estilo.ALERTA],
+    [1.0, estilo.ALERTA_FORTE],
+]
+_HORAS = [f"{h:02d}h" for h in range(24)]
 
 
-def _no_evidence_bands(fig: go.Figure, profile: pl.DataFrame) -> None:
-    for tau in profile.filter(pl.col("status") == STATUS_NO_EVIDENCE)["tau"]:
-        fig.add_vrect(
-            x0=tau, x1=tau + STEP, line_width=0, fillcolor=NO_EVIDENCE_FILL, layer="below"
-        )
+def _rotulo_slot(h: int) -> str:
+    return f"{(h - 1) // 2:02d}:{30 * ((h - 1) % 2):02d}"
 
 
-def energy_profile(profile: pl.DataFrame, *, has_interval: bool) -> go.Figure:
-    """Energia esperada por janela; janelas sem evidência ficam sombreadas, sem barra."""
-    fig = go.Figure()
-    for status in (STATUS_ALERT, STATUS_NO_ALERT):
-        part = profile.filter(pl.col("status") == status)
-        error = None
-        if has_interval and part.height:
-            low = (part["volume_p10_mwmed"] * 0.5).fill_null(0)
-            high = (part["volume_p90_mwmed"] * 0.5).fill_null(0)
-            energy = part["energia_esperada_mwh"].fill_null(0)
-            error = {
-                "type": "data",
-                "array": (high - energy).clip(lower_bound=0).to_list(),
-                "arrayminus": (energy - low).clip(lower_bound=0).to_list(),
-                "color": "#52514e",
-                "thickness": 1,
-                "width": 2,
-            }
-        fig.add_bar(
-            x=part["tau"].to_list(),
-            y=part["energia_esperada_mwh"].to_list(),
-            name=status,
-            marker={"color": STATUS_COLORS[status], "cornerradius": 4},
-            error_y=error,
-            hovertemplate="%{y:.1f} MWh<extra>" + status + "</extra>",
-        )
-    if profile.filter(pl.col("status") == STATUS_NO_EVIDENCE).height:
-        _no_evidence_bands(fig, profile)
-        # Entrada de legenda para as faixas sombreadas.
-        fig.add_scatter(
-            x=[None],
-            y=[None],
-            mode="markers",
-            name=STATUS_NO_EVIDENCE,
-            marker={"color": "#c3c2b7", "size": 12, "symbol": "square"},
-        )
+def _layout(fig: go.Figure, altura: int) -> go.Figure:
     fig.update_layout(
-        title="Energia esperada por janela de 30 min (MWh)"
-        + (" · barra de erro = p10–p90" if has_interval else ""),
-        yaxis_title="MWh",
-        xaxis_tickformat=_HOUR_FORMAT,
-        **_LAYOUT,
+        height=altura,
+        margin={"l": 10, "r": 10, "t": 10, "b": 10},
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font={"family": estilo.FONTE_TEXTO, "color": estilo.TINTA, "size": 13},
+        hoverlabel={"font": {"family": estilo.FONTE_TEXTO}},
     )
     return fig
 
 
-def probability_profile(profile: pl.DataFrame) -> go.Figure:
-    fig = go.Figure()
-    fig.add_scatter(
-        x=profile["tau"].to_list(),
-        y=profile["p_corte"].to_list(),
-        mode="lines+markers",
-        name="p(corte)",
-        line={"color": "#2a78d6", "width": 2, "shape": "hv"},
-        marker={"size": 6},
-        connectgaps=False,
-        hovertemplate="p(corte) %{y:.0%}<extra></extra>",
-    )
-    fig.add_scatter(
-        x=profile["tau"].to_list(),
-        y=profile["limiar_alerta"].to_list(),
-        mode="lines",
-        name="limiar de alerta",
-        line={"color": "#52514e", "width": 1, "dash": "dash"},
-        hovertemplate="limiar %{y:.0%}<extra></extra>",
-    )
-    _no_evidence_bands(fig, profile)
-    fig.update_layout(
-        title="Probabilidade de corte por janela",
-        yaxis={"range": [0, 1.05], "tickformat": ".0%"},
-        xaxis_tickformat=_HOUR_FORMAT,
-        **_LAYOUT,
-    )
-    return fig
-
-
-def _group_color(group: str, dimension: str, order: list[str]) -> str:
-    if dimension == "causa":
-        return CAUSE_COLORS.get(group, NEUTRAL)
-    if group in (OTHERS, MISSING):
-        return NEUTRAL
-    named = [g for g in order if g not in (OTHERS, MISSING)]
-    return SERIES[named.index(group) % len(SERIES)]
-
-
-def losses_chart(losses: pl.DataFrame, dimension: str, grain_label: str) -> go.Figure:
-    """Barras empilhadas de energia cortada; períodos parciais ficam translúcidos."""
-    order = (
-        losses.group_by("grupo")
-        .agg(pl.col("energia_mwh").sum())
-        .sort(["energia_mwh", "grupo"], descending=[True, False])["grupo"]
-        .to_list()
-    )
-    fig = go.Figure()
-    for group in order:
-        part = losses.filter(pl.col("grupo") == group).sort("periodo")
-        opacity = [0.45 if p else 1.0 for p in part["periodo_parcial"].fill_null(False)]
-        fig.add_bar(
-            x=part["periodo"].to_list(),
-            y=part["energia_mwh"].to_list(),
-            name=group,
-            marker={
-                "color": _group_color(group, dimension, order),
-                "opacity": opacity,
-                "line": {"width": 1, "color": "rgba(252,252,251,0.9)"},
-            },
-            hovertemplate="%{y:,.0f} MWh<extra>" + group + "</extra>",
+def mapa_portfolio(aviso: pl.DataFrame, ordem: list[tuple[str, str, str]]) -> go.Figure:
+    """Usinas × 48 meias-horas; cor = chance de corte, vazio = sem geração prevista."""
+    linhas, textos, chances = [], [], []
+    for fonte, id_ons, _ in ordem:
+        usina = aviso.filter((pl.col("fonte") == fonte) & (pl.col("id_ons") == id_ons)).sort(
+            "horizonte"
         )
-    fig.update_layout(
-        barmode="stack",
-        title=f"Energia cortada observada por {grain_label} (MWh)",
-        yaxis_title="MWh",
-        xaxis_tickformat="%m/%Y" if grain_label == "mês" else "%d/%m/%Y",
-        separators=",.",
-        **_LAYOUT,
+        z, texto, chance = [], [], []
+        for p, alerta, pot in zip(
+            usina["p_corte"], usina["alerta"], usina["potencial_referencia_mwmed"], strict=True
+        ):
+            if p is None or (not alerta and (pot is None or pot <= 0)):
+                z.append(None)
+                texto.append("sem geração prevista")
+            elif alerta:
+                z.append(0.5 + 0.5 * p)
+                texto.append("em alerta")
+            else:
+                z.append(0.49 * p)
+                texto.append("livre")
+            chance.append(0.0 if p is None else p)
+        linhas.append(z)
+        textos.append(texto)
+        chances.append(chance)
+    nomes = [nome for _, _, nome in ordem]
+    fig = go.Figure(
+        go.Heatmap(
+            z=linhas,
+            x=[_rotulo_slot(h) for h in range(1, 49)],
+            y=nomes,
+            text=textos,
+            customdata=chances,
+            colorscale=_ESCALA,
+            showscale=False,
+            zmin=0,
+            zmax=1,
+            xgap=2,
+            ygap=3,
+            hovertemplate="<b>%{y}</b><br>%{x} · %{text} · chance de corte %{customdata:.0%}"
+            "<extra></extra>",
+        )
     )
-    return fig
+    fig.update_yaxes(autorange="reversed", showgrid=False)
+    fig.update_xaxes(
+        tickvals=[_rotulo_slot(h) for h in range(1, 49, 4)],
+        ticktext=[_HORAS[i] for i in range(0, 24, 2)],
+        showgrid=False,
+    )
+    return _layout(fig, 90 + 30 * len(ordem))
+
+
+def linha_do_dia(usina: pl.DataFrame) -> go.Figure:
+    """Chance de corte por meia-hora, colorida pelo que o aviso diz daquele horário."""
+    usina = usina.sort("horizonte")
+    cores, estados = [], []
+    for p, alerta, pot in zip(
+        usina["p_corte"], usina["alerta"], usina["potencial_referencia_mwmed"], strict=True
+    ):
+        if p is None:
+            cores.append(estilo.SEM_GERACAO)
+            estados.append("sem previsão")
+        elif alerta:
+            cores.append(estilo.ALERTA)
+            estados.append("em alerta")
+        elif pot is not None and pot > 0:
+            cores.append(estilo.LIVRE)
+            estados.append("livre")
+        else:
+            cores.append(estilo.SEM_GERACAO)
+            estados.append("sem geração prevista")
+    x = [_rotulo_slot(h) for h in usina["horizonte"]]
+    fig = go.Figure(
+        go.Bar(
+            x=x,
+            y=usina["p_corte"].fill_null(0).to_list(),
+            marker={"color": cores, "cornerradius": 4},
+            customdata=estados,
+            hovertemplate="%{x} · chance %{y:.0%} · %{customdata}<extra></extra>",
+        )
+    )
+    limiar = usina["limiar_alerta"].drop_nulls()
+    if limiar.len():
+        fig.add_hline(
+            y=float(limiar[0]),
+            line_dash="dot",
+            line_color=estilo.TEXTO_SUAVE,
+            annotation_text="limiar do alerta",
+            annotation_position="top left",
+            annotation_font_color=estilo.TEXTO_SUAVE,
+        )
+    fig.update_yaxes(range=[0, 1], tickformat=".0%", gridcolor="#E8EDF4", title=None)
+    fig.update_xaxes(
+        tickvals=[_rotulo_slot(h) for h in range(1, 49, 4)],
+        ticktext=[_HORAS[i] for i in range(0, 24, 2)],
+        showgrid=False,
+    )
+    fig.update_layout(bargap=0.12, showlegend=False)
+    return _layout(fig, 280)

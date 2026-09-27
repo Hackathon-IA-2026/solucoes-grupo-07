@@ -1,1 +1,1 @@
-"""Telas Streamlit do CurtaMap: só desenham; os cálculos ficam em `curtamap.painel`."""
+"""Tela Streamlit do CurtaMap: só desenha; as regras do aviso ficam em `curtamap.aviso`."""
