@@ -2702,8 +2702,8 @@ deploy.
 
 ### Fatos e evidências observados
 
-- **Ocorrências:** havia 501, em 85 arquivos: `curtamap` (397), `CurtaMap` (86), `CURTAMAP` (12)
-  e `Curtamap` (6).
+- **Ocorrências:** havia 501, em 85 arquivos, em quatro grafias (minúsculas no pacote e nos
+  módulos, maiúsculas nas variáveis de ambiente e a forma de marca nos textos).
 - **Modelo:** o artefato foi salvo com `joblib`, e o pickle guarda o caminho do módulo
   `…previsao.modelo`. Ao renomear o pacote, o arquivo antigo não carregaria mais.
 
