@@ -24,6 +24,10 @@ _CSS = f"""
 .stApp {{ background: {PAPEL}; }}
 #MainMenu, footer, header[data-testid="stHeader"] {{ visibility: hidden; height: 0; }}
 .block-container {{ padding-top: 2.4rem; padding-bottom: 3rem; max-width: 1360px; }}
+/* A Instrument Serif só tem peso 400; um contorno fino da própria cor equivale a um passo
+   acima sem o negrito sintético do navegador. */
+.cm-mast h1, .cm-valor, .cm-acerto h4, .cm-acerto .num, .cm-secao, .cm-aviso h3, .cm-hora {{
+  -webkit-text-stroke: 0.6px currentColor; }}
 .cm-kicker {{ font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
   color: {TEXTO_SUAVE}; font-weight: 500; }}
 .cm-kicker b {{ color: {TINTA}; font-weight: 600; }}
