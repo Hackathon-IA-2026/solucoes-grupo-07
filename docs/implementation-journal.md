@@ -2292,3 +2292,226 @@ Etapa 2. O responsável pediu uma reconstrução do zero, na branch
 4. **Sexta:** ensaiar a demo com a rede desligada.
 5. **Opcional:** provedor LLM atrás de interface, desligado por padrão, que só reescreve o
    resumo determinístico.
+## 2026-09-23 - Etapa 3: recomendação rastreável e cenários de impacto
+
+### 1. Contexto e pergunta
+
+Com o contrato de previsão estabilizado e a escolha do modelo ainda independente, a pergunta foi:
+como transformar 48 janelas de previsão em uma decisão útil ao gerador sem prometer recuperação,
+receita, ressarcimento ou benefício climático? A implementação também precisava alimentar a visão
+tática com histórico observado e preservar integralmente o teste reservado a partir de 01/05/2026.
+
+### 2. Fatos e evidências observados
+
+- A taxonomia oficial distingue REL (indisponibilidade externa), CNF (confiabilidade), ENE
+  (impossibilidade de alocar geração na carga) e PAR (limite indicado no parecer de acesso). A
+  NT-ONS DOP 0022/2025 informa que os comandos chegam pelo SINapse, podem mudar ao longo do dia e
+  que a referência final para eventual ESS é apurada em eventos REL.
+- O MME publicou para o LRCAP Armazenamento 2026 requisitos mínimos de 30 MW, quatro horas e 85%
+  de eficiência total. O PDE 2030 da EPE usa 90% como premissa de eficiência de ciclo de bateria.
+- Para sensibilidade financeira, a CCEE publicou em 2025 piso de R$ 58,60/MWh, teto de
+  R$ 751,73/MWh e expectativa média de R$ 310,29/MWh em junho para SE/CO, NE e N. Esses números
+  não são o contrato do gerador.
+- A planilha 2025 do MCTI para a margem de operação do SIN tem mínimo mensal de 0,2146,
+  média aritmética de 0,4124667 e máximo de 0,5780 tCO₂/MWh. São fatores de cenário de emissão
+  deslocada, não créditos certificados.
+- Uma emissão reconstituída somente com dados anteriores a maio, `t0 = 29/04/2026 10h` e corte de
+  dados em 28/04 00h, leu 310.464 linhas dos 28 dias anteriores, produziu 11.088 janelas e 500
+  episódios. Para `fotovoltaica + CJU_MGARN`, o baseline indicou ENE de 12h a 14h e 148,14 MWh
+  em risco. Sob a bateria de referência, os cenários deram 51/54/54 MWh, R$ 2.988,60 /
+  R$ 16.755,66 / R$ 40.593,42 e 10,9446 / 22,2732 / 31,2120 tCO₂.
+
+### 3. Interpretação e decisão
+
+Alertas consecutivos são agrupados somente dentro de `fonte + id_ons + t0`; assim, não se somam
+emissões sobrepostas nem entidades homônimas de fontes diferentes. Se a causa variar ou faltar em
+qualquer janela, o episódio fica com causa indeterminada em vez de escolher uma causa dominante.
+
+As ações são determinísticas: preservar evidências para REL, coordenar operação para CNF, avaliar
+armazenamento para ENE, revisar o parecer para PAR e validar a causa quando ela for nula. Somente
+ENE recebe energia recuperável nesta versão, limitada por energia em risco, potência × duração,
+capacidade e eficiência. As demais ficam em zero porque não existe premissa defensável que converta
+coordenação ou estudo em MWh. Preço ou carbono ausente produz nulo.
+
+### 4. Alternativas consideradas
+
+- Dividir episódios quando a causa muda: rejeitado, pois o requisito temporal define o episódio
+  pela continuidade do alerta; a causa do episódio fica nula de modo conservador.
+- Eleger a causa com maior energia prevista: rejeitado, porque criaria uma causa que o contrato não
+  observou de forma uniforme e poderia direcionar a ação errada.
+- Aplicar uma fração genérica de recuperação a todas as causas: rejeitado por falta de fonte.
+- Usar PLD como receita ou REL como ressarcimento automático: rejeitado; ambos dependem de contrato,
+  apuração e regulação.
+- Preencher premissas faltantes com valores típicos: rejeitado. A ausência permanece nula e a
+  recuperação não quantificada fica em zero.
+
+### 5. Implementação e validação
+
+O ciclo TDD começou com falha de importação de `curtamap.recommendation`. Os testes foram escritos
+antes para episódio único, continuidade, janela sem alerta, fontes iguais com o mesmo `id_ons`,
+causa nula, energia nula, todas as causas inclusive PAR, premissas ausentes, limite da recuperação,
+proveniência e resumo tático semanal/mensal. Depois foram implementados:
+
+- `group_risk_windows`, `recommendation_rule`, `build_recommendations` e `impact_sensitivity`;
+- premissas versionadas em `configs/premissas/v1.json`;
+- `summarize_history`, que chama `derive_targets` e agrega entidade, período, causa, UF e subsistema;
+- documentação completa em `docs/recommendation-rules.md` e atualização do pitch.
+
+Todas as recomendações produzidas passam por `validate_recommendations`. A validação final executou
+`uv run pytest` (**167 testes aprovados**), `uv run ruff check .` e
+`uv run ruff format --check .`, ambos limpos. Nenhuma chamada usou `allow_reserved_test=True`; a
+função tática recusa explicitamente qualquer linha a partir de 01/05/2026.
+
+### 6. Limitações e incertezas
+
+- A bateria de 30 MW/120 MWh é referência setorial, não um ativo conhecido da entidade.
+- O preço base é uma expectativa mensal publicada para junho/2025; não é preço por submercado e
+  hora do episódio nem condição contratual do gerador.
+- O fator MCTI representa margem de operação; o resultado não é inventário nem redução certificada.
+- O baseline copia o horário recente, tem probabilidades 0/1 e ainda será substituído ou confirmado
+  pela Etapa 2C. A emissão reconstituída não é evidência de uma decisão real tomada em 29/04.
+- `id_ons` pode representar conjunto, não usina física. Estado de carga, topologia, habilitação e
+  espaço para descarga futura não estão no contrato.
+- PAR não é uma causa produzida pelo preditor atual, mas sua regra pública existe para histórico e
+  futuras entradas compatíveis, sem alterar `FORECAST_SCHEMA`.
+
+### 7. Valor para o usuário e para a apresentação
+
+O gerador recebe uma janela, uma ação compatível com a causa, a antecedência e os limites que
+precisa conferir. O pitch ganha um exemplo auditável em que 148,14 MWh em risco não viram uma
+promessa: o cenário limita a 51–54 MWh e mostra a origem de cada número. Isso materializa a tese
+do CurtaMap: IA prevê; regras e premissas visíveis transformam previsão em decisão responsável.
+
+### 8. Próximos passos
+
+1. Validar as cinco ações e o texto de antecedência com operadores de geradores e especialistas em
+   comercialização/regulação.
+2. Substituir potência, capacidade, eficiência, estado de carga e preço de referência por dados do
+   ativo/contrato, mantendo nulo quando não houver integração confiável.
+3. Decidir com o responsável se preço horário por submercado entra numa futura versão de premissas.
+4. Integrar a saída contratual na interface da Etapa 4 sem importar o módulo experimental.
+5. Após a Etapa 2C, repetir a história com o preditor escolhido e liberar o teste reservado somente
+   pelo processo metodológico aprovado.
+
+## 2026-09-23 — Auditoria Etapa 3: isole os testes legados do período reservado
+
+### Contexto, fatos e decisão
+
+Antes de executar a suíte da auditoria, a leitura do código encontrou dois caminhos incompatíveis
+com a proteção da Etapa 2C: `tests/test_forecasting.py` passava explicitamente a opção de liberação
+do teste; `tests/test_notebook.py` podia abrir os outputs históricos ou executar integralmente a
+EDA da Etapa 1. Esses caminhos **não foram executados nesta auditoria**.
+
+O teste de previsão passou a verificar a fronteira permitida (horizonte terminando exatamente em
+01/05/2026, limite exclusivo), sem liberação. Os dois testes do notebook ficam explicitamente
+ignorados até decisão da 2C. Isso protege a execução padrão dos testes; não cria uma barreira
+universal contra scripts antigos de EDA ou acesso direto aos arquivos.
+
+### Alternativa, validação e limitação
+
+Usar uma variável de ambiente para contornar a proteção foi descartado. A revisão relevante usa
+`uv run pytest tests/test_forecasting.py tests/test_notebook.py`, Ruff e formatação desses arquivos.
+As verificações dos outputs antigos e da execução integral do notebook ficam deliberadamente
+pendentes. O notebook não foi aberto nem reexecutado. Próximo passo: concluir a auditoria do
+backend com fixtures sintéticas e um recorte real estritamente anterior a maio/2026.
+
+## 2026-09-23 — Auditoria Etapa 3: corrija limites físicos, nulos e entradas inválidas
+
+### 1. Contexto e pergunta
+
+A auditoria adversarial da entrega `ff8461b` perguntou se os cenários respeitam potência em cada
+meia hora, se desconhecido continua desconhecido e se as fontes sustentam as afirmações.
+
+### 2. Fatos e evidências observados
+
+A primeira execução de 66 casos novos produziu **42 falhas e 24 aprovações**, antes das correções.
+Entradas negativas/não finitas, cenários incompletos, origem inválida, proveniência inconsistente,
+grade irregular e previsão no período reservado não eram integralmente recusados. O resumo tático
+convertia grupo todo nulo em zero e apresentava somas parciais como totais. A ausência de parâmetros
+de bateria também produzia zero. A fórmula agregada superestimava carga quando a energia se
+concentrava em poucas janelas.
+
+Recorte real `[26/04/2026, 28/04/2026)`: 22.176 linhas → 11.088 previsões → 500 recomendações.
+Nenhum dado reservado foi consultado. Para `fotovoltaica + CJU_MGARN`, emissão 29/04 às 10h,
+as quatro janelas de 12h–14h contêm 2,9865 / 83,5655 / 61,4625 / 0,1255 MWh. A 30 MW, a entrada
+máxima é **33,112 MWh**, não 60. Portanto, os **51/54/54 MWh anteriores ficam corrigidos para
+28,1452/29,8008/29,8008 MWh**. São cenários isolados, não despacho garantido.
+
+As fontes primárias confirmam os números de preço e fatores de emissão; R$ 310,29 foi recalculado
+como média ponderada de 720 horas (310,29297222 antes do arredondamento). Os fatores mensais MCTI
+somam 4,9496; a média simples é 0,4124666667. A Portaria MME 136/2026 define energia entregável
+no PMI, tornando necessária a distinção entre capacidade de entrada e de saída. O PDE 2030,
+p. 294, usa 90% em estudo de geração distribuída, não como garantia para BESS centralizado.
+
+A Lei 15.269/2025 e o art. 1º-B da Lei 10.848/2004 tornam incorreta a frase universal
+“somente REL pode ensejar ESS”. As descrições REL/CNF foram corrigidas sem calcular direitos.
+A análise regulatória detalhada e os links ficam no relatório da auditoria.
+
+### 3. Interpretação e decisão
+
+Premissas v2 passam a ser o padrão: capacidade útil de saída; RTE aplicada uma vez à entrada;
+potência de carga de 30 MW explicitamente hipotética. V1 fica preservada para reprodução da
+convenção anterior. A função de cenário recebe opcionalmente o perfil semi-horário; a construção
+de recomendações sempre o fornece. Sem perfil, a função isolada entrega somente um teto agregado.
+
+Premissas estruturais ausentes dão erro; valor explicitamente nulo com justificativa permanece
+nulo. Como o contrato exige energia recuperável preenchida, `build_recommendations` recusa
+recuperação indeterminada em vez de usar zero. Não se alteraram contratos, preditor ou interface.
+O resumo tático ganhou contagens de volumes nulos/válidos, cortes indeterminados e energia
+conhecida separada; seu total fica nulo se qualquer volume do grupo for desconhecido.
+
+### 4. Alternativas consideradas
+
+Clampear entradas inválidas, escolher outro cenário quando falta base e imputar zero foram
+rejeitados. Simular SOC, topologia, descarga futura, lucro líquido ou certificação climática sem
+dados do ativo também foi rejeitado. Uma proposta separada de evolução do contrato é necessária.
+
+### 5. Implementação e validação
+
+`assumptions.py`, `recommendation.py`, premissas v2 e regressões adversariais. TDD Red–Green,
+seguido de testes de fronteira, perfil, overflow, conservação, ordenação de cenários e integração
+sintética e real `load_history → SameSlotRecentBaseline → build_recommendations`.
+`uv run pytest`: **241 aprovados, 2 ignorados** (notebook protegido); Ruff, formatação de 44
+arquivos e `git diff --check` passaram. Execução real: leitura 0,584 s, previsão 0,053 s,
+recomendação 0,116 s, resumo 0,006 s. RSS máximo do processo: 722.534.400 bytes; não equivale ao
+tamanho do frame (histórico: 2.261.328 bytes). Não houve pandas nem benchmark da base integral.
+
+### 6–8. Limitações, valor e próximos passos
+
+A correção reduz uma superestimação concreta do pitch. Mesmo a energia corrigida depende de
+ativo, SOC, conexão e descarga viável; não somar cenários de episódios como plano de operação.
+Carbono continua sensibilidade histórica, não efeito causal; valor é bruto, não receita líquida
+ou compensação. Próximos passos: relatório e handoff da Etapa 4, proposta de contrato para
+indeterminação, decisão da 2C e entrevistas com operadores/comercialização/regulação/BESS.
+
+## 2026-09-23 — Auditoria Etapa 3: consolide evidências, corrigenda e handoff
+
+### Contexto e fatos
+
+A auditoria foi consolidada em `docs/reviews/astra-stage3-audit.md`, com as doze seções solicitadas,
+vereditos por premissa/causa, severidade e linhas de código, decisões pendentes e limites da própria
+verificação. `stage3-evidence.json` preserva metadados/checksums das fontes, células MCTI, cálculo
+ponderado CCEE e execução real de dois dias. Foram consultados diretamente ONS, MCTI, MME, EPE,
+CCEE e legislação no Planalto. Falhas de acesso a REN/RO e aos anexos da Portaria 140 foram
+registradas; snippets e fontes secundárias não serviram como confirmação.
+
+### Interpretação, decisões e alternativas
+
+A conclusão é demonstrabilidade condicionada, não aprovação de produto operacional. As regras e
+o pitch receberam correções **posteriores e identificadas**, preservando o registro anterior:
+51–54 MWh não são mais o cenário vigente do exemplo. A referência final REL publicada não implica
+exclusividade jurídica de compensação. O carbono calculado não é redução causal/líquida.
+
+O handoff da Etapa 4 lista funções, schemas, estados nulos, filtros, ordenação, avisos, exemplo e
+testes de integração. O roteiro de cinco perfis humanos permanece pendente, sem entrevistas
+inventadas. A proposta de contrato para energia indeterminada e motivos de ausência ficou
+separada, não implementada. Não houve edição da interface, contrato ou preditor.
+
+### Validação, valor e próximos passos
+
+A validação da implementação registrou 241 testes aprovados e dois ignorados por proteção do
+período reservado; lint, formato e diff limpos. A documentação foi confrontada com linhas reais,
+JSON numérico e funções públicas. A revisão final repete os quatro comandos exigidos.
+O valor para o pitch é demonstrar uma decisão rastreável e uma correção adversarial real, sem
+converter cenário em benefício comprovado. Próximos passos: integrar o handoff, realizar entrevistas,
+resolver o contrato separadamente e aguardar a Etapa 2C. Sem push ou merge nesta auditoria.

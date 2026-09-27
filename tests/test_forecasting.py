@@ -188,9 +188,8 @@ def test_reserved_test_period_is_blocked_by_default():
     history = _history(_row(datetime(2026, 4, 20, 10)))
     with pytest.raises(ValueError, match="teste reservado"):
         SameSlotRecentBaseline().predict(history, t0, nightly_cutoff(t0))
-    allowed = SameSlotRecentBaseline().predict(
-        history, t0, nightly_cutoff(t0), allow_reserved_test=True
-    )
+    boundary = RESERVED_TEST_START - timedelta(days=1)
+    allowed = SameSlotRecentBaseline().predict(history, boundary, nightly_cutoff(boundary))
     assert allowed.height == HORIZONS
 
 

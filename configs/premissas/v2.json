@@ -1,0 +1,125 @@
+{
+  "versao": "premissas_v2",
+  "consultado_em": "2026-09-23",
+  "aviso": "Cenarios de referencia, nao garantia de recuperacao, receita, compensacao ou reducao certificada de emissoes.",
+  "cenarios": {
+    "baixo": {
+      "preco_energia_brl_mwh": {
+        "valor": 58.6,
+        "unidade": "BRL/MWh",
+        "fonte": "CCEE, piso do PLD em 2025",
+        "url": "https://www.ccee.org.br/documents/80415/30094498/86%20-%20InfoBandeira%20Tarif%C3%A1ria_2025_06.pdf/d2abc6e2-fa3e-43f5-02d4-12bfde14c070",
+        "consultado_em": "2026-09-23"
+      },
+      "fator_emissao_tco2_mwh": {
+        "valor": 0.2146,
+        "unidade": "tCO2/MWh",
+        "fonte": "MCTI, menor fator mensal da margem de operacao do SIN em 2025 (marco)",
+        "url": "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Despacho_2025_jandez_corrigidacomMO.xlsx",
+        "consultado_em": "2026-09-23"
+      },
+      "armazenamento": {
+        "potencia_mw": {
+          "valor": 30.0,
+          "unidade": "MW",
+          "fonte": "Hipótese de carga a 30 MW; escala inspirada no mínimo de potência de saída do art. 7 III da Portaria MME 136/2026, não potência de carga comprovada",
+          "url": "https://www.gov.br/mme/pt-br/acesso-a-informacao/legislacao/portarias/2026/portaria-normativa-mme-n-136-2026.pdf",
+          "consultado_em": "2026-09-23"
+        },
+        "capacidade_mwh": {
+          "valor": 120.0,
+          "unidade": "MWh",
+          "fonte": "30 MW vezes 4 h = 120 MWh úteis entregáveis no PMI, art. 2 §§ 3 e 5 e art. 7 da Portaria MME 136/2026; cenário com toda a capacidade disponível",
+          "url": "https://www.gov.br/mme/pt-br/acesso-a-informacao/legislacao/portarias/2026/portaria-normativa-mme-n-136-2026.pdf",
+          "consultado_em": "2026-09-23"
+        },
+        "eficiencia": {
+          "valor": 0.85,
+          "unidade": "fracao",
+          "fonte": "MME Portaria 136/2026 art. 7 VI: mínimo de RTE ao PMI, cenário e não dado do ativo",
+          "url": "https://www.gov.br/mme/pt-br/acesso-a-informacao/legislacao/portarias/2026/portaria-normativa-mme-n-136-2026.pdf",
+          "consultado_em": "2026-09-23"
+        }
+      }
+    },
+    "base": {
+      "preco_energia_brl_mwh": {
+        "valor": 310.29,
+        "unidade": "BRL/MWh",
+        "fonte": "CCEE, expectativa de PLD medio de junho de 2025 para SE/CO, NE e N",
+        "url": "https://www.ccee.org.br/documents/80415/30094498/86%20-%20InfoBandeira%20Tarif%C3%A1ria_2025_06.pdf/d2abc6e2-fa3e-43f5-02d4-12bfde14c070",
+        "consultado_em": "2026-09-23"
+      },
+      "fator_emissao_tco2_mwh": {
+        "valor": 0.4124666666666667,
+        "unidade": "tCO2/MWh",
+        "fonte": "Media aritmetica calculada dos 12 fatores mensais da margem de operacao do SIN publicados pelo MCTI para 2025",
+        "url": "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Despacho_2025_jandez_corrigidacomMO.xlsx",
+        "consultado_em": "2026-09-23"
+      },
+      "armazenamento": {
+        "potencia_mw": {
+          "valor": 30.0,
+          "unidade": "MW",
+          "fonte": "Hipótese de carga a 30 MW; escala inspirada no mínimo de potência de saída do art. 7 III da Portaria MME 136/2026, não potência de carga comprovada",
+          "url": "https://www.gov.br/mme/pt-br/acesso-a-informacao/legislacao/portarias/2026/portaria-normativa-mme-n-136-2026.pdf",
+          "consultado_em": "2026-09-23"
+        },
+        "capacidade_mwh": {
+          "valor": 120.0,
+          "unidade": "MWh",
+          "fonte": "30 MW vezes 4 h = 120 MWh úteis entregáveis no PMI, art. 2 §§ 3 e 5 e art. 7 da Portaria MME 136/2026; cenário com toda a capacidade disponível",
+          "url": "https://www.gov.br/mme/pt-br/acesso-a-informacao/legislacao/portarias/2026/portaria-normativa-mme-n-136-2026.pdf",
+          "consultado_em": "2026-09-23"
+        },
+        "eficiencia": {
+          "valor": 0.9,
+          "unidade": "fracao",
+          "fonte": "EPE PDE 2030 p. 294: hipótese de eficiência de ciclo de LFP em estudo de geração distribuída; transferência ao cenário centralizado não validada",
+          "url": "https://www.epe.gov.br/sites-pt/publicacoes-dados-abertos/publicacoes/PublicacoesArquivos/publicacao-490/PDE%202030_RevisaoPosCP_rv2.pdf",
+          "consultado_em": "2026-09-23"
+        }
+      }
+    },
+    "alto": {
+      "preco_energia_brl_mwh": {
+        "valor": 751.73,
+        "unidade": "BRL/MWh",
+        "fonte": "CCEE InfoBandeira junho/2025 tabela 17: teto estrutural do PLD de 2025, não teto horário nem preço do episódio",
+        "url": "https://www.ccee.org.br/documents/80415/30094498/86%20-%20InfoBandeira%20Tarif%C3%A1ria_2025_06.pdf/d2abc6e2-fa3e-43f5-02d4-12bfde14c070",
+        "consultado_em": "2026-09-23"
+      },
+      "fator_emissao_tco2_mwh": {
+        "valor": 0.578,
+        "unidade": "tCO2/MWh",
+        "fonte": "MCTI, maior fator mensal da margem de operacao do SIN em 2025 (novembro)",
+        "url": "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao/arquivo/Despacho_2025_jandez_corrigidacomMO.xlsx",
+        "consultado_em": "2026-09-23"
+      },
+      "armazenamento": {
+        "potencia_mw": {
+          "valor": 30.0,
+          "unidade": "MW",
+          "fonte": "Hipótese de carga a 30 MW; escala inspirada no mínimo de potência de saída do art. 7 III da Portaria MME 136/2026, não potência de carga comprovada",
+          "url": "https://www.gov.br/mme/pt-br/acesso-a-informacao/legislacao/portarias/2026/portaria-normativa-mme-n-136-2026.pdf",
+          "consultado_em": "2026-09-23"
+        },
+        "capacidade_mwh": {
+          "valor": 120.0,
+          "unidade": "MWh",
+          "fonte": "30 MW vezes 4 h = 120 MWh úteis entregáveis no PMI, art. 2 §§ 3 e 5 e art. 7 da Portaria MME 136/2026; cenário com toda a capacidade disponível",
+          "url": "https://www.gov.br/mme/pt-br/acesso-a-informacao/legislacao/portarias/2026/portaria-normativa-mme-n-136-2026.pdf",
+          "consultado_em": "2026-09-23"
+        },
+        "eficiencia": {
+          "valor": 0.9,
+          "unidade": "fracao",
+          "fonte": "EPE PDE 2030 p. 294: hipótese de eficiência de ciclo de LFP em estudo de geração distribuída; transferência ao cenário centralizado não validada",
+          "url": "https://www.epe.gov.br/sites-pt/publicacoes-dados-abertos/publicacoes/PublicacoesArquivos/publicacao-490/PDE%202030_RevisaoPosCP_rv2.pdf",
+          "consultado_em": "2026-09-23"
+        }
+      }
+    }
+  },
+  "base_capacidade": "saida_util"
+}

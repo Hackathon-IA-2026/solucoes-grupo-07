@@ -94,3 +94,57 @@ Para cada decisão relevante, anote:
 - Exemplo de recomendação rastreável: Etapa 3.
 - Cenários de impacto e sensibilidade: Etapa 3.
 - Limitações assumidas publicamente: ver a seção de credibilidade acima; revisar a cada etapa.
+
+## Etapa 3 — recomendação e impacto (23/09/2026)
+
+> **Resultado superado pela auditoria posterior abaixo.** Não usar os 51–54 MWh ou os
+> respectivos valores financeiro/climático deste registro como cenário vigente.
+
+### Exemplo rastreável para a demonstração
+
+| Afirmação | Estado | Evidência |
+|---|---|---|
+| Emissão reconstituída de 29/04/2026 10h para `CJU_MGARN`: episódio ENE de 12h–14h e 148,14 MWh em risco | **Saída do baseline sobre dados reais anteriores ao teste reservado**; não é decisão operacional ocorrida | `recommendation.py`; história e método em `recommendation-rules.md` |
+| Bateria de referência: 30 MW, quatro horas, 120 MWh e 85%/90% de eficiência | **Premissa externa de cenário**; não afirma que a entidade possua bateria | MME, LRCAP Armazenamento 2026; EPE, PDE 2030; `configs/premissas/v1.json` |
+| Energia recuperável: 51 MWh (baixo) e 54 MWh (base/alto) | **Cenário calculado**, limitado por potência × duas horas e eficiência; não garantia | `impact_sensitivity`; testes da Etapa 3 |
+| Valor: R$ 2.988,60 / R$ 16.755,66 / R$ 40.593,42 | **Cenário financeiro**, energia recuperável × proxies de PLD; não receita, ressarcimento ou liquidação | CCEE: R$ 58,60 / 310,29 / 751,73 por MWh; premissas v1 |
+| CO₂ indicativo: 10,9446 / 22,2732 / 31,2120 tCO₂ | **Cenário climático**, não redução certificada | MCTI: margem de operação 2025 baixa/média/alta; premissas v1 |
+
+Mensagem recomendada no palco: **“O CurtaMap não promete recuperar 148 MWh. Ele mostra que, sob
+um ativo e regras explícitas, até 51–54 MWh entram no cenário; o gerador vê exatamente de onde
+vieram preço, carbono, eficiência e limites.”**
+
+### Limites que precisam acompanhar qualquer número
+
+- O exemplo usa um conjunto `id_ons`, não necessariamente uma usina física individual.
+- O baseline repete o mesmo horário recente e ainda não é o modelo selecionado na Etapa 2C.
+- PLD é sensibilidade, não preço contratual; somente REL tem tratamento específico de referência
+  final/ESS nas regras citadas, e mesmo REL exige apuração.
+- Armazenar depende de ativo, estado de carga, conexão, contrato, regulação e comando operacional.
+- O fator MCTI é uma premissa de emissão deslocada; o resultado não é crédito de carbono.
+
+## Correção posterior da Etapa 3 — auditoria adversarial (23/09/2026)
+
+**A evidência mudou:** o limite de potência por meia hora reduz o exemplo divulgado acima.
+O recorte real permitido `[26/04/2026, 28/04/2026)` reproduziu os 148,14 MWh em risco para
+`fotovoltaica + CJU_MGARN` na emissão 29/04/2026 10h, episódio 12h–14h. Seu perfil é
+2,9865 / 83,5655 / 61,4625 / 0,1255 MWh. Uma carga a 30 MW absorve no máximo **33,112 MWh**
+nessas janelas; o cálculo antigo tratava o excedente como se pudesse ser deslocado dentro do episódio.
+
+| Afirmação vigente | Estado | Evidência |
+|---|---|---|
+| Recuperável de referência: 28,1452 / 29,8008 / 29,8008 MWh | Cenário corrigido por janela, não recuperação realizada | `reviews/stage3-evidence.json`; teste de regressão do perfil; `premissas_v2` |
+| Valor bruto: R$ 1.649,31 / R$ 9.246,89 / R$ 22.402,16 | Sensibilidade histórica, não receita, lucro ou ESS | Mesmas proxies CCEE verificadas; 751,73 é teto estrutural de 2025 |
+| Emissões indicativas: 6,03996 / 12,29184 / 17,22486 tCO₂ | Potencial deslocamento condicionado; sem contrafactual validado | Fatores mensais MCTI 2025 recalculados; não redução líquida/certificada |
+| 30 MW/120 MWh não dimensionam a usina | Escala inspirada em requisitos de leilão, potência de carga hipotética | Portaria MME 136/2026; v2 usa energia útil de saída e RTE uma única vez |
+| REL não é uma regra universal de exclusividade de compensação | Correção regulatória | [Lei 10.848 consolidada, art. 1 §§10–11 e art. 1º-B](https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2004/lei/l10.848.htm) |
+
+Mensagem substituta para a apresentação: **“Em um exemplo reconstituído, 148 MWh em risco viram
+um cenário de cerca de 30 MWh na saída de uma bateria hipotética. O limite por meia hora faz
+diferença. Mostramos as premissas e o que o operador ainda precisa confirmar.”**
+
+Se for exibido dinheiro ou carbono, os avisos devem aparecer junto ao número. Não somar cenários
+de episódios como operação factível. O direito financeiro do agente depende de apuração,
+contrato, período e regulação; não é produzido pelo CurtaMap. Nenhum especialista foi entrevistado
+nesta auditoria. A qualidade preditiva depende da Etapa 2C e a integração visual da Etapa 4.
+O [relatório](reviews/astra-stage3-audit.md) registra as lacunas e o roteiro de validação humana.
