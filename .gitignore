@@ -15,6 +15,11 @@ models/*
 !data/**/.gitkeep
 !data/README.md
 !models/.gitkeep
+# Exceção: só o modelo servido hoje (2,2 MB), para a imagem Docker não depender do S3.
+!models/previsao/
+models/previsao/*
+!models/previsao/diario_ocorrencia_v1_2026-08-30.joblib
+!models/previsao/diario_ocorrencia_v1_2026-08-30.json
 
 # Artefatos locais
 .streamlit/secrets.toml

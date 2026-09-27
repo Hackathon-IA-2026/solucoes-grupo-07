@@ -1,0 +1,45 @@
+{
+  "versao": "diario_ocorrencia_v1",
+  "treino_ate": "2026-08-30",
+  "janela_treino_dias": 365,
+  "linhas_treino": {
+    "eolica": 2714688,
+    "fotovoltaica": 1309584
+  },
+  "features_ocorrencia": [
+    "hist_7d",
+    "hist_28d",
+    "hist_91d",
+    "ultimo_slot",
+    "usina_nivel_ultimo",
+    "usina_nivel_7d",
+    "estado_nivel_ultimo",
+    "estado_nivel_7d",
+    "estado_nivel_28d",
+    "estado_ene_7d",
+    "idade",
+    "dia_semana",
+    "feriado",
+    "slot"
+  ],
+  "parametros": {
+    "max_iter": 300,
+    "learning_rate": 0.05,
+    "max_leaf_nodes": 31,
+    "min_samples_leaf": 200,
+    "early_stopping": false,
+    "random_state": 0
+  },
+  "semente": 0,
+  "servico": {
+    "ocorrencia": "modelo",
+    "causa": "usina_28d",
+    "volume": "nao_previsto"
+  },
+  "dados": "data/raw (snapshot do hackathon)",
+  "limiares_alerta": {
+    "eolica": 0.3461,
+    "fotovoltaica": 0.3212
+  },
+  "treinado_em": "2026-09-26T22:28:29"
+}
