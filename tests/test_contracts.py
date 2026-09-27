@@ -151,6 +151,15 @@ def test_missing_probability_requires_reason():
     assert validate_forecast(_forecast(explained)).height == 1
 
 
+def test_occurrence_without_volume_is_a_valid_forecast():
+    row = _forecast_row(
+        volume_condicional_mwmed=None,
+        volume_esperado_mwmed=None,
+        energia_esperada_mwh=None,
+    )
+    assert validate_forecast(_forecast(row)).height == 1
+
+
 def test_missing_cause_requires_reason():
     row = _forecast_row(causa_prevista=None, p_causa_rel=None, p_causa_cnf=None, p_causa_ene=None)
     with pytest.raises(ContractError, match="motivo_sem_causa"):

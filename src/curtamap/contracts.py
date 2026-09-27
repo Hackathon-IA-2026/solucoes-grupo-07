@@ -202,7 +202,8 @@ def validate_forecast(frame: pl.DataFrame) -> pl.DataFrame:
         "volume_p10_mwmed maior que volume_p90_mwmed",
     )
 
-    no_forecast = col("p_corte").is_null() | col("volume_esperado_mwmed").is_null()
+    # Volume é opcional: o produto pode prever só a ocorrência.
+    no_forecast = col("p_corte").is_null()
     _require(
         frame,
         no_forecast & _not_blank("motivo_sem_previsao"),
