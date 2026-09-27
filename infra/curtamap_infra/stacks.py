@@ -29,7 +29,7 @@ from constructs import Construct
 
 CONTAINER_PORT = 8501
 HEALTH_PATH = "/_stcore/health"
-DATA_PREFIX = "raw/"
+DATA_PREFIX = "processed/"
 MODEL_PREFIX = "models/previsao/"
 
 

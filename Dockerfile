@@ -30,7 +30,7 @@ COPY src ./src
 COPY configs ./configs
 RUN uv sync --frozen --no-dev --extra aws \
     && useradd --create-home --uid 1000 curtamap \
-    && mkdir -p /app/data/raw /app/models/previsao \
+    && mkdir -p /app/data/processed /app/models/previsao \
     && chown -R curtamap:curtamap /app/data /app/models
 
 USER curtamap

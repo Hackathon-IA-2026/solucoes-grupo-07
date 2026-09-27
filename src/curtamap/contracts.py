@@ -22,10 +22,11 @@ CONTRACT_VERSION = "1"
 TIMEZONE = "America/Sao_Paulo"
 HORIZONS = 48
 STEP = timedelta(minutes=30)
-# Setembro de 2026 (publicado pelo ONS depois do snapshot do hackathon) é o teste
-# independente da nova Etapa 2. Maio–agosto de 2026, reservado pela Etapa 2A, foi consumido em
-# 25/09/2026 e passou a ser período de desenvolvimento. Nada do produto (fixtures, demo,
-# números de impacto) pode ler setembro antes da validação final congelada.
+# Setembro de 2026 (publicado pelo ONS depois do snapshot do hackathon) foi o teste
+# independente da nova Etapa 2, encerrado e congelado. Maio–agosto de 2026, reservado pela
+# Etapa 2A, foi consumido em 25/09/2026. A guarda continua valendo na previsão ao vivo; depois
+# da validação (27/09/2026), o único caminho do produto que lê setembro é o arquivo de avisos
+# (`curtamap.previsao.avisos`), que converte as previsões avaliadas sem repontuar.
 RESERVED_TEST_START = datetime(2026, 9, 1)
 
 SOURCES = ("eolica", "fotovoltaica")
