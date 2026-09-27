@@ -2620,3 +2620,74 @@ Com a premissa fechada (aviso na véspera, sem volume), o responsável pediu tr�
 - Propor as atualizações de `AGENTS.md` e `docs/architecture.md`.
 - Depois do pitch: job noturno de emissão, remoção das colunas de volume do contrato e limpeza da
   documentação.
+
+## 2026-09-27 - Produto final (2/n): aviso ao vivo e imagem para o ECS
+
+### Contexto e pergunta
+
+O responsável quer que a banca possa usar o produto por alguns dias depois da final. Para isso,
+o aviso precisa ser emitido de verdade todo dia, e a imagem precisa subir no ambiente AWS do
+hackathon.
+
+### Fatos e evidências observados
+
+- **Ambiente AWS (PDF da organização):**
+  - só as regiões us-east-1 e us-west-2;
+  - provisionamento por CloudFormation ou CDK;
+  - papel IAM criado pelo time só pode ser passado a alguns serviços.
+- **Stack da equipe:** sobe uma imagem pública no ECS Fargate sem nenhum papel. Logo, o contêiner
+  não tem credenciais da AWS.
+- **Publicação do ONS:** o arquivo mensal é público e pequeno (3,5 MB na eólica e 1,2 MB na solar
+  em setembro). Em 26/09, ele foi atualizado às 19h06, no horário de Brasília.
+- **Rodada real:** emitiu 26 e 27/09 em 21 segundos.
+- **Conferência:** o dia 24/09, emitido ao vivo, difere da validação em 0,011 de risco médio
+  (máximo de 0,25) e mantém 99% dos alertas. A diferença vem das revisões do ONS sobre o snapshot.
+
+### Interpretação e decisão
+
+- **Horários, definidos pelo responsável:**
+  - a rotina baixa os dados às 19h30;
+  - o aviso é emitido às 20h.
+- **Sem banco de dados.** O arquivo `avisos.parquet` cresce um dia por vez, com escrita atômica.
+  A rotina é repetível a partir da fonte pública: ao ligar, ela emite os dias pendentes, até 7.
+- **O corte do histórico** segue o calendário usado no treino. Ele recua se o ONS ainda não
+  publicou um dia inteiro.
+- **Imagem autossuficiente:** leva o modelo e os avisos já emitidos. Saem a sincronização S3 e a
+  stack CDK, que dependiam de papel IAM. Entra o template CloudFormation da equipe.
+
+### Alternativas consideradas
+
+- **DynamoDB ou S3 para os avisos:** descartados. Exigiriam papel IAM, e o Parquet local é
+  suficiente e reconstruível.
+- **Emitir só às 7h30:** descartado. Usaria os dados da noite anterior sem ganho nenhum.
+
+### Implementação e validação
+
+- **Módulo e testes:**
+  - `curtamap.previsao.ao_vivo`, com 9 testes: URL, meses, corte com atraso, pendentes, próximo
+    horário e anexação;
+  - `test_dockerfile.py`, reescrito.
+- **Suíte completa:** 225 testes aprovados e 2 pulados. `ruff` limpo.
+- **Simulação do contêiner:** a rotina em modo contínuo rodou sem erro. O painel exibiu
+  "Hoje, domingo, 27 de setembro", com o aviso emitido ao vivo.
+- **Build:** o Docker não estava disponível nesta máquina, então a imagem não foi construída aqui.
+
+### Limitações e incertezas
+
+- **O contêiner reinicia sem memória:** o armazenamento é efêmero, e a rotina reconstrói só os 7
+  dias mais recentes.
+- **Dependência do ONS:** se o ONS mudar a URL ou atrasar muitos dias, o aviso envelhece. O painel
+  mostra até quando há dados.
+- **Acerto exibido:** continua sendo o medido em setembro. Os avisos novos ainda não têm acerto
+  próprio calculado.
+
+### Valor para o usuário e para a apresentação
+
+- A demo deixa de ser um retrato: a banca pode abrir o painel em dias seguidos e ver o aviso de
+  amanhã emitido às 20h.
+
+### Próximos passos
+
+- Construir e publicar a imagem.
+- Aplicar a stack e testar a URL pública.
+- Atualizar `docs/deploy.md`, que ainda descreve o S3 e o CDK.
